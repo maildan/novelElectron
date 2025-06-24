@@ -1,0 +1,93 @@
+{
+  "name": "loop",
+  "version": "0.1.0",
+  "description": "Loop - 작가를 위한 타이핑 분석 도구",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "dev:next": "next dev src/renderer",
+    "dev:electron": "tsc && electron dist/main/index.js",
+    "build": "tsc && next build src/renderer",
+    "build:electron": "electron-builder",
+    "rebuild": "electron-rebuild",
+    "rebuild:sqlite": "npm rebuild sqlite3 --build-from-source --runtime=electron --target=20.10.0 --dist-url=https://electronjs.org/headers",
+    "rebuild:uiohook": "npm rebuild uiohook-napi --build-from-source --runtime=electron --target=20.10.0",
+    "postinstall": "prisma generate",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "format": "prettier --write src/**/*.{ts,tsx}",
+    "test": "jest",
+    "copilot:keepalive": "node scripts/copilot-keepalive.js",
+    "copilot:start": "concurrently \"npm run dev\" \"npm run copilot:keepalive\"",
+    "gigachad": "echo '🔥 기가차드 모드 활성화!' && npm run copilot:start"
+  },
+  "keywords": [
+    "typing",
+    "analytics",
+    "writer",
+    "productivity",
+    "keyboard",
+    "monitoring"
+  ],
+  "author": "기가차드",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.1",
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^36.5.0",
+    "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9",
+    "eslint": "^9.29.0",
+    "next": "^15.3.4",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.10",
+    "typescript": "^5.8.3",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.10.1",
+    "active-win": "8.1.0",
+    "lucide-react": "^0.522.0",
+    "node-machine-id": "1.1.12",
+    "prisma": "^6.10.1",
+    "sqlite3": "^5.1.7",
+    "uiohook-napi": "1.5.4"
+  },
+  "build": {
+    "appId": "com.gigachad.loop",
+    "productName": "Loop",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/sqlite3/**/*",
+      "node_modules/uiohook-napi/**/*",
+      "node_modules/@prisma/engines/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

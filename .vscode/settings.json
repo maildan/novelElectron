@@ -1,0 +1,77 @@
+{
+  // CSS 검증 완전 비활성화 - 기가차드 스타일
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  "css.lint.enable": false,
+  "css.lint.validProperties": [],
+  "css.lint.unknownAtRules": "ignore",
+  "css.lint.unknownProperties": "ignore",
+  "css.lint.duplicateProperties": "ignore",
+  "css.lint.emptyRules": "ignore",
+  "css.lint.importStatement": "ignore",
+  "css.lint.boxModel": "ignore",
+  "css.lint.universalSelector": "ignore",
+  "css.lint.zeroUnits": "ignore",
+  "css.lint.fontFaceProperties": "ignore",
+  "css.lint.hexColorLength": "ignore",
+  "css.lint.argumentsInColorFunction": "ignore",
+  "css.lint.unknownVendorSpecificProperties": "ignore",
+  "css.lint.ieHack": "ignore",
+  "css.lint.vendorPrefix": "ignore",
+  "css.lint.propertyIgnoredDueToDisplay": "ignore",
+  "css.lint.important": "ignore",
+  "css.lint.float": "ignore",
+  "css.lint.idSelector": "ignore",
+  
+  // Tailwind CSS 설정
+  "css.customData": [".vscode/css_custom_data.json"],
+  "files.associations": {
+    "*.css": "tailwindcss",
+    "globals.css": "tailwindcss"
+  },
+  "tailwindCSS.includeLanguages": {
+    "css": "css",
+    "typescript": "typescript",
+    "javascript": "javascript"
+  },
+  "tailwindCSS.validate": true,
+  "tailwindCSS.lint.cssConflict": "ignore",
+  "tailwindCSS.lint.invalidApply": "ignore",
+  "tailwindCSS.lint.invalidConfigPath": "ignore",
+  "tailwindCSS.lint.invalidScreen": "ignore",
+  "tailwindCSS.lint.invalidTailwindDirective": "ignore",
+  "tailwindCSS.lint.invalidVariant": "ignore",
+  "tailwindCSS.lint.recommendedVariantOrder": "ignore",
+  
+  "emmet.includeLanguages": {
+    "tailwindcss": "css"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "bradlc.vscode-tailwindcss",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "never"
+    }
+  },
+  
+  // 문제 탐지기 강력 비활성화
+  "problems.decorations.enabled": false,
+  "css.problems.enabled": false,
+  "editor.renderValidationDecorations": "off",
+  
+  // 파일 확장자별 처리
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/node_modules": true
+  },
+  
+  // 확장 기능 비활성화
+  "css.completion.completePropertyWithSemicolon": false,
+  "css.completion.triggerPropertyValueCompletion": false,
+  
+  // GitHub Copilot 설정
+  "github.copilot.enable": {
+    "*": true
+  },
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}

@@ -1,0 +1,75 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+.vercel
+
+# Electron
+dist/
+build/
+app/
+release/
+
+# Development
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
+# Logs
+logs/
+*.log
+copilot-keepalive.log
+
+# System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor
+.vscode/settings_backup.json
+.vscode/settings_new.json
+.idea/
+*.swp
+*.swo
+*~
+
+# TypeScript
+*.tsbuildinfo
+
+# Tailwind
+.tailwindcss-cache
+
+# Temporary
+temp/
+tmp/
+.tmp/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Testing
+.jest/
+
+# Misc
+*.tgz
+*.tar.gz
+*.env
