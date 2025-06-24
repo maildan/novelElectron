@@ -22,6 +22,31 @@ export class DashboardIpcHandlers {
     this.mainWindow = window;
   }
 
+  private async ensureDefaultUser(): Promise<string> {
+    try {
+      const prisma = getPrismaClient();
+      
+      // 기본 사용자가 있는지 확인
+      let user = await prisma.user.findFirst();
+      
+      if (!user) {
+        // 기본 사용자 생성
+        user = await prisma.user.create({
+          data: {
+            name: 'Default User',
+            email: 'user@loop.app',
+          }
+        });
+        console.log('🔥 기본 사용자 생성됨:', user.id);
+      }
+      
+      return user.id;
+    } catch (error) {
+      console.error('기본 사용자 확인/생성 오류:', error);
+      throw error;
+    }
+  }
+
   public registerHandlers(): void {
     // 키보드 모니터링 시작/중지
     ipcMain.handle('dashboard:start-monitoring', async () => {
@@ -165,10 +190,13 @@ export class DashboardIpcHandlers {
         const prisma = getPrismaClient();
         const { content, keyCount, typingTime, wpm, accuracy } = logData;
         
+        // 기본 사용자 확인/생성
+        const userId = await this.ensureDefaultUser();
+
         // TypingSession 생성
         const savedSession = await prisma.typingSession.create({
           data: {
-            userId: 'default-user', // TODO: 실제 유저 ID 사용
+            userId: userId, // 기본 사용자 ID 사용
             appName: 'Loop App',
             windowTitle: content || 'Typing Practice',
             duration: Math.floor(typingTime / 1000), // 밀리초를 초로 변환
