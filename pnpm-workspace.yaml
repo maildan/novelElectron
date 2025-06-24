@@ -1,0 +1,13 @@
+ignoredBuiltDependencies:
+  - lzma-native
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - active-win
+  - electron
+  - electron-winstaller
+  - prisma
+  - sharp
+  - sqlite3
+  - uiohook-napi

@@ -1,6 +1,6 @@
 'use client';
 
-import { CommonComponentProps } from '@shared/types';
+import { CommonComponentProps } from '../../../shared/types';
 import { 
   Download,
   RefreshCw,

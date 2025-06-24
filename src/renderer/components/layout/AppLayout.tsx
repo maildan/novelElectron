@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ActiveTab, NavItem } from '@shared/types';
+import { ActiveTab, NavItem } from '../../../shared/types';
+import { AppHeader } from './AppHeader';
 import { 
   Home, 
   BarChart3, 
@@ -39,6 +40,9 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* App Header */}
+      <AppHeader />
+      
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 

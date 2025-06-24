@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CommonComponentProps } from '@shared/types';
+import { CommonComponentProps } from '../../../shared/types';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {

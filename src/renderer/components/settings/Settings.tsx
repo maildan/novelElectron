@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CommonComponentProps } from '@shared/types';
+import { CommonComponentProps } from '../../../shared/types';
 import { 
   Settings as SettingsIcon,
   Edit3,

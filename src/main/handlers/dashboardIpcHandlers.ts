@@ -196,7 +196,7 @@ export class DashboardIpcHandlers {
         // TypingSession 생성
         const savedSession = await prisma.typingSession.create({
           data: {
-            userId: userId, // 기본 사용자 ID 사용
+            userId,
             appName: 'Loop App',
             windowTitle: content || 'Typing Practice',
             duration: Math.floor(typingTime / 1000), // 밀리초를 초로 변환

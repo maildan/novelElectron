@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CommonComponentProps } from '@shared/types';
+import { CommonComponentProps, ProjectData, RecentFile } from '../../../shared/types';
 import { TypingBox } from './TypingBox';
+import { useDashboardIpc } from '../../hooks/useDashboardIpc';
 import { 
   Play, 
   Pause, 
@@ -24,18 +25,31 @@ interface MonitoringData {
 }
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
-  const [isMonitoring, setIsMonitoring] = useState(false);
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
     wpm: 0,
     words: 0,
     time: 0,
   });
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [recentLogs, setRecentLogs] = useState(logs);
+  const [activeProjects, setActiveProjects] = useState<ProjectData[]>([]);
+  const [recentFiles, setRecentFiles] = useState<RecentFile[]>([]);
 
-  // 실시간 모니터링 시뮬레이션 (TODO: Replace with actual IPC)
+  // 🔥 실제 IPC 백엔드 연결
+  const {
+    isMonitoringActive,
+    loading: ipcLoading,
+    startMonitoring,
+    stopMonitoring,
+    getRecentLogs,
+    getStats,
+    saveTypingLog,
+  } = useDashboardIpc();
+
+  // 실시간 모니터링 데이터 업데이트 (TODO: IPC 이벤트 리스너로 교체)
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isMonitoring) {
+    if (isMonitoringActive) {
       interval = setInterval(() => {
         setMonitoringData((prev) => ({
           wpm: Math.floor(Math.random() * 20) + 50,
@@ -45,26 +59,86 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isMonitoring]);
+  }, [isMonitoringActive]);
+
+  // 최근 데이터 로드 (프로젝트, 파일, 로그)
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        // 최근 로그 로드
+        const logsResponse = await getRecentLogs(5);
+        if (logsResponse.success && logsResponse.data) {
+          setRecentLogs(logsResponse.data);
+        }
+
+        // TODO: 실제 프로젝트 데이터 로드 (현재는 임시 데이터)
+        setActiveProjects([
+          { 
+            id: '1', 
+            title: '시간의 강', 
+            progress: 67, 
+            status: '진행중', 
+            deadline: '12월 31일',
+            description: '시간과 기억에 대한 소설',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date()
+          },
+          { 
+            id: '2', 
+            title: '일상의 철학', 
+            progress: 30, 
+            status: '초안', 
+            deadline: '1월 15일',
+            description: '일상 속에서 찾는 철학적 사유',
+            createdAt: new Date('2024-01-15'),
+            updatedAt: new Date()
+          },
+        ]);
+
+        // TODO: 실제 최근 파일 데이터 로드 (현재는 임시 데이터)
+        setRecentFiles([
+          { 
+            id: '1', 
+            name: "chapter-12.md", 
+            project: "시간의 강", 
+            time: "2분 전", 
+            status: "수정됨",
+            path: "/Users/user/Documents/시간의강/chapter-12.md",
+            lastModified: new Date(Date.now() - 2 * 60 * 1000)
+          },
+          { 
+            id: '2', 
+            name: "intro.md", 
+            project: "일상의 철학", 
+            time: "1시간 전", 
+            status: "저장됨",
+            path: "/Users/user/Documents/일상의철학/intro.md",
+            lastModified: new Date(Date.now() - 60 * 60 * 1000)
+          },
+          { 
+            id: '3', 
+            name: "outline.md", 
+            project: "도시 이야기", 
+            time: "3시간 전", 
+            status: "동기화됨",
+            path: "/Users/user/Documents/도시이야기/outline.md",
+            lastModified: new Date(Date.now() - 3 * 60 * 60 * 1000)
+          },
+        ]);
+
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    };
+
+    loadDashboardData();
+  }, [getRecentLogs]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  // TODO: Replace with actual data from IPC
-  const mockRecentFiles = [
-    { name: "chapter-12.md", project: "시간의 강", time: "2분 전", status: "수정됨" },
-    { name: "intro.md", project: "일상의 철학", time: "1시간 전", status: "저장됨" },
-    { name: "outline.md", project: "도시 이야기", time: "3시간 전", status: "동기화됨" },
-  ];
-
-  // TODO: Replace with actual data from IPC  
-  const mockActiveProjects = [
-    { title: "시간의 강", progress: 67, status: "진행중", deadline: "12월 31일" },
-    { title: "일상의 철학", progress: 30, status: "초안", deadline: "1월 15일" },
-  ];
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
@@ -86,9 +160,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           <div className="p-4 space-y-4">
             <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-md">
               💡 <strong>추천 질문:</strong>
-              <br />• "오늘 작성할 내용 아이디어 줘"
-              <br />• "이 문단을 더 매력적으로 써줘"
-              <br />• "캐릭터 설정 도움이 필요해"
+              <br />• &quot;오늘 작성할 내용 아이디어 줘&quot;
+              <br />• &quot;이 문단을 더 매력적으로 써줘&quot;
+              <br />• &quot;캐릭터 설정 도움이 필요해&quot;
             </div>
             <textarea
               placeholder="질문을 입력하세요..."
@@ -123,14 +197,14 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </button>
 
             <button
-              onClick={() => setIsMonitoring(!isMonitoring)}
+              onClick={() => isMonitoringActive ? stopMonitoring() : startMonitoring()}
               className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                isMonitoring 
+                isMonitoringActive 
                   ? "bg-red-600 text-white hover:bg-red-700" 
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
             >
-              {isMonitoring ? (
+              {isMonitoringActive ? (
                 <>
                   <Pause className="w-4 h-4 mr-2 inline" />
                   중지
@@ -153,7 +227,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
       {/* 메인 콘텐츠 */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* 모니터링 패널 */}
-        {isMonitoring && (
+        {isMonitoringActive && (
           <div className="bg-blue-600 text-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -243,8 +317,8 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </div>
 
             <div className="space-y-4">
-              {mockActiveProjects.map((project, index) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+              {activeProjects.map((project: ProjectData, index: number) => (
+                <div key={project.id} className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-slate-900">{project.title}</h4>
                     <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded">
@@ -273,9 +347,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </div>
 
             <div className="space-y-2">
-              {mockRecentFiles.map((file, index) => (
+              {recentFiles.map((file: RecentFile, index: number) => (
                 <div
-                  key={index}
+                  key={file.id}
                   className="flex items-center p-3 bg-slate-50 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
                 >
                   <FileText className="w-4 h-4 text-slate-600 mr-3 flex-shrink-0" />
@@ -354,7 +428,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               첫 번째 타이핑 세션을 시작하면 여기에 기록이 표시됩니다.
             </p>
             <button 
-              onClick={() => setIsMonitoring(true)}
+              onClick={() => startMonitoring()}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Play className="w-4 h-4 mr-2 inline" />

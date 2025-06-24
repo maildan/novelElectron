@@ -1,0 +1,101 @@
+/* ===== CSS Variables & Color Palette ===== */
+/* 🔥 기가차드 WCAG 가이드라인 기반 색상 시스템 */
+
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+  
+  /* ===== 모던 색상 시스템 (라이트 모드) ===== */
+  /* 배경 색상 - 계층 구조 */
+  --bg-primary: rgb(255, 255, 255);         /* 메인 배경 */
+  --bg-secondary: rgb(249, 250, 251);       /* 카드/섹션 배경 */
+  --bg-tertiary: rgb(243, 244, 246);        /* 호버/선택 상태 */
+  
+  /* 텍스트 색상 - 4.5:1 대비 비율 확보 */
+  --text-primary: rgb(17, 24, 39);      /* 주요 텍스트 */
+  --text-secondary: rgb(107, 114, 128); /* 보조 텍스트 */
+  --text-tertiary: rgb(156, 163, 175);  /* 비활성 텍스트 */
+  
+  /* 보더 색상 */
+  --border-primary: rgb(229, 231, 235); /* 일반 보더 */
+  --border-secondary: rgb(209, 213, 219); /* 강조 보더 */
+  
+  /* 액센트 색상 */
+  --accent-primary: rgb(99, 102, 241);  /* 주요 액센트 (보라색) */
+  --accent-hover: rgb(79, 70, 229);     /* 호버 상태 */
+  --success: rgb(34, 197, 94);          /* 성공 (초록색) */
+  --warning: rgb(251, 146, 60);         /* 경고 (주황색) */
+  --error: rgb(239, 68, 68);            /* 에러 (빨간색) */
+  
+  /* 그림자 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  /* 레거시 호환성 */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --primary-color: var(--accent-primary);
+  --text-color: var(--text-primary);
+  --border-color: var(--border-primary);
+  --card-bg: var(--bg-secondary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: rgb(3, 7, 18);
+    --bg-secondary: rgb(15, 23, 42);
+    --bg-tertiary: rgb(30, 41, 59);
+    
+    --text-primary: rgb(248, 250, 252);
+    --text-secondary: rgb(148, 163, 184);
+    --text-tertiary: rgb(100, 116, 139);
+    
+    --border-primary: rgb(51, 65, 85);
+    --border-secondary: rgb(71, 85, 105);
+    
+    --accent-primary: rgb(139, 92, 246);
+    --accent-hover: rgb(124, 58, 237);
+    
+    --background: var(--bg-primary);
+    --foreground: var(--text-primary);
+  }
+}
+
+/* 다크 모드 클래스 */
+.dark {
+  --bg-primary: rgb(3, 7, 18);
+  --bg-secondary: rgb(15, 23, 42);
+  --bg-tertiary: rgb(30, 41, 59);
+  
+  --text-primary: rgb(248, 250, 252);
+  --text-secondary: rgb(148, 163, 184);
+  --text-tertiary: rgb(100, 116, 139);
+  
+  --border-primary: rgb(51, 65, 85);
+  --border-secondary: rgb(71, 85, 105);
+  
+  --accent-primary: rgb(139, 92, 246);
+  --accent-hover: rgb(124, 58, 237);
+  
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+[data-theme='dark'] {
+  --bg-primary: rgb(3, 7, 18);
+  --bg-secondary: rgb(15, 23, 42);
+  --bg-tertiary: rgb(30, 41, 59);
+  
+  --text-primary: rgb(248, 250, 252);
+  --text-secondary: rgb(148, 163, 184);
+  --text-tertiary: rgb(100, 116, 139);
+  
+  --border-primary: rgb(51, 65, 85);
+  --border-secondary: rgb(71, 85, 105);
+  
+  --accent-primary: rgb(139, 92, 246);
+  --accent-hover: rgb(124, 58, 237);
+  
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Log, TypingStats, IpcResponse } from '@shared/types';
+import { Log, TypingStats, IpcResponse } from '../../shared/types';
 
 interface UseLoopDataReturn {
   // 로그 관련

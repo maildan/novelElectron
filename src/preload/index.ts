@@ -7,6 +7,11 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 // API 인터페이스 정의
 export interface ElectronAPI {
+  // 직접 IPC 호출
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, callback: Function) => void;
+  removeAllListeners: (channel: string) => void;
+
   // 앱 정보
   app: {
     getVersion(): Promise<string>;
@@ -32,10 +37,23 @@ export interface ElectronAPI {
     get(key: string): Promise<any>;
     set(key: string, value: any): Promise<boolean>;
   };
+
+  // 윈도우 제어
+  window: {
+    minimize(): Promise<void>;
+    maximize(): Promise<void>;
+    close(): Promise<void>;
+    toggleMaximize(): Promise<void>;
+  };
 }
 
 // API 구현
 const electronAPI: ElectronAPI = {
+  // 직접 IPC 호출
+  invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+  on: (channel, callback) => ipcRenderer.on(channel, callback as any),
+  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
+
   app: {
     getVersion: () => ipcRenderer.invoke('app:getVersion'),
     getPlatform: () => ipcRenderer.invoke('app:getPlatform')
@@ -60,17 +78,17 @@ const electronAPI: ElectronAPI = {
   settings: {
     get: (key) => ipcRenderer.invoke('settings:get', key),
     set: (key, value) => ipcRenderer.invoke('settings:set', key, value)
+  },
+
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    toggleMaximize: () => ipcRenderer.invoke('window:toggle-maximize')
   }
 };
 
 // Context Bridge로 안전하게 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
-
-// 타입 정의 확장 (TypeScript용)
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-  }
-}
 
 console.log('🔗 Preload script loaded - ElectronAPI exposed');

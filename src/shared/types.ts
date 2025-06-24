@@ -61,6 +61,18 @@ export const IPC_CHANNELS = {
   DB_GET_SESSIONS: 'db:get-sessions',
   DB_GET_STATS: 'db:get-stats',
   
+  // 프로젝트 관련
+  PROJECT_GET_ALL: 'project:get-all',
+  PROJECT_GET_ACTIVE: 'project:get-active',
+  PROJECT_CREATE: 'project:create',
+  PROJECT_UPDATE: 'project:update',
+  PROJECT_DELETE: 'project:delete',
+  
+  // 파일 관련
+  FILE_GET_RECENT: 'file:get-recent',
+  FILE_GET_BY_PROJECT: 'file:get-by-project',
+  FILE_TRACK: 'file:track',
+  
   // 설정 관련
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',
@@ -125,4 +137,27 @@ export interface AppSettings {
   // 언어 관련 설정
   defaultLanguage: 'korean' | 'english' | 'japanese' | 'chinese';
   keyboardLayout: string;
+}
+
+// 프로젝트 및 파일 관련 타입
+export interface ProjectData {
+  id: string;
+  title: string;
+  progress: number;
+  status: string;
+  deadline: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface RecentFile {
+  id: string;
+  name: string;
+  project: string;
+  time: string;
+  status: string;
+  path?: string;
+  size?: number;
+  lastModified: Date;
 }
