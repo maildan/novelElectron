@@ -1,4 +1,5 @@
 // 공유 타입 정의 - Main/Preload/Renderer 모든 프로세스에서 사용
+// 🔥 IPC 통신용 간단한 타입들 (내부 분석용이 아닌 프로세스 간 전송용)
 
 // 키보드 이벤트 (DOM KeyboardEvent와 충돌 방지를 위해 커스텀 네이밍)
 export interface LoopKeyboardEvent {
@@ -10,6 +11,7 @@ export interface LoopKeyboardEvent {
 // 한글 자모 쌍 타입 정의
 export type JamoPair = [normal: string, shift?: string];
 
+// IPC용 간단한 타이핑 통계 (UI 표시용)
 export interface TypingStats {
   wpm: number;           // Words Per Minute
   accuracy: number;      // 정확도 (0-100)

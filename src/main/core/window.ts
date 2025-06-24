@@ -23,7 +23,8 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     height: Math.min(900, screenHeight * 0.9),
     minWidth: 800,
     minHeight: 600,
-    show: true, // 즉시 표시
+    show: false, // 준비될 때까지 숨김
+    center: true, // 중앙 배치
     
     // 웹 보안 설정
     webPreferences: {
@@ -55,12 +56,20 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     
     // 준비되면 추가 설정
     mainWindow.once('ready-to-show', () => {
+      console.log('🌐 웹 콘텐츠 로드 완료');
+      
+      // 윈도우 표시
+      mainWindow.show();
+      mainWindow.focus();
+      console.log('✅ 콘텐츠 로드 성공');
+      
       // 개발 환경에서 DevTools 자동 열기
       if (isDev) {
         mainWindow.webContents.openDevTools();
+        console.log('🔥 개발 환경: DevTools 자동 열림!');
       }
       
-      console.log('✅ 메인 윈도우 준비 완료');
+      console.log('✅ 기가차드 메인 윈도우 생성 완료!');
     });
 
   } catch (error) {

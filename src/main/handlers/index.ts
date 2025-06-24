@@ -5,6 +5,8 @@
 
 import { ipcMain } from 'electron';
 import { dashboardIpcHandlers } from './dashboardIpcHandlers';
+// 🔥 NEW: 통합 키보드 핸들러는 UnifiedHandler에서 자동 등록
+// import { unifiedKeyboardHandler } from '../keyboard';
 
 /**
  * 모든 IPC 핸들러 설정
@@ -19,13 +21,13 @@ export function setupIpcHandlers(): void {
     // 기본 앱 핸들러 등록
     registerAppHandlers();
 
-    // 키보드 핸들러 등록
-    registerKeyboardHandlers();
-
     // 윈도우 핸들러 등록
     registerWindowHandlers();
 
     console.log('✅ 모든 IPC 핸들러 등록 완료');
+    console.log('� 키보드 핸들러는 UnifiedKeyboardHandler가 자동으로 등록 관리합니다');
+    console.log('📋 등록된 핸들러: Dashboard, App, Window');
+    console.log('🎯 키보드 관련 IPC는 UnifiedKeyboardHandler.initialize()에서 처리됩니다');
   } catch (error) {
     console.error('❌ IPC 핸들러 등록 실패:', error);
     throw error;
@@ -70,52 +72,21 @@ function registerAppHandlers(): void {
 
 /**
  * 키보드 IPC 핸들러 등록
+ * 새로운 통합 키보드 시스템 사용 안내
  */
 function registerKeyboardHandlers(): void {
-  // 키보드 모니터링 시작
-  ipcMain.handle('keyboard:start-monitoring', async () => {
-    try {
-      const { registerKeyboardListener } = require('../services/keyboardService');
-      const { mainWindow } = require('../index');
-      
-      if (!mainWindow) {
-        throw new Error('메인 윈도우를 찾을 수 없습니다');
-      }
-      
-      const success = registerKeyboardListener(mainWindow);
-      return {
-        success,
-        message: success ? '키보드 모니터링이 시작되었습니다' : '키보드 모니터링 시작에 실패했습니다'
-      };
-    } catch (error) {
-      console.error('키보드 모니터링 시작 오류:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
-      };
-    }
-  });
+  console.log('📝 키보드 핸들러는 새로운 통합 시스템으로 이관되었습니다.');
+  console.log('   사용법: unifiedKeyboardHandler.initialize(mainWindow)');
+  console.log('   위치: src/main/keyboard/UnifiedHandler.ts');
+  
+  // 레거시 호환성을 위한 기본 핸들러만 유지
+  ipcMain.handle('keyboard:legacy-info', () => ({
+    message: '새로운 통합 키보드 시스템으로 이관됨',
+    newLocation: 'src/main/keyboard/',
+    migrationNote: 'unifiedKeyboardHandler를 사용하세요'
+  }));
 
-  // 키보드 모니터링 중지
-  ipcMain.handle('keyboard:stop-monitoring', async () => {
-    try {
-      const { stopKeyboardListener } = require('../services/keyboardService');
-      
-      const success = stopKeyboardListener();
-      return {
-        success,
-        message: success ? '키보드 모니터링이 중지되었습니다' : '키보드 모니터링 중지에 실패했습니다'
-      };
-    } catch (error) {
-      console.error('키보드 모니터링 중지 오류:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
-      };
-    }
-  });
-
-  console.log('✅ 키보드 IPC 핸들러 등록 완료');
+  console.log('✅ 키보드 레거시 호환 핸들러 등록 완료');
 }
 
 /**

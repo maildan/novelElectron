@@ -3,13 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElectronAPI } from '../../preload';
 
-// Electron IPC 통신을 위한 타입 정의는 preload에서 가져옴
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
-
 export interface IpcResponse<T = any> {
   success: boolean;
   data?: T;

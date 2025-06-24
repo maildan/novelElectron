@@ -4,7 +4,7 @@
  */
 
 import { BrowserWindow } from 'electron';
-import type { AppState } from './app-initialization';
+import type { AppState } from '../managers/AppLifecycle';
 
 /**
  * 애플리케이션 정리
@@ -13,34 +13,46 @@ export async function cleanupApplication(appState: AppState): Promise<void> {
   console.log('🧹 애플리케이션 정리 시작...');
 
   try {
-    // 키보드 매니저 정리
+    // 🔥 통합 키보드 시스템 정리
+    if (appState.unifiedKeyboardHandler) {
+      console.log('🔥 통합 키보드 시스템 정리 중...');
+      await appState.unifiedKeyboardHandler.cleanup();
+    }
+
+    // 레거시 키보드 매니저 정리
     if (appState.keyboardManager) {
       console.log('⌨️ 키보드 매니저 정리 중...');
-      await appState.keyboardManager.cleanup();
+      appState.keyboardManager.cleanup();
     }
 
-    // 데이터베이스 연결 종료
+    // 데이터베이스 매니저 정리
     if (appState.databaseManager) {
-      console.log('💾 데이터베이스 연결 종료 중...');
-      await appState.databaseManager.disconnect();
+      console.log('💾 데이터베이스 매니저 정리 중...');
+      await appState.databaseManager.cleanup();
     }
 
-    // 메모리 매니저 정리
-    if (appState.memoryManager) {
-      console.log('🧠 메모리 매니저 정리 중...');
-      await appState.memoryManager.cleanup();
+    // IPC 매니저 정리
+    if (appState.ipcManager) {
+      console.log('📡 IPC 매니저 정리 중...');
+      appState.ipcManager.cleanup();
     }
 
-    // 정적 서버 종료
-    if (appState.staticServer) {
-      console.log('🌐 정적 서버 종료 중...');
-      await appState.staticServer.stop();
+    // 보안 매니저 정리
+    if (appState.securityManager) {
+      console.log('🔒 보안 매니저 정리 중...');
+      appState.securityManager.cleanup();
     }
 
-    // 시스템 모니터 정리
-    if (appState.systemMonitor) {
-      console.log('📊 시스템 모니터 정리 중...');
-      await appState.systemMonitor.cleanup();
+    // 윈도우 매니저 정리
+    if (appState.windowManager) {
+      console.log('🪟 윈도우 매니저 정리 중...');
+      appState.windowManager.cleanup();
+    }
+
+    // 에러 매니저 정리
+    if (appState.errorManager) {
+      console.log('⚠️ 에러 매니저 정리 중...');
+      appState.errorManager.cleanup();
     }
 
     // 모든 윈도우 강제 종료

@@ -53,7 +53,13 @@ export class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: join(__dirname, '../preload/index.js'),
+        preload: (() => {
+          const preloadPath = join(__dirname, '../../preload/index.js');
+          console.log('🔧 Preload 경로 디버그:', preloadPath);
+          console.log('🔧 __dirname:', __dirname);
+          console.log('🔧 Preload 파일 존재:', require('fs').existsSync(preloadPath));
+          return preloadPath;
+        })(), // 🔥 수정: 올바른 preload 경로 (__dirname이 dist/main/managers이므로 ../../preload)
         webSecurity: true,
         allowRunningInsecureContent: false,
         experimentalFeatures: false

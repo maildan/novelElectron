@@ -30,6 +30,7 @@ export class IpcManager {
     this.registerBasicHandlers();
     
     console.log('✅ IPC 매니저 초기화 완료');
+    console.log('🎯 키보드 관련 IPC는 UnifiedKeyboardHandler에서 별도 관리됩니다');
   }
 
   /**

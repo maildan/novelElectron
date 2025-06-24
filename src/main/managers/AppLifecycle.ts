@@ -10,11 +10,15 @@ import { DatabaseManager } from './DatabaseManager';
 import { SecurityManager } from './SecurityManager';
 import { IpcManager } from './IpcManager';
 import { ErrorManager } from './ErrorManager';
+// 🔥 NEW: 기가차드 키보드 시스템
+import { UnifiedKeyboardHandler } from '../keyboard/UnifiedHandler';
+import { keyboardEngine } from '../keyboard/KeyboardEngine';
 
 export interface AppState {
   isInitialized: boolean;
   windowManager: WindowManager | null;
-  keyboardManager: KeyboardManager | null;
+  keyboardManager: KeyboardManager | null; // Legacy - 호환성 위해 유지
+  unifiedKeyboardHandler: UnifiedKeyboardHandler | null; // 🔥 NEW: 통합 키보드 핸들러
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
@@ -30,6 +34,7 @@ export class AppLifecycle {
       isInitialized: false,
       windowManager: null,
       keyboardManager: null,
+      unifiedKeyboardHandler: null, // 🔥 NEW
       databaseManager: null,
       securityManager: null,
       ipcManager: null,
@@ -76,12 +81,19 @@ export class AppLifecycle {
       await this.appState.windowManager.createMainWindow();
       console.log('✅ 윈도우 매니저 초기화 완료');
 
-      // 5. 키보드 매니저 초기화
-      this.appState.keyboardManager = KeyboardManager.getInstance();
+      // 5. 🔥 기가차드 통합 키보드 시스템 초기화
+      this.appState.unifiedKeyboardHandler = UnifiedKeyboardHandler.getInstance();
       const mainWindow = this.appState.windowManager.getMainWindow();
       if (mainWindow) {
+        await this.appState.unifiedKeyboardHandler.initialize(mainWindow);
+        console.log('🔥 기가차드 통합 키보드 시스템 초기화 완료');
+      }
+
+      // 6. 레거시 키보드 매니저 (호환성용)
+      this.appState.keyboardManager = KeyboardManager.getInstance();
+      if (mainWindow) {
         this.appState.keyboardManager.initialize(mainWindow);
-        console.log('✅ 키보드 매니저 초기화 완료');
+        console.log('✅ 레거시 키보드 매니저 초기화 완료 (호환성용)');
       }
 
       this.appState.isInitialized = true;
@@ -99,11 +111,18 @@ export class AppLifecycle {
     console.log('🧹 기가차드 앱 라이프사이클: 정리 시작...');
 
     try {
-      // 키보드 매니저 정리
+      // 🔥 통합 키보드 시스템 정리 (우선)
+      if (this.appState.unifiedKeyboardHandler) {
+        await this.appState.unifiedKeyboardHandler.cleanup();
+        this.appState.unifiedKeyboardHandler = null;
+        console.log('🔥 통합 키보드 시스템 정리 완료');
+      }
+
+      // 레거시 키보드 매니저 정리
       if (this.appState.keyboardManager) {
         this.appState.keyboardManager.cleanup();
         this.appState.keyboardManager = null;
-        console.log('✅ 키보드 매니저 정리 완료');
+        console.log('✅ 레거시 키보드 매니저 정리 완료');
       }
 
       // 윈도우 매니저 정리
@@ -164,6 +183,13 @@ export class AppLifecycle {
 
   getKeyboardManager(): KeyboardManager | null {
     return this.appState.keyboardManager;
+  }
+
+  /**
+   * 🔥 기가차드 통합 키보드 핸들러 가져오기
+   */
+  getUnifiedKeyboardHandler(): UnifiedKeyboardHandler | null {
+    return this.appState.unifiedKeyboardHandler;
   }
 
   getDatabaseManager(): DatabaseManager | null {
