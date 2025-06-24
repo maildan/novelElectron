@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// 🔥 기가차드 글로벌 폴리필 - 렌더러 프로세스용
+if (typeof global === 'undefined') {
+  (window as any).global = globalThis;
+}
+
 /**
  * Electron API를 안전하게 Renderer에 노출
  * 타입 안전성을 보장하는 Preload 스크립트

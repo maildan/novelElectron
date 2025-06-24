@@ -62,7 +62,10 @@ export class WindowManager {
         })(), // 🔥 수정: 올바른 preload 경로 (__dirname이 dist/main/managers이므로 ../../preload)
         webSecurity: true,
         allowRunningInsecureContent: false,
-        experimentalFeatures: false
+        experimentalFeatures: false,
+        
+        // 🛡️ 보안 강화 설정
+        sandbox: false // preload 스크립트를 위해 false로 설정
       },
 
       // UI 설정

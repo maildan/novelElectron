@@ -53,7 +53,7 @@ export class DashboardIpcHandlers {
       try {
         if (!this.mainWindow) throw new Error('Main window not available');
         
-        const success = registerKeyboardListener(this.mainWindow);
+        const success = await registerKeyboardListener(this.mainWindow);
         return { success, message: success ? '모니터링 시작됨' : '모니터링 시작 실패' };
       } catch (error) {
         console.error('모니터링 시작 오류:', error);

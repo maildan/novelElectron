@@ -1,6 +1,16 @@
 /**
  * 🔥 기가차드 앱 라이프사이클 매니저
- * Loop Typing Analytics - Application Lifecycle Manager
+ * Loo    this.appState = {
+      isInitialized: false,
+      windowManager: null,
+      keyboardManager: null,
+      unifiedKeyboardHandler: null,
+      databaseManager: null,
+      securityManager: null,
+      ipcManager: null,
+      handlersManager: null,
+      errorManager: null
+    };nalytics - Application Lifecycle Manager
  */
 
 import { app, BrowserWindow } from 'electron';
@@ -10,6 +20,11 @@ import { DatabaseManager } from './DatabaseManager';
 import { SecurityManager } from './SecurityManager';
 import { IpcManager } from './IpcManager';
 import { ErrorManager } from './ErrorManager';
+import { HandlersManager } from '../handlers-manager';
+import { PlatformManager } from './PlatformManager';
+import { SystemMonitor } from './SystemMonitor';
+import { MenuManager } from './MenuManager';
+import { ShortcutsManager } from './ShortcutsManager';
 // 🔥 NEW: 기가차드 키보드 시스템
 import { UnifiedKeyboardHandler } from '../keyboard/UnifiedHandler';
 import { keyboardEngine } from '../keyboard/KeyboardEngine';
@@ -22,6 +37,11 @@ export interface AppState {
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
+  handlersManager: HandlersManager | null; // 🔥 NEW: 핸들러 매니저
+  menuManager: MenuManager | null; // 🔥 NEW: 메뉴 매니저
+  shortcutsManager: ShortcutsManager | null; // 🔥 NEW: 단축키 매니저
+  platformManager: PlatformManager | null; // 🔥 NEW: 플랫폼 매니저
+  systemMonitor: SystemMonitor | null; // 🔥 NEW: 시스템 모니터
   errorManager: ErrorManager | null;
 }
 
@@ -38,6 +58,11 @@ export class AppLifecycle {
       databaseManager: null,
       securityManager: null,
       ipcManager: null,
+      handlersManager: null, // 🔥 NEW
+      menuManager: null, // 🔥 NEW
+      shortcutsManager: null, // 🔥 NEW
+      platformManager: null, // 🔥 NEW
+      systemMonitor: null, // 🔥 NEW
       errorManager: null
     };
   }
@@ -76,10 +101,29 @@ export class AppLifecycle {
       this.appState.ipcManager.initialize();
       console.log('✅ IPC 매니저 초기화 완료');
 
+      // 3.5. 🔥 NEW: 핸들러 매니저 초기화
+      this.appState.handlersManager = HandlersManager.getInstance();
+      await this.appState.handlersManager.initializeAllHandlers();
+      console.log('🔥 핸들러 매니저 초기화 완료');
+
       // 4. 윈도우 매니저 초기화
       this.appState.windowManager = WindowManager.getInstance();
       await this.appState.windowManager.createMainWindow();
       console.log('✅ 윈도우 매니저 초기화 완료');
+
+      // 4.5. 🔥 NEW: 플랫폼 매니저 초기화
+      this.appState.platformManager = PlatformManager.getInstance();
+      console.log('✅ 플랫폼 매니저 초기화 완료');
+
+      // 4.6. 🔥 NEW: 시스템 모니터 초기화
+      this.appState.systemMonitor = SystemMonitor.getInstance();
+      this.appState.systemMonitor.startMonitoring();
+      console.log('✅ 시스템 모니터 초기화 완료');
+
+      // 4.7. 🔥 NEW: 메뉴 매니저 초기화 (간단 버전)
+      this.appState.menuManager = MenuManager.getInstance();
+      this.appState.menuManager.setupDefaultMenu();
+      console.log('✅ 메뉴 매니저 초기화 완료');
 
       // 5. 🔥 기가차드 통합 키보드 시스템 초기화
       this.appState.unifiedKeyboardHandler = UnifiedKeyboardHandler.getInstance();
@@ -111,7 +155,14 @@ export class AppLifecycle {
     console.log('🧹 기가차드 앱 라이프사이클: 정리 시작...');
 
     try {
-      // 🔥 통합 키보드 시스템 정리 (우선)
+      // 🔥 NEW: 글로벌 단축키 매니저 정리 (가장 먼저)
+      if (this.appState.shortcutsManager) {
+        this.appState.shortcutsManager.cleanup();
+        this.appState.shortcutsManager = null;
+        console.log('🔥 글로벌 단축키 매니저 정리 완료');
+      }
+
+      // 🔥 통합 키보드 시스템 정리
       if (this.appState.unifiedKeyboardHandler) {
         await this.appState.unifiedKeyboardHandler.cleanup();
         this.appState.unifiedKeyboardHandler = null;
@@ -123,6 +174,27 @@ export class AppLifecycle {
         this.appState.keyboardManager.cleanup();
         this.appState.keyboardManager = null;
         console.log('✅ 레거시 키보드 매니저 정리 완료');
+      }
+
+      // 🔥 NEW: 시스템 모니터 정리
+      if (this.appState.systemMonitor) {
+        this.appState.systemMonitor.cleanup();
+        this.appState.systemMonitor = null;
+        console.log('✅ 시스템 모니터 정리 완료');
+      }
+
+      // 🔥 NEW: 플랫폼 매니저 정리
+      if (this.appState.platformManager) {
+        this.appState.platformManager.cleanup();
+        this.appState.platformManager = null;
+        console.log('✅ 플랫폼 매니저 정리 완료');
+      }
+
+      // 🔥 NEW: 메뉴 매니저 정리
+      if (this.appState.menuManager) {
+        this.appState.menuManager.cleanup();
+        this.appState.menuManager = null;
+        console.log('🔥 메뉴 매니저 정리 완료');
       }
 
       // 윈도우 매니저 정리
@@ -137,6 +209,13 @@ export class AppLifecycle {
         this.appState.ipcManager.cleanup();
         this.appState.ipcManager = null;
         console.log('✅ IPC 매니저 정리 완료');
+      }
+
+      // 🔥 NEW: 핸들러 매니저 정리
+      if (this.appState.handlersManager) {
+        this.appState.handlersManager.cleanup();
+        this.appState.handlersManager = null;
+        console.log('🔥 핸들러 매니저 정리 완료');
       }
 
       // 데이터베이스 매니저 정리

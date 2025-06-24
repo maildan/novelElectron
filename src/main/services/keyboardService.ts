@@ -3,6 +3,7 @@ import { LoopKeyboardEvent, AppInfo } from '../../shared/types';
 import { getKeyChar, getKoreanChar } from '../../shared/getKeyChar';
 import { getKeyName } from '../../shared/getKeyName';
 import { BrowserWindow } from 'electron';
+import { PermissionManager } from '../utils/permissions';
 
 /**
  * 키보드 모니터링 서비스
@@ -23,13 +24,28 @@ class KeyboardService {
   /**
    * 키보드 모니터링 시작
    */
-  public registerKeyboardListener(window: BrowserWindow): boolean {
+  public async registerKeyboardListener(window: BrowserWindow): Promise<boolean> {
     if (this.isRunning) {
       console.warn('Keyboard listener is already running');
       return false;
     }
 
     try {
+      // 🛡️ 권한 확인 및 요청
+      console.log('🔍 권한 확인 중...');
+      const hasPermissions = await PermissionManager.requestPermissionsIfNeeded();
+      
+      if (!hasPermissions) {
+        console.warn('⚠️ 필요한 권한이 없습니다. 키보드 모니터링을 시작할 수 없습니다.');
+        
+        // 렌더러에 권한 부족 알림
+        this.sendToRenderer('keyboard:permission-denied', { 
+          reason: 'Missing required permissions for keyboard monitoring' 
+        });
+        
+        return false;
+      }
+
       this.window = window;
       this.sessionStartTime = Date.now();
       this.keyCount = 0;
@@ -216,8 +232,8 @@ class KeyboardService {
 const keyboardService = new KeyboardService();
 
 // 외부에서 사용할 함수들 export
-export const registerKeyboardListener = (window: BrowserWindow): boolean => {
-  return keyboardService.registerKeyboardListener(window);
+export const registerKeyboardListener = async (window: BrowserWindow): Promise<boolean> => {
+  return await keyboardService.registerKeyboardListener(window);
 };
 
 export const stopKeyboardListener = (): boolean => {

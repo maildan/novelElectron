@@ -44,6 +44,9 @@ export class DatabaseManager {
       // 마이그레이션 실행 (필요한 경우)
       await this.runMigrations();
 
+      // 🔥 기본 사용자 생성 (외래키 제약 위반 방지)
+      await this.ensureDefaultUser();
+
       console.log('✅ 데이터베이스 매니저 초기화 완료');
     } catch (error) {
       console.error('❌ 데이터베이스 매니저 초기화 실패:', error);
@@ -70,6 +73,48 @@ export class DatabaseManager {
   }
 
   /**
+   * 🔥 기본 사용자 생성 (외래키 제약 위반 방지)
+   */
+  private defaultUserId: string | null = null;
+
+  private async ensureDefaultUser(): Promise<string> {
+    try {
+      if (!this.prisma) {
+        throw new Error('Prisma 클라이언트가 초기화되지 않았습니다.');
+      }
+
+      // 이미 기본 사용자 ID가 있으면 반환
+      if (this.defaultUserId) {
+        return this.defaultUserId;
+      }
+
+      // 기존 사용자 찾기 (이메일로 식별)
+      let user = await this.prisma.user.findUnique({
+        where: { email: 'default@loop.com' }
+      });
+
+      if (!user) {
+        // 기본 사용자 생성 (ID는 자동 생성)
+        user = await this.prisma.user.create({
+          data: {
+            name: 'Default User',
+            email: 'default@loop.com'
+          }
+        });
+        console.log('✅ 기본 사용자 생성 완료:', user.id);
+      } else {
+        console.log('ℹ️ 기본 사용자가 이미 존재합니다:', user.id);
+      }
+
+      this.defaultUserId = user.id;
+      return user.id;
+    } catch (error) {
+      console.error('❌ 기본 사용자 생성 실패:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Prisma 클라이언트 가져오기
    */
   getPrisma(): PrismaClient {
@@ -80,19 +125,35 @@ export class DatabaseManager {
   }
 
   /**
+   * 타이핑 세션 생성 (기본 사용자용 - 향후 삭제 예정)
+   */
+  async createTypingSessionForDefaultUser(data: {
+    appName: string;
+    windowTitle?: string;
+    platform: string;
+  }) {
+    return this.createTypingSession(data);
+  }
+
+  /**
    * 타이핑 세션 생성
    */
+  /**
+   * 타이핑 세션 생성 (기본 사용자 자동 사용)
+   */
   async createTypingSession(data: {
-    userId: string;
     appName: string;
     windowTitle?: string;
     platform: string;
   }) {
     const prisma = this.getPrisma();
     
+    // 🔥 기본 사용자 ID 확보
+    const userId = await this.ensureDefaultUser();
+    
     return await prisma.typingSession.create({
       data: {
-        userId: data.userId,
+        userId,
         appName: data.appName,
         windowTitle: data.windowTitle,
         platform: data.platform,

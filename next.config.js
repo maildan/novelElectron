@@ -8,26 +8,29 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  experimental: {
-    esmExternals: false // 명시적으로 비활성화
-  },
   webpack: (config, { isServer }) => {
-    // Electron 환경에서는 서버 사이드 렌더링 비활성화
-    if (isServer) {
+    // 🔥 기가차드 완전 해결: Electron 환경 설정
+    if (!isServer) {
       config.target = 'electron-renderer';
     }
 
-    // 🔥 강력한 Global 변수 정의 (Node.js 환경 호환성)
+    // webpack 플러그인 초기화
     config.plugins = config.plugins || [];
     const webpack = require('webpack');
     
-    // DefinePlugin과 ProvidePlugin 모두 사용하여 global 문제 완전 해결
+    // 🚀 Step 1: 가장 강력한 global 폴리필
     config.plugins.push(
       new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
         'global': 'globalThis',
-        'window.global': 'globalThis'
-      }),
+        'global.global': 'globalThis',
+        'window.global': 'globalThis',
+        'self.global': 'globalThis',
+        'this.global': 'globalThis'
+      })
+    );
+
+    // 🚀 Step 2: ProvidePlugin으로 자동 주입
+    config.plugins.push(
       new webpack.ProvidePlugin({
         global: 'globalThis',
         Buffer: ['buffer', 'Buffer'],
@@ -35,7 +38,7 @@ const nextConfig = {
       })
     );
 
-    // 🔥 강력한 글로벌 폴리필 추가
+    // 🔥 Step 3: Node.js 모듈 폴백 설정
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -46,31 +49,76 @@ const nextConfig = {
       buffer: require.resolve('buffer'),
       util: require.resolve('util'),
       process: require.resolve('process/browser'),
-      global: false // global을 false로 설정하여 globalThis 사용 강제
+      assert: false,
+      http: false,
+      https: false,
+      url: false,
+      zlib: false,
+      // 🔥 global 완전 차단 - globalThis 사용 강제
+      global: false
     };
 
-    // TypeScript path aliases 수동 추가
+    // 🔥 Step 4: alias 설정으로 확실히 교체
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, 'src'),
       '@main': path.resolve(__dirname, 'src/main'),
       '@renderer': path.resolve(__dirname, 'src/renderer'),
-      '@shared': path.resolve(__dirname, 'src/shared')
+      '@shared': path.resolve(__dirname, 'src/shared'),
+      // 🚀 global을 완전히 globalThis로 교체
+      'global': 'globalThis'
     };
 
-    // Node.js 네이티브 모듈 externals 설정
+    // 🔥 Step 5: externals 설정
     config.externals = config.externals || [];
-    config.externals.push({
-      'electron': 'commonjs electron',
-      'uiohook-napi': 'commonjs uiohook-napi', 
-      'get-windows': 'commonjs get-windows'
-    });
+    if (Array.isArray(config.externals)) {
+      config.externals.push({
+        'electron': 'commonjs electron',
+        'uiohook-napi': 'commonjs uiohook-napi', 
+        'get-windows': 'commonjs get-windows'
+      });
+    }
 
-    // Native 모듈 fallback 설정은 이미 위에서 처리됨
+    // 🔥 Step 6: 실험적 기능 비활성화 및 HMR 최적화
+    config.experiments = {
+      ...config.experiments,
+      topLevelAwait: false
+    };
+
+    // 🚀 HMR 최적화 (무한 컴파일 방지)
+    if (!isServer) {
+      config.watchOptions = {
+        poll: false,
+        ignored: [
+          '**/node_modules',
+          '**/dist',
+          '**/out',
+          '**/.git',
+          '**/logs',
+          '**/userData',
+          '**/prisma/dev.db*'
+        ]
+      };
+      
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename]
+        }
+      };
+    }
 
     return config;
   },
-  // 최신 Next.js 버전에서는 experimental.esmExternals 제거됨
+  // 🔥 실험적 기능 설정
+  experimental: {
+    esmExternals: false,
+    // HMR 최적화 설정 추가
+    optimizePackageImports: ['lucide-react'],
+    optimizeCss: false,
+    turbo: false  // Turbo 비활성화로 안정성 확보
+  },
+  // 🔥 추가 패키지 트랜스파일
   transpilePackages: ['lucide-react']
 };
 

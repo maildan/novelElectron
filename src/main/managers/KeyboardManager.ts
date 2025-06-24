@@ -171,7 +171,6 @@ export class KeyboardManager {
 
     try {
       const session = await this.databaseManager.createTypingSession({
-        userId: 'default-user', // 향후 사용자 관리 시 수정
         appName: activeWindow.appName,
         windowTitle: activeWindow.windowTitle,
         platform: process.platform
