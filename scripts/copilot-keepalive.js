@@ -16,9 +16,19 @@ const path = require('path');
 class CopilotKeepAlive {
   constructor() {
     this.isActive = true;
-    this.interval = 25 * 60 * 1000; // 25분마다 실행
+    this.interval = 8 * 60 * 1000; // 8분마다 실행 (더 공격적인 주기)
     this.logFile = path.join(__dirname, '../logs/copilot-keepalive.log');
     this.sessionFile = path.join(__dirname, '../.copilot-session');
+    this.touchFile = path.join(__dirname, '../.copilot-touch');
+    this.activityFile = path.join(__dirname, '../.copilot-activity');
+    
+    // 다중 파일 터치로 더 강력한 Keep-Alive
+    this.touchFiles = [
+      path.join(__dirname, '../.copilot-touch'),
+      path.join(__dirname, '../.copilot-activity'),
+      path.join(__dirname, '../.copilot-session-active'),
+      path.join(__dirname, '../.vscode/.copilot-keepalive')
+    ];
     
     this.ensureLogDirectory();
     this.startKeepAlive();
@@ -78,38 +88,80 @@ class CopilotKeepAlive {
     // 즉시 한 번 실행
     this.performKeepAlive();
     
-    // 주기적으로 실행
+    // 메인 Keep-Alive 주기적으로 실행
     this.timer = setInterval(() => {
       if (this.isActive) {
         this.performKeepAlive();
       }
     }, this.interval);
 
+    // 빠른 pulse 신호 (VSCode workspace 파일 터치)
+    this.fastTimer = setInterval(() => {
+      if (this.isActive) {
+        this.performFastPulse();
+      }
+    }, 3 * 60 * 1000); // 3분마다 빠른 pulse
+
     // 프로세스 종료 시 정리
     process.on('SIGINT', () => this.cleanup());
     process.on('SIGTERM', () => this.cleanup());
+  }
+
+  performFastPulse() {
+    try {
+      // VSCode workspace 파일에 빠른 pulse
+      const workspaceFile = path.join(__dirname, '../loop.code-workspace');
+      if (fs.existsSync(workspaceFile)) {
+        const stat = fs.statSync(workspaceFile);
+        const now = new Date();
+        fs.utimesSync(workspaceFile, stat.atime, now); // 수정 시간만 업데이트
+        this.log('⚡ 빠른 pulse 신호 전송');
+      }
+    } catch (error) {
+      // 무시 (빠른 pulse는 실패해도 괜찮음)
+    }
   }
 
   performKeepAlive() {
     try {
       this.updateSessionFile();
       
-      // VSCode에 간단한 작업 신호 보내기 (파일 터치)
-      const touchFile = path.join(__dirname, '../.copilot-touch');
-      fs.writeFileSync(touchFile, `Keep-Alive: ${new Date().toISOString()}`);
-      
-      this.log('✅ Keep-Alive 신호 전송 완료');
-      
-      // 터치 파일 즉시 삭제
-      setTimeout(() => {
+      // 다중 터치 파일로 더 강력한 Keep-Alive
+      this.touchFiles.forEach((touchFile, index) => {
         try {
-          if (fs.existsSync(touchFile)) {
-            fs.unlinkSync(touchFile);
+          const dir = path.dirname(touchFile);
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
           }
+          
+          const content = {
+            timestamp: new Date().toISOString(),
+            index: index + 1,
+            sessionId: Date.now(),
+            gigachad: true,
+            project: 'Loop Typing Analytics',
+            keepAliveCount: this.getKeepAliveCount()
+          };
+          
+          fs.writeFileSync(touchFile, JSON.stringify(content, null, 2));
+          
+          // 즉시 삭제 (1초 후)
+          setTimeout(() => {
+            try {
+              if (fs.existsSync(touchFile)) {
+                fs.unlinkSync(touchFile);
+              }
+            } catch (error) {
+              // 무시
+            }
+          }, 1000 + (index * 200)); // 각 파일마다 약간의 지연
+          
         } catch (error) {
-          // 무시
+          this.log(`터치 파일 ${index + 1} 생성 실패: ${error.message}`);
         }
-      }, 1000);
+      });
+      
+      this.log(`✅ Keep-Alive 신호 전송 완료 (${this.touchFiles.length}개 파일)`);
       
     } catch (error) {
       this.log(`❌ Keep-Alive 실패: ${error.message}`);
@@ -123,6 +175,21 @@ class CopilotKeepAlive {
     if (this.timer) {
       clearInterval(this.timer);
     }
+    
+    if (this.fastTimer) {
+      clearInterval(this.fastTimer);
+    }
+    
+    // 남은 터치 파일들 정리
+    this.touchFiles.forEach(touchFile => {
+      try {
+        if (fs.existsSync(touchFile)) {
+          fs.unlinkSync(touchFile);
+        }
+      } catch (error) {
+        // 무시
+      }
+    });
     
     process.exit(0);
   }
