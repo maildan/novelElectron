@@ -1,5 +1,6 @@
-import { Logger } from "@shared/logger";
-const log = Logger;'use client';
+'use client';
+
+import logger from '../../shared/logger';
 
 import React, { useState } from 'react';
 import { Button, Card, CardHeader, CardTitle, CardContent, Input } from '@renderer/components/ui';
@@ -22,11 +23,11 @@ export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose, className }) 
     setIsLoading(true);
     try {
       // TODO: AI 서비스 연동
-      log.info("Console", 'AI 질문:', prompt);
+      logger.info('AI 질문: ' + prompt);
       await new Promise(resolve => setTimeout(resolve, 1000)); // 임시 지연
       setPrompt('');
     } catch (error) {
-      log.error("Console", 'AI 질문 처리 오류:', error);
+      logger.error('AI 질문 처리 오류', error);
     } finally {
       setIsLoading(false);
     }

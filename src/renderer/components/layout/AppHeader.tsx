@@ -1,10 +1,11 @@
-import { Logger } from "@shared/logger";
-const log = Logger;/**
+'use client';
+
+import logger from '../../shared/logger';
+
+/**
  * 🔥 기가차드 앱 헤더 컴포넌트 - 실제 데이터 연동
  * Loop Typing Analytics - App Header with Real Data Integration
  */
-
-'use client';
 
 import { useEffect, useState } from 'react';
 import { ActivityIcon, MenuIcon } from 'lucide-react';
@@ -36,25 +37,28 @@ export function AppHeader({
   const [monitoringStatus, setMonitoringStatus] = useState<string>('정지됨');
 
   useEffect(() => {
-    setIsMounted(true);
-    
-    // 실제 앱 버전 정보 가져오기
+    setIsMounted(true);        // 실제 앱 버전 정보 가져오기
     const fetchVersionInfo = async () => {
       try {
         if (typeof window !== 'undefined' && window.electronAPI) {
-          const [appVersion, platform] = await Promise.all([
+          const [appVersion, platformInfo] = await Promise.all([
             window.electronAPI.app.getVersion(),
             window.electronAPI.app.getPlatform()
           ]);
           
+          // platformInfo가 객체인 경우와 문자열인 경우 모두 처리
+          const platform = typeof platformInfo === 'string' 
+            ? platformInfo 
+            : (platformInfo as Record<string, unknown>)?.platform || 'unknown';
+          
           setVersionInfo({
             app: appVersion,
             electron: process.versions?.electron || 'Unknown',
-            platform: platform
+            platform: String(platform)
           });
         }
       } catch (error) {
-        log.error("Console", '버전 정보 로드 실패:', error);
+        logger.error('버전 정보 로드 실패:', error);
       }
     };
 
@@ -67,7 +71,7 @@ export function AppHeader({
           setMonitoringStatus(status?.isActive ? '모니터링 중' : '정지됨');
         }
       } catch (error) {
-        log.error("Console", '모니터링 상태 확인 실패:', error);
+        logger.error('모니터링 상태 확인 실패:', error);
         setIsMonitoring(false);
         setMonitoringStatus('오류');
       }
@@ -109,7 +113,7 @@ export function AppHeader({
         }
       }
     } catch (error) {
-      log.error("Console", '모니터링 토글 실패:', error);
+      logger.error('모니터링 토글 실패:', error);
     }
   };
 

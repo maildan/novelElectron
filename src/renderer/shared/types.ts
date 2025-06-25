@@ -40,8 +40,4 @@ export interface IpcResponse<T = unknown> {
   message?: string;
 }
 
-export interface CommonComponentProps {
-  logs: Log[];
-  loading: boolean;
-  onTypingComplete?: () => void;
-}
+// CommonComponentProps는 shared/types.ts에서 import하여 사용

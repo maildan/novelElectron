@@ -1,18 +1,11 @@
 'use client';
 
-import logger from '../../shared/logger';
-
 import { useState, useEffect } from 'react';
 import { formatTime, safeAsync } from '../../shared/utils';
-import { Log, TypingStats } from '../../shared/types';
-
-// 컴포넌트 Props 타입
-interface CommonComponentProps {
-  logs: Log[];
-  loading: boolean;
-  onTypingComplete?: (stats: TypingStats) => void;
-}
-
+import { Log, TypingStats } from '@shared/types';
+import logger from '../../shared/logger';
+import { commonStyles, combineStyles } from '../../shared/styles';
+import { useAsync, useToggle } from '../../shared/hooks';
 import { 
   Play, 
   Pause, 
@@ -25,12 +18,49 @@ import {
   Clock,
   Target,
   MoreHorizontal 
-} from 'lucide-react';
+} from '../../shared/icons';
 
-// #DEBUG: 타입 정의를 별도 파일로 분리하여 재사용성 향상
-import type { MonitoringData, RecentFile, ActiveProject } from '../../../types/dashboard';
+// #DEBUG: 공통 모듈 import
+import { 
+  CommonComponentProps,
+  COMMON_STYLES,
+  getCardClassName,
+  getButtonClassName,
+  PerformanceTimer,
+  measureMemory
+} from '../common/common';
+
+// #DEBUG: 타입 정의를 inline으로 임시 정의
+interface MonitoringData {
+  wpm: number;
+  words: number;
+  time: number;
+}
+
+interface RecentFile {
+  id: string;
+  name: string;
+  path: string;
+  type: string;
+  project: string;
+  time: string;
+  status: 'completed' | 'active' | 'draft' | 'archived';
+  lastModified: Date;
+}
+
+interface ActiveProject {
+  id: string;
+  title: string;
+  progress: number;
+  status: 'in-progress' | 'completed' | 'paused';
+  deadline: string;
+}
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
+  // #DEBUG: Dashboard 컴포넌트 진입점
+  const timer = new PerformanceTimer('Dashboard 렌더링');
+  measureMemory('Dashboard 시작');
+
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
     wpm: 0,
@@ -61,7 +91,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
   // 🔥 실제 파일 & 프로젝트 데이터 로드
   useEffect(() => {
     const loadDashboardData = async () => {
-      logger.info('Dashboard', 'loadDashboardData 시작');
+      logger.debug('Dashboard: loadDashboardData 시작');
       try {
         if (typeof window !== 'undefined' && window.electronAPI) {
           const sessionsData = await window.electronAPI.database.getSessions();
@@ -103,11 +133,11 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           setActiveProjects(projectsData);
         }
       } catch (error) {
-        logger.error("Console", `대시보드 데이터 로딩 실패: ${error}`);
+        logger.error(`대시보드 데이터 로딩 실패: ${error}`);
         setRecentFiles([]);
         setActiveProjects([]);
       }
-      logger.info('Dashboard', 'loadDashboardData 완료');
+      logger.info('loadDashboardData 완료');
     };
 
     loadDashboardData();
@@ -117,7 +147,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
     <div className="flex-1 flex flex-col bg-slate-50">
       {/* AI 패널 */}
       {aiPanelOpen && (
-        <div className="fixed top-4 right-4 w-80 bg-white shadow-xl border border-slate-200 z-50 max-h-[80vh] overflow-hidden rounded-lg">
+        <div className={`${COMMON_STYLES.layout.fixedPanel} ${COMMON_STYLES.card.variants.panel} rounded-lg`}>
           <div className="bg-purple-600 text-white flex items-center justify-between p-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
@@ -159,11 +189,10 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           <div className="flex items-center gap-3">
             <button
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                aiPanelOpen 
-                  ? "bg-purple-700 text-white hover:bg-purple-800" 
-                  : "bg-purple-600 text-white hover:bg-purple-700"
-              }`}
+              className={getButtonClassName({ 
+                variant: aiPanelOpen ? 'purple' : 'purple',
+                className: aiPanelOpen ? 'bg-purple-700 hover:bg-purple-800' : 'bg-purple-600 hover:bg-purple-700'
+              })}
             >
               <Sparkles className="w-4 h-4 mr-2 inline" />
               Loop AI
@@ -171,11 +200,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
             <button
               onClick={() => setIsMonitoring(!isMonitoring)}
-              className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                isMonitoring 
-                  ? "bg-red-600 text-white hover:bg-red-700" 
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
+              className={getButtonClassName({ 
+                variant: isMonitoring ? 'danger' : 'primary'
+              })}
             >
               {isMonitoring ? (
                 <>
@@ -232,7 +259,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-slate-900">빠른 시작</h2>
 
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 rounded-lg p-6 h-[120px] flex items-center justify-center cursor-pointer transition-colors">
+          <div className={getCardClassName({ variant: 'blue', className: 'h-[120px] flex items-center justify-center cursor-pointer transition-colors' })}>
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Plus className="w-6 h-6" />
@@ -243,7 +270,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="bg-green-50 border border-green-200 hover:border-green-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors">
+            <div className={getCardClassName({ variant: 'green', className: COMMON_STYLES.layout.cardGrid })}>
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <Globe className="w-4 h-4 text-green-600" />
@@ -255,7 +282,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors">
+            <div className={getCardClassName({ variant: 'slate', className: COMMON_STYLES.layout.cardGrid })}>
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-5 h-5 text-slate-600" />
                 <Cloud className="w-4 h-4 text-slate-600" />
@@ -267,7 +294,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               </div>
             </div>
 
-            <div className="bg-purple-50 border border-purple-200 hover:border-purple-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors">
+            <div className={getCardClassName({ variant: 'purple', className: COMMON_STYLES.layout.cardGrid })}>
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="w-5 h-5 text-purple-600" />
                 <Clock className="w-4 h-4 text-purple-600" />
@@ -342,4 +369,12 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
       </div>
     </div>
   );
+
+  // #DEBUG: Dashboard 컴포넌트 종료점
+  timer.end();
+  measureMemory('Dashboard 완료');
 }
+
+// #DEBUG: 성능 최적화된 Dashboard 컴포넌트 export
+// #DEBUG: Dashboard 컴포넌트 export
+export default Dashboard;

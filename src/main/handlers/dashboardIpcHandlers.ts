@@ -246,6 +246,129 @@ export class DashboardIpcHandlers {
       }
     });
 
+    // 🔥 데이터베이스 세션 가져오기 - Dashboard에서 요청
+    ipcMain.handle('database:get-sessions', async (_, limit = 50) => {
+      try {
+        const prisma = getPrismaClient();
+        const sessions = await prisma.typingSession.findMany({
+          take: limit,
+          orderBy: { startTime: 'desc' },
+          select: {
+            id: true,
+            windowTitle: true,
+            appName: true,
+            totalKeys: true,
+            duration: true,
+            startTime: true,
+            endTime: true,
+            wpm: true,
+            accuracy: true,
+            totalChars: true,
+          }
+        });
+
+        // 🔥 타입 안전 변환 - any 박살!
+        const convertedSessions = sessions.map(session => ({
+          id: session.id,
+          sessionId: session.id, // Dashboard 호환성
+          windowTitle: session.windowTitle || '',
+          appName: session.appName || '',
+          totalKeys: session.totalKeys,
+          duration: session.duration,
+          timestamp: session.startTime.toISOString(),
+          wpm: session.wpm,
+          accuracy: session.accuracy,
+          content: `${session.appName || 'Unknown'} - ${session.totalKeys} keys`,
+        }));
+
+        log.info('DashboardIPC', `데이터베이스에서 ${convertedSessions.length}개 세션 반환`);
+        return convertedSessions;
+      } catch (error: unknown) {
+        log.error('DashboardIPC', '세션 데이터 조회 오류', error as unknown);
+        return [];
+      }
+    });
+
+    // 분석 데이터 가져오기
+    ipcMain.handle('database:get-analytics', async () => {
+      try {
+        const prisma = getPrismaClient();
+        
+        // 기본 통계 수집
+        const totalSessions = await prisma.typingSession.count();
+        const avgWpm = await prisma.typingSession.aggregate({
+          _avg: { wpm: true }
+        });
+        const avgAccuracy = await prisma.typingSession.aggregate({
+          _avg: { accuracy: true }
+        });
+        const totalKeys = await prisma.typingSession.aggregate({
+          _sum: { totalKeys: true }
+        });
+        
+        // 최근 7일 데이터
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        const recentSessions = await prisma.typingSession.findMany({
+          where: {
+            startTime: {
+              gte: sevenDaysAgo
+            }
+          },
+          select: {
+            startTime: true,
+            wpm: true,
+            accuracy: true,
+            totalKeys: true,
+            appName: true
+          },
+          orderBy: { startTime: 'desc' }
+        });
+
+        // 앱별 통계
+        const appStats = await prisma.typingSession.groupBy({
+          by: ['appName'],
+          _count: { appName: true },
+          _avg: { wpm: true, accuracy: true },
+          _sum: { totalKeys: true }
+        });
+
+        const analytics = {
+          overview: {
+            totalSessions,
+            avgWpm: avgWpm._avg.wpm || 0,
+            avgAccuracy: avgAccuracy._avg.accuracy || 0,
+            totalKeys: totalKeys._sum.totalKeys || 0
+          },
+          recentActivity: recentSessions.map(session => ({
+            date: session.startTime.toISOString(),
+            wpm: session.wpm,
+            accuracy: session.accuracy,
+            keys: session.totalKeys,
+            app: session.appName || 'Unknown'
+          })),
+          appBreakdown: appStats.map(stat => ({
+            app: stat.appName || 'Unknown',
+            sessions: stat._count.appName,
+            avgWpm: stat._avg.wpm || 0,
+            avgAccuracy: stat._avg.accuracy || 0,
+            totalKeys: stat._sum.totalKeys || 0
+          }))
+        };
+
+        log.info('DashboardIPC', `분석 데이터 반환: ${totalSessions} 세션`);
+        return analytics;
+      } catch (error: unknown) {
+        log.error('DashboardIPC', '분석 데이터 조회 오류', error as unknown);
+        return {
+          overview: { totalSessions: 0, avgWpm: 0, avgAccuracy: 0, totalKeys: 0 },
+          recentActivity: [],
+          appBreakdown: []
+        };
+      }
+    });
+
     log.info("Console", '🔥 Dashboard IPC 핸들러 등록 완료!');
   }
 
@@ -255,7 +378,9 @@ export class DashboardIpcHandlers {
       'dashboard:stop-monitoring', 
       'dashboard:get-recent-logs',
       'dashboard:get-stats',
-      'dashboard:save-typing-log'
+      'dashboard:save-typing-log',
+      'database:get-sessions',
+      'database:get-analytics'
     ];
 
     channels.forEach(channel => {

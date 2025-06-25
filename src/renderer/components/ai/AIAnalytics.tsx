@@ -1,5 +1,6 @@
-import { Logger } from "@shared/logger";
-const log = Logger;'use client';
+'use client';
+
+import logger from '../../shared/logger';
 
 import { useState, useEffect, useCallback } from 'react';
 import { CommonComponentProps } from '@shared/types';
@@ -82,7 +83,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         setAiFeatures([]);
       }
     } catch (error) {
-      log.error("Console", 'AI 기능 로딩 실패:', error);
+      logger.error('AI 기능 로딩 실패:', error);
       setAiFeatures([]);
     }
   }, [logs]);
@@ -109,7 +110,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         setQuickQuestions(["AI 기능을 사용하려면 Electron API가 필요합니다"]);
       }
     } catch (error) {
-      log.error("Console", 'Quick questions 로딩 실패:', error);
+      logger.error('Quick questions 로딩 실패:', error);
       setQuickQuestions([]);
     }
   }, [logs]);
@@ -131,7 +132,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         setChatHistory([]);
       }
     } catch (error) {
-      log.error("Console", 'Chat history 로딩 실패:', error);
+      logger.error('Chat history 로딩 실패:', error);
       setChatHistory([]);
     }
   }, []);
@@ -183,7 +184,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
       setChatHistory(newChatHistory);
       setAiPrompt("");
     } catch (error) {
-      log.error("Console", 'AI 요청 실패:', error);
+      logger.error('AI 요청 실패:', error);
     } finally {
       setLoadingAI(false);
     }

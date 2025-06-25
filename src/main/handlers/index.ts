@@ -50,11 +50,7 @@ function registerAppHandlers(): void {
 
   // 플랫폼 정보 조회
   ipcMain.handle('app:getPlatform', () => {
-    return {
-      platform: process.platform,
-      arch: process.arch,
-      version: process.version
-    };
+    return process.platform;
   });
 
   // 앱 종료

@@ -1,12 +1,15 @@
-import { Logger } from "@shared/logger";
-const log = Logger;'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
-import { CommonComponentProps, SessionStats } from '@shared/types';
+import { CommonComponentProps, SessionStats, Log } from '@shared/types';
 import { 
-  debugEntry, debugExit, withDebug, transformSessionToProject, 
-  getStatusColor as getStatusColorUtil
-} from '@shared/common';
+  COMMON_STYLES, 
+  getCardClassName, 
+  getButtonClassName,
+  debugEntry, 
+  debugExit, 
+  measurePerformance
+} from '../common/common';
 import { 
   Search,
   Filter,
@@ -20,7 +23,8 @@ import {
   FileText
 } from 'lucide-react';
 
-export function Projects({ logs, loading }: CommonComponentProps) {
+function ProjectsComponent({ logs, loading }: CommonComponentProps) {
+  debugEntry('Projects.tsx');
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   // 🔥 실제 데이터 상태 관리 - 더미 데이터 박멸
@@ -52,7 +56,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
           // #DEBUG: 프로젝트 데이터 로드 완료
         }
       } catch (error) {
-        log.error("Console", '프로젝트 데이터 로딩 실패:', error);
+        console.error('프로젝트 데이터 로딩 실패:', error);
         setProjects([]);
       }
     };
@@ -98,7 +102,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
             <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
               <Filter className="w-4 h-4" />
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md font-medium transition-colors">
+            <button className={getButtonClassName({ variant: 'primary' })}>
               <Plus className="w-4 h-4 mr-2 inline" />
               새 프로젝트
             </button>
@@ -109,7 +113,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* 새 프로젝트 카드 */}
-          <div className="border-dashed border-2 border-blue-300 bg-blue-50/50 hover:bg-blue-50 rounded-lg p-6 cursor-pointer transition-colors">
+          <div className={getCardClassName({ variant: 'blue' })}>
             <div className="text-center py-8">
               <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Plus className="w-6 h-6" />
@@ -123,7 +127,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
           {filteredProjects.map((project, index) => (
             <div
               key={index}
-              className="bg-white border border-slate-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              className={getCardClassName({ hover: true })}
               onClick={() => setSelectedProject(project.title)}
             >
               <div className="flex items-start justify-between mb-3">
@@ -131,7 +135,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
                   <h3 className="font-semibold text-slate-900">{project.title}</h3>
                   {project.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                 </div>
-                <button className="p-1 hover:bg-slate-100 rounded">
+                <button className={getButtonClassName({ variant: 'icon' })}>
                   <MoreHorizontal className="w-4 h-4 text-slate-400" />
                 </button>
               </div>
@@ -178,6 +182,9 @@ export function Projects({ logs, loading }: CommonComponentProps) {
     </div>
   );
 }
+
+// #DEBUG: Projects 컴포넌트 export  
+export const Projects = ProjectsComponent;
 
 // #DEBUG: 프로젝트 데이터 타입 정의
 interface ProjectItem {

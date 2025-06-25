@@ -1,8 +1,14 @@
-import { Logger } from "@shared/logger";
-const log = Logger;'use client';
+'use client';
 
-import { CommonComponentProps } from '@shared/types';
-import { StatisticsData, WeeklyChartData, ProjectData, ActivityPattern, Goal, Genre } from '@shared/types';
+import { CommonComponentProps, StatisticsData, WeeklyChartData, ProjectData, ActivityPattern, Goal, Genre } from '@shared/types';
+import { 
+  COMMON_STYLES, 
+  getCardClassName, 
+  getButtonClassName,
+  debugEntry, 
+  debugExit, 
+  measurePerformance
+} from '../common/common';
 import { useEffect, useState } from 'react';
 import { 
   Download,
@@ -20,7 +26,8 @@ import {
   Bookmark
 } from 'lucide-react';
 
-export function Statistics({ logs, loading }: CommonComponentProps) {
+function StatisticsComponent({ logs, loading }: CommonComponentProps) {
+  debugEntry('Statistics.tsx');
   // 🔥 실제 데이터 상태 관리
   const [stats, setStats] = useState<StatisticsData[]>([]);
   const [weeklyData, setWeeklyData] = useState<WeeklyChartData[]>([]);
@@ -49,7 +56,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
           setGoals([]);
           setGenres([]);
         } catch (error) {
-          log.error("Console", '통계 데이터 로딩 실패:', error);
+          console.error('통계 데이터 로딩 실패:', error);
         }
       }
     };
@@ -66,11 +73,11 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
             <p className="text-slate-600 mt-1">창작 활동을 분석하고 개선하세요</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md font-medium transition-colors">
+            <button className={getButtonClassName({ variant: 'secondary' })}>
               <Download className="w-4 h-4 mr-2 inline" />
               내보내기
             </button>
-            <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md font-medium transition-colors">
+            <button className={getButtonClassName({ variant: 'secondary' })}>
               <RefreshCw className="w-4 h-4 mr-2 inline" />
               새로고침
             </button>
@@ -82,7 +89,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
         {/* 주요 지표 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white border border-slate-200 rounded-lg p-6">
+            <div key={index} className={getCardClassName({})}>
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -248,3 +255,6 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
     </div>
   );
 }
+
+// #DEBUG: Statistics 컴포넌트 export  
+export const Statistics = StatisticsComponent;

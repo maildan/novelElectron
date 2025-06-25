@@ -6,10 +6,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card } from '@components/ui/Card';
-import { Button } from '@components/ui/Button';
-import { Badge } from '@components/ui/Badge';
-import { Progress } from '@components/ui/Progress';
+import { Card } from '@renderer/components/ui/Card';
+import { Button } from '@renderer/components/ui/Button';
+import { Badge } from '@renderer/components/ui/Badge';
+import { Progress } from '@renderer/components/ui/Progress';
 import { Activity, TrendingUp, Clock, Target, Zap, X } from 'lucide-react';
 import { formatTime, getWpmColor, getAccuracyColor } from '../../shared/utils';
 

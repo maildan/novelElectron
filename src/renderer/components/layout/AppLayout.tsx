@@ -40,8 +40,13 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* App Header */}
-      <AppHeader />
+      {/* Fixed App Header */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <AppHeader 
+          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+          showMonitoring={true}
+        />
+      </div>
       
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
@@ -51,16 +56,16 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar with top margin for header */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 
+        fixed top-14 bottom-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 
         border-r border-gray-200 dark:border-gray-700 
         transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Loop Analytics
+            Navigation
           </h1>
           <button 
             onClick={() => setSidebarOpen(false)}
@@ -102,30 +107,20 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         </nav>
       </div>
 
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      {/* Main content with proper margins */}
+      <div className="pt-14 lg:pl-64">
+        {/* Mobile menu button for when sidebar is closed */}
+        <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-30">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mr-3"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {navItems.find(item => item.id === activeTab)?.label || '대시보드'}
-              </h2>
-            </div>
-            
-            {/* Status indicator */}
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                모니터링 활성
-              </span>
-            </div>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {navItems.find(item => item.id === activeTab)?.label || '대시보드'}
+            </h2>
           </div>
         </div>
 
