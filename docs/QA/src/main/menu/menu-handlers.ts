@@ -1,7 +1,5 @@
 import { Logger } from "../../shared/logger";
-const log = Logger;
-
-/**
+const log = Logger;/**
  * Menu action handlers
  * Modularized from MenuManager.ts
  */

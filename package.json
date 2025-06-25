@@ -19,7 +19,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings 0",
     "format": "prettier --write src/**/*.{ts,tsx}",
     "test": "jest",
     "copilot:keepalive": "node scripts/copilot-keepalive.js",

@@ -1,0 +1,610 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Copy/Paste Detector Report</title><link href="styles/tailwind.css" rel="stylesheet"><link href="styles/prism.css" rel="stylesheet"></head><body class="bg-gray-100"><header class="bg-white shadow py-4"><div class="container mx-auto px-4"><h1 class="text-3xl font-semibold text-gray-800">jscpd - copy/paste report</h1></div></header><main class="container mx-auto my-8 p-4 bg-white shadow rounded"><section class="mb-8" id="dashboard"><h2 class="text-2xl font-semibold text-gray-700 mb-4">Dashboard</h2><div class="grid grid-cols-4 gap-4"><div class="bg-blue-200 p-4 rounded text-center"><h3 class="text-lg font-semibold text-blue-800 mb-2">Total Files</h3><span class="text-4xl font-bold text-blue-800">137</span></div><div class="bg-green-200 p-4 rounded text-center"><h3 class="text-lg font-semibold text-green-800 mb-2">Total Lines of Code</h3><span class="text-4xl font-bold text-green-800">20637</span></div><div class="bg-yellow-200 p-4 rounded text-center"><h3 class="text-lg font-semibold text-yellow-800 mb-2">Number of Clones</h3><span class="text-4xl font-bold text-yellow-800">52</span></div><div class="bg-red-200 p-4 rounded text-center"><h3 class="text-lg font-semibold text-red-800 mb-2">Duplicated Lines</h3><span class="text-4xl font-bold text-red-800">601 (2.91%)</span></div></div></section><section class="mb-8" id="formats"><h2 class="text-2xl font-semibold text-gray-700 mb-4">Formats with Duplications</h2><table class="w-full table-auto"><thead><tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal"><th class="py-3 px-6 text-left">Format</th><th class="py-3 px-6 text-left">Files</th><th class="py-3 px-6 text-left">Lines</th><th class="py-3 px-6 text-left">Clones</th><th class="py-3 px-6 text-left">Duplicated Lines</th><th class="py-3 px-6 text-left">Duplicated Tokens</th></tr></thead><tbody><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#typescript-clones">typescript</a></td><td class="py-3 px-6">75</td><td class="py-3 px-6">15065</td><td class="py-3 px-6">40</td><td class="py-3 px-6">460</td><td class="py-3 px-6">3834</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#javascript-clones">javascript</a></td><td class="py-3 px-6">24</td><td class="py-3 px-6">1367</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#markup-clones">markup</a></td><td class="py-3 px-6">2</td><td class="py-3 px-6">50</td><td class="py-3 px-6">1</td><td class="py-3 px-6">25</td><td class="py-3 px-6">3536</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#tsx-clones">tsx</a></td><td class="py-3 px-6">21</td><td class="py-3 px-6">3144</td><td class="py-3 px-6">11</td><td class="py-3 px-6">116</td><td class="py-3 px-6">826</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#json-clones">json</a></td><td class="py-3 px-6">12</td><td class="py-3 px-6">601</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#markdown-clones">markdown</a></td><td class="py-3 px-6">1</td><td class="py-3 px-6">22</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td></tr><tr class="bg-white border-b border-gray-200 text-gray-800 text-sm"><td class="py-3 px-6"><a class="text-blue-600 hover:underline" href="#css-clones">css</a></td><td class="py-3 px-6">2</td><td class="py-3 px-6">388</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td><td class="py-3 px-6">0</td></tr></tbody></table></section><section class="mb-8" id="txt-clones"><a name="typescript-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">typescript</h2><div class="divide-y divide-gray-200 border-b-2"><div class="py-4"><p class="text-gray-600">src/renderer/.next/types/app/layout.ts (Line 5:25 - Line 34:12), src/renderer/.next/types/app/page.ts (Line 5:23 - Line 34:10)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn0" onclick="toggleCodeBlock('cloneGroup0', 'expandBtn0', 'collapseBtn0')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn0" onclick="toggleCodeBlock('cloneGroup0', 'expandBtn0', 'collapseBtn0')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup0"><code class="language-typescript text-sm text-gray-800">)
+
+type SegmentParams&lt;T extends Object = any&gt; = T extends Record&lt;string, any&gt;
+  ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }
+  : T
+
+// Check that the entry is a valid entry
+checkFields&lt;Diff&lt;{
+  default: Function
+  config?: {}
+  generateStaticParams?: Function
+  revalidate?: RevalidateRange&lt;TEntry&gt; | false
+  dynamic?: 'auto' | 'force-dynamic' | 'error' | 'force-static'
+  dynamicParams?: boolean
+  fetchCache?: 'auto' | 'force-no-store' | 'only-no-store' | 'default-no-store' | 'default-cache' | 'only-cache' | 'force-cache'
+  preferredRegion?: 'auto' | 'global' | 'home' | string | string[]
+  runtime?: 'nodejs' | 'experimental-edge' | 'edge'
+  maxDuration?: number
+  
+  metadata?: any
+  generateMetadata?: Function
+  viewport?: any
+  generateViewport?: Function
+  experimental_ppr?: boolean
+  
+}, TEntry, ''&gt;&gt;()
+
+
+// Check the prop type of the entry function
+checkFields&lt;Diff&lt;LayoutProps</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/.next/types/app/layout.ts (Line 38:12 - Line 44:12), src/renderer/.next/types/app/page.ts (Line 38:10 - Line 44:10)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn1" onclick="toggleCodeBlock('cloneGroup1', 'expandBtn1', 'collapseBtn1')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn1" onclick="toggleCodeBlock('cloneGroup1', 'expandBtn1', 'collapseBtn1')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup1"><code class="language-typescript text-sm text-gray-800">, FirstArg&lt;MaybeField&lt;TEntry, 'generateMetadata'&gt;&gt;, 'generateMetadata'&gt;&gt;()
+  checkFields&lt;Diff&lt;ResolvingMetadata, SecondArg&lt;MaybeField&lt;TEntry, 'generateMetadata'&gt;&gt;, 'generateMetadata'&gt;&gt;()
+}
+
+// Check the arguments and return type of the generateViewport function
+if ('generateViewport' in entry) {
+  checkFields&lt;Diff&lt;LayoutProps</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/.next/types/app/layout.ts (Line 44:12 - Line 85:1), src/renderer/.next/types/app/page.ts (Line 44:10 - Line 85:1)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn2" onclick="toggleCodeBlock('cloneGroup2', 'expandBtn2', 'collapseBtn2')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn2" onclick="toggleCodeBlock('cloneGroup2', 'expandBtn2', 'collapseBtn2')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup2"><code class="language-typescript text-sm text-gray-800">, FirstArg&lt;MaybeField&lt;TEntry, 'generateViewport'&gt;&gt;, 'generateViewport'&gt;&gt;()
+  checkFields&lt;Diff&lt;ResolvingViewport, SecondArg&lt;MaybeField&lt;TEntry, 'generateViewport'&gt;&gt;, 'generateViewport'&gt;&gt;()
+}
+
+// Check the arguments and return type of the generateStaticParams function
+if ('generateStaticParams' in entry) {
+  checkFields&lt;Diff&lt;{ params: SegmentParams }, FirstArg&lt;MaybeField&lt;TEntry, 'generateStaticParams'&gt;&gt;, 'generateStaticParams'&gt;&gt;()
+  checkFields&lt;Diff&lt;{ __tag__: 'generateStaticParams', __return_type__: any[] | Promise&lt;any[]&gt; }, { __tag__: 'generateStaticParams', __return_type__: ReturnType&lt;MaybeField&lt;TEntry, 'generateStaticParams'&gt;&gt; }&gt;&gt;()
+}
+
+export interface PageProps {
+  params?: Promise&lt;SegmentParams&gt;
+  searchParams?: Promise&lt;any&gt;
+}
+export interface LayoutProps {
+  children?: React.ReactNode
+
+  params?: Promise&lt;SegmentParams&gt;
+}
+
+// =============
+// Utility types
+type RevalidateRange&lt;T&gt; = T extends { revalidate: any } ? NonNegative&lt;T['revalidate']&gt; : never
+
+// If T is unknown or any, it will be an empty {} type. Otherwise, it will be the same as Omit&lt;T, keyof Base&gt;.
+type OmitWithTag&lt;T, K extends keyof any, _M&gt; = Omit&lt;T, K&gt;
+type Diff&lt;Base, T extends Base, Message extends string = ''&gt; = 0 extends (1 &amp; T) ? {} : OmitWithTag&lt;T, keyof Base, Message&gt;
+
+type FirstArg&lt;T extends Function&gt; = T extends (...args: [infer T, any]) =&gt; any ? unknown extends T ? any : T : never
+type SecondArg&lt;T extends Function&gt; = T extends (...args: [any, infer T]) =&gt; any ? unknown extends T ? any : T : never
+type MaybeField&lt;T, K extends string&gt; = T extends { [k in K]: infer G } ? G extends Function ? G : never : never
+
+
+
+function checkFields&lt;_ extends { [k in keyof any]: never }&gt;() {}
+
+// https://github.com/sindresorhus/type-fest
+type Numeric = number | bigint
+type Zero = 0 | 0n
+type Negative&lt;T extends Numeric&gt; = T extends Zero ? never : `${T}` extends `-${string}` ? T : never
+type NonNegative&lt;T extends Numeric&gt; = T extends Zero ? T : Negative&lt;T&gt; extends never ? T : '__invalid_negative_number__'
+</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/ui/index-new.ts (Line 1:1 - Line 28:9), src/renderer/components/ui/index.ts (Line 1:1 - Line 28:9)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn3" onclick="toggleCodeBlock('cloneGroup3', 'expandBtn3', 'collapseBtn3')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn3" onclick="toggleCodeBlock('cloneGroup3', 'expandBtn3', 'collapseBtn3')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup3"><code class="language-typescript text-sm text-gray-800">// UI Components Export
+export { Button } from './Button';
+export type { ButtonProps } from './Button';
+
+export { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent,
+  CardFooter
+} from './Card';
+export type { 
+  CardProps, 
+  CardHeaderProps, 
+  CardTitleProps, 
+  CardDescriptionProps, 
+  CardContentProps,
+  CardFooterProps 
+} from './Card';
+
+export { Badge } from './Badge';
+export type { BadgeProps } from './Badge';
+
+export { Input } from './Input';
+export type { InputProps } from './Input';
+
+export { Progress</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/detectors/AppDetector.ts (Line 153:3 - Line 161:14), src/main/keyboard/detectors/AppDetector.ts (Line 119:3 - Line 127:10)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn15" onclick="toggleCodeBlock('cloneGroup15', 'expandBtn15', 'collapseBtn15')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn15" onclick="toggleCodeBlock('cloneGroup15', 'expandBtn15', 'collapseBtn15')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup15"><code class="language-typescript text-sm text-gray-800">, { 
+        encoding: 'utf8', 
+        timeout: 5000 
+      }).trim();
+      
+      const [appName, windowTitle] = result.split('|');
+      
+      return {
+        appName: appName || 'Windows App'</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 94:2 - Line 101:2), src/main/menu/menu-handlers.ts (Line 86:2 - Line 94:1)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn17" onclick="toggleCodeBlock('cloneGroup17', 'expandBtn17', 'collapseBtn17')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn17" onclick="toggleCodeBlock('cloneGroup17', 'expandBtn17', 'collapseBtn17')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup17"><code class="language-typescript text-sm text-gray-800">{
+            title: 'Export Loop Data',
+            defaultPath: `loop-data-${new Date().toISOString().split('T')[0]}.json`,
+            filters: [
+              { name: 'JSON Files', extensions: ['json'] },
+              { name: 'All Files', extensions: ['*'] }
+            ]
+          });</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 136:2 - Line 143:2), src/main/menu/menu-handlers.ts (Line 128:2 - Line 136:1)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn18" onclick="toggleCodeBlock('cloneGroup18', 'expandBtn18', 'collapseBtn18')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn18" onclick="toggleCodeBlock('cloneGroup18', 'expandBtn18', 'collapseBtn18')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup18"><code class="language-typescript text-sm text-gray-800">{
+            title: 'Import Loop Data',
+            filters: [
+              { name: 'JSON Files', extensions: ['json'] },
+              { name: 'All Files', extensions: ['*'] }
+            ],
+            properties: ['openFile']
+          });</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 191:19 - Line 203:6), src/main/menu/menu-handlers.ts (Line 165:20 - Line 65:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn19" onclick="toggleCodeBlock('cloneGroup19', 'expandBtn19', 'collapseBtn19')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn19" onclick="toggleCodeBlock('cloneGroup19', 'expandBtn19', 'collapseBtn19')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup19"><code class="language-typescript text-sm text-gray-800">(): Promise&lt;void&gt; {
+    const mainWindow = BrowserWindow.getAllWindows()[0];
+    if (mainWindow &amp;&amp; 'webContents' in mainWindow) {
+      const win = mainWindow as BrowserWindow;
+      win.webContents.send('navigate-to', '/settings');
+      win.show();
+      win.focus();
+    }
+  }
+
+  /**
+   * Show keyboard shortcuts help
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 227:10 - Line 241:6), src/main/menu/menu-handlers.ts (Line 34:2 - Line 48:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn20" onclick="toggleCodeBlock('cloneGroup20', 'expandBtn20', 'collapseBtn20')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn20" onclick="toggleCodeBlock('cloneGroup20', 'expandBtn20', 'collapseBtn20')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup20"><code class="language-typescript text-sm text-gray-800">.join('\n'),
+      buttons: ['OK'],
+      defaultId: 0
+    };
+
+    if (focusedWindow) {
+      await dialog.showMessageBox(focusedWindow, options);
+    } else {
+      await dialog.showMessageBox(options);
+    }
+  }
+
+  /**
+   * Check for application updates
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 252:46 - Line 266:6), src/main/menu/menu-handlers.ts (Line 34:2 - Line 48:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn21" onclick="toggleCodeBlock('cloneGroup21', 'expandBtn21', 'collapseBtn21')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn21" onclick="toggleCodeBlock('cloneGroup21', 'expandBtn21', 'collapseBtn21')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup21"><code class="language-typescript text-sm text-gray-800">,
+      buttons: ['OK'],
+      defaultId: 0
+    };
+
+    if (focusedWindow) {
+      await dialog.showMessageBox(focusedWindow, options);
+    } else {
+      await dialog.showMessageBox(options);
+    }
+  }
+
+  /**
+   * Open external links
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/menu/menu-handlers.ts (Line 286:8 - Line 300:6), src/main/menu/menu-handlers.ts (Line 34:2 - Line 48:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn22" onclick="toggleCodeBlock('cloneGroup22', 'expandBtn22', 'collapseBtn22')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn22" onclick="toggleCodeBlock('cloneGroup22', 'expandBtn22', 'collapseBtn22')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup22"><code class="language-typescript text-sm text-gray-800">,
+      buttons: ['OK'],
+      defaultId: 0
+    };
+
+    if (focusedWindow) {
+      await dialog.showMessageBox(focusedWindow, options);
+    } else {
+      await dialog.showMessageBox(options);
+    }
+  }
+
+  /**
+   * Clear recent files
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-old.ts (Line 81:6 - Line 91:6), src/main/managers/MenuManager.ts (Line 24:1 - Line 34:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn23" onclick="toggleCodeBlock('cloneGroup23', 'expandBtn23', 'collapseBtn23')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn23" onclick="toggleCodeBlock('cloneGroup23', 'expandBtn23', 'collapseBtn23')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup23"><code class="language-typescript text-sm text-gray-800">
+  static getInstance(): MenuManager {
+    if (!MenuManager.instance) {
+      MenuManager.instance = new MenuManager();
+    }
+    return MenuManager.instance;
+  }
+
+  /**
+   * 메뉴 매니저 초기화
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-old.ts (Line 302:2 - Line 309:1), src/main/menu/menu-items.ts (Line 133:2 - Line 139:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn24" onclick="toggleCodeBlock('cloneGroup24', 'expandBtn24', 'collapseBtn24')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn24" onclick="toggleCodeBlock('cloneGroup24', 'expandBtn24', 'collapseBtn24')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup24"><code class="language-typescript text-sm text-gray-800"> [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' }
+</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-old.ts (Line 356:2 - Line 363:1), src/main/menu/menu-items.ts (Line 165:2 - Line 171:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn25" onclick="toggleCodeBlock('cloneGroup25', 'expandBtn25', 'collapseBtn25')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn25" onclick="toggleCodeBlock('cloneGroup25', 'expandBtn25', 'collapseBtn25')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup25"><code class="language-typescript text-sm text-gray-800">
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
+</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-old.ts (Line 433:2 - Line 440:7), src/main/managers/MenuManager-old.ts (Line 187:2 - Line 194:8)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn26" onclick="toggleCodeBlock('cloneGroup26', 'expandBtn26', 'collapseBtn26')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn26" onclick="toggleCodeBlock('cloneGroup26', 'expandBtn26', 'collapseBtn26')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup26"><code class="language-typescript text-sm text-gray-800">options.showAbout) {
+      submenu.push({
+        label: `${options.appName} 정보`,
+        click: () =&gt; this.sendMenuAction({ action: 'show-about' })
+      });
+    }
+
+    return</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-new.ts (Line 11:1 - Line 23:7), src/main/managers/MenuManager-old.ts (Line 8:4 - Line 22:4)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn27" onclick="toggleCodeBlock('cloneGroup27', 'expandBtn27', 'collapseBtn27')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn27" onclick="toggleCodeBlock('cloneGroup27', 'expandBtn27', 'collapseBtn27')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup27"><code class="language-typescript text-sm text-gray-800">
+export interface MenuOptions {
+  showPreferences?: boolean;
+  showAbout?: boolean;
+  showQuit?: boolean;
+  showDevTools?: boolean;
+  enableAutoUpdates?: boolean;
+  appName?: string;
+  recentFiles?: string[];
+  items?: MenuItemConstructorOptions[];
+}
+
+export</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-new.ts (Line 42:6 - Line 52:6), src/main/managers/MenuManager.ts (Line 24:1 - Line 34:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn28" onclick="toggleCodeBlock('cloneGroup28', 'expandBtn28', 'collapseBtn28')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn28" onclick="toggleCodeBlock('cloneGroup28', 'expandBtn28', 'collapseBtn28')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup28"><code class="language-typescript text-sm text-gray-800">
+  static getInstance(): MenuManager {
+    if (!MenuManager.instance) {
+      MenuManager.instance = new MenuManager();
+    }
+    return MenuManager.instance;
+  }
+
+  /**
+   * Initialize menu system
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-new.ts (Line 110:17 - Line 115:36), src/main/managers/MenuManager.ts (Line 81:18 - Line 86:18)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn29" onclick="toggleCodeBlock('cloneGroup29', 'expandBtn29', 'collapseBtn29')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn29" onclick="toggleCodeBlock('cloneGroup29', 'expandBtn29', 'collapseBtn29')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup29"><code class="language-typescript text-sm text-gray-800">(): void {
+    try {
+      const template = getContextMenuTemplate();
+      this.contextMenu = Menu.buildFromTemplate(template);
+      
+      log.info(&quot;Console&quot;, '✅ Context menu setup successfully'</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/managers/MenuManager-new.ts (Line 152:34 - Line 160:1), src/main/managers/MenuManager.ts (Line 125:26 - Line 132:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn30" onclick="toggleCodeBlock('cloneGroup30', 'expandBtn30', 'collapseBtn30')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn30" onclick="toggleCodeBlock('cloneGroup30', 'expandBtn30', 'collapseBtn30')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup30"><code class="language-typescript text-sm text-gray-800">);
+      return;
+    }
+
+    try {
+      const targetWindow = window || BrowserWindow.getFocusedWindow();
+      if (targetWindow) {
+        this.contextMenu.popup({
+</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/StatsManager.ts (Line 566:4 - Line 572:44), src/main/keyboard/StatsManager.ts (Line 538:7 - Line 546:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn31" onclick="toggleCodeBlock('cloneGroup31', 'expandBtn31', 'collapseBtn31')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn31" onclick="toggleCodeBlock('cloneGroup31', 'expandBtn31', 'collapseBtn31')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup31"><code class="language-typescript text-sm text-gray-800">,
+        usage: (count / total) * 100
+      }))
+      .sort((a, b) =&gt; b.usage - a.usage);
+  }
+
+  // Helper methods for interval calculations</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/PermissionManager.ts (Line 134:2 - Line 144:6), src/main/keyboard/PermissionManager.ts (Line 114:28 - Line 124:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn32" onclick="toggleCodeBlock('cloneGroup32', 'expandBtn32', 'collapseBtn32')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn32" onclick="toggleCodeBlock('cloneGroup32', 'expandBtn32', 'collapseBtn32')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup32"><code class="language-typescript text-sm text-gray-800">
+      this.currentStatus.accessibility = false;
+      this.currentStatus.screenRecording = false;
+      this.currentStatus.inputMonitoring = false;
+      this.currentStatus.fullDiskAccess = false;
+    }
+  }
+
+  /**
+   * Linux 권한 확인
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/PermissionManager.ts (Line 154:20 - Line 164:6), src/main/keyboard/PermissionManager.ts (Line 134:22 - Line 124:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn33" onclick="toggleCodeBlock('cloneGroup33', 'expandBtn33', 'collapseBtn33')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn33" onclick="toggleCodeBlock('cloneGroup33', 'expandBtn33', 'collapseBtn33')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup33"><code class="language-typescript text-sm text-gray-800">, error);
+      this.currentStatus.accessibility = false;
+      this.currentStatus.screenRecording = false;
+      this.currentStatus.inputMonitoring = false;
+      this.currentStatus.fullDiskAccess = false;
+    }
+  }
+
+  /**
+   * 권한 상태 분석
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/PermissionManager.ts (Line 376:2 - Line 382:20), src/main/keyboard/PermissionManager.ts (Line 359:33 - Line 365:18)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn34" onclick="toggleCodeBlock('cloneGroup34', 'expandBtn34', 'collapseBtn34')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn34" onclick="toggleCodeBlock('cloneGroup34', 'expandBtn34', 'collapseBtn34')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup34"><code class="language-typescript text-sm text-gray-800">
+        setTimeout(() =&gt; {
+          resolve(true); // 임시로 true 반환
+        }, 100);
+      });
+    } catch (error) {
+      log.error(&quot;Console&quot;, '❌ 화면 녹화 권한 확인 실패:'</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/PermissionManager.ts (Line 392:18 - Line 399:22), src/main/keyboard/PermissionManager.ts (Line 375:17 - Line 365:18)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn35" onclick="toggleCodeBlock('cloneGroup35', 'expandBtn35', 'collapseBtn35')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn35" onclick="toggleCodeBlock('cloneGroup35', 'expandBtn35', 'collapseBtn35')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup35"><code class="language-typescript text-sm text-gray-800">
+      return new Promise((resolve) =&gt; {
+        setTimeout(() =&gt; {
+          resolve(true); // 임시로 true 반환
+        }, 100);
+      });
+    } catch (error) {
+      log.error(&quot;Console&quot;, '❌ 입력 모니터링 권한 확인 실패:'</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/PermissionManager.ts (Line 409:20 - Line 416:24), src/main/keyboard/PermissionManager.ts (Line 375:17 - Line 365:18)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn36" onclick="toggleCodeBlock('cloneGroup36', 'expandBtn36', 'collapseBtn36')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn36" onclick="toggleCodeBlock('cloneGroup36', 'expandBtn36', 'collapseBtn36')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup36"><code class="language-typescript text-sm text-gray-800">
+      return new Promise((resolve) =&gt; {
+        setTimeout(() =&gt; {
+          resolve(true); // 임시로 true 반환
+        }, 100);
+      });
+    } catch (error) {
+      log.error(&quot;Console&quot;, '❌ 전체 디스크 접근 권한 확인 실패:'</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/KeyboardIpcHandlers.ts (Line 22:16 - Line 34:16), src/main/keyboard/handlers/KeyboardIpcHandlers.ts (Line 35:11 - Line 47:11)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn37" onclick="toggleCodeBlock('cloneGroup37', 'expandBtn37', 'collapseBtn37')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn37" onclick="toggleCodeBlock('cloneGroup37', 'expandBtn37', 'collapseBtn37')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup37"><code class="language-typescript text-sm text-gray-800">): void {
+    for (const [channel, handler] of Object.entries(handlers)) {
+      ipcMain.handle(channel, handler);
+      this.registeredChannels.push(channel);
+    }
+
+    GigaChadLogger.info('KeyboardIpcHandlers', SUCCESS_MESSAGES.HANDLERS_REGISTERED);
+  }
+
+  /**
+   * 기본 키보드 IPC 핸들러들 생성
+   */
+  public createDefaultHandlers(keyboardEngine: KeyboardEngine): TypedIpcHandler</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/KeyboardIpcHandlers.ts (Line 34:16 - Line 43:16), src/main/keyboard/handlers/KeyboardIpcHandlers.ts (Line 47:11 - Line 56:15)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn38" onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn38" onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup38"><code class="language-typescript text-sm text-gray-800"> {
+    return {
+      // 모니터링 제어
+      'keyboard-engine:start-monitoring': () =&gt; keyboardEngine.startMonitoring(),
+      'keyboard-engine:stop-monitoring': () =&gt; keyboardEngine.stopMonitoring(),
+      'keyboard-engine:toggle-monitoring': () =&gt; keyboardEngine.toggleMonitoring(),
+
+      // 상태 조회
+      'keyboard-engine:get-status': () =&gt; keyboardEngine.getMonitoringStatus(),
+      'keyboard-engine:get-session-stats': () =&gt; keyboardEngine.getSessionStats</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/KeyboardIpcHandlers.ts (Line 76:3 - Line 123:1), src/main/keyboard/handlers/KeyboardIpcHandlers.ts (Line 87:8 - Line 134:1)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn39" onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn39" onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup39"><code class="language-typescript text-sm text-gray-800">): void {
+    ipcMain.handle(channel, handler);
+    this.registeredChannels.push(channel);
+    
+    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 등록: ${channel}`);
+  }
+
+  /**
+   * IPC 핸들러 해제
+   */
+  public unregisterHandlers(): void {
+    for (const channel of this.registeredChannels) {
+      ipcMain.removeHandler(channel);
+    }
+
+    GigaChadLogger.info('KeyboardIpcHandlers', '🔌 키보드 엔진 IPC 핸들러 해제 완료');
+    this.registeredChannels.length = 0;
+  }
+
+  /**
+   * 특정 채널의 핸들러 해제
+   */
+  public unregisterHandler(channel: string): void {
+    ipcMain.removeHandler(channel);
+    
+    const index = this.registeredChannels.indexOf(channel);
+    if (index &gt; -1) {
+      this.registeredChannels.splice(index, 1);
+    }
+
+    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 해제: ${channel}`);
+  }
+
+  /**
+   * 등록된 채널 목록 가져오기
+   */
+  public getRegisteredChannels(): string[] {
+    return [...this.registeredChannels];
+  }
+
+  /**
+   * 정리
+   */
+  public cleanup(): void {
+    this.unregisterHandlers();
+  }
+}
+</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/keyboard/HangulComposer.ts (Line 267:5 - Line 279:2), src/main/keyboard/HangulComposer.ts (Line 253:5 - Line 265:3)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn40" onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn40" onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup40"><code class="language-typescript text-sm text-gray-800">;
+      this.state.buffer = this.state.cho + jung;
+      
+      const composed = this.composeHangul();
+      this.state.result = composed;
+      
+      return {
+        completed: false,
+        character: composed,
+        state: this.getState(),
+        needsContinue: true
+      };
+    } else {</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers/index.ts (Line 108:18 - Line 116:18), src/main/handlers/index.ts (Line 89:18 - Line 97:15)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn41" onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn41" onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup41"><code class="language-typescript text-sm text-gray-800">, error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
+      };
+    }
+  });
+
+  // 키보드 모니터링 상태 확인</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers/dashboardIpcHandlers.ts (Line 87:13 - Line 92:18), src/main/handlers/dashboardIpcHandlers.ts (Line 77:13 - Line 82:8)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn42" onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn42" onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup42"><code class="language-typescript text-sm text-gray-800">, error instanceof Error ? error.message : String(error));
+        return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
+      }
+    });
+
+    // 최근 로그 데이터 가져오기</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers/dashboardIpcHandlers.ts (Line 165:9 - Line 180:7), src/main/handlers/dashboardIpcHandlers.ts (Line 144:6 - Line 159:11)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn43" onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn43" onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup43"><code class="language-typescript text-sm text-gray-800"> }
+          },
+          _sum: {
+            totalKeys: true,
+            duration: true,
+          },
+          _avg: {
+            wpm: true,
+            accuracy: true,
+          },
+          _count: {
+            id: true,
+          }
+        });
+
+        return</code></pre></div><div class="py-4"><p class="text-gray-600">src/shared/types.ts (Line 314:14 - Line 322:11), src/shared/types.ts (Line 189:13 - Line 197:9)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn44" onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn44" onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup44"><code class="language-typescript text-sm text-gray-800"> {
+  id: string;
+  content: string;
+  keyCount: number;
+  typingTime: number;
+  wpm: number;
+  accuracy: number;
+  timestamp: string;
+  totalChars</code></pre></div><div class="py-4"><p class="text-gray-600">src/shared/logger.ts (Line 50:2 - Line 59:6), src/main/keyboard/logger.ts (Line 38:3 - Line 47:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn45" onclick="toggleCodeBlock('cloneGroup45', 'expandBtn45', 'collapseBtn45')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn45" onclick="toggleCodeBlock('cloneGroup45', 'expandBtn45', 'collapseBtn45')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup45"><code class="language-typescript text-sm text-gray-800">static getInstance(): GigaChadLogger {
+    if (!GigaChadLogger.instance) {
+      GigaChadLogger.instance = new GigaChadLogger();
+    }
+    return GigaChadLogger.instance;
+  }
+
+  /**
+   * 로그 설정
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/shared/common.ts (Line 368:2 - Line 373:2), src/shared/common.ts (Line 361:2 - Line 366:3)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn46" onclick="toggleCodeBlock('cloneGroup46', 'expandBtn46', 'collapseBtn46')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn46" onclick="toggleCodeBlock('cloneGroup46', 'expandBtn46', 'collapseBtn46')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup46"><code class="language-typescript text-sm text-gray-800">,
+          new Promise&lt;never&gt;((_, reject) =&gt; 
+            setTimeout(() =&gt; reject(new Error('Timeout')), timeout)
+          )
+        ]);
+      } else {</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/ipc-handlers.ts (Line 325:19 - Line 331:15), src/main/ipc-handlers.ts (Line 310:19 - Line 316:15)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn47" onclick="toggleCodeBlock('cloneGroup47', 'expandBtn47', 'collapseBtn47')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn47" onclick="toggleCodeBlock('cloneGroup47', 'expandBtn47', 'collapseBtn47')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup47"><code class="language-typescript text-sm text-gray-800">, async (event, options) =&gt; {
+      try {
+        const window = BrowserWindow.fromWebContents(event.sender);
+        if (!window) {
+          throw new Error('윈도우를 찾을 수 없습니다');
+        }
+        const result = await dialog.showSaveDialog</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers-manager.ts (Line 44:6 - Line 57:6), src/main/managers/HandlersManager.ts (Line 27:5 - Line 40:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn48" onclick="toggleCodeBlock('cloneGroup48', 'expandBtn48', 'collapseBtn48')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn48" onclick="toggleCodeBlock('cloneGroup48', 'expandBtn48', 'collapseBtn48')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup48"><code class="language-typescript text-sm text-gray-800">;
+
+  private constructor() {}
+
+  static getInstance(): HandlersManager {
+    if (!HandlersManager.instance) {
+      HandlersManager.instance = new HandlersManager();
+    }
+    return HandlersManager.instance;
+  }
+
+  /**
+   * 모든 핸들러 초기화
+   */</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers-manager.ts (Line 198:18 - Line 203:3), src/main/handlers-manager.ts (Line 184:18 - Line 189:11)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn49" onclick="toggleCodeBlock('cloneGroup49', 'expandBtn49', 'collapseBtn49')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn49" onclick="toggleCodeBlock('cloneGroup49', 'expandBtn49', 'collapseBtn49')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup49"><code class="language-typescript text-sm text-gray-800">, async () =&gt; {
+      try {
+        const { BrowserWindow } = require('electron');
+        const mainWindow = BrowserWindow.getFocusedWindow();
+        if (mainWindow) {
+          if</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers-manager.ts (Line 207:2 - Line 216:14), src/main/handlers-manager.ts (Line 189:2 - Line 198:8)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn50" onclick="toggleCodeBlock('cloneGroup50', 'expandBtn50', 'collapseBtn50')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn50" onclick="toggleCodeBlock('cloneGroup50', 'expandBtn50', 'collapseBtn50')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup50"><code class="language-typescript text-sm text-gray-800">
+          return { success: true };
+        }
+        return { success: false, error: '활성 윈도우 없음' };
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+    });
+
+    handlersState</code></pre></div><div class="py-4"><p class="text-gray-600">src/main/handlers-manager.ts (Line 254:5 - Line 260:9), src/main/handlers-manager.ts (Line 192:12 - Line 216:9)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn51" onclick="toggleCodeBlock('cloneGroup51', 'expandBtn51', 'collapseBtn51')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn51" onclick="toggleCodeBlock('cloneGroup51', 'expandBtn51', 'collapseBtn51')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup51"><code class="language-typescript text-sm text-gray-800"> };
+      } catch (error) {
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+      }
+    });
+
+    handlersState.registeredHandlers.add('system'</code></pre></div><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="javascript-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">javascript</h2><div class="divide-y divide-gray-200 border-b-2"><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="markup-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">markup</h2><div class="divide-y divide-gray-200 border-b-2"><div class="py-4"><p class="text-gray-600">src/renderer/out/index.html (Line 1:1 - Line 26:2), src/renderer/.next/server/app/index.html (Line 1:1 - Line 26:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn16" onclick="toggleCodeBlock('cloneGroup16', 'expandBtn16', 'collapseBtn16')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn16" onclick="toggleCodeBlock('cloneGroup16', 'expandBtn16', 'collapseBtn16')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup16"><code class="language-markup text-sm text-gray-800">&lt;!DOCTYPE html&gt;&lt;html lang=&quot;ko&quot;&gt;&lt;head&gt;&lt;meta charSet=&quot;utf-8&quot;/&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;/&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;/_next/static/css/c7f765b92536714d.css&quot; data-precedence=&quot;next&quot;/&gt;&lt;link rel=&quot;preload&quot; as=&quot;script&quot; fetchPriority=&quot;low&quot; href=&quot;/_next/static/chunks/webpack-1ad7cb740b0a3d22.js&quot;/&gt;&lt;script src=&quot;/_next/static/chunks/87c73c54-69e7c9eddd188b2d.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;script src=&quot;/_next/static/chunks/315-4f435a22793a9823.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;script src=&quot;/_next/static/chunks/main-app-849ad5ed86326ab1.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;script src=&quot;/_next/static/chunks/951-3b4e8edce4bf38aa.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;script src=&quot;/_next/static/chunks/app/page-a35078c997fb9111.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &amp;#x27;self&amp;#x27;;  script-src &amp;#x27;self&amp;#x27; &amp;#x27;unsafe-inline&amp;#x27;;  style-src &amp;#x27;self&amp;#x27; &amp;#x27;unsafe-inline&amp;#x27;;  img-src &amp;#x27;self&amp;#x27; data:;  font-src &amp;#x27;self&amp;#x27; data:;  connect-src &amp;#x27;self&amp;#x27;;&quot;/&gt;&lt;title&gt;Loop Typing Analytics&lt;/title&gt;&lt;meta name=&quot;description&quot; content=&quot;작가를 위한 타이핑 분석 도구&quot;/&gt;&lt;script&gt;document.querySelectorAll('body link[rel=&quot;icon&quot;], body link[rel=&quot;apple-touch-icon&quot;]').forEach(el =&gt; document.head.appendChild(el))&lt;/script&gt;&lt;script src=&quot;/_next/static/chunks/polyfills-42372ed130431b0a.js&quot; noModule=&quot;&quot;&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&lt;div hidden=&quot;&quot;&gt;&lt;!--$--&gt;&lt;!--/$--&gt;&lt;/div&gt;&lt;div class=&quot;min-h-screen bg-gray-50 dark:bg-gray-900&quot;&gt;&lt;header class=&quot;h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center border-b border-slate-700 shadow-lg&quot;&gt;&lt;div class=&quot;text-white font-semibold text-lg&quot;&gt;Loop Typing Analytics&lt;/div&gt;&lt;/header&gt;&lt;div class=&quot;
+        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 
+        border-r border-gray-200 dark:border-gray-700 
+        transform transition-transform duration-300 ease-in-out
+        lg:translate-x-0 -translate-x-full
+      &quot;&gt;&lt;div class=&quot;flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700&quot;&gt;&lt;h1 class=&quot;text-xl font-bold text-gray-900 dark:text-white&quot;&gt;Loop Analytics&lt;/h1&gt;&lt;button class=&quot;lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-x w-5 h-5&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M18 6 6 18&quot;&gt;&lt;/path&gt;&lt;path d=&quot;m6 6 12 12&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;nav class=&quot;mt-6 px-3&quot;&gt;&lt;ul class=&quot;space-y-2&quot;&gt;&lt;li&gt;&lt;button class=&quot;
+                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
+                      transition-colors duration-200
+                      bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400
+                    &quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-house w-5 h-5 mr-3&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;대시보드&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button class=&quot;
+                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
+                      transition-colors duration-200
+                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700
+                    &quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-chart-column w-5 h-5 mr-3&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M3 3v16a2 2 0 0 0 2 2h16&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M18 17V9&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M13 17V5&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M8 17v-3&quot;&gt;&lt;/path&gt;&lt;/svg&gt;통계&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button class=&quot;
+                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
+                      transition-colors duration-200
+                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700
+                    &quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-folder-open w-5 h-5 mr-3&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2&quot;&gt;&lt;/path&gt;&lt;/svg&gt;프로젝트&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button class=&quot;
+                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
+                      transition-colors duration-200
+                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700
+                    &quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-brain w-5 h-5 mr-3&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M17.599 6.5a3 3 0 0 0 .399-1.375&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M6.003 5.125A3 3 0 0 0 6.401 6.5&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M3.477 10.896a4 4 0 0 1 .585-.396&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M19.938 10.5a4 4 0 0 1 .585.396&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M6 18a4 4 0 0 1-1.967-.516&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M19.967 17.484A4 4 0 0 1 18 18&quot;&gt;&lt;/path&gt;&lt;/svg&gt;AI 분석&lt;/button&gt;&lt;/li&gt;&lt;li&gt;&lt;button class=&quot;
+                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
+                      transition-colors duration-200
+                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700
+                    &quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-settings w-5 h-5 mr-3&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z&quot;&gt;&lt;/path&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;3&quot;&gt;&lt;/circle&gt;&lt;/svg&gt;설정&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;&lt;/div&gt;&lt;div class=&quot;lg:pl-64&quot;&gt;&lt;div class=&quot;sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3&quot;&gt;&lt;div class=&quot;flex items-center justify-between&quot;&gt;&lt;div class=&quot;flex items-center&quot;&gt;&lt;button class=&quot;lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mr-3&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-menu w-5 h-5&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M4 12h16&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M4 18h16&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M4 6h16&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/button&gt;&lt;h2 class=&quot;text-lg font-semibold text-gray-900 dark:text-white&quot;&gt;대시보드&lt;/h2&gt;&lt;/div&gt;&lt;div class=&quot;flex items-center space-x-2&quot;&gt;&lt;div class=&quot;w-2 h-2 bg-green-400 rounded-full animate-pulse&quot;&gt;&lt;/div&gt;&lt;span class=&quot;text-sm text-gray-600 dark:text-gray-400&quot;&gt;모니터링 활성&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;main class=&quot;p-6&quot;&gt;&lt;div class=&quot;flex-1 flex flex-col bg-slate-50&quot;&gt;&lt;div class=&quot;bg-white border-b border-slate-200 p-6&quot;&gt;&lt;div class=&quot;flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4&quot;&gt;&lt;div&gt;&lt;h1 class=&quot;text-2xl font-bold text-slate-900&quot;&gt;대시보드&lt;/h1&gt;&lt;p class=&quot;text-slate-600 mt-1&quot;&gt;오늘의 창작을 시작하세요&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;flex items-center gap-3&quot;&gt;&lt;button class=&quot;px-4 py-2 rounded-md font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-sparkles w-4 h-4 mr-2 inline&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M20 3v4&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M22 5h-4&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M4 17v2&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M5 18H3&quot;&gt;&lt;/path&gt;&lt;/svg&gt;Loop AI&lt;/button&gt;&lt;button class=&quot;px-4 py-2 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-play w-4 h-4 mr-2 inline&quot; aria-hidden=&quot;true&quot;&gt;&lt;polygon points=&quot;6 3 20 12 6 21 6 3&quot;&gt;&lt;/polygon&gt;&lt;/svg&gt;시작&lt;/button&gt;&lt;button class=&quot;p-2 text-slate-600 hover:bg-slate-100 rounded-md&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-ellipsis w-4 h-4&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;1&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;19&quot; cy=&quot;12&quot; r=&quot;1&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;5&quot; cy=&quot;12&quot; r=&quot;1&quot;&gt;&lt;/circle&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;flex-1 overflow-y-auto p-6 space-y-6&quot;&gt;&lt;div class=&quot;space-y-4&quot;&gt;&lt;h2 class=&quot;text-lg font-semibold text-slate-900&quot;&gt;빠른 시작&lt;/h2&gt;&lt;div class=&quot;bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 rounded-lg p-6 h-[120px] flex items-center justify-center cursor-pointer transition-colors&quot;&gt;&lt;div class=&quot;text-center&quot;&gt;&lt;div class=&quot;w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-plus w-6 h-6&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M5 12h14&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M12 5v14&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/div&gt;&lt;h3 class=&quot;font-semibold text-slate-900 mb-1&quot;&gt;새 프로젝트 시작&lt;/h3&gt;&lt;p class=&quot;text-sm text-slate-600&quot;&gt;새로운 창작을 시작하세요&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4&quot;&gt;&lt;div class=&quot;bg-green-50 border border-green-200 hover:border-green-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors&quot;&gt;&lt;div class=&quot;flex items-center gap-2 mb-2&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-circle-check-big w-5 h-5 text-green-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M21.801 10A10 10 0 1 1 17 3.335&quot;&gt;&lt;/path&gt;&lt;path d=&quot;m9 11 3 3L22 4&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-globe w-4 h-4 text-green-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;&gt;&lt;/circle&gt;&lt;path d=&quot;M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M2 12h20&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div&gt;&lt;h3 class=&quot;font-semibold text-slate-900 mb-1&quot;&gt;Google Docs&lt;/h3&gt;&lt;p class=&quot;text-sm text-slate-600 mb-2&quot;&gt;문서 동기화&lt;/p&gt;&lt;div class=&quot;text-xs text-green-700 font-medium&quot;&gt;마지막 동기화: 2분 전&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors&quot;&gt;&lt;div class=&quot;flex items-center gap-2 mb-2&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-circle-check-big w-5 h-5 text-slate-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M21.801 10A10 10 0 1 1 17 3.335&quot;&gt;&lt;/path&gt;&lt;path d=&quot;m9 11 3 3L22 4&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-cloud w-4 h-4 text-slate-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div&gt;&lt;h3 class=&quot;font-semibold text-slate-900 mb-1&quot;&gt;Loop 클라우드&lt;/h3&gt;&lt;p class=&quot;text-sm text-slate-600 mb-2&quot;&gt;백업 동기화&lt;/p&gt;&lt;div class=&quot;text-xs text-slate-700 font-medium&quot;&gt;마지막 백업: 5분 전&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;bg-purple-50 border border-purple-200 hover:border-purple-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors&quot;&gt;&lt;div class=&quot;flex items-center gap-2 mb-2&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-file-text w-5 h-5 text-purple-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M14 2v4a2 2 0 0 0 2 2h4&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M10 9H8&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M16 13H8&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M16 17H8&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-clock w-4 h-4 text-purple-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;&gt;&lt;/circle&gt;&lt;polyline points=&quot;12 6 12 12 16 14&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div&gt;&lt;h3 class=&quot;font-semibold text-slate-900 mb-1&quot;&gt;최근 파일&lt;/h3&gt;&lt;p class=&quot;text-sm text-slate-600 mb-2&quot;&gt;작업 이어가기&lt;/p&gt;&lt;div class=&quot;text-xs text-purple-700 font-medium&quot;&gt;3개 파일 대기 중&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;grid grid-cols-1 lg:grid-cols-2 gap-6&quot;&gt;&lt;div class=&quot;bg-white border border-slate-200 rounded-lg p-6&quot;&gt;&lt;div class=&quot;flex items-center gap-2 mb-4&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-target w-5 h-5 text-blue-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;6&quot;&gt;&lt;/circle&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;2&quot;&gt;&lt;/circle&gt;&lt;/svg&gt;&lt;h3 class=&quot;font-semibold text-slate-900&quot;&gt;활성 프로젝트&lt;/h3&gt;&lt;/div&gt;&lt;div class=&quot;space-y-4&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;bg-white border border-slate-200 rounded-lg p-6&quot;&gt;&lt;div class=&quot;flex items-center gap-2 mb-4&quot;&gt;&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; class=&quot;lucide lucide-clock w-5 h-5 text-green-600&quot; aria-hidden=&quot;true&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;&gt;&lt;/circle&gt;&lt;polyline points=&quot;12 6 12 12 16 14&quot;&gt;&lt;/polyline&gt;&lt;/svg&gt;&lt;h3 class=&quot;font-semibold text-slate-900&quot;&gt;최근 파일&lt;/h3&gt;&lt;/div&gt;&lt;div class=&quot;space-y-2&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/main&gt;&lt;/div&gt;&lt;/div&gt;&lt;!--$--&gt;&lt;!--/$--&gt;&lt;script src=&quot;/_next/static/chunks/webpack-1ad7cb740b0a3d22.js&quot; async=&quot;&quot;&gt;&lt;/script&gt;&lt;script&gt;(self.__next_f=self.__next_f||[]).push([0])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;1:\&quot;$Sreact.fragment\&quot;\n2:I[7132,[],\&quot;\&quot;]\n3:I[5082,[],\&quot;\&quot;]\n4:I[9065,[],\&quot;ClientPageRoot\&quot;]\n5:I[2843,[\&quot;951\&quot;,\&quot;static/chunks/951-3b4e8edce4bf38aa.js\&quot;,\&quot;974\&quot;,\&quot;static/chunks/app/page-a35078c997fb9111.js\&quot;],\&quot;default\&quot;]\n8:I[700,[],\&quot;OutletBoundary\&quot;]\nb:I[7748,[],\&quot;AsyncMetadataOutlet\&quot;]\nd:I[700,[],\&quot;ViewportBoundary\&quot;]\nf:I[700,[],\&quot;MetadataBoundary\&quot;]\n11:I[9699,[],\&quot;\&quot;]\n:HL[\&quot;/_next/static/css/c7f765b92536714d.css\&quot;,\&quot;style\&quot;]\n&quot;])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;0:{\&quot;P\&quot;:null,\&quot;b\&quot;:\&quot;m2tClGyE5ASXJgy2xZwVx\&quot;,\&quot;p\&quot;:\&quot;\&quot;,\&quot;c\&quot;:[\&quot;\&quot;,\&quot;\&quot;],\&quot;i\&quot;:false,\&quot;f\&quot;:[[[\&quot;\&quot;,{\&quot;children\&quot;:[\&quot;__PAGE__\&quot;,{}]},\&quot;$undefined\&quot;,\&quot;$undefined\&quot;,true],[\&quot;\&quot;,[\&quot;$\&quot;,\&quot;$1\&quot;,\&quot;c\&quot;,{\&quot;children\&quot;:[[[\&quot;$\&quot;,\&quot;link\&quot;,\&quot;0\&quot;,{\&quot;rel\&quot;:\&quot;stylesheet\&quot;,\&quot;href\&quot;:\&quot;/_next/static/css/c7f765b92536714d.css\&quot;,\&quot;precedence\&quot;:\&quot;next\&quot;,\&quot;crossOrigin\&quot;:\&quot;$undefined\&quot;,\&quot;nonce\&quot;:\&quot;$undefined\&quot;}]],[\&quot;$\&quot;,\&quot;html\&quot;,null,{\&quot;lang\&quot;:\&quot;ko\&quot;,\&quot;children\&quot;:[[\&quot;$\&quot;,\&quot;head\&quot;,null,{\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;meta\&quot;,null,{\&quot;httpEquiv\&quot;:\&quot;Content-Security-Policy\&quot;,\&quot;content\&quot;:\&quot;default-src 'self';  script-src 'self' 'unsafe-inline';  style-src 'self' 'unsafe-inline';  img-src 'self' data:;  font-src 'self' data:;  connect-src 'self';\&quot;}]}],[\&quot;$\&quot;,\&quot;body\&quot;,null,{\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;$L2\&quot;,null,{\&quot;parallelRouterKey\&quot;:\&quot;children\&quot;,\&quot;error\&quot;:\&quot;$undefined\&quot;,\&quot;errorStyles\&quot;:\&quot;$undefined\&quot;,\&quot;errorScripts\&quot;:\&quot;$undefined\&quot;,\&quot;template\&quot;:[\&quot;$\&quot;,\&quot;$L3\&quot;,null,{}],\&quot;templateStyles\&quot;:\&quot;$undefined\&quot;,\&quot;templateScripts\&quot;:\&quot;$undefined\&quot;,\&quot;notFound\&quot;:[[[\&quot;$\&quot;,\&quot;title\&quot;,null,{\&quot;children\&quot;:\&quot;404: This page could not be found.\&quot;}],[\&quot;$\&quot;,\&quot;div\&quot;,null,{\&quot;style\&quot;:{\&quot;fontFamily\&quot;:\&quot;system-ui,\\\&quot;Segoe UI\\\&quot;,Roboto,Helvetica,Arial,sans-serif,\\\&quot;Apple Color Emoji\\\&quot;,\\\&quot;Segoe UI Emoji\\\&quot;\&quot;,\&quot;height\&quot;:\&quot;100vh\&quot;,\&quot;textAlign\&quot;:\&quot;center\&quot;,\&quot;display\&quot;:\&quot;flex\&quot;,\&quot;flexDirection\&quot;:\&quot;column\&quot;,\&quot;alignItems\&quot;:\&quot;center\&quot;,\&quot;justifyContent\&quot;:\&quot;center\&quot;},\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;div\&quot;,null,{\&quot;children\&quot;:[[\&quot;$\&quot;,\&quot;style\&quot;,null,{\&quot;dangerouslySetInnerHTML\&quot;:{\&quot;__html\&quot;:\&quot;body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\&quot;}}],[\&quot;$\&quot;,\&quot;h1\&quot;,null,{\&quot;className\&quot;:\&quot;next-error-h1\&quot;,\&quot;style\&quot;:{\&quot;display\&quot;:\&quot;inline-block\&quot;,\&quot;margin\&quot;:\&quot;0 20px 0 0\&quot;,\&quot;padding\&quot;:\&quot;0 23px 0 0\&quot;,\&quot;fontSize\&quot;:24,\&quot;fontWeight\&quot;:500,\&quot;verticalAlign\&quot;:\&quot;top\&quot;,\&quot;lineHeight\&quot;:\&quot;49px\&quot;},\&quot;children\&quot;:404}],[\&quot;$\&quot;,\&quot;div\&quot;,null,{\&quot;style\&quot;:{\&quot;display\&quot;:\&quot;inline-block\&quot;},\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;h2\&quot;,null,{\&quot;style\&quot;:{\&quot;fontSize\&quot;:14,\&quot;fontWeight\&quot;:400,\&quot;lineHeight\&quot;:\&quot;49px\&quot;,\&quot;margin\&quot;:0},\&quot;children\&quot;:\&quot;This page could not be found.\&quot;}]}]]}]}]],[]],\&quot;forbidden\&quot;:\&quot;$undefined\&quot;,\&quot;unauthorized\&quot;:\&quot;$undefined\&quot;}]}]]}]]}],{\&quot;children\&quot;:[\&quot;__PAGE__\&quot;,[\&quot;$\&quot;,\&quot;$1\&quot;,\&quot;c\&quot;,{\&quot;children\&quot;:[[\&quot;$\&quot;,\&quot;$L4\&quot;,null,{\&quot;Component\&quot;:\&quot;$5\&quot;,\&quot;searchParams\&quot;:{},\&quot;params\&quot;:{},\&quot;promises\&quot;:[\&quot;$@6\&quot;,\&quot;$@7\&quot;]}],null,[\&quot;$\&quot;,\&quot;$L8\&quot;,null,{\&quot;children\&quot;:[\&quot;$L9\&quot;,\&quot;$La\&quot;,[\&quot;$\&quot;,\&quot;$Lb\&quot;,null,{\&quot;promise\&quot;:\&quot;$@c\&quot;}]]}]]}],{},null,false]},null,false],[\&quot;$\&quot;,\&quot;$1\&quot;,\&quot;h\&quot;,{\&quot;children\&quot;:[null,[\&quot;$\&quot;,\&quot;$1\&quot;,\&quot;imXLa00_SA1kV_wBVl9eiv\&quot;,{\&quot;children\&quot;:[[\&quot;$\&quot;,\&quot;$Ld\&quot;,null,{\&quot;children\&quot;:\&quot;$Le\&quot;}],null]}],[\&quot;$\&quot;,\&quot;$Lf\&quot;,null,{\&quot;children\&quot;:\&quot;$L10\&quot;}]]}],false]],\&quot;m\&quot;:\&quot;$undefined\&quot;,\&quot;G\&quot;:[\&quot;$11\&quot;,\&quot;$undefined\&quot;],\&quot;s\&quot;:false,\&quot;S\&quot;:true}\n&quot;])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;12:\&quot;$Sreact.suspense\&quot;\n13:I[7748,[],\&quot;AsyncMetadata\&quot;]\n6:{}\n7:{}\n10:[\&quot;$\&quot;,\&quot;div\&quot;,null,{\&quot;hidden\&quot;:true,\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;$12\&quot;,null,{\&quot;fallback\&quot;:null,\&quot;children\&quot;:[\&quot;$\&quot;,\&quot;$L13\&quot;,null,{\&quot;promise\&quot;:\&quot;$@14\&quot;}]}]}]\n&quot;])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;a:null\n&quot;])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;e:[[\&quot;$\&quot;,\&quot;meta\&quot;,\&quot;0\&quot;,{\&quot;charSet\&quot;:\&quot;utf-8\&quot;}],[\&quot;$\&quot;,\&quot;meta\&quot;,\&quot;1\&quot;,{\&quot;name\&quot;:\&quot;viewport\&quot;,\&quot;content\&quot;:\&quot;width=device-width, initial-scale=1\&quot;}]]\n9:null\n&quot;])&lt;/script&gt;&lt;script&gt;self.__next_f.push([1,&quot;c:{\&quot;metadata\&quot;:[[\&quot;$\&quot;,\&quot;title\&quot;,\&quot;0\&quot;,{\&quot;children\&quot;:\&quot;Loop Typing Analytics\&quot;}],[\&quot;$\&quot;,\&quot;meta\&quot;,\&quot;1\&quot;,{\&quot;name\&quot;:\&quot;description\&quot;,\&quot;content\&quot;:\&quot;작가를 위한 타이핑 분석 도구\&quot;}]],\&quot;error\&quot;:null,\&quot;digest\&quot;:\&quot;$undefined\&quot;}\n14:{\&quot;metadata\&quot;:\&quot;$c:metadata\&quot;,\&quot;error\&quot;:null,\&quot;digest\&quot;:\&quot;$undefined\&quot;}\n&quot;])&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;</code></pre></div><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="tsx-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">tsx</h2><div class="divide-y divide-gray-200 border-b-2"><div class="py-4"><p class="text-gray-600">src/renderer/components/ui/Input.tsx (Line 84:2 - Line 98:13), src/renderer/components/ui/Textarea.tsx (Line 53:3 - Line 67:16)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn4" onclick="toggleCodeBlock('cloneGroup4', 'expandBtn4', 'collapseBtn4')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn4" onclick="toggleCodeBlock('cloneGroup4', 'expandBtn4', 'collapseBtn4')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup4"><code class="language-tsx text-sm text-gray-800">
+        
+        {/* Focus Ring Enhancement */}
+        &lt;div className=&quot;absolute inset-0 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none bg-gradient-to-r from-purple-500/10 to-blue-500/10&quot; /&gt;
+      &lt;/div&gt;
+    );
+
+    if (label) {
+      return (
+        &lt;div className=&quot;group space-y-2&quot;&gt;
+          &lt;label className=&quot;block text-sm font-medium text-slate-700 dark:text-slate-300&quot;&gt;
+            {label}
+            {props.required &amp;&amp; &lt;span className=&quot;text-red-500 ml-1&quot;&gt;*&lt;/span&gt;}
+          &lt;/label&gt;
+          {InputElement</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/ui/Input.tsx (Line 98:13 - Line 113:13), src/renderer/components/ui/Textarea.tsx (Line 67:16 - Line 82:16)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn5" onclick="toggleCodeBlock('cloneGroup5', 'expandBtn5', 'collapseBtn5')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn5" onclick="toggleCodeBlock('cloneGroup5', 'expandBtn5', 'collapseBtn5')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup5"><code class="language-tsx text-sm text-gray-800">}
+          {hint &amp;&amp; (
+            &lt;p className={cn(
+              'text-xs transition-colors duration-200',
+              error ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'
+            )}&gt;
+              {hint}
+            &lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      );
+    }
+
+    return (
+      &lt;div className=&quot;group&quot;&gt;
+        {InputElement</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/ui/Card.tsx (Line 132:16 - Line 146:11), src/renderer/components/ui/Card.tsx (Line 53:16 - Line 67:11)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn6" onclick="toggleCodeBlock('cloneGroup6', 'expandBtn6', 'collapseBtn6')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn6" onclick="toggleCodeBlock('cloneGroup6', 'expandBtn6', 'collapseBtn6')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup6"><code class="language-tsx text-sm text-gray-800">&gt;(
+  ({ className, children, ...props }, ref) =&gt; {
+    return (
+      &lt;div
+        ref={ref}
+        className={cn('flex items-center pt-4 border-t border-slate-200 dark:border-slate-800', className)}
+        {...props}
+      &gt;
+        {children}
+      &lt;/div&gt;
+    );
+  }
+);
+
+CardFooter</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/statistics/Statistics.tsx (Line 159:2 - Line 172:9), src/renderer/components/statistics/Statistics.tsx (Line 133:55 - Line 147:1)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn7" onclick="toggleCodeBlock('cloneGroup7', 'expandBtn7', 'collapseBtn7')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn7" onclick="toggleCodeBlock('cloneGroup7', 'expandBtn7', 'collapseBtn7')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup7"><code class="language-tsx text-sm text-gray-800">
+                        style={{
+                          height: `${height}px`,
+                          minHeight: &quot;4px&quot;,
+                        }}
+                      /&gt;
+                    &lt;/div&gt;
+                    &lt;div className=&quot;text-xs font-medium text-slate-700 text-center&quot;&gt;{item.label}&lt;/div&gt;
+                  &lt;/div&gt;
+                );
+              })}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        </code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/statistics/Statistics.tsx (Line 219:3 - Line 228:9), src/renderer/components/statistics/Statistics.tsx (Line 189:2 - Line 198:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn8" onclick="toggleCodeBlock('cloneGroup8', 'expandBtn8', 'collapseBtn8')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn8" onclick="toggleCodeBlock('cloneGroup8', 'expandBtn8', 'collapseBtn8')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup8"><code class="language-tsx text-sm text-gray-800">
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              ))}
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className=&quot;bg-white border border-slate-200 rounded-lg p-6&quot;&gt;
+            &lt;h3 className=&quot;font-semibold text-slate-900 mb-4 flex items-center gap-2&quot;&gt;
+              &lt;Bookmark</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/settings/Settings.tsx (Line 131:6 - Line 141:4), src/renderer/components/settings/Settings.tsx (Line 100:6 - Line 110:3)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn9" onclick="toggleCodeBlock('cloneGroup9', 'expandBtn9', 'collapseBtn9')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn9" onclick="toggleCodeBlock('cloneGroup9', 'expandBtn9', 'collapseBtn9')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup9"><code class="language-tsx text-sm text-gray-800">&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;ToggleSwitch
+                  checked={settings.spellCheck}
+                  onChange={() =&gt; setSettings({ ...settings, spellCheck: !settings.spellCheck })}
+                /&gt;
+              &lt;/div&gt;
+
+              &lt;div className=&quot;flex items-center justify-between&quot;&gt;
+                &lt;div&gt;
+                  &lt;div className=&quot;font-medium text-slate-900&quot;&gt;자동 줄바꿈</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/settings/Settings.tsx (Line 142:7 - Line 152:3), src/renderer/components/settings/Settings.tsx (Line 100:6 - Line 110:3)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn10" onclick="toggleCodeBlock('cloneGroup10', 'expandBtn10', 'collapseBtn10')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn10" onclick="toggleCodeBlock('cloneGroup10', 'expandBtn10', 'collapseBtn10')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup10"><code class="language-tsx text-sm text-gray-800">&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;ToggleSwitch
+                  checked={settings.wordWrap}
+                  onChange={() =&gt; setSettings({ ...settings, wordWrap: !settings.wordWrap })}
+                /&gt;
+              &lt;/div&gt;
+
+              &lt;div className=&quot;flex items-center justify-between&quot;&gt;
+                &lt;div&gt;
+                  &lt;div className=&quot;font-medium text-slate-900&quot;&gt;글꼴</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/settings/Settings.tsx (Line 175:4 - Line 184:11), src/renderer/components/settings/Settings.tsx (Line 153:4 - Line 162:9)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn11" onclick="toggleCodeBlock('cloneGroup11', 'expandBtn11', 'collapseBtn11')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn11" onclick="toggleCodeBlock('cloneGroup11', 'expandBtn11', 'collapseBtn11')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup11"><code class="language-tsx text-sm text-gray-800"> 조정합니다&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div className=&quot;flex items-center gap-2&quot;&gt;
+                  &lt;button
+                    className=&quot;px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium&quot;
+                    onClick={() =&gt; setSettings({ ...settings, lineHeight: Math.max(1.0, settings.lineHeight - 0.1) })}
+                  &gt;
+                    -
+                  &lt;/button&gt;
+                  &lt;span className=&quot;w-12 text-center text-sm font-medium&quot;&gt;{settings.lineHeight</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/projects/Projects.tsx (Line 77:2 - Line 84:5), src/renderer/components/statistics/Statistics.tsx (Line 58:2 - Line 65:3)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn12" onclick="toggleCodeBlock('cloneGroup12', 'expandBtn12', 'collapseBtn12')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn12" onclick="toggleCodeBlock('cloneGroup12', 'expandBtn12', 'collapseBtn12')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup12"><code class="language-tsx text-sm text-gray-800">;
+
+  return (
+    &lt;div className=&quot;flex-1 flex flex-col bg-slate-50&quot;&gt;
+      &lt;div className=&quot;bg-white border-b border-slate-200 p-6&quot;&gt;
+        &lt;div className=&quot;flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4&quot;&gt;
+          &lt;div&gt;
+            &lt;h1 className=&quot;text-2xl font-bold text-slate-900&quot;&gt;프로젝트</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/dashboard/TypingBox.tsx (Line 60:2 - Line 70:11), src/renderer/components/dashboard/TypingBox.tsx (Line 47:1 - Line 57:6)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn13" onclick="toggleCodeBlock('cloneGroup13', 'expandBtn13', 'collapseBtn13')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn13" onclick="toggleCodeBlock('cloneGroup13', 'expandBtn13', 'collapseBtn13')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup13"><code class="language-tsx text-sm text-gray-800">
+    setIsTyping(false);
+    setStartTime(null);
+    setLastKeyTime(null);
+    if (idleTimeoutRef.current) {
+      clearTimeout(idleTimeoutRef.current);
+      idleTimeoutRef.current = null;
+    }
+  };
+
+  // 키 입력 처리</code></pre></div><div class="py-4"><p class="text-gray-600">src/renderer/components/common/TypingPanel.tsx (Line 46:7 - Line 51:2), src/renderer/components/dashboard/Dashboard.tsx (Line 50:13 - Line 55:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn14" onclick="toggleCodeBlock('cloneGroup14', 'expandBtn14', 'collapseBtn14')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn14" onclick="toggleCodeBlock('cloneGroup14', 'expandBtn14', 'collapseBtn14')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup14"><code class="language-tsx text-sm text-gray-800">]);
+
+  const formatTime = (seconds: number) =&gt; {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.</code></pre></div><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="json-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">json</h2><div class="divide-y divide-gray-200 border-b-2"><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="markdown-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">markdown</h2><div class="divide-y divide-gray-200 border-b-2"><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div><a name="css-clones"></a><h2 class="text-2xl font-semibold text-gray-700 mb-4">css</h2><div class="divide-y divide-gray-200 border-b-2"><!-- Add more clone groups for .txt format as needed         // Add more clone groups for .txt format as needed--></div></section><!-- Add more sections for other formats and clone groups as needed--></main><footer class="bg-white shadow mt-8 py-4"><div class="container mx-auto px-4 text-center"><p class="text-sm text-gray-600">This report is generated by jscpd, an open-source copy/paste detector.</p><p class="text-sm text-gray-600">jscpd is licensed under the MIT License.</p><a class="text-blue-500 text-sm" href="https://github.com/kucherenko/jscpd" target="_blank" rel="noopener noreferrer">View jscpd on GitHub</a></div></footer><script src="js/prism.js"></script><script>function toggleCodeBlock(codeBlockId, expandBtnId, collapseBtnId) {
+  const codeBlock = document.getElementById(codeBlockId);
+  const expandBtn = document.getElementById(expandBtnId);
+  const collapseBtn = document.getElementById(collapseBtnId);
+
+  codeBlock.classList.toggle('hidden');
+  expandBtn.classList.toggle('hidden');
+  collapseBtn.classList.toggle('hidden');
+}</script></body></html>

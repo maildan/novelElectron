@@ -1,0 +1,3649 @@
+{
+  "statistics": {
+    "detectionDate": "2025-06-25T15:45:08.999Z",
+    "formats": {
+      "typescript": {
+        "sources": {
+          "src/renderer/.next/types/app/page.ts": {
+            "lines": 84,
+            "tokens": 1097,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 76,
+            "duplicatedTokens": 1015,
+            "percentage": 90.48,
+            "percentageTokens": 92.53,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/types/app/layout.ts": {
+            "lines": 84,
+            "tokens": 1097,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 76,
+            "duplicatedTokens": 1015,
+            "percentage": 90.48,
+            "percentageTokens": 92.53,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/index.ts": {
+            "lines": 38,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 27,
+            "duplicatedTokens": 175,
+            "percentage": 71.05,
+            "percentageTokens": 61.4,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/index-new.ts": {
+            "lines": 29,
+            "tokens": 198,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 27,
+            "duplicatedTokens": 175,
+            "percentage": 93.1,
+            "percentageTokens": 88.38,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/types/cache-life.d.ts": {
+            "lines": 141,
+            "tokens": 290,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/menu/MenuTemplates.ts": {
+            "lines": 112,
+            "tokens": 927,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/menu/MenuHandlers.ts": {
+            "lines": 161,
+            "tokens": 1032,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/processors/KeyboardEventProcessor.ts": {
+            "lines": 261,
+            "tokens": 1915,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/managers/SessionManager.ts": {
+            "lines": 250,
+            "tokens": 1935,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/managers/KeyboardConfigManager.ts": {
+            "lines": 192,
+            "tokens": 1282,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/handlers/KeyboardIpcHandlers.ts": {
+            "lines": 133,
+            "tokens": 1064,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 68,
+            "duplicatedTokens": 465,
+            "percentage": 51.13,
+            "percentageTokens": 43.7,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/detectors/AppDetector.ts": {
+            "lines": 232,
+            "tokens": 1480,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 16,
+            "duplicatedTokens": 132,
+            "percentage": 6.9,
+            "percentageTokens": 8.92,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/types/global.d.ts": {
+            "lines": 14,
+            "tokens": 48,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/lib/utils.ts": {
+            "lines": 100,
+            "tokens": 927,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/hooks/useLoopData.ts": {
+            "lines": 255,
+            "tokens": 2265,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/hooks/useDashboardIpc.ts": {
+            "lines": 126,
+            "tokens": 1052,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/utils/permissions.ts": {
+            "lines": 140,
+            "tokens": 896,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/utils/environment.ts": {
+            "lines": 32,
+            "tokens": 252,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/services/keyboardService.ts": {
+            "lines": 97,
+            "tokens": 563,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/services/databaseService.ts": {
+            "lines": 70,
+            "tokens": 388,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/menu/menu-items.ts": {
+            "lines": 318,
+            "tokens": 2142,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 14,
+            "duplicatedTokens": 132,
+            "percentage": 4.4,
+            "percentageTokens": 6.16,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/menu/menu-handlers.ts": {
+            "lines": 339,
+            "tokens": 2558,
+            "sources": 1,
+            "clones": 12,
+            "duplicatedLines": 136,
+            "duplicatedTokens": 934,
+            "percentage": 40.12,
+            "percentageTokens": 36.51,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/WindowManager.ts": {
+            "lines": 243,
+            "tokens": 1792,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/SystemMonitor.ts": {
+            "lines": 126,
+            "tokens": 919,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/ShortcutsManager.ts": {
+            "lines": 243,
+            "tokens": 1609,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/SecurityManager.ts": {
+            "lines": 94,
+            "tokens": 609,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/PlatformManager.ts": {
+            "lines": 101,
+            "tokens": 709,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/MenuManager.ts": {
+            "lines": 152,
+            "tokens": 1064,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 33,
+            "duplicatedTokens": 211,
+            "percentage": 21.71,
+            "percentageTokens": 19.83,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/MenuManager-old.ts": {
+            "lines": 775,
+            "tokens": 5501,
+            "sources": 1,
+            "clones": 6,
+            "duplicatedLines": 50,
+            "duplicatedTokens": 387,
+            "percentage": 6.45,
+            "percentageTokens": 7.04,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/MenuManager-new.ts": {
+            "lines": 263,
+            "tokens": 1697,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 35,
+            "duplicatedTokens": 236,
+            "percentage": 13.31,
+            "percentageTokens": 13.91,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/KeyboardManager.ts": {
+            "lines": 68,
+            "tokens": 310,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/IpcManager.ts": {
+            "lines": 127,
+            "tokens": 902,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/HandlersManager.ts": {
+            "lines": 303,
+            "tokens": 2488,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 13,
+            "duplicatedTokens": 68,
+            "percentage": 4.29,
+            "percentageTokens": 2.73,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/ErrorManager.ts": {
+            "lines": 176,
+            "tokens": 1438,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/DatabaseManager.ts": {
+            "lines": 330,
+            "tokens": 2309,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/managers/AppLifecycle.ts": {
+            "lines": 227,
+            "tokens": 1658,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/logger.ts": {
+            "lines": 168,
+            "tokens": 1365,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 9,
+            "duplicatedTokens": 53,
+            "percentage": 5.36,
+            "percentageTokens": 3.88,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/index.ts": {
+            "lines": 27,
+            "tokens": 116,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/constants.ts": {
+            "lines": 132,
+            "tokens": 849,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/UnifiedHandler.ts": {
+            "lines": 652,
+            "tokens": 4729,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/StatsManager.ts": {
+            "lines": 641,
+            "tokens": 5544,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 12,
+            "duplicatedTokens": 106,
+            "percentage": 1.87,
+            "percentageTokens": 1.91,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/PermissionManager.ts": {
+            "lines": 449,
+            "tokens": 2901,
+            "sources": 1,
+            "clones": 10,
+            "duplicatedLines": 80,
+            "duplicatedTokens": 610,
+            "percentage": 17.82,
+            "percentageTokens": 21.03,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/KeyboardIpcHandlers.ts": {
+            "lines": 122,
+            "tokens": 879,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 68,
+            "duplicatedTokens": 465,
+            "percentage": 55.74,
+            "percentageTokens": 52.9,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/KeyboardEngine.ts": {
+            "lines": 438,
+            "tokens": 2867,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/HealthCheckManager.ts": {
+            "lines": 313,
+            "tokens": 2229,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/keyboard/HangulComposer.ts": {
+            "lines": 441,
+            "tokens": 3287,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 24,
+            "duplicatedTokens": 194,
+            "percentage": 5.44,
+            "percentageTokens": 5.9,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/handlers/index.ts": {
+            "lines": 150,
+            "tokens": 998,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 16,
+            "duplicatedTokens": 104,
+            "percentage": 10.67,
+            "percentageTokens": 10.42,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/handlers/dashboardIpcHandlers.ts": {
+            "lines": 269,
+            "tokens": 2371,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 40,
+            "duplicatedTokens": 288,
+            "percentage": 14.87,
+            "percentageTokens": 12.15,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/core/window.ts": {
+            "lines": 139,
+            "tokens": 1060,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/core/static-server.ts": {
+            "lines": 241,
+            "tokens": 1931,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/core/security.ts": {
+            "lines": 59,
+            "tokens": 364,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/core/error-handler.ts": {
+            "lines": 143,
+            "tokens": 1111,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/core/app-cleanup.ts": {
+            "lines": 102,
+            "tokens": 706,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/config/app-config.ts": {
+            "lines": 128,
+            "tokens": 848,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/types/global.d.ts": {
+            "lines": 9,
+            "tokens": 47,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/types/dashboard.ts": {
+            "lines": 103,
+            "tokens": 644,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/types/common.d.ts": {
+            "lines": 101,
+            "tokens": 647,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/types.ts": {
+            "lines": 395,
+            "tokens": 2608,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 16,
+            "duplicatedTokens": 106,
+            "percentage": 4.05,
+            "percentageTokens": 4.06,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/logger.ts": {
+            "lines": 243,
+            "tokens": 1990,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 9,
+            "duplicatedTokens": 53,
+            "percentage": 3.7,
+            "percentageTokens": 2.66,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/keyboardMap.ts": {
+            "lines": 126,
+            "tokens": 1182,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/getKeyName.ts": {
+            "lines": 40,
+            "tokens": 244,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/getKeyChar.ts": {
+            "lines": 67,
+            "tokens": 448,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/shared/common.ts": {
+            "lines": 595,
+            "tokens": 4713,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 110,
+            "percentage": 1.68,
+            "percentageTokens": 2.33,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/tailwind.config.ts": {
+            "lines": 53,
+            "tokens": 332,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/next-env.d.ts": {
+            "lines": 6,
+            "tokens": 10,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/global-polyfill.ts": {
+            "lines": 55,
+            "tokens": 422,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/preload/index.ts": {
+            "lines": 199,
+            "tokens": 1844,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/tray.ts": {
+            "lines": 375,
+            "tokens": 2371,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/settings-manager.ts": {
+            "lines": 294,
+            "tokens": 2130,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/main.ts": {
+            "lines": 89,
+            "tokens": 556,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/ipc-handlers.ts": {
+            "lines": 356,
+            "tokens": 2730,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 12,
+            "duplicatedTokens": 144,
+            "percentage": 3.37,
+            "percentageTokens": 5.27,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/index.ts": {
+            "lines": 117,
+            "tokens": 836,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/handlers-manager.ts": {
+            "lines": 334,
+            "tokens": 2359,
+            "sources": 1,
+            "clones": 7,
+            "duplicatedLines": 53,
+            "duplicatedTokens": 490,
+            "percentage": 15.87,
+            "percentageTokens": 20.77,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/dialog-manager.ts": {
+            "lines": 231,
+            "tokens": 1702,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/main/constants.ts": {
+            "lines": 227,
+            "tokens": 1491,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 15065,
+          "tokens": 110159,
+          "sources": 75,
+          "clones": 40,
+          "duplicatedLines": 460,
+          "duplicatedTokens": 3834,
+          "percentage": 3.05,
+          "percentageTokens": 3.48,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "javascript": {
+        "sources": {
+          "src/renderer/.next/server/chunks/496.js": {
+            "lines": 5,
+            "tokens": 17951,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/server/app/page.js": {
+            "lines": 12,
+            "tokens": 16322,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Tooltip.tsx": {
+            "lines": 25,
+            "tokens": 105,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Textarea.tsx": {
+            "lines": 23,
+            "tokens": 157,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Progress.tsx": {
+            "lines": 16,
+            "tokens": 130,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Input.tsx": {
+            "lines": 34,
+            "tokens": 234,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Card.tsx": {
+            "lines": 114,
+            "tokens": 759,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Button.tsx": {
+            "lines": 27,
+            "tokens": 167,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Badge.tsx": {
+            "lines": 8,
+            "tokens": 37,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Avatar.tsx": {
+            "lines": 43,
+            "tokens": 236,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/statistics/Statistics.tsx": {
+            "lines": 150,
+            "tokens": 1420,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/settings/Settings.tsx": {
+            "lines": 205,
+            "tokens": 1835,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/projects/Projects.tsx": {
+            "lines": 61,
+            "tokens": 557,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/layout/AppLayout.tsx": {
+            "lines": 62,
+            "tokens": 398,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/layout/AppHeader.tsx": {
+            "lines": 44,
+            "tokens": 308,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/dashboard/TypingBox.tsx": {
+            "lines": 61,
+            "tokens": 475,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/dashboard/Dashboard.tsx": {
+            "lines": 198,
+            "tokens": 1735,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/common/TypingPanel.tsx": {
+            "lines": 35,
+            "tokens": 295,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/common/AIPanel.tsx": {
+            "lines": 57,
+            "tokens": 420,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ai/AIAnalytics.tsx": {
+            "lines": 87,
+            "tokens": 764,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/polyfills/global-turbo.js": {
+            "lines": 25,
+            "tokens": 172,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/app/page.tsx": {
+            "lines": 46,
+            "tokens": 323,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/postcss.config.js": {
+            "lines": 9,
+            "tokens": 46,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/next.config.js": {
+            "lines": 20,
+            "tokens": 96,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1367,
+          "tokens": 44942,
+          "sources": 24,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markup": {
+        "sources": {
+          "src/renderer/.next/server/app/index.html": {
+            "lines": 25,
+            "tokens": 3536,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 3536,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/out/index.html": {
+            "lines": 25,
+            "tokens": 3536,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 3536,
+            "percentage": 100,
+            "percentageTokens": 100,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 50,
+          "tokens": 7072,
+          "sources": 2,
+          "clones": 1,
+          "duplicatedLines": 25,
+          "duplicatedTokens": 3536,
+          "percentage": 50,
+          "percentageTokens": 50,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "tsx": {
+        "sources": {
+          "src/renderer/components/ui/Tooltip.tsx": {
+            "lines": 90,
+            "tokens": 560,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Textarea.tsx": {
+            "lines": 88,
+            "tokens": 549,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 29,
+            "duplicatedTokens": 181,
+            "percentage": 32.95,
+            "percentageTokens": 32.97,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Progress.tsx": {
+            "lines": 62,
+            "tokens": 465,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Input.tsx": {
+            "lines": 119,
+            "tokens": 770,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 29,
+            "duplicatedTokens": 181,
+            "percentage": 24.37,
+            "percentageTokens": 23.51,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Card.tsx": {
+            "lines": 146,
+            "tokens": 1004,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 28,
+            "duplicatedTokens": 160,
+            "percentage": 19.18,
+            "percentageTokens": 15.94,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Button.tsx": {
+            "lines": 83,
+            "tokens": 582,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Badge.tsx": {
+            "lines": 63,
+            "tokens": 485,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ui/Avatar.tsx": {
+            "lines": 97,
+            "tokens": 619,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/statistics/Statistics.tsx": {
+            "lines": 250,
+            "tokens": 2430,
+            "sources": 1,
+            "clones": 5,
+            "duplicatedLines": 51,
+            "duplicatedTokens": 320,
+            "percentage": 20.4,
+            "percentageTokens": 13.17,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/settings/Settings.tsx": {
+            "lines": 363,
+            "tokens": 3266,
+            "sources": 1,
+            "clones": 6,
+            "duplicatedLines": 58,
+            "duplicatedTokens": 508,
+            "percentage": 15.98,
+            "percentageTokens": 15.55,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/projects/Projects.tsx": {
+            "lines": 203,
+            "tokens": 1872,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 7,
+            "duplicatedTokens": 56,
+            "percentage": 3.45,
+            "percentageTokens": 2.99,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/layout/AppLayout.tsx": {
+            "lines": 139,
+            "tokens": 974,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/layout/AppHeader.tsx": {
+            "lines": 183,
+            "tokens": 1425,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/dashboard/TypingBox.tsx": {
+            "lines": 183,
+            "tokens": 1543,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 20,
+            "duplicatedTokens": 122,
+            "percentage": 10.93,
+            "percentageTokens": 7.91,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/dashboard/Dashboard.tsx": {
+            "lines": 347,
+            "tokens": 3216,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 5,
+            "duplicatedTokens": 62,
+            "percentage": 1.44,
+            "percentageTokens": 1.93,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/common/TypingPanel.tsx": {
+            "lines": 182,
+            "tokens": 1468,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 5,
+            "duplicatedTokens": 62,
+            "percentage": 2.75,
+            "percentageTokens": 4.22,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/common/AIPanel.tsx": {
+            "lines": 122,
+            "tokens": 948,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/components/ai/AIAnalytics.tsx": {
+            "lines": 294,
+            "tokens": 2492,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/pages/_app.tsx": {
+            "lines": 12,
+            "tokens": 69,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/app/page.tsx": {
+            "lines": 83,
+            "tokens": 577,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/app/layout.tsx": {
+            "lines": 35,
+            "tokens": 189,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 3144,
+          "tokens": 25503,
+          "sources": 21,
+          "clones": 11,
+          "duplicatedLines": 116,
+          "duplicatedTokens": 826,
+          "percentage": 3.69,
+          "percentageTokens": 3.24,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "json": {
+        "sources": {
+          "src/renderer/.next/server/pages-manifest.json": {
+            "lines": 5,
+            "tokens": 29,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/server/middleware-manifest.json": {
+            "lines": 5,
+            "tokens": 32,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/diagnostics/build-diagnostics.json": {
+            "lines": 5,
+            "tokens": 24,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/routes-manifest.json": {
+            "lines": 61,
+            "tokens": 362,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/required-server-files.json": {
+            "lines": 315,
+            "tokens": 1709,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/prerender-manifest.json": {
+            "lines": 35,
+            "tokens": 182,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/images-manifest.json": {
+            "lines": 56,
+            "tokens": 264,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/export-marker.json": {
+            "lines": 5,
+            "tokens": 29,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/export-detail.json": {
+            "lines": 4,
+            "tokens": 22,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/build-manifest.json": {
+            "lines": 33,
+            "tokens": 151,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/.next/app-build-manifest.json": {
+            "lines": 26,
+            "tokens": 105,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/tsconfig.json": {
+            "lines": 51,
+            "tokens": 302,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 601,
+          "tokens": 3211,
+          "sources": 12,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markdown": {
+        "sources": {
+          "src/renderer/out/index.txt": {
+            "lines": 22,
+            "tokens": 122,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 22,
+          "tokens": 122,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "css": {
+        "sources": {
+          "src/renderer/app/globals.css": {
+            "lines": 6,
+            "tokens": 7,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "src/renderer/styles.css": {
+            "lines": 382,
+            "tokens": 2586,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 388,
+          "tokens": 2593,
+          "sources": 2,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 20637,
+      "tokens": 193602,
+      "sources": 137,
+      "clones": 52,
+      "duplicatedLines": 601,
+      "duplicatedTokens": 8196,
+      "percentage": 2.91,
+      "percentageTokens": 4.23,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 30,
+      "fragment": ")\n\ntype SegmentParams<T extends Object = any> = T extends Record<string, any>\n  ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }\n  : T\n\n// Check that the entry is a valid entry\ncheckFields<Diff<{\n  default: Function\n  config?: {}\n  generateStaticParams?: Function\n  revalidate?: RevalidateRange<TEntry> | false\n  dynamic?: 'auto' | 'force-dynamic' | 'error' | 'force-static'\n  dynamicParams?: boolean\n  fetchCache?: 'auto' | 'force-no-store' | 'only-no-store' | 'default-no-store' | 'default-cache' | 'only-cache' | 'force-cache'\n  preferredRegion?: 'auto' | 'global' | 'home' | string | string[]\n  runtime?: 'nodejs' | 'experimental-edge' | 'edge'\n  maxDuration?: number\n  \n  metadata?: any\n  generateMetadata?: Function\n  viewport?: any\n  generateViewport?: Function\n  experimental_ppr?: boolean\n  \n}, TEntry, ''>>()\n\n\n// Check the prop type of the entry function\ncheckFields<Diff<LayoutProps",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/.next/types/app/layout.ts",
+        "start": 5,
+        "end": 34,
+        "startLoc": {
+          "line": 5,
+          "column": 25,
+          "position": 43
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 12,
+          "position": 331
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/.next/types/app/page.ts",
+        "start": 5,
+        "end": 34,
+        "startLoc": {
+          "line": 5,
+          "column": 23,
+          "position": 43
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 10,
+          "position": 331
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ", FirstArg<MaybeField<TEntry, 'generateMetadata'>>, 'generateMetadata'>>()\n  checkFields<Diff<ResolvingMetadata, SecondArg<MaybeField<TEntry, 'generateMetadata'>>, 'generateMetadata'>>()\n}\n\n// Check the arguments and return type of the generateViewport function\nif ('generateViewport' in entry) {\n  checkFields<Diff<LayoutProps",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/.next/types/app/layout.ts",
+        "start": 38,
+        "end": 44,
+        "startLoc": {
+          "line": 38,
+          "column": 12,
+          "position": 369
+        },
+        "endLoc": {
+          "line": 44,
+          "column": 12,
+          "position": 433
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/.next/types/app/page.ts",
+        "start": 38,
+        "end": 44,
+        "startLoc": {
+          "line": 38,
+          "column": 10,
+          "position": 369
+        },
+        "endLoc": {
+          "line": 44,
+          "column": 10,
+          "position": 433
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 42,
+      "fragment": ", FirstArg<MaybeField<TEntry, 'generateViewport'>>, 'generateViewport'>>()\n  checkFields<Diff<ResolvingViewport, SecondArg<MaybeField<TEntry, 'generateViewport'>>, 'generateViewport'>>()\n}\n\n// Check the arguments and return type of the generateStaticParams function\nif ('generateStaticParams' in entry) {\n  checkFields<Diff<{ params: SegmentParams }, FirstArg<MaybeField<TEntry, 'generateStaticParams'>>, 'generateStaticParams'>>()\n  checkFields<Diff<{ __tag__: 'generateStaticParams', __return_type__: any[] | Promise<any[]> }, { __tag__: 'generateStaticParams', __return_type__: ReturnType<MaybeField<TEntry, 'generateStaticParams'>> }>>()\n}\n\nexport interface PageProps {\n  params?: Promise<SegmentParams>\n  searchParams?: Promise<any>\n}\nexport interface LayoutProps {\n  children?: React.ReactNode\n\n  params?: Promise<SegmentParams>\n}\n\n// =============\n// Utility types\ntype RevalidateRange<T> = T extends { revalidate: any } ? NonNegative<T['revalidate']> : never\n\n// If T is unknown or any, it will be an empty {} type. Otherwise, it will be the same as Omit<T, keyof Base>.\ntype OmitWithTag<T, K extends keyof any, _M> = Omit<T, K>\ntype Diff<Base, T extends Base, Message extends string = ''> = 0 extends (1 & T) ? {} : OmitWithTag<T, keyof Base, Message>\n\ntype FirstArg<T extends Function> = T extends (...args: [infer T, any]) => any ? unknown extends T ? any : T : never\ntype SecondArg<T extends Function> = T extends (...args: [any, infer T]) => any ? unknown extends T ? any : T : never\ntype MaybeField<T, K extends string> = T extends { [k in K]: infer G } ? G extends Function ? G : never : never\n\n\n\nfunction checkFields<_ extends { [k in keyof any]: never }>() {}\n\n// https://github.com/sindresorhus/type-fest\ntype Numeric = number | bigint\ntype Zero = 0 | 0n\ntype Negative<T extends Numeric> = T extends Zero ? never : `${T}` extends `-${string}` ? T : never\ntype NonNegative<T extends Numeric> = T extends Zero ? T : Negative<T> extends never ? T : '__invalid_negative_number__'\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/.next/types/app/layout.ts",
+        "start": 44,
+        "end": 85,
+        "startLoc": {
+          "line": 44,
+          "column": 12,
+          "position": 434
+        },
+        "endLoc": {
+          "line": 85,
+          "column": 1,
+          "position": 1097
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/.next/types/app/page.ts",
+        "start": 44,
+        "end": 85,
+        "startLoc": {
+          "line": 44,
+          "column": 10,
+          "position": 434
+        },
+        "endLoc": {
+          "line": 85,
+          "column": 1,
+          "position": 1097
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 28,
+      "fragment": "// UI Components Export\nexport { Button } from './Button';\nexport type { ButtonProps } from './Button';\n\nexport { \n  Card, \n  CardHeader, \n  CardTitle, \n  CardDescription, \n  CardContent,\n  CardFooter\n} from './Card';\nexport type { \n  CardProps, \n  CardHeaderProps, \n  CardTitleProps, \n  CardDescriptionProps, \n  CardContentProps,\n  CardFooterProps \n} from './Card';\n\nexport { Badge } from './Badge';\nexport type { BadgeProps } from './Badge';\n\nexport { Input } from './Input';\nexport type { InputProps } from './Input';\n\nexport { Progress",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/ui/index-new.ts",
+        "start": 1,
+        "end": 28,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 28,
+          "column": 9,
+          "position": 175
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/ui/index.ts",
+        "start": 1,
+        "end": 28,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 28,
+          "column": 9,
+          "position": 175
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 15,
+      "fragment": "\n        \n        {/* Focus Ring Enhancement */}\n        <div className=\"absolute inset-0 rounded-lg opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none bg-gradient-to-r from-purple-500/10 to-blue-500/10\" />\n      </div>\n    );\n\n    if (label) {\n      return (\n        <div className=\"group space-y-2\">\n          <label className=\"block text-sm font-medium text-slate-700 dark:text-slate-300\">\n            {label}\n            {props.required && <span className=\"text-red-500 ml-1\">*</span>}\n          </label>\n          {InputElement",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/ui/Input.tsx",
+        "start": 84,
+        "end": 98,
+        "startLoc": {
+          "line": 84,
+          "column": 2,
+          "position": 561
+        },
+        "endLoc": {
+          "line": 98,
+          "column": 13,
+          "position": 662
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/ui/Textarea.tsx",
+        "start": 53,
+        "end": 67,
+        "startLoc": {
+          "line": 53,
+          "column": 3,
+          "position": 340
+        },
+        "endLoc": {
+          "line": 67,
+          "column": 16,
+          "position": 441
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 16,
+      "fragment": "}\n          {hint && (\n            <p className={cn(\n              'text-xs transition-colors duration-200',\n              error ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'\n            )}>\n              {hint}\n            </p>\n          )}\n        </div>\n      );\n    }\n\n    return (\n      <div className=\"group\">\n        {InputElement",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/ui/Input.tsx",
+        "start": 98,
+        "end": 113,
+        "startLoc": {
+          "line": 98,
+          "column": 13,
+          "position": 663
+        },
+        "endLoc": {
+          "line": 113,
+          "column": 13,
+          "position": 743
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/ui/Textarea.tsx",
+        "start": 67,
+        "end": 82,
+        "startLoc": {
+          "line": 67,
+          "column": 16,
+          "position": 442
+        },
+        "endLoc": {
+          "line": 82,
+          "column": 16,
+          "position": 522
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 15,
+      "fragment": ">(\n  ({ className, children, ...props }, ref) => {\n    return (\n      <div\n        ref={ref}\n        className={cn('flex items-center pt-4 border-t border-slate-200 dark:border-slate-800', className)}\n        {...props}\n      >\n        {children}\n      </div>\n    );\n  }\n);\n\nCardFooter",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/ui/Card.tsx",
+        "start": 132,
+        "end": 146,
+        "startLoc": {
+          "line": 132,
+          "column": 16,
+          "position": 916
+        },
+        "endLoc": {
+          "line": 146,
+          "column": 11,
+          "position": 996
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/ui/Card.tsx",
+        "start": 53,
+        "end": 67,
+        "startLoc": {
+          "line": 53,
+          "column": 16,
+          "position": 376
+        },
+        "endLoc": {
+          "line": 67,
+          "column": 11,
+          "position": 456
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 14,
+      "fragment": "\n                        style={{\n                          height: `${height}px`,\n                          minHeight: \"4px\",\n                        }}\n                      />\n                    </div>\n                    <div className=\"text-xs font-medium text-slate-700 text-center\">{item.label}</div>\n                  </div>\n                );\n              })}\n            </div>\n          </div>\n        ",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/statistics/Statistics.tsx",
+        "start": 159,
+        "end": 172,
+        "startLoc": {
+          "line": 159,
+          "column": 2,
+          "position": 1558
+        },
+        "endLoc": {
+          "line": 172,
+          "column": 9,
+          "position": 1639
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/statistics/Statistics.tsx",
+        "start": 133,
+        "end": 147,
+        "startLoc": {
+          "line": 133,
+          "column": 55,
+          "position": 1327
+        },
+        "endLoc": {
+          "line": 147,
+          "column": 1,
+          "position": 1408
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 10,
+      "fragment": "\n                  </div>\n                </div>\n              ))}\n            </div>\n          </div>\n\n          <div className=\"bg-white border border-slate-200 rounded-lg p-6\">\n            <h3 className=\"font-semibold text-slate-900 mb-4 flex items-center gap-2\">\n              <Bookmark",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/statistics/Statistics.tsx",
+        "start": 219,
+        "end": 228,
+        "startLoc": {
+          "line": 219,
+          "column": 3,
+          "position": 2163
+        },
+        "endLoc": {
+          "line": 228,
+          "column": 9,
+          "position": 2214
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/statistics/Statistics.tsx",
+        "start": 189,
+        "end": 198,
+        "startLoc": {
+          "line": 189,
+          "column": 2,
+          "position": 1848
+        },
+        "endLoc": {
+          "line": 198,
+          "column": 6,
+          "position": 1899
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 11,
+      "fragment": "</div>\n                </div>\n                <ToggleSwitch\n                  checked={settings.spellCheck}\n                  onChange={() => setSettings({ ...settings, spellCheck: !settings.spellCheck })}\n                />\n              </div>\n\n              <div className=\"flex items-center justify-between\">\n                <div>\n                  <div className=\"font-medium text-slate-900\">자동 줄바꿈",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 131,
+        "end": 141,
+        "startLoc": {
+          "line": 131,
+          "column": 6,
+          "position": 1072
+        },
+        "endLoc": {
+          "line": 141,
+          "column": 4,
+          "position": 1155
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 100,
+        "end": 110,
+        "startLoc": {
+          "line": 100,
+          "column": 6,
+          "position": 792
+        },
+        "endLoc": {
+          "line": 110,
+          "column": 3,
+          "position": 875
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 11,
+      "fragment": "</div>\n                </div>\n                <ToggleSwitch\n                  checked={settings.wordWrap}\n                  onChange={() => setSettings({ ...settings, wordWrap: !settings.wordWrap })}\n                />\n              </div>\n\n              <div className=\"flex items-center justify-between\">\n                <div>\n                  <div className=\"font-medium text-slate-900\">글꼴",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 142,
+        "end": 152,
+        "startLoc": {
+          "line": 142,
+          "column": 7,
+          "position": 1177
+        },
+        "endLoc": {
+          "line": 152,
+          "column": 3,
+          "position": 1258
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 100,
+        "end": 110,
+        "startLoc": {
+          "line": 100,
+          "column": 6,
+          "position": 792
+        },
+        "endLoc": {
+          "line": 110,
+          "column": 3,
+          "position": 873
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 10,
+      "fragment": " 조정합니다</div>\n                </div>\n                <div className=\"flex items-center gap-2\">\n                  <button\n                    className=\"px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium\"\n                    onClick={() => setSettings({ ...settings, lineHeight: Math.max(1.0, settings.lineHeight - 0.1) })}\n                  >\n                    -\n                  </button>\n                  <span className=\"w-12 text-center text-sm font-medium\">{settings.lineHeight",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 175,
+        "end": 184,
+        "startLoc": {
+          "line": 175,
+          "column": 4,
+          "position": 1491
+        },
+        "endLoc": {
+          "line": 184,
+          "column": 11,
+          "position": 1581
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/settings/Settings.tsx",
+        "start": 153,
+        "end": 162,
+        "startLoc": {
+          "line": 153,
+          "column": 4,
+          "position": 1280
+        },
+        "endLoc": {
+          "line": 162,
+          "column": 9,
+          "position": 1370
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 8,
+      "fragment": ";\n\n  return (\n    <div className=\"flex-1 flex flex-col bg-slate-50\">\n      <div className=\"bg-white border-b border-slate-200 p-6\">\n        <div className=\"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4\">\n          <div>\n            <h1 className=\"text-2xl font-bold text-slate-900\">프로젝트",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/projects/Projects.tsx",
+        "start": 77,
+        "end": 84,
+        "startLoc": {
+          "line": 77,
+          "column": 2,
+          "position": 840
+        },
+        "endLoc": {
+          "line": 84,
+          "column": 5,
+          "position": 896
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/statistics/Statistics.tsx",
+        "start": 58,
+        "end": 65,
+        "startLoc": {
+          "line": 58,
+          "column": 2,
+          "position": 659
+        },
+        "endLoc": {
+          "line": 65,
+          "column": 3,
+          "position": 715
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 11,
+      "fragment": "\n    setIsTyping(false);\n    setStartTime(null);\n    setLastKeyTime(null);\n    if (idleTimeoutRef.current) {\n      clearTimeout(idleTimeoutRef.current);\n      idleTimeoutRef.current = null;\n    }\n  };\n\n  // 키 입력 처리",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/dashboard/TypingBox.tsx",
+        "start": 60,
+        "end": 70,
+        "startLoc": {
+          "line": 60,
+          "column": 2,
+          "position": 554
+        },
+        "endLoc": {
+          "line": 70,
+          "column": 11,
+          "position": 615
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/dashboard/TypingBox.tsx",
+        "start": 47,
+        "end": 57,
+        "startLoc": {
+          "line": 47,
+          "column": 1,
+          "position": 464
+        },
+        "endLoc": {
+          "line": 57,
+          "column": 6,
+          "position": 525
+        }
+      }
+    },
+    {
+      "format": "tsx",
+      "lines": 6,
+      "fragment": "]);\n\n  const formatTime = (seconds: number) => {\n    const mins = Math.floor(seconds / 60);\n    const secs = seconds % 60;\n    return `${mins.",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/components/common/TypingPanel.tsx",
+        "start": 46,
+        "end": 51,
+        "startLoc": {
+          "line": 46,
+          "column": 7,
+          "position": 370
+        },
+        "endLoc": {
+          "line": 51,
+          "column": 2,
+          "position": 432
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/components/dashboard/Dashboard.tsx",
+        "start": 50,
+        "end": 55,
+        "startLoc": {
+          "line": 50,
+          "column": 13,
+          "position": 438
+        },
+        "endLoc": {
+          "line": 55,
+          "column": 2,
+          "position": 500
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 9,
+      "fragment": ", { \n        encoding: 'utf8', \n        timeout: 5000 \n      }).trim();\n      \n      const [appName, windowTitle] = result.split('|');\n      \n      return {\n        appName: appName || 'Windows App'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/detectors/AppDetector.ts",
+        "start": 153,
+        "end": 161,
+        "startLoc": {
+          "line": 153,
+          "column": 3,
+          "position": 938
+        },
+        "endLoc": {
+          "line": 161,
+          "column": 14,
+          "position": 1004
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/detectors/AppDetector.ts",
+        "start": 119,
+        "end": 127,
+        "startLoc": {
+          "line": 119,
+          "column": 3,
+          "position": 755
+        },
+        "endLoc": {
+          "line": 127,
+          "column": 10,
+          "position": 821
+        }
+      }
+    },
+    {
+      "format": "markup",
+      "lines": 26,
+      "fragment": "<!DOCTYPE html><html lang=\"ko\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/c7f765b92536714d.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-1ad7cb740b0a3d22.js\"/><script src=\"/_next/static/chunks/87c73c54-69e7c9eddd188b2d.js\" async=\"\"></script><script src=\"/_next/static/chunks/315-4f435a22793a9823.js\" async=\"\"></script><script src=\"/_next/static/chunks/main-app-849ad5ed86326ab1.js\" async=\"\"></script><script src=\"/_next/static/chunks/951-3b4e8edce4bf38aa.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/page-a35078c997fb9111.js\" async=\"\"></script><meta http-equiv=\"Content-Security-Policy\" content=\"default-src &#x27;self&#x27;;  script-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;;  style-src &#x27;self&#x27; &#x27;unsafe-inline&#x27;;  img-src &#x27;self&#x27; data:;  font-src &#x27;self&#x27; data:;  connect-src &#x27;self&#x27;;\"/><title>Loop Typing Analytics</title><meta name=\"description\" content=\"작가를 위한 타이핑 분석 도구\"/><script>document.querySelectorAll('body link[rel=\"icon\"], body link[rel=\"apple-touch-icon\"]').forEach(el => document.head.appendChild(el))</script><script src=\"/_next/static/chunks/polyfills-42372ed130431b0a.js\" noModule=\"\"></script></head><body><div hidden=\"\"><!--$--><!--/$--></div><div class=\"min-h-screen bg-gray-50 dark:bg-gray-900\"><header class=\"h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center border-b border-slate-700 shadow-lg\"><div class=\"text-white font-semibold text-lg\">Loop Typing Analytics</div></header><div class=\"\n        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 \n        border-r border-gray-200 dark:border-gray-700 \n        transform transition-transform duration-300 ease-in-out\n        lg:translate-x-0 -translate-x-full\n      \"><div class=\"flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700\"><h1 class=\"text-xl font-bold text-gray-900 dark:text-white\">Loop Analytics</h1><button class=\"lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x w-5 h-5\" aria-hidden=\"true\"><path d=\"M18 6 6 18\"></path><path d=\"m6 6 12 12\"></path></svg></button></div><nav class=\"mt-6 px-3\"><ul class=\"space-y-2\"><li><button class=\"\n                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg\n                      transition-colors duration-200\n                      bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400\n                    \"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-house w-5 h-5 mr-3\" aria-hidden=\"true\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"></path><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path></svg>대시보드</button></li><li><button class=\"\n                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg\n                      transition-colors duration-200\n                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700\n                    \"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chart-column w-5 h-5 mr-3\" aria-hidden=\"true\"><path d=\"M3 3v16a2 2 0 0 0 2 2h16\"></path><path d=\"M18 17V9\"></path><path d=\"M13 17V5\"></path><path d=\"M8 17v-3\"></path></svg>통계</button></li><li><button class=\"\n                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg\n                      transition-colors duration-200\n                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700\n                    \"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-folder-open w-5 h-5 mr-3\" aria-hidden=\"true\"><path d=\"m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2\"></path></svg>프로젝트</button></li><li><button class=\"\n                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg\n                      transition-colors duration-200\n                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700\n                    \"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-brain w-5 h-5 mr-3\" aria-hidden=\"true\"><path d=\"M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z\"></path><path d=\"M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z\"></path><path d=\"M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4\"></path><path d=\"M17.599 6.5a3 3 0 0 0 .399-1.375\"></path><path d=\"M6.003 5.125A3 3 0 0 0 6.401 6.5\"></path><path d=\"M3.477 10.896a4 4 0 0 1 .585-.396\"></path><path d=\"M19.938 10.5a4 4 0 0 1 .585.396\"></path><path d=\"M6 18a4 4 0 0 1-1.967-.516\"></path><path d=\"M19.967 17.484A4 4 0 0 1 18 18\"></path></svg>AI 분석</button></li><li><button class=\"\n                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg\n                      transition-colors duration-200\n                      text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700\n                    \"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-settings w-5 h-5 mr-3\" aria-hidden=\"true\"><path d=\"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle></svg>설정</button></li></ul></nav></div><div class=\"lg:pl-64\"><div class=\"sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3\"><div class=\"flex items-center justify-between\"><div class=\"flex items-center\"><button class=\"lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mr-3\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-menu w-5 h-5\" aria-hidden=\"true\"><path d=\"M4 12h16\"></path><path d=\"M4 18h16\"></path><path d=\"M4 6h16\"></path></svg></button><h2 class=\"text-lg font-semibold text-gray-900 dark:text-white\">대시보드</h2></div><div class=\"flex items-center space-x-2\"><div class=\"w-2 h-2 bg-green-400 rounded-full animate-pulse\"></div><span class=\"text-sm text-gray-600 dark:text-gray-400\">모니터링 활성</span></div></div></div><main class=\"p-6\"><div class=\"flex-1 flex flex-col bg-slate-50\"><div class=\"bg-white border-b border-slate-200 p-6\"><div class=\"flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4\"><div><h1 class=\"text-2xl font-bold text-slate-900\">대시보드</h1><p class=\"text-slate-600 mt-1\">오늘의 창작을 시작하세요</p></div><div class=\"flex items-center gap-3\"><button class=\"px-4 py-2 rounded-md font-medium transition-colors bg-purple-600 text-white hover:bg-purple-700\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-sparkles w-4 h-4 mr-2 inline\" aria-hidden=\"true\"><path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\"></path><path d=\"M20 3v4\"></path><path d=\"M22 5h-4\"></path><path d=\"M4 17v2\"></path><path d=\"M5 18H3\"></path></svg>Loop AI</button><button class=\"px-4 py-2 rounded-md font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-play w-4 h-4 mr-2 inline\" aria-hidden=\"true\"><polygon points=\"6 3 20 12 6 21 6 3\"></polygon></svg>시작</button><button class=\"p-2 text-slate-600 hover:bg-slate-100 rounded-md\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-ellipsis w-4 h-4\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"19\" cy=\"12\" r=\"1\"></circle><circle cx=\"5\" cy=\"12\" r=\"1\"></circle></svg></button></div></div></div><div class=\"flex-1 overflow-y-auto p-6 space-y-6\"><div class=\"space-y-4\"><h2 class=\"text-lg font-semibold text-slate-900\">빠른 시작</h2><div class=\"bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 rounded-lg p-6 h-[120px] flex items-center justify-center cursor-pointer transition-colors\"><div class=\"text-center\"><div class=\"w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-plus w-6 h-6\" aria-hidden=\"true\"><path d=\"M5 12h14\"></path><path d=\"M12 5v14\"></path></svg></div><h3 class=\"font-semibold text-slate-900 mb-1\">새 프로젝트 시작</h3><p class=\"text-sm text-slate-600\">새로운 창작을 시작하세요</p></div></div><div class=\"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4\"><div class=\"bg-green-50 border border-green-200 hover:border-green-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors\"><div class=\"flex items-center gap-2 mb-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-circle-check-big w-5 h-5 text-green-600\" aria-hidden=\"true\"><path d=\"M21.801 10A10 10 0 1 1 17 3.335\"></path><path d=\"m9 11 3 3L22 4\"></path></svg><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-globe w-4 h-4 text-green-600\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\"></path><path d=\"M2 12h20\"></path></svg></div><div><h3 class=\"font-semibold text-slate-900 mb-1\">Google Docs</h3><p class=\"text-sm text-slate-600 mb-2\">문서 동기화</p><div class=\"text-xs text-green-700 font-medium\">마지막 동기화: 2분 전</div></div></div><div class=\"bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors\"><div class=\"flex items-center gap-2 mb-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-circle-check-big w-5 h-5 text-slate-600\" aria-hidden=\"true\"><path d=\"M21.801 10A10 10 0 1 1 17 3.335\"></path><path d=\"m9 11 3 3L22 4\"></path></svg><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-cloud w-4 h-4 text-slate-600\" aria-hidden=\"true\"><path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\"></path></svg></div><div><h3 class=\"font-semibold text-slate-900 mb-1\">Loop 클라우드</h3><p class=\"text-sm text-slate-600 mb-2\">백업 동기화</p><div class=\"text-xs text-slate-700 font-medium\">마지막 백업: 5분 전</div></div></div><div class=\"bg-purple-50 border border-purple-200 hover:border-purple-300 rounded-lg p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-colors\"><div class=\"flex items-center gap-2 mb-2\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-file-text w-5 h-5 text-purple-600\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"></path><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"></path><path d=\"M10 9H8\"></path><path d=\"M16 13H8\"></path><path d=\"M16 17H8\"></path></svg><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-clock w-4 h-4 text-purple-600\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg></div><div><h3 class=\"font-semibold text-slate-900 mb-1\">최근 파일</h3><p class=\"text-sm text-slate-600 mb-2\">작업 이어가기</p><div class=\"text-xs text-purple-700 font-medium\">3개 파일 대기 중</div></div></div></div></div><div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\"><div class=\"bg-white border border-slate-200 rounded-lg p-6\"><div class=\"flex items-center gap-2 mb-4\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-target w-5 h-5 text-blue-600\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"6\"></circle><circle cx=\"12\" cy=\"12\" r=\"2\"></circle></svg><h3 class=\"font-semibold text-slate-900\">활성 프로젝트</h3></div><div class=\"space-y-4\"></div></div><div class=\"bg-white border border-slate-200 rounded-lg p-6\"><div class=\"flex items-center gap-2 mb-4\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-clock w-5 h-5 text-green-600\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline></svg><h3 class=\"font-semibold text-slate-900\">최근 파일</h3></div><div class=\"space-y-2\"></div></div></div></div></div></main></div></div><!--$--><!--/$--><script src=\"/_next/static/chunks/webpack-1ad7cb740b0a3d22.js\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,\"1:\\\"$Sreact.fragment\\\"\\n2:I[7132,[],\\\"\\\"]\\n3:I[5082,[],\\\"\\\"]\\n4:I[9065,[],\\\"ClientPageRoot\\\"]\\n5:I[2843,[\\\"951\\\",\\\"static/chunks/951-3b4e8edce4bf38aa.js\\\",\\\"974\\\",\\\"static/chunks/app/page-a35078c997fb9111.js\\\"],\\\"default\\\"]\\n8:I[700,[],\\\"OutletBoundary\\\"]\\nb:I[7748,[],\\\"AsyncMetadataOutlet\\\"]\\nd:I[700,[],\\\"ViewportBoundary\\\"]\\nf:I[700,[],\\\"MetadataBoundary\\\"]\\n11:I[9699,[],\\\"\\\"]\\n:HL[\\\"/_next/static/css/c7f765b92536714d.css\\\",\\\"style\\\"]\\n\"])</script><script>self.__next_f.push([1,\"0:{\\\"P\\\":null,\\\"b\\\":\\\"m2tClGyE5ASXJgy2xZwVx\\\",\\\"p\\\":\\\"\\\",\\\"c\\\":[\\\"\\\",\\\"\\\"],\\\"i\\\":false,\\\"f\\\":[[[\\\"\\\",{\\\"children\\\":[\\\"__PAGE__\\\",{}]},\\\"$undefined\\\",\\\"$undefined\\\",true],[\\\"\\\",[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/c7f765b92536714d.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\",\\\"nonce\\\":\\\"$undefined\\\"}]],[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"ko\\\",\\\"children\\\":[[\\\"$\\\",\\\"head\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"meta\\\",null,{\\\"httpEquiv\\\":\\\"Content-Security-Policy\\\",\\\"content\\\":\\\"default-src 'self';  script-src 'self' 'unsafe-inline';  style-src 'self' 'unsafe-inline';  img-src 'self' data:;  font-src 'self' data:;  connect-src 'self';\\\"}]}],[\\\"$\\\",\\\"body\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$L2\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$L3\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":[[[\\\"$\\\",\\\"title\\\",null,{\\\"children\\\":\\\"404: This page could not be found.\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"fontFamily\\\":\\\"system-ui,\\\\\\\"Segoe UI\\\\\\\",Roboto,Helvetica,Arial,sans-serif,\\\\\\\"Apple Color Emoji\\\\\\\",\\\\\\\"Segoe UI Emoji\\\\\\\"\\\",\\\"height\\\":\\\"100vh\\\",\\\"textAlign\\\":\\\"center\\\",\\\"display\\\":\\\"flex\\\",\\\"flexDirection\\\":\\\"column\\\",\\\"alignItems\\\":\\\"center\\\",\\\"justifyContent\\\":\\\"center\\\"},\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"style\\\",null,{\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\\\"}}],[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"next-error-h1\\\",\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\",\\\"margin\\\":\\\"0 20px 0 0\\\",\\\"padding\\\":\\\"0 23px 0 0\\\",\\\"fontSize\\\":24,\\\"fontWeight\\\":500,\\\"verticalAlign\\\":\\\"top\\\",\\\"lineHeight\\\":\\\"49px\\\"},\\\"children\\\":404}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\"},\\\"children\\\":[\\\"$\\\",\\\"h2\\\",null,{\\\"style\\\":{\\\"fontSize\\\":14,\\\"fontWeight\\\":400,\\\"lineHeight\\\":\\\"49px\\\",\\\"margin\\\":0},\\\"children\\\":\\\"This page could not be found.\\\"}]}]]}]}]],[]],\\\"forbidden\\\":\\\"$undefined\\\",\\\"unauthorized\\\":\\\"$undefined\\\"}]}]]}]]}],{\\\"children\\\":[\\\"__PAGE__\\\",[\\\"$\\\",\\\"$1\\\",\\\"c\\\",{\\\"children\\\":[[\\\"$\\\",\\\"$L4\\\",null,{\\\"Component\\\":\\\"$5\\\",\\\"searchParams\\\":{},\\\"params\\\":{},\\\"promises\\\":[\\\"$@6\\\",\\\"$@7\\\"]}],null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"children\\\":[\\\"$L9\\\",\\\"$La\\\",[\\\"$\\\",\\\"$Lb\\\",null,{\\\"promise\\\":\\\"$@c\\\"}]]}]]}],{},null,false]},null,false],[\\\"$\\\",\\\"$1\\\",\\\"h\\\",{\\\"children\\\":[null,[\\\"$\\\",\\\"$1\\\",\\\"imXLa00_SA1kV_wBVl9eiv\\\",{\\\"children\\\":[[\\\"$\\\",\\\"$Ld\\\",null,{\\\"children\\\":\\\"$Le\\\"}],null]}],[\\\"$\\\",\\\"$Lf\\\",null,{\\\"children\\\":\\\"$L10\\\"}]]}],false]],\\\"m\\\":\\\"$undefined\\\",\\\"G\\\":[\\\"$11\\\",\\\"$undefined\\\"],\\\"s\\\":false,\\\"S\\\":true}\\n\"])</script><script>self.__next_f.push([1,\"12:\\\"$Sreact.suspense\\\"\\n13:I[7748,[],\\\"AsyncMetadata\\\"]\\n6:{}\\n7:{}\\n10:[\\\"$\\\",\\\"div\\\",null,{\\\"hidden\\\":true,\\\"children\\\":[\\\"$\\\",\\\"$12\\\",null,{\\\"fallback\\\":null,\\\"children\\\":[\\\"$\\\",\\\"$L13\\\",null,{\\\"promise\\\":\\\"$@14\\\"}]}]}]\\n\"])</script><script>self.__next_f.push([1,\"a:null\\n\"])</script><script>self.__next_f.push([1,\"e:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1\\\"}]]\\n9:null\\n\"])</script><script>self.__next_f.push([1,\"c:{\\\"metadata\\\":[[\\\"$\\\",\\\"title\\\",\\\"0\\\",{\\\"children\\\":\\\"Loop Typing Analytics\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"작가를 위한 타이핑 분석 도구\\\"}]],\\\"error\\\":null,\\\"digest\\\":\\\"$undefined\\\"}\\n14:{\\\"metadata\\\":\\\"$c:metadata\\\",\\\"error\\\":null,\\\"digest\\\":\\\"$undefined\\\"}\\n\"])</script></body></html>",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/renderer/out/index.html",
+        "start": 1,
+        "end": 26,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 26,
+          "column": 2,
+          "position": 3536
+        }
+      },
+      "secondFile": {
+        "name": "src/renderer/.next/server/app/index.html",
+        "start": 1,
+        "end": 26,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 26,
+          "column": 2,
+          "position": 3536
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "{\n            title: 'Export Loop Data',\n            defaultPath: `loop-data-${new Date().toISOString().split('T')[0]}.json`,\n            filters: [\n              { name: 'JSON Files', extensions: ['json'] },\n              { name: 'All Files', extensions: ['*'] }\n            ]\n          });",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 94,
+        "end": 101,
+        "startLoc": {
+          "line": 94,
+          "column": 2,
+          "position": 697
+        },
+        "endLoc": {
+          "line": 101,
+          "column": 2,
+          "position": 782
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 86,
+        "end": 94,
+        "startLoc": {
+          "line": 86,
+          "column": 2,
+          "position": 602
+        },
+        "endLoc": {
+          "line": 94,
+          "column": 1,
+          "position": 687
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "{\n            title: 'Import Loop Data',\n            filters: [\n              { name: 'JSON Files', extensions: ['json'] },\n              { name: 'All Files', extensions: ['*'] }\n            ],\n            properties: ['openFile']\n          });",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 136,
+        "end": 143,
+        "startLoc": {
+          "line": 136,
+          "column": 2,
+          "position": 1087
+        },
+        "endLoc": {
+          "line": 143,
+          "column": 2,
+          "position": 1154
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 128,
+        "end": 136,
+        "startLoc": {
+          "line": 128,
+          "column": 2,
+          "position": 1010
+        },
+        "endLoc": {
+          "line": 136,
+          "column": 1,
+          "position": 1077
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": "(): Promise<void> {\n    const mainWindow = BrowserWindow.getAllWindows()[0];\n    if (mainWindow && 'webContents' in mainWindow) {\n      const win = mainWindow as BrowserWindow;\n      win.webContents.send('navigate-to', '/settings');\n      win.show();\n      win.focus();\n    }\n  }\n\n  /**\n   * Show keyboard shortcuts help\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 191,
+        "end": 203,
+        "startLoc": {
+          "line": 191,
+          "column": 19,
+          "position": 1553
+        },
+        "endLoc": {
+          "line": 203,
+          "column": 6,
+          "position": 1650
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 165,
+        "end": 65,
+        "startLoc": {
+          "line": 165,
+          "column": 20,
+          "position": 1343
+        },
+        "endLoc": {
+          "line": 65,
+          "column": 6,
+          "position": 424
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": ".join('\\n'),\n      buttons: ['OK'],\n      defaultId: 0\n    };\n\n    if (focusedWindow) {\n      await dialog.showMessageBox(focusedWindow, options);\n    } else {\n      await dialog.showMessageBox(options);\n    }\n  }\n\n  /**\n   * Check for application updates\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 227,
+        "end": 241,
+        "startLoc": {
+          "line": 227,
+          "column": 10,
+          "position": 1789
+        },
+        "endLoc": {
+          "line": 241,
+          "column": 6,
+          "position": 1865
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 34,
+        "end": 48,
+        "startLoc": {
+          "line": 34,
+          "column": 2,
+          "position": 223
+        },
+        "endLoc": {
+          "line": 48,
+          "column": 6,
+          "position": 299
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": ",\n      buttons: ['OK'],\n      defaultId: 0\n    };\n\n    if (focusedWindow) {\n      await dialog.showMessageBox(focusedWindow, options);\n    } else {\n      await dialog.showMessageBox(options);\n    }\n  }\n\n  /**\n   * Open external links\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 252,
+        "end": 266,
+        "startLoc": {
+          "line": 252,
+          "column": 46,
+          "position": 1956
+        },
+        "endLoc": {
+          "line": 266,
+          "column": 6,
+          "position": 2027
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 34,
+        "end": 48,
+        "startLoc": {
+          "line": 34,
+          "column": 2,
+          "position": 228
+        },
+        "endLoc": {
+          "line": 48,
+          "column": 6,
+          "position": 299
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": ",\n      buttons: ['OK'],\n      defaultId: 0\n    };\n\n    if (focusedWindow) {\n      await dialog.showMessageBox(focusedWindow, options);\n    } else {\n      await dialog.showMessageBox(options);\n    }\n  }\n\n  /**\n   * Clear recent files\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 286,
+        "end": 300,
+        "startLoc": {
+          "line": 286,
+          "column": 8,
+          "position": 2210
+        },
+        "endLoc": {
+          "line": 300,
+          "column": 6,
+          "position": 2281
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-handlers.ts",
+        "start": 34,
+        "end": 48,
+        "startLoc": {
+          "line": 34,
+          "column": 2,
+          "position": 228
+        },
+        "endLoc": {
+          "line": 48,
+          "column": 6,
+          "position": 299
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": "\n  static getInstance(): MenuManager {\n    if (!MenuManager.instance) {\n      MenuManager.instance = new MenuManager();\n    }\n    return MenuManager.instance;\n  }\n\n  /**\n   * 메뉴 매니저 초기화\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 81,
+        "end": 91,
+        "startLoc": {
+          "line": 81,
+          "column": 6,
+          "position": 434
+        },
+        "endLoc": {
+          "line": 91,
+          "column": 6,
+          "position": 489
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager.ts",
+        "start": 24,
+        "end": 34,
+        "startLoc": {
+          "line": 24,
+          "column": 1,
+          "position": 192
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 6,
+          "position": 247
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": " [\n      { role: 'undo' },\n      { role: 'redo' },\n      { type: 'separator' },\n      { role: 'cut' },\n      { role: 'copy' },\n      { role: 'paste' }\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 302,
+        "end": 309,
+        "startLoc": {
+          "line": 302,
+          "column": 2,
+          "position": 1967
+        },
+        "endLoc": {
+          "line": 309,
+          "column": 1,
+          "position": 2034
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-items.ts",
+        "start": 133,
+        "end": 139,
+        "startLoc": {
+          "line": 133,
+          "column": 2,
+          "position": 840
+        },
+        "endLoc": {
+          "line": 139,
+          "column": 2,
+          "position": 907
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "\n      { type: 'separator' },\n      { role: 'resetZoom' },\n      { role: 'zoomIn' },\n      { role: 'zoomOut' },\n      { type: 'separator' },\n      { role: 'togglefullscreen' }\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 356,
+        "end": 363,
+        "startLoc": {
+          "line": 356,
+          "column": 2,
+          "position": 2348
+        },
+        "endLoc": {
+          "line": 363,
+          "column": 1,
+          "position": 2413
+        }
+      },
+      "secondFile": {
+        "name": "src/main/menu/menu-items.ts",
+        "start": 165,
+        "end": 171,
+        "startLoc": {
+          "line": 165,
+          "column": 2,
+          "position": 1103
+        },
+        "endLoc": {
+          "line": 171,
+          "column": 2,
+          "position": 1168
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "options.showAbout) {\n      submenu.push({\n        label: `${options.appName} 정보`,\n        click: () => this.sendMenuAction({ action: 'show-about' })\n      });\n    }\n\n    return",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 433,
+        "end": 440,
+        "startLoc": {
+          "line": 433,
+          "column": 2,
+          "position": 2871
+        },
+        "endLoc": {
+          "line": 440,
+          "column": 7,
+          "position": 2931
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 187,
+        "end": 194,
+        "startLoc": {
+          "line": 187,
+          "column": 2,
+          "position": 1101
+        },
+        "endLoc": {
+          "line": 194,
+          "column": 8,
+          "position": 1161
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": "\nexport interface MenuOptions {\n  showPreferences?: boolean;\n  showAbout?: boolean;\n  showQuit?: boolean;\n  showDevTools?: boolean;\n  enableAutoUpdates?: boolean;\n  appName?: string;\n  recentFiles?: string[];\n  items?: MenuItemConstructorOptions[];\n}\n\nexport",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-new.ts",
+        "start": 11,
+        "end": 23,
+        "startLoc": {
+          "line": 11,
+          "column": 1,
+          "position": 88
+        },
+        "endLoc": {
+          "line": 23,
+          "column": 7,
+          "position": 168
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager-old.ts",
+        "start": 8,
+        "end": 22,
+        "startLoc": {
+          "line": 8,
+          "column": 4,
+          "position": 72
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 4,
+          "position": 152
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": "\n  static getInstance(): MenuManager {\n    if (!MenuManager.instance) {\n      MenuManager.instance = new MenuManager();\n    }\n    return MenuManager.instance;\n  }\n\n  /**\n   * Initialize menu system\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-new.ts",
+        "start": 42,
+        "end": 52,
+        "startLoc": {
+          "line": 42,
+          "column": 6,
+          "position": 298
+        },
+        "endLoc": {
+          "line": 52,
+          "column": 6,
+          "position": 353
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager.ts",
+        "start": 24,
+        "end": 34,
+        "startLoc": {
+          "line": 24,
+          "column": 1,
+          "position": 192
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 6,
+          "position": 247
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(): void {\n    try {\n      const template = getContextMenuTemplate();\n      this.contextMenu = Menu.buildFromTemplate(template);\n      \n      log.info(\"Console\", '✅ Context menu setup successfully'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-new.ts",
+        "start": 110,
+        "end": 115,
+        "startLoc": {
+          "line": 110,
+          "column": 17,
+          "position": 700
+        },
+        "endLoc": {
+          "line": 115,
+          "column": 36,
+          "position": 750
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager.ts",
+        "start": 81,
+        "end": 86,
+        "startLoc": {
+          "line": 81,
+          "column": 18,
+          "position": 531
+        },
+        "endLoc": {
+          "line": 86,
+          "column": 18,
+          "position": 581
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 9,
+      "fragment": ");\n      return;\n    }\n\n    try {\n      const targetWindow = window || BrowserWindow.getFocusedWindow();\n      if (targetWindow) {\n        this.contextMenu.popup({\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/managers/MenuManager-new.ts",
+        "start": 152,
+        "end": 160,
+        "startLoc": {
+          "line": 152,
+          "column": 34,
+          "position": 979
+        },
+        "endLoc": {
+          "line": 160,
+          "column": 1,
+          "position": 1030
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/MenuManager.ts",
+        "start": 125,
+        "end": 132,
+        "startLoc": {
+          "line": 125,
+          "column": 26,
+          "position": 873
+        },
+        "endLoc": {
+          "line": 132,
+          "column": 2,
+          "position": 924
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ",\n        usage: (count / total) * 100\n      }))\n      .sort((a, b) => b.usage - a.usage);\n  }\n\n  // Helper methods for interval calculations",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/StatsManager.ts",
+        "start": 566,
+        "end": 572,
+        "startLoc": {
+          "line": 566,
+          "column": 4,
+          "position": 5062
+        },
+        "endLoc": {
+          "line": 572,
+          "column": 44,
+          "position": 5115
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/StatsManager.ts",
+        "start": 538,
+        "end": 546,
+        "startLoc": {
+          "line": 538,
+          "column": 7,
+          "position": 4644
+        },
+        "endLoc": {
+          "line": 546,
+          "column": 6,
+          "position": 4697
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": "\n      this.currentStatus.accessibility = false;\n      this.currentStatus.screenRecording = false;\n      this.currentStatus.inputMonitoring = false;\n      this.currentStatus.fullDiskAccess = false;\n    }\n  }\n\n  /**\n   * Linux 권한 확인\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 134,
+        "end": 144,
+        "startLoc": {
+          "line": 134,
+          "column": 2,
+          "position": 951
+        },
+        "endLoc": {
+          "line": 144,
+          "column": 6,
+          "position": 1008
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 114,
+        "end": 124,
+        "startLoc": {
+          "line": 114,
+          "column": 28,
+          "position": 786
+        },
+        "endLoc": {
+          "line": 124,
+          "column": 6,
+          "position": 843
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ", error);\n      this.currentStatus.accessibility = false;\n      this.currentStatus.screenRecording = false;\n      this.currentStatus.inputMonitoring = false;\n      this.currentStatus.fullDiskAccess = false;\n    }\n  }\n\n  /**\n   * 권한 상태 분석\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 154,
+        "end": 164,
+        "startLoc": {
+          "line": 154,
+          "column": 20,
+          "position": 1111
+        },
+        "endLoc": {
+          "line": 164,
+          "column": 6,
+          "position": 1173
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 134,
+        "end": 124,
+        "startLoc": {
+          "line": 134,
+          "column": 22,
+          "position": 946
+        },
+        "endLoc": {
+          "line": 124,
+          "column": 6,
+          "position": 843
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "\n        setTimeout(() => {\n          resolve(true); // 임시로 true 반환\n        }, 100);\n      });\n    } catch (error) {\n      log.error(\"Console\", '❌ 화면 녹화 권한 확인 실패:'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 376,
+        "end": 382,
+        "startLoc": {
+          "line": 376,
+          "column": 2,
+          "position": 2437
+        },
+        "endLoc": {
+          "line": 382,
+          "column": 20,
+          "position": 2489
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 359,
+        "end": 365,
+        "startLoc": {
+          "line": 359,
+          "column": 33,
+          "position": 2323
+        },
+        "endLoc": {
+          "line": 365,
+          "column": 18,
+          "position": 2375
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "\n      return new Promise((resolve) => {\n        setTimeout(() => {\n          resolve(true); // 임시로 true 반환\n        }, 100);\n      });\n    } catch (error) {\n      log.error(\"Console\", '❌ 입력 모니터링 권한 확인 실패:'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 392,
+        "end": 399,
+        "startLoc": {
+          "line": 392,
+          "column": 18,
+          "position": 2536
+        },
+        "endLoc": {
+          "line": 399,
+          "column": 22,
+          "position": 2603
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 375,
+        "end": 365,
+        "startLoc": {
+          "line": 375,
+          "column": 17,
+          "position": 2422
+        },
+        "endLoc": {
+          "line": 365,
+          "column": 18,
+          "position": 2375
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "\n      return new Promise((resolve) => {\n        setTimeout(() => {\n          resolve(true); // 임시로 true 반환\n        }, 100);\n      });\n    } catch (error) {\n      log.error(\"Console\", '❌ 전체 디스크 접근 권한 확인 실패:'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 409,
+        "end": 416,
+        "startLoc": {
+          "line": 409,
+          "column": 20,
+          "position": 2650
+        },
+        "endLoc": {
+          "line": 416,
+          "column": 24,
+          "position": 2717
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/PermissionManager.ts",
+        "start": 375,
+        "end": 365,
+        "startLoc": {
+          "line": 375,
+          "column": 17,
+          "position": 2422
+        },
+        "endLoc": {
+          "line": 365,
+          "column": 18,
+          "position": 2375
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": "): void {\n    for (const [channel, handler] of Object.entries(handlers)) {\n      ipcMain.handle(channel, handler);\n      this.registeredChannels.push(channel);\n    }\n\n    GigaChadLogger.info('KeyboardIpcHandlers', SUCCESS_MESSAGES.HANDLERS_REGISTERED);\n  }\n\n  /**\n   * 기본 키보드 IPC 핸들러들 생성\n   */\n  public createDefaultHandlers(keyboardEngine: KeyboardEngine): TypedIpcHandler",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/KeyboardIpcHandlers.ts",
+        "start": 22,
+        "end": 34,
+        "startLoc": {
+          "line": 22,
+          "column": 16,
+          "position": 115
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 16,
+          "position": 207
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/handlers/KeyboardIpcHandlers.ts",
+        "start": 35,
+        "end": 47,
+        "startLoc": {
+          "line": 35,
+          "column": 11,
+          "position": 237
+        },
+        "endLoc": {
+          "line": 47,
+          "column": 11,
+          "position": 329
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 10,
+      "fragment": " {\n    return {\n      // 모니터링 제어\n      'keyboard-engine:start-monitoring': () => keyboardEngine.startMonitoring(),\n      'keyboard-engine:stop-monitoring': () => keyboardEngine.stopMonitoring(),\n      'keyboard-engine:toggle-monitoring': () => keyboardEngine.toggleMonitoring(),\n\n      // 상태 조회\n      'keyboard-engine:get-status': () => keyboardEngine.getMonitoringStatus(),\n      'keyboard-engine:get-session-stats': () => keyboardEngine.getSessionStats",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/KeyboardIpcHandlers.ts",
+        "start": 34,
+        "end": 43,
+        "startLoc": {
+          "line": 34,
+          "column": 16,
+          "position": 208
+        },
+        "endLoc": {
+          "line": 43,
+          "column": 16,
+          "position": 298
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/handlers/KeyboardIpcHandlers.ts",
+        "start": 47,
+        "end": 56,
+        "startLoc": {
+          "line": 47,
+          "column": 11,
+          "position": 330
+        },
+        "endLoc": {
+          "line": 56,
+          "column": 15,
+          "position": 420
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 48,
+      "fragment": "): void {\n    ipcMain.handle(channel, handler);\n    this.registeredChannels.push(channel);\n    \n    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 등록: ${channel}`);\n  }\n\n  /**\n   * IPC 핸들러 해제\n   */\n  public unregisterHandlers(): void {\n    for (const channel of this.registeredChannels) {\n      ipcMain.removeHandler(channel);\n    }\n\n    GigaChadLogger.info('KeyboardIpcHandlers', '🔌 키보드 엔진 IPC 핸들러 해제 완료');\n    this.registeredChannels.length = 0;\n  }\n\n  /**\n   * 특정 채널의 핸들러 해제\n   */\n  public unregisterHandler(channel: string): void {\n    ipcMain.removeHandler(channel);\n    \n    const index = this.registeredChannels.indexOf(channel);\n    if (index > -1) {\n      this.registeredChannels.splice(index, 1);\n    }\n\n    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 해제: ${channel}`);\n  }\n\n  /**\n   * 등록된 채널 목록 가져오기\n   */\n  public getRegisteredChannels(): string[] {\n    return [...this.registeredChannels];\n  }\n\n  /**\n   * 정리\n   */\n  public cleanup(): void {\n    this.unregisterHandlers();\n  }\n}\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/KeyboardIpcHandlers.ts",
+        "start": 76,
+        "end": 123,
+        "startLoc": {
+          "line": 76,
+          "column": 3,
+          "position": 596
+        },
+        "endLoc": {
+          "line": 123,
+          "column": 1,
+          "position": 879
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/handlers/KeyboardIpcHandlers.ts",
+        "start": 87,
+        "end": 134,
+        "startLoc": {
+          "line": 87,
+          "column": 8,
+          "position": 781
+        },
+        "endLoc": {
+          "line": 134,
+          "column": 1,
+          "position": 1064
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": ";\n      this.state.buffer = this.state.cho + jung;\n      \n      const composed = this.composeHangul();\n      this.state.result = composed;\n      \n      return {\n        completed: false,\n        character: composed,\n        state: this.getState(),\n        needsContinue: true\n      };\n    } else {",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/keyboard/HangulComposer.ts",
+        "start": 267,
+        "end": 279,
+        "startLoc": {
+          "line": 267,
+          "column": 5,
+          "position": 1904
+        },
+        "endLoc": {
+          "line": 279,
+          "column": 2,
+          "position": 2001
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/HangulComposer.ts",
+        "start": 253,
+        "end": 265,
+        "startLoc": {
+          "line": 253,
+          "column": 5,
+          "position": 1778
+        },
+        "endLoc": {
+          "line": 265,
+          "column": 3,
+          "position": 1875
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 9,
+      "fragment": ", error);\n      return {\n        success: false,\n        error: error instanceof Error ? error.message : '알 수 없는 오류'\n      };\n    }\n  });\n\n  // 키보드 모니터링 상태 확인",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers/index.ts",
+        "start": 108,
+        "end": 116,
+        "startLoc": {
+          "line": 108,
+          "column": 18,
+          "position": 701
+        },
+        "endLoc": {
+          "line": 116,
+          "column": 18,
+          "position": 753
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers/index.ts",
+        "start": 89,
+        "end": 97,
+        "startLoc": {
+          "line": 89,
+          "column": 18,
+          "position": 547
+        },
+        "endLoc": {
+          "line": 97,
+          "column": 15,
+          "position": 599
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", error instanceof Error ? error.message : String(error));\n        return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };\n      }\n    });\n\n    // 최근 로그 데이터 가져오기",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers/dashboardIpcHandlers.ts",
+        "start": 87,
+        "end": 92,
+        "startLoc": {
+          "line": 87,
+          "column": 13,
+          "position": 753
+        },
+        "endLoc": {
+          "line": 92,
+          "column": 18,
+          "position": 819
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers/dashboardIpcHandlers.ts",
+        "start": 77,
+        "end": 82,
+        "startLoc": {
+          "line": 77,
+          "column": 13,
+          "position": 619
+        },
+        "endLoc": {
+          "line": 82,
+          "column": 8,
+          "position": 685
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 16,
+      "fragment": " }\n          },\n          _sum: {\n            totalKeys: true,\n            duration: true,\n          },\n          _avg: {\n            wpm: true,\n            accuracy: true,\n          },\n          _count: {\n            id: true,\n          }\n        });\n\n        return",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers/dashboardIpcHandlers.ts",
+        "start": 165,
+        "end": 180,
+        "startLoc": {
+          "line": 165,
+          "column": 9,
+          "position": 1449
+        },
+        "endLoc": {
+          "line": 180,
+          "column": 7,
+          "position": 1527
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers/dashboardIpcHandlers.ts",
+        "start": 144,
+        "end": 159,
+        "startLoc": {
+          "line": 144,
+          "column": 6,
+          "position": 1303
+        },
+        "endLoc": {
+          "line": 159,
+          "column": 11,
+          "position": 1381
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 9,
+      "fragment": " {\n  id: string;\n  content: string;\n  keyCount: number;\n  typingTime: number;\n  wpm: number;\n  accuracy: number;\n  timestamp: string;\n  totalChars",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/shared/types.ts",
+        "start": 314,
+        "end": 322,
+        "startLoc": {
+          "line": 314,
+          "column": 14,
+          "position": 2118
+        },
+        "endLoc": {
+          "line": 322,
+          "column": 11,
+          "position": 2171
+        }
+      },
+      "secondFile": {
+        "name": "src/shared/types.ts",
+        "start": 189,
+        "end": 197,
+        "startLoc": {
+          "line": 189,
+          "column": 13,
+          "position": 1227
+        },
+        "endLoc": {
+          "line": 197,
+          "column": 9,
+          "position": 1280
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 10,
+      "fragment": "static getInstance(): GigaChadLogger {\n    if (!GigaChadLogger.instance) {\n      GigaChadLogger.instance = new GigaChadLogger();\n    }\n    return GigaChadLogger.instance;\n  }\n\n  /**\n   * 로그 설정\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/shared/logger.ts",
+        "start": 50,
+        "end": 59,
+        "startLoc": {
+          "line": 50,
+          "column": 2,
+          "position": 371
+        },
+        "endLoc": {
+          "line": 59,
+          "column": 6,
+          "position": 424
+        }
+      },
+      "secondFile": {
+        "name": "src/main/keyboard/logger.ts",
+        "start": 38,
+        "end": 47,
+        "startLoc": {
+          "line": 38,
+          "column": 3,
+          "position": 216
+        },
+        "endLoc": {
+          "line": 47,
+          "column": 6,
+          "position": 269
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ",\n          new Promise<never>((_, reject) => \n            setTimeout(() => reject(new Error('Timeout')), timeout)\n          )\n        ]);\n      } else {",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/shared/common.ts",
+        "start": 368,
+        "end": 373,
+        "startLoc": {
+          "line": 368,
+          "column": 2,
+          "position": 2974
+        },
+        "endLoc": {
+          "line": 373,
+          "column": 2,
+          "position": 3029
+        }
+      },
+      "secondFile": {
+        "name": "src/shared/common.ts",
+        "start": 361,
+        "end": 366,
+        "startLoc": {
+          "line": 361,
+          "column": 2,
+          "position": 2880
+        },
+        "endLoc": {
+          "line": 366,
+          "column": 3,
+          "position": 2935
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ", async (event, options) => {\n      try {\n        const window = BrowserWindow.fromWebContents(event.sender);\n        if (!window) {\n          throw new Error('윈도우를 찾을 수 없습니다');\n        }\n        const result = await dialog.showSaveDialog",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/ipc-handlers.ts",
+        "start": 325,
+        "end": 331,
+        "startLoc": {
+          "line": 325,
+          "column": 19,
+          "position": 2505
+        },
+        "endLoc": {
+          "line": 331,
+          "column": 15,
+          "position": 2577
+        }
+      },
+      "secondFile": {
+        "name": "src/main/ipc-handlers.ts",
+        "start": 310,
+        "end": 316,
+        "startLoc": {
+          "line": 310,
+          "column": 19,
+          "position": 2368
+        },
+        "endLoc": {
+          "line": 316,
+          "column": 15,
+          "position": 2440
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 14,
+      "fragment": ";\n\n  private constructor() {}\n\n  static getInstance(): HandlersManager {\n    if (!HandlersManager.instance) {\n      HandlersManager.instance = new HandlersManager();\n    }\n    return HandlersManager.instance;\n  }\n\n  /**\n   * 모든 핸들러 초기화\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 44,
+        "end": 57,
+        "startLoc": {
+          "line": 44,
+          "column": 6,
+          "position": 299
+        },
+        "endLoc": {
+          "line": 57,
+          "column": 6,
+          "position": 367
+        }
+      },
+      "secondFile": {
+        "name": "src/main/managers/HandlersManager.ts",
+        "start": 27,
+        "end": 40,
+        "startLoc": {
+          "line": 27,
+          "column": 5,
+          "position": 189
+        },
+        "endLoc": {
+          "line": 40,
+          "column": 6,
+          "position": 257
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", async () => {\n      try {\n        const { BrowserWindow } = require('electron');\n        const mainWindow = BrowserWindow.getFocusedWindow();\n        if (mainWindow) {\n          if",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 198,
+        "end": 203,
+        "startLoc": {
+          "line": 198,
+          "column": 18,
+          "position": 1377
+        },
+        "endLoc": {
+          "line": 203,
+          "column": 3,
+          "position": 1434
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 184,
+        "end": 189,
+        "startLoc": {
+          "line": 184,
+          "column": 18,
+          "position": 1219
+        },
+        "endLoc": {
+          "line": 189,
+          "column": 11,
+          "position": 1276
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 10,
+      "fragment": "\n          return { success: true };\n        }\n        return { success: false, error: '활성 윈도우 없음' };\n      } catch (error) {\n        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };\n      }\n    });\n\n    handlersState",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 207,
+        "end": 216,
+        "startLoc": {
+          "line": 207,
+          "column": 2,
+          "position": 1471
+        },
+        "endLoc": {
+          "line": 216,
+          "column": 14,
+          "position": 1561
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 189,
+        "end": 198,
+        "startLoc": {
+          "line": 189,
+          "column": 2,
+          "position": 1282
+        },
+        "endLoc": {
+          "line": 198,
+          "column": 8,
+          "position": 1372
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": " };\n      } catch (error) {\n        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };\n      }\n    });\n\n    handlersState.registeredHandlers.add('system'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 254,
+        "end": 260,
+        "startLoc": {
+          "line": 254,
+          "column": 5,
+          "position": 1884
+        },
+        "endLoc": {
+          "line": 260,
+          "column": 9,
+          "position": 1948
+        }
+      },
+      "secondFile": {
+        "name": "src/main/handlers-manager.ts",
+        "start": 192,
+        "end": 216,
+        "startLoc": {
+          "line": 192,
+          "column": 12,
+          "position": 1314
+        },
+        "endLoc": {
+          "line": 216,
+          "column": 9,
+          "position": 1567
+        }
+      }
+    }
+  ]
+}
