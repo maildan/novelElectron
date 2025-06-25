@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * Menu items and templates for the application
  * Modularized from MenuManager.ts

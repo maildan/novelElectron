@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 키보드 권한 매니저
  * Keyboard Permission Manager based on Loop 6 security practices

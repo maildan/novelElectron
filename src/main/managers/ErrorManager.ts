@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 에러 매니저
  * Loop Typing Analytics - Error Manager

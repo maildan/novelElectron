@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 애플리케이션 정리 로직
  * Application Cleanup Logic

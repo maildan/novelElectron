@@ -1,11 +1,11 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * Menu action handlers
  * Modularized from MenuManager.ts
  */
 
 import { BrowserWindow, dialog, shell, app } from 'electron';
-import { APP_NAME } from '../constants';
+import { APP_NAME } from '@main/constants';
 
 /**
  * Menu action handler class

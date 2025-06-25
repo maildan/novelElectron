@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 - Dashboard 백엔드 연결
  */

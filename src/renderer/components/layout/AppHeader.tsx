@@ -1,4 +1,4 @@
-import { Logger } from "../../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 앱 헤더 컴포넌트 - 실제 데이터 연동
  * Loop Typing Analytics - App Header with Real Data Integration

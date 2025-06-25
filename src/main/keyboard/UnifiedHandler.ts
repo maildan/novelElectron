@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 통합 키보드 핸들러
  * Unified Keyboard Handler integrating all keyboard modules

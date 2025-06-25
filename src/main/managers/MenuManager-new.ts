@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * Simplified and modularized MenuManager
  * Uses separate modules for menu items and handlers

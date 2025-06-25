@@ -1,4 +1,4 @@
-import { Logger } from "../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 글로벌 폴리필 - 렌더러 전용
  * Global 변수 문제를 완전히 해결하는 마지막 수단

@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;import { app, Menu, BrowserWindow, shell, dialog, MenuItemConstructorOptions, WebContents } from 'electron';
 import path from 'path';
 import os from 'os';

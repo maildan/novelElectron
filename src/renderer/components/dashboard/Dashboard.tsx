@@ -1,11 +1,12 @@
-import { Logger } from "../../../shared/logger";
-const log = Logger;'use client';
+import { Logger } from "@shared/logger";
+const log = Logger;
+'use client';
 
 import { useState, useEffect } from 'react';
 import { CommonComponentProps } from '@shared/types';
 import { 
   debugEntry, debugExit, withDebug, transformSessionToFile, 
-  StatusColor, formatTime, initGigaChadDebug 
+  formatTime, initGigaChadDebug 
 } from '@shared/common';
 import { 
   Play, 

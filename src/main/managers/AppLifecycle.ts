@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 앱 라이프사이클 매니저
  * Loop Typing Analytics - Application Lifecycle Manager
@@ -18,7 +18,7 @@ export interface AppState {
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
-  unifiedKeyboardHandler?: { cleanup: () => Promise<void> } | null; // 통합 키보드 핸들러
+  unifiedKeyboardHandler?: { cleanup:  () => Promise<void> } | null; // 통합 키보드 핸들러
   errorManager?: { cleanup: () => Promise<void> } | null; // 에러 매니저
 }
 

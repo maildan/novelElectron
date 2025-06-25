@@ -1,4 +1,4 @@
-import { Logger } from "../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 다이얼로그 매니저 - 돌아가게 버전!
  * Loop Typing Analytics - Dialog Manager

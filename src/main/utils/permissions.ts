@@ -1,4 +1,4 @@
-import { Logger } from "../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;/**
  * 🛡️ 권한 관리 유틸리티
  * macOS Screen Recording 권한 및 접근성 권한 관리

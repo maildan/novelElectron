@@ -1,4 +1,4 @@
-import { Logger } from "../../../shared/logger";
+import { Logger } from "@shared/logger";
 const log = Logger;'use client';
 
 import { useState, useEffect } from 'react';
