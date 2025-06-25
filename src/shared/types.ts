@@ -3,18 +3,88 @@
 // 키보드 이벤트 (DOM KeyboardEvent와 충돌 방지를 위해 커스텀 네이밍)
 export interface LoopKeyboardEvent {
   keycode: number
-  key: string
   type: 'keydown' | 'keyup'
   timestamp: number
-  char?: string
-  appName?: string
+  key?: string           // 키 이름 (예: 'a', 'Enter', 'Shift')
+  char?: string          // 실제 문자 (한글 조합 등)
+  appName?: string       // 현재 활성화된 앱 이름
+  modifiers?: {          // 수정키 상태
+    shift: boolean
+    ctrl: boolean
+    alt: boolean
+    meta: boolean
+  }
+}
+
+// 키보드 설정 타입
+export interface KeyboardConfig {
+  enabled: boolean
+  language: 'korean' | 'japanese' | 'chinese' | 'english'
+  enableIme: boolean
+  enableGlobalShortcuts: boolean
+  enableAppDetection: boolean
+  autoSaveInterval: number
+  debugMode: boolean
+  autoStartMonitoring?: boolean
+  sessionTimeout?: number // minutes
+  enableBatchProcessing?: boolean
+  batchSize?: number
+  debounceDelay?: number
+  enableHealthCheck?: boolean
+}
+
+// 세션 통계 타입 - 완전한 통합 버전
+export interface SessionStats {
+  sessionId: string
+  startTime: number
+  endTime?: number
+  lastActivity?: number
+  duration?: number
+  activeTime?: number
+  totalKeys: number
+  keyCount?: number        // totalKeys와 동일한 의미, 호환성 유지
+  keystrokes?: number      // 키스트로크 카운트
+  charactersTyped?: number // 타이핑된 문자 수
+  characters?: number      // charactersTyped와 동일한 의미
+  wordsTyped?: number
+  wpm: number
+  cpm?: number
+  accuracy: number
+  errorCount?: number
+  hangulCount?: number     // 한글 문자 카운트
+  appName: string
   windowTitle?: string
-  modifiers?: {
-    shift?: boolean;
-    ctrl?: boolean;
-    alt?: boolean;
-    meta?: boolean;
-  };
+  language?: string
+  applications?: Set<string> // 세션 중 사용된 앱들
+}
+
+// 앱 상태 타입
+export interface AppStatus {
+  isInitialized: boolean
+  isListening: boolean
+  currentSession?: SessionStats | null  // null도 허용
+  currentApp?: AppInfo | null          // null도 허용
+  queueSize?: number
+  totalEvents?: number
+  health: {
+    isHealthy: boolean
+    lastCheck: number
+  }
+}
+
+// IPC 에러 타입
+export interface IpcError {
+  code: string
+  message: string
+  details?: Record<string, unknown>
+  timestamp: number
+}
+
+// IPC 응답 타입
+export interface IpcResponse<T = unknown> {
+  success: boolean
+  data?: T
+  error?: IpcError
 }
 
 // 한글 자모 쌍 타입 정의
@@ -28,9 +98,11 @@ export interface TypingStats {
 }
 
 export interface AppInfo {
-  name: string;
-  title: string;
-  id: number;
+  name?: string;        // 호환성을 위해 optional
+  appName?: string;     // AppDetector에서 사용하는 필드명
+  title?: string;       // 호환성을 위해 optional  
+  windowTitle?: string; // AppDetector에서 사용하는 필드명
+  id?: number;
   memoryUsage?: number;
 }
 
@@ -77,13 +149,6 @@ export const IPC_CHANNELS = {
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
-
-// IPC 응답 래퍼
-export interface IpcResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
 
 // UI Component Types for Gigachad Componentization
 export interface Log {
@@ -137,30 +202,60 @@ export interface AppSettings {
   keyboardLayout: string;
 }
 
-// 프로젝트 관련 타입들
-export interface ProjectData {
-  id: string;
-  name?: string;         // optional로 변경
-  title?: string;        // title 속성 추가
-  description?: string;
-  progress?: number;     // 진행률 (0-100)
-  status?: string;       // 상태 (진행중, 완료 등)
-  deadline?: string;     // 마감일
-  createdAt: Date;
-  updatedAt: Date;
-  totalSessions?: number;
-  totalTypingTime?: number;
-  averageWpm?: number;
+// IPC 핸들러 타입 (any 타입 제거용)
+export interface KeyboardEngine {
+  startMonitoring(): Promise<boolean>;
+  stopMonitoring(): Promise<boolean>;
+  toggleMonitoring(): Promise<boolean>;
+  getMonitoringStatus(): AppStatus;
+  getSessionStats(): SessionStats | null;
+  getPermissionStatus(): PermissionStatus;
+  updateConfig(config: Partial<KeyboardConfig>): Promise<boolean>;
+  getConfig(): KeyboardConfig;
+  openPermissionSettings(): Promise<void>;
+  checkSystemPermissions(): Promise<PermissionStatus>;
+  startNewSession(): Promise<string>;
+  endCurrentSession(): Promise<SessionStats | null>;
+  getHangulState(): HangulState;
+  finishHangulComposition(): string;
+  getHealthAlerts(): HealthAlert[];
+  getPerformanceMetrics(): PerformanceMetrics;
 }
 
-export interface RecentFile {
+export interface HealthAlert {
   id: string;
-  name: string;
-  path: string;
-  type: string;
-  project?: string;      // 프로젝트명
-  time?: string;         // 상대적 시간 (예: "2분 전")
-  status?: string;       // 파일 상태 (예: "수정됨")
-  lastModified: Date;
-  size?: number;
+  type: 'warning' | 'error' | 'info';
+  message: string;
+  timestamp: number;
+  resolved: boolean;
+}
+
+export interface PerformanceMetrics {
+  cpuUsage: number;
+  memoryUsage: number;
+  eventProcessingTime: number;
+  queueSize: number;
+  errorsPerMinute: number;
+}
+
+export interface HangulState {
+  isComposing: boolean;
+  currentComposition: string;
+  finalizedText: string;
+}
+
+export interface PermissionStatus {
+  accessibility: boolean;
+  screenRecording: boolean;
+  all: boolean;
+}
+
+// IPC 핸들러 함수 타입
+export type IpcHandlerFunction<T = any, R = any> = (
+  event: Electron.IpcMainInvokeEvent,
+  ...args: T[]
+) => Promise<R> | R;
+
+export interface TypedIpcHandler {
+  [channel: string]: IpcHandlerFunction<any, any>;
 }

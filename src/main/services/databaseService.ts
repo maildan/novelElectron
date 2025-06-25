@@ -5,7 +5,7 @@
 import { PrismaClient } from '@prisma/client'
 import path from 'path'
 import { app } from 'electron'
-import { GigaChadLogger } from '@main/keyboard/logger'
+import { GigaChadLogger } from '../keyboard/logger'
 
 let prisma: PrismaClient | null = null
 

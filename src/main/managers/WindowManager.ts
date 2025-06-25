@@ -5,11 +5,13 @@
 
 import { BrowserWindow, screen, app } from 'electron';
 import { join } from 'path';
-import { isDev } from '@main/utils/environment';
+import { isDev } from '../utils/environment';
+import { GigaChadLogger } from '../../shared/logger';
 
 export class WindowManager {
   private static instance: WindowManager;
   private mainWindow: BrowserWindow | null = null;
+  private logger = GigaChadLogger.getInstance();
 
   private constructor() {}
 
@@ -29,7 +31,7 @@ export class WindowManager {
       return this.mainWindow;
     }
 
-    console.log('🔥 기가차드 윈도우 매니저: 메인 윈도우 생성 중...');
+    this.logger.info('WindowManager', '🔥 기가차드 윈도우 매니저: 메인 윈도우 생성 중...');
 
     // 화면 크기 정보 가져오기
     const primaryDisplay = screen.getPrimaryDisplay();
@@ -85,10 +87,10 @@ export class WindowManager {
     // 🔥 개발 환경에서 DevTools 자동 열기!
     if (isDev) {
       this.mainWindow.webContents.openDevTools();
-      console.log('🔥 개발 환경: DevTools 자동 열림!');
+      this.logger.info('WindowManager', '🔥 개발 환경: DevTools 자동 열림!');
     }
 
-    console.log('✅ 기가차드 메인 윈도우 생성 완료!');
+    this.logger.success('WindowManager', '✅ 기가차드 메인 윈도우 생성 완료!');
     return this.mainWindow;
   }
 
@@ -100,13 +102,13 @@ export class WindowManager {
 
     // 윈도우가 닫힐 때
     this.mainWindow.on('closed', () => {
-      console.log('🪟 메인 윈도우 닫힘');
+      this.logger.info('WindowManager', '🪟 메인 윈도우 닫힘');
       this.mainWindow = null;
     });
 
     // 윈도우가 준비될 때
     this.mainWindow.webContents.once('did-finish-load', () => {
-      console.log('🌐 웹 콘텐츠 로드 완료');
+      this.logger.info('WindowManager', '🌐 웹 콘텐츠 로드 완료');
       if (this.mainWindow) {
         this.mainWindow.show();
         this.mainWindow.focus();

@@ -599,6 +599,13 @@ export class KeyboardStatsManager extends EventEmitter {
   }
 
   /**
+   * 총 이벤트 수 반환
+   */
+  getTotalEvents(): number {
+    return this.currentSession?.totalKeys || 0;
+  }
+
+  /**
    * 통계 리셋
    */
   reset(): void {

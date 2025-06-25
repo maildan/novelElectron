@@ -4,9 +4,9 @@
 
 import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '@shared/types';
-import { getPrismaClient } from '@main/services/databaseService';
-import { registerKeyboardListener, stopKeyboardListener } from '@main/services/keyboardService';
-import { GigaChadLogger } from '@main/keyboard/logger';
+import { getPrismaClient } from '../services/databaseService';
+import { registerKeyboardListener, stopKeyboardListener } from '../services/keyboardService';
+import { GigaChadLogger } from '../keyboard/logger';
 
 const logger = GigaChadLogger.getInstance();
 

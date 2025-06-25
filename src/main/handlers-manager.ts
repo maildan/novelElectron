@@ -6,11 +6,11 @@
  */
 
 import { ipcMain } from 'electron';
-import { IpcManager } from '@main/managers/IpcManager';
-import { DatabaseManager } from '@main/managers/DatabaseManager';
-import { KeyboardManager } from '@main/managers/KeyboardManager';
+import { IpcManager } from './managers/IpcManager';
+import { DatabaseManager } from './managers/DatabaseManager';
+import { KeyboardManager } from './managers/KeyboardManager';
 // 🔥 NEW: Dashboard 핸들러 추가
-import { DashboardIpcHandlers } from '@main/handlers/dashboardIpcHandlers';
+import { DashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
 
 // 간단한 디버그 로깅
 function debugLog(message: string, ...args: unknown[]): void {

@@ -1,24 +1,33 @@
 import { ipcMain, BrowserWindow, app } from 'electron';
 import { EventEmitter } from 'events';
-import { logger } from '@main/keyboard/logger';
+import { logger } from './logger';
 import { 
   KEYBOARD_CONSTANTS, 
   ERROR_MESSAGES, 
   SUCCESS_MESSAGES,
   INFO_MESSAGES 
-} from '@main/keyboard/constants';
+} from './constants';
+
+// 공유 타입 임포트
+import type { 
+  LoopKeyboardEvent, 
+  KeyboardConfig, 
+  SessionStats, 
+  AppStatus,
+  AppInfo 
+} from '@shared/types';
 
 // Module imports
-import { KeyboardEventProcessor } from '@main/keyboard/processors/KeyboardEventProcessor';
-import { SessionManager } from '@main/keyboard/managers/SessionManager';
-import { KeyboardConfigManager } from '@main/keyboard/managers/KeyboardConfigManager';
-import { AppDetector } from '@main/keyboard/detectors/AppDetector';
-import { KeyboardIpcHandlers } from '@main/keyboard/handlers/KeyboardIpcHandlers';
-import { HangulComposer } from '@main/keyboard/HangulComposer';
-import { HealthCheckManager } from '@main/keyboard/HealthCheckManager';
-import { KeyboardPermissionManager } from '@main/keyboard/PermissionManager';
-import { KeyboardStatsManager } from '@main/keyboard/StatsManager';
-import { UnifiedKeyboardHandler } from '@main/keyboard/UnifiedHandler';
+import { KeyboardEventProcessor } from './processors/KeyboardEventProcessor';
+import { SessionManager } from './managers/SessionManager';
+import { KeyboardConfigManager } from './managers/KeyboardConfigManager';
+import { AppDetector } from './detectors/AppDetector';
+import { KeyboardIpcHandlers } from './handlers/KeyboardIpcHandlers';
+import { HangulComposer } from './HangulComposer';
+import { HealthCheckManager } from './HealthCheckManager';
+import { KeyboardPermissionManager } from './PermissionManager';
+import { KeyboardStatsManager } from './StatsManager';
+import { UnifiedKeyboardHandler } from './UnifiedHandler';
 
 /**
  * 기가차드 표준 KeyboardEngine
@@ -211,7 +220,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 상태 변경 알림
    */
-  private notifyStatusChange(type: string, data: any): void {
+  private notifyStatusChange(type: string, data: boolean | AppStatus): void {
     try {
       const windows = BrowserWindow.getAllWindows();
       windows.forEach(window => {
@@ -229,7 +238,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 키 이벤트 알림
    */
-  private notifyKeyEvent(eventData: any): void {
+  private notifyKeyEvent(eventData: LoopKeyboardEvent): void {
     try {
       const windows = BrowserWindow.getAllWindows();
       windows.forEach(window => {
@@ -243,14 +252,15 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 에러 처리
    */
-  private handleError(error: any): void {
+  private handleError(error: Error | unknown): void {
     logger.error('KeyboardEngine', '에러 처리:', error);
     
     try {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const windows = BrowserWindow.getAllWindows();
       windows.forEach(window => {
         window.webContents.send('keyboard-error', {
-          error: error.message || 'Unknown error',
+          error: errorMessage,
           timestamp: Date.now()
         });
       });
@@ -262,7 +272,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 현재 상태 반환
    */
-  public getStatus(): any {
+  public getStatus(): AppStatus {
     return {
       isInitialized: this.isInitialized,
       isListening: this.isListening,
@@ -278,9 +288,9 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 설정 업데이트
    */
-  public async updateConfig(newConfig: any): Promise<void> {
+  public updateConfig(newConfig: Partial<KeyboardConfig>): void {
     try {
-      await this.configManager.updateConfig(newConfig);
+      this.configManager.updateConfig(newConfig);
       logger.info('KeyboardEngine', '설정 업데이트 완료');
     } catch (error) {
       logger.error('KeyboardEngine', '설정 업데이트 실패:', error);
@@ -291,7 +301,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 세션 데이터 반환
    */
-  public getSessionData(): any {
+  public getSessionData(): SessionStats | null {
     return this.sessionManager?.getSessionStats() || null;
   }
 
@@ -410,11 +420,9 @@ export default KeyboardEngine;
  * 타입 re-exports - 모든 공유 타입들을 중앙에서 관리
  */
 // 기본 키보드 이벤트 타입 (공유 타입 사용)
-export type { LoopKeyboardEvent as KeyEvent } from '@shared/types';
+export type { LoopKeyboardEvent as KeyEvent, SessionStats, KeyboardConfig } from '@shared/types';
 
 // 각 모듈에서 정의된 타입들
-export type { SessionStats } from './managers/SessionManager';
-export type { KeyboardConfig } from './managers/KeyboardConfigManager';
 export type { PermissionStatus } from './PermissionManager';
 export type { HangulComposerState } from './HangulComposer';
 

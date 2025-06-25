@@ -5,8 +5,8 @@
 
 import { EventEmitter } from 'events';
 import { execSync } from 'child_process';
-import { KEYBOARD_CONSTANTS } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
+import { KEYBOARD_CONSTANTS } from '../constants';
+import { GigaChadLogger } from '../logger';
 
 export interface AppInfo {
   appName: string;

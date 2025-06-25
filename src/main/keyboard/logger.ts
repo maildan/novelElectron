@@ -3,7 +3,7 @@
  * Loop Typing Analytics - Unified Logging System
  */
 
-import { KEYBOARD_CONSTANTS } from '@main/keyboard/constants';
+import { KEYBOARD_CONSTANTS } from './constants';
 
 export enum LogLevel {
   DEBUG = 0,

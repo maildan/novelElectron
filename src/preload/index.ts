@@ -27,6 +27,7 @@ export interface ElectronAPI {
   keyboard: {
     startMonitoring(): Promise<{ success: boolean; message?: string; error?: string }>;
     stopMonitoring(): Promise<{ success: boolean; message?: string; error?: string }>;
+    getMonitoringStatus(): Promise<{ isActive: boolean; message?: string }>;
     onKeyEvent(callback: (event: any) => void): void;
     removeKeyEventListener(callback: (event: any) => void): void;
   };
@@ -67,6 +68,7 @@ const electronAPI: ElectronAPI = {
   keyboard: {
     startMonitoring: () => ipcRenderer.invoke('keyboard:start-monitoring'),
     stopMonitoring: () => ipcRenderer.invoke('keyboard:stop-monitoring'),
+    getMonitoringStatus: () => ipcRenderer.invoke('keyboard:get-status'),
     onKeyEvent: (callback) => {
       ipcRenderer.on('keyboard:key-event', (_, data) => callback(data));
     },

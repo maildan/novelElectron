@@ -4,8 +4,8 @@
  */
 
 import { EventEmitter } from 'events';
-import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
+import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from './constants';
+import { GigaChadLogger } from './logger';
 
 export interface SystemHealth {
   memory: {

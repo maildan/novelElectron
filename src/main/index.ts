@@ -10,6 +10,7 @@ import { initializeSecurity, setSecurityHeaders, disableDevTools } from './core/
 import { setupIpcHandlers } from './handlers';
 import { initializeDatabase } from './services/databaseService';
 import { registerKeyboardListener, stopKeyboardListener } from './services/keyboardService';
+import { log } from '../shared/logger';
 
 // 전역 상태
 let mainWindow: BrowserWindow | null = null;
@@ -18,34 +19,34 @@ let mainWindow: BrowserWindow | null = null;
  * 기가차드 앱 초기화
  */
 async function initializeApp(): Promise<void> {
-  console.log('🔥 기가차드 Loop 앱 초기화 시작...');
+  log.gigachad('App', 'Loop 앱 초기화 시작...');
 
   try {
     // 1. 보안 설정
     initializeSecurity();
-    console.log('✅ 보안 설정 완료');
+    log.success('App', '보안 설정 완료');
 
     // 2. 데이터베이스 초기화
     await initializeDatabase();
-    console.log('✅ 데이터베이스 초기화 완료');
+    log.success('App', '데이터베이스 초기화 완료');
 
     // 3. IPC 핸들러 등록
     setupIpcHandlers();
-    console.log('✅ IPC 핸들러 등록 완료');
+    log.success('App', 'IPC 핸들러 등록 완료');
 
     // 4. 메인 윈도우 생성
     mainWindow = await createMainWindow();
-    console.log('✅ 메인 윈도우 생성 완료');
+    log.success('App', '메인 윈도우 생성 완료');
 
     // 5. 키보드 리스너 등록
     if (mainWindow) {
       await registerKeyboardListener();
-      console.log('✅ 키보드 리스너 등록 완료');
+      log.success('App', '키보드 리스너 등록 완료');
     }
 
-    console.log('🚀 기가차드 Loop 앱 초기화 완료!');
+    log.gigachad('App', 'Loop 앱 초기화 완료!');
   } catch (error) {
-    console.error('❌ 앱 초기화 실패:', error);
+    log.error('App', '앱 초기화 실패', error);
     app.quit();
   }
 }
@@ -54,24 +55,24 @@ async function initializeApp(): Promise<void> {
  * 앱 정리
  */
 async function cleanupApp(): Promise<void> {
-  console.log('🧹 기가차드 앱 정리 시작...');
+  log.info('App', '앱 정리 시작...');
   
   try {
     // 키보드 리스너 정리
     stopKeyboardListener();
-    console.log('✅ 키보드 리스너 정리 완료');
+    log.success('App', '키보드 리스너 정리 완료');
 
-    console.log('✅ 앱 정리 완료');
+    log.success('App', '앱 정리 완료');
   } catch (error) {
-    console.error('❌ 앱 정리 실패:', error);
+    log.error('App', '앱 정리 실패', error);
   }
 }
 
 // 메인 실행 함수
 async function main() {
-  console.log('🔧 Environment:', isDev ? 'Development' : 'Production');
-  console.log('💻 Platform:', process.platform);
-  console.log('📱 App: Loop v0.1.0');
+  log.info('App', `Environment: ${isDev ? 'Development' : 'Production'}`);
+  log.info('App', `Platform: ${process.platform}`);
+  log.info('App', 'App: Loop v0.1.0');
 
   // Electron 앱 이벤트 핸들러
   await app.whenReady();
@@ -109,7 +110,7 @@ async function main() {
 
 // 프로그램 시작
 main().catch(error => {
-  console.error('❌ 앱 시작 실패:', error);
+  log.error('App', '앱 시작 실패', error);
   process.exit(1);
 });
 

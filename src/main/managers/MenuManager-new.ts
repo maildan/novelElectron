@@ -4,9 +4,9 @@
  */
 
 import { Menu, BrowserWindow, MenuItemConstructorOptions } from 'electron';
-import { getApplicationMenuTemplate, getContextMenuTemplate, getDockMenuTemplate } from '@main/menu/menu-items';
-import { MenuHandlers } from '@main/menu/menu-handlers';
-import { IS_MAC } from '@main/constants';
+import { getApplicationMenuTemplate, getContextMenuTemplate, getDockMenuTemplate } from '../menu/menu-items';
+import { MenuHandlers } from '../menu/menu-handlers';
+import { IS_MAC } from '../constants';
 
 export interface MenuOptions {
   showPreferences?: boolean;

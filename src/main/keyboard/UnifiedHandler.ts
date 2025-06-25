@@ -4,13 +4,14 @@
  */
 
 import { ipcMain, BrowserWindow } from 'electron';
-import { KeyboardEngine, keyboardEngine } from '@main/keyboard/KeyboardEngine';
-import type { KeyboardConfig } from '@main/keyboard/KeyboardEngine';
-import { KeyboardPermissionManager } from '@main/keyboard/PermissionManager';
-import type { PermissionCheckResult } from '@main/keyboard/PermissionManager';
-import { KeyboardStatsManager } from '@main/keyboard/StatsManager';
-import type { TypingStats, RealtimeStats } from '@main/keyboard/StatsManager';
-import { HangulComposer } from '@main/keyboard/HangulComposer';
+import { KeyboardEngine, keyboardEngine } from './KeyboardEngine';
+import type { KeyboardConfig } from './KeyboardEngine';
+import { KeyboardPermissionManager } from './PermissionManager';
+import type { PermissionCheckResult } from './PermissionManager';
+import { KeyboardStatsManager } from './StatsManager';
+import type { TypingStats, RealtimeStats } from './StatsManager';
+import { HangulComposer } from './HangulComposer';
+import type { SessionStats, LoopKeyboardEvent } from '@shared/types';
 
 export interface KeyboardSystemStatus {
   engine: {
@@ -130,19 +131,19 @@ export class UnifiedKeyboardHandler {
     });
 
     // 통계 관리자 이벤트
-    this.statsManager.on('session-started', (session: any) => {
+    this.statsManager.on('session-started', (session: SessionStats) => {
       this.sendToRenderer('keyboard:stats-session-started', session);
     });
 
-    this.statsManager.on('session-ended', (session: any) => {
+    this.statsManager.on('session-ended', (session: SessionStats) => {
       this.sendToRenderer('keyboard:stats-session-ended', session);
     });
 
-    this.statsManager.on('key-processed', (data: any) => {
+    this.statsManager.on('key-processed', (data: { keyEvent: LoopKeyboardEvent; stats: SessionStats }) => {
       this.sendToRenderer('keyboard:stats-updated', data);
     });
 
-    this.statsManager.on('pattern-analysis-completed', (patterns: any) => {
+    this.statsManager.on('pattern-analysis-completed', (patterns: Array<{ pattern: string; count: number }>) => {
       this.sendToRenderer('keyboard:pattern-analysis', patterns);
     });
 
@@ -164,7 +165,7 @@ export class UnifiedKeyboardHandler {
       'keyboard:stop-monitoring': () => keyboardEngine.stopListening(),
       'keyboard:toggle-monitoring': () => this.toggleMonitoring(),
       'keyboard:get-status': () => keyboardEngine.getStatus(),
-      'keyboard:update-config': (_event: any, config: any) => 
+      'keyboard:update-config': (_event: Electron.IpcMainInvokeEvent, config: Partial<KeyboardConfig>) => 
         keyboardEngine.updateConfig(config),
       'keyboard:get-config': () => this.getConfig(),
 
@@ -177,20 +178,20 @@ export class UnifiedKeyboardHandler {
       'keyboard:stop-permission-monitoring': () => this.stopPermissionMonitoring(),
 
       // ===== 세션 관리 =====
-      'keyboard:start-session': (_event: any, appName: string, windowTitle?: string, language?: string) =>
+      'keyboard:start-session': (_event: Electron.IpcMainInvokeEvent, appName: string, windowTitle?: string, language?: string) =>
         this.startSession(appName, windowTitle, language),
       'keyboard:end-session': () => this.endSession(),
       'keyboard:get-session-stats': () => keyboardEngine.getSessionData(),
       'keyboard:get-realtime-stats': () => this.getRealtimeStats(),
 
       // ===== 한글 조합 =====
-      'keyboard:process-hangul-key': (_event: any, key: string) => this.hangulComposer.processKey(key),
+      'keyboard:process-hangul-key': (_event: Electron.IpcMainInvokeEvent, key: string) => this.hangulComposer.processKey(key),
       'keyboard:get-hangul-state': () => this.hangulComposer.getState(),
       'keyboard:finish-hangul-composition': () => this.hangulComposer.finishComposition(),
       'keyboard:reset-hangul-composer': () => this.hangulComposer.reset(),
-      'keyboard:decompose-hangul': (_event: any, char: string) => this.decomposeHangul(char),
-      'keyboard:is-hangul': (_event: any, char: string) => this.isHangul(char),
-      'keyboard:get-jamo-count': (_event: any, text: string) => this.getJamoCount(text),
+      'keyboard:decompose-hangul': (_event: Electron.IpcMainInvokeEvent, char: string) => this.decomposeHangul(char),
+      'keyboard:is-hangul': (_event: Electron.IpcMainInvokeEvent, char: string) => this.isHangul(char),
+      'keyboard:get-jamo-count': (_event: Electron.IpcMainInvokeEvent, text: string) => this.getJamoCount(text),
 
       // ===== 통계 및 분석 =====
       'keyboard:reset-stats': () => this.resetStats(),
@@ -199,24 +200,24 @@ export class UnifiedKeyboardHandler {
       // ===== 디버그 및 테스트 =====
       'keyboard:test-connection': () => this.testKeyboardConnection(),
       'keyboard:get-debug-info': () => this.getDebugInfo(),
-      'keyboard:simulate-key-event': (_event: any, keycode: number, type: 'keydown' | 'keyup') =>
+      'keyboard:simulate-key-event': (_event: Electron.IpcMainInvokeEvent, keycode: number, type: 'keydown' | 'keyup') =>
         this.simulateKeyEvent(keycode, type),
 
       // ===== 설정 관리 =====
       'keyboard:get-language': () => 'korean', // 기본값
-      'keyboard:set-language': (_event: any, language: 'korean' | 'japanese' | 'chinese' | 'english') => {
+      'keyboard:set-language': (_event: Electron.IpcMainInvokeEvent, language: 'korean' | 'japanese' | 'chinese' | 'english') => {
         keyboardEngine.updateConfig({ language });
         return true;
       },
-      'keyboard:enable-ime': (_event: any, enabled: boolean) => {
-        keyboardEngine.updateConfig({ enableIME: enabled });
+      'keyboard:enable-ime': (_event: Electron.IpcMainInvokeEvent, enabled: boolean) => {
+        keyboardEngine.updateConfig({ enableIme: enabled });
         return true;
       },
-      'keyboard:enable-global-shortcuts': (_event: any, enabled: boolean) => {
+      'keyboard:enable-global-shortcuts': (_event: Electron.IpcMainInvokeEvent, enabled: boolean) => {
         keyboardEngine.updateConfig({ enableGlobalShortcuts: enabled });
         return true;
       },
-      'keyboard:enable-app-detection': (_event: any, enabled: boolean) => {
+      'keyboard:enable-app-detection': (_event: Electron.IpcMainInvokeEvent, enabled: boolean) => {
         keyboardEngine.updateConfig({ enableAppDetection: enabled });
         return true;
       },

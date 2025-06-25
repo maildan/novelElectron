@@ -4,28 +4,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
-import { LoopKeyboardEvent as KeyEvent } from '@shared/types';
-
-export interface SessionStats {
-  sessionId: string;
-  startTime: number;
-  lastActivity: number;
-  keyCount: number;
-  totalKeys: number;
-  keystrokes: number;
-  charactersTyped: number;
-  characters: number;
-  wordsTyped: number;
-  wpm: number;
-  accuracy: number;
-  activeTime: number;
-  appName: string;
-  windowTitle?: string;
-  hangulCount: number;
-  applications: Set<string>;
-}
+import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants';
+import { GigaChadLogger } from '../logger';
+import { LoopKeyboardEvent as KeyEvent, SessionStats } from '@shared/types';
 
 export interface SessionConfig {
   sessionTimeout: number; // minutes
@@ -121,7 +102,7 @@ export class SessionManager extends EventEmitter {
       session.activeTime = now - session.startTime;
       const sessionDurationMinutes = session.activeTime / (1000 * 60);
       
-      if (sessionDurationMinutes > 0) {
+      if (sessionDurationMinutes > 0 && session.characters) {
         session.wpm = Math.round(session.characters / sessionDurationMinutes);
       }
 
@@ -157,23 +138,29 @@ export class SessionManager extends EventEmitter {
       
       // keydown 이벤트만 처리
       if (event.type === 'keydown') {
-        this.currentSession.keystrokes++;
+        if (this.currentSession.keystrokes !== undefined) {
+          this.currentSession.keystrokes++;
+        }
         this.keyPressCount++;
         
         // 문자 통계
         if (event.char && event.char.length === 1) {
-          this.currentSession.characters++;
+          if (this.currentSession.characters !== undefined) {
+            this.currentSession.characters++;
+          }
           this.charactersTyped++;
           
           // 한글 문자 체크
           if (this.isHangulCharacter(event.char)) {
-            this.currentSession.hangulCount++;
+            if (this.currentSession.hangulCount !== undefined) {
+              this.currentSession.hangulCount++;
+            }
           }
         }
         
         // WPM 계산
         const sessionDuration = (now - this.currentSession.startTime) / 1000 / 60; // 분
-        if (sessionDuration > 0) {
+        if (sessionDuration > 0 && this.currentSession.characters) {
           this.currentSession.wpm = Math.round(this.currentSession.characters / sessionDuration);
         }
         
@@ -183,6 +170,9 @@ export class SessionManager extends EventEmitter {
       
       // 앱별 통계
       if (event.appName && this.config.trackApplications) {
+        if (!this.currentSession.applications) {
+          this.currentSession.applications = new Set();
+        }
         this.currentSession.applications.add(event.appName);
       }
       

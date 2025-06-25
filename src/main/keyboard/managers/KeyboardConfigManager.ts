@@ -4,21 +4,9 @@
  */
 
 import { EventEmitter } from 'events';
-import { KEYBOARD_CONSTANTS } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
-
-export interface KeyboardConfig {
-  language: 'korean' | 'japanese' | 'chinese' | 'english';
-  enableIME: boolean;
-  enableGlobalShortcuts: boolean;
-  enableAppDetection: boolean;
-  autoStartMonitoring: boolean;
-  sessionTimeout: number; // minutes
-  enableBatchProcessing: boolean;
-  batchSize: number;
-  debounceDelay: number;
-  enableHealthCheck: boolean;
-}
+import { KEYBOARD_CONSTANTS } from '../constants';
+import { GigaChadLogger } from '../logger';
+import type { KeyboardConfig } from '@shared/types';
 
 /**
  * 🔥 기가차드 키보드 설정 매니저
@@ -42,10 +30,13 @@ export class KeyboardConfigManager extends EventEmitter {
    */
   private getDefaultConfig(): KeyboardConfig {
     return {
+      enabled: true,
       language: 'korean',
-      enableIME: true,
+      enableIme: true,
       enableGlobalShortcuts: true,
       enableAppDetection: true,
+      autoSaveInterval: 5000, // 5초
+      debugMode: false,
       autoStartMonitoring: false,
       sessionTimeout: KEYBOARD_CONSTANTS.SESSION_TIMEOUT_MS / (60 * 1000), // 30분
       enableBatchProcessing: true,
@@ -78,19 +69,19 @@ export class KeyboardConfigManager extends EventEmitter {
    */
   private validateConfig(): void {
     // 세션 타임아웃 검증
-    if (this.config.sessionTimeout < 1 || this.config.sessionTimeout > 480) { // 1분~8시간
+    if (this.config.sessionTimeout && (this.config.sessionTimeout < 1 || this.config.sessionTimeout > 480)) { // 1분~8시간
       GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 세션 타임아웃이 범위를 벗어났습니다. 기본값으로 설정됩니다.');
       this.config.sessionTimeout = 30;
     }
     
     // 배치 크기 검증
-    if (this.config.batchSize < 1 || this.config.batchSize > 1000) {
+    if (this.config.batchSize && (this.config.batchSize < 1 || this.config.batchSize > 1000)) {
       GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 배치 크기가 범위를 벗어났습니다. 기본값으로 설정됩니다.');
       this.config.batchSize = KEYBOARD_CONSTANTS.BATCH_PROCESS_SIZE;
     }
     
     // 디바운스 딜레이 검증
-    if (this.config.debounceDelay < 10 || this.config.debounceDelay > 1000) {
+    if (this.config.debounceDelay && (this.config.debounceDelay < 10 || this.config.debounceDelay > 1000)) {
       GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 디바운스 딜레이가 범위를 벗어났습니다. 기본값으로 설정됩니다.');
       this.config.debounceDelay = KEYBOARD_CONSTANTS.DEBOUNCE_DELAY_MS;
     }
@@ -153,7 +144,7 @@ export class KeyboardConfigManager extends EventEmitter {
    * IME 활성화/비활성화
    */
   public setIMEEnabled(enabled: boolean): void {
-    this.updateConfig({ enableIME: enabled });
+    this.updateConfig({ enableIme: enabled });
   }
 
   /**

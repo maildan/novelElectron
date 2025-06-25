@@ -2,13 +2,27 @@
  * 키보드 서비스 - KeyboardEngine 인터페이스
  */
 
-import { keyboardEngine } from '@main/keyboard';
+import { keyboardEngine } from '../keyboard';
+import type { KeyboardConfig } from '@shared/types';
 
 /**
  * 키보드 리스너 등록
  */
-export const registerKeyboardListener = () => {
-  return keyboardEngine.startListening();
+export const registerKeyboardListener = async () => {
+  try {
+    // KeyboardEngine 초기화 확인 및 필요시 초기화
+    const status = keyboardEngine.getStatus();
+    if (!status.isInitialized) {
+      console.log('KeyboardEngine 초기화 중...');
+      await keyboardEngine.initialize();
+    }
+    
+    console.log('KeyboardEngine 리스닝 시작...');
+    return keyboardEngine.startListening();
+  } catch (error) {
+    console.error('키보드 리스너 등록 실패:', error);
+    throw error;
+  }
 };
 
 /**
@@ -35,7 +49,7 @@ export const getKeyboardStatus = () => {
 /**
  * 키보드 설정 업데이트
  */
-export const updateKeyboardConfig = (config: any) => {
+export const updateKeyboardConfig = (config: KeyboardConfig) => {
   return keyboardEngine.updateConfig(config);
 };
 
@@ -58,4 +72,25 @@ export const checkKeyboardPermissions = () => {
  */
 export const requestKeyboardPermissions = () => {
   return keyboardEngine.requestPermissions();
+};
+
+/**
+ * 키보드 모니터링 상태 확인
+ */
+export const getMonitoringStatus = () => {
+  try {
+    const status = keyboardEngine.getStatus();
+    return {
+      isActive: status.isListening || false,
+      isInitialized: status.isInitialized || false,
+      message: status.isListening ? '모니터링 중' : '정지됨'
+    };
+  } catch (error) {
+    console.error('모니터링 상태 확인 실패:', error);
+    return {
+      isActive: false,
+      isInitialized: false,
+      message: '상태 확인 실패'
+    };
+  }
 };

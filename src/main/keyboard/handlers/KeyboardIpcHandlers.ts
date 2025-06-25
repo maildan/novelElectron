@@ -4,8 +4,8 @@
  */
 
 import { ipcMain } from 'electron';
-import { SUCCESS_MESSAGES } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
+import { SUCCESS_MESSAGES } from '../constants';
+import { GigaChadLogger } from '../logger';
 
 export interface IpcHandler {
   [channel: string]: (...args: any[]) => any;

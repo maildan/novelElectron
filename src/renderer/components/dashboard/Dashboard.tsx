@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CommonComponentProps, RecentFile } from '@shared/types';
+import { CommonComponentProps } from '@shared/types';
 import { 
   Play, 
   Pause, 
@@ -20,6 +20,17 @@ interface MonitoringData {
   wpm: number;
   words: number;
   time: number;
+}
+
+interface RecentFile {
+  id: string;
+  name: string;
+  path: string;
+  type: string;
+  project: string;
+  time: string;
+  status: string;
+  lastModified: Date;
 }
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {

@@ -4,7 +4,7 @@
  */
 
 import { MenuItemConstructorOptions, app, shell, dialog, BrowserWindow } from 'electron';
-import { IS_MAC, APP_NAME } from '@main/constants';
+import { IS_MAC, APP_NAME } from '../constants';
 
 /**
  * Get application menu template

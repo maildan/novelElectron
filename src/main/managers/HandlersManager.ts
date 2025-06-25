@@ -6,12 +6,13 @@
  */
 
 import { ipcMain, BrowserWindow, IpcMainInvokeEvent } from 'electron';
-import { DatabaseManager } from '@main/managers/DatabaseManager';
-import { WindowManager } from '@main/managers/WindowManager';
+import { DatabaseManager } from './DatabaseManager';
+import { WindowManager } from './WindowManager';
+import type { IpcHandlerFunction } from '@shared/types';
 
 export interface HandlerInfo {
   channel: string;
-  handler: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any>;
+  handler: IpcHandlerFunction<any, any>;
   registered: boolean;
   registeredAt: number;
 }
@@ -116,9 +117,10 @@ export class HandlersManager {
       try {
         const stats = await databaseManager.getDashboardData();
         return { success: true, data: stats };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         console.error('❌ 통계 조회 실패:', error);
-        return { success: false, error: error?.message || '알 수 없는 오류' };
+        return { success: false, error: errorMessage };
       }
     });
 
@@ -127,20 +129,22 @@ export class HandlersManager {
         // TODO: DatabaseManager에 getAllSessions 메서드 추가 필요
         console.log('최근 세션 조회 요청, limit:', limit);
         return { success: true, data: [] }; // 임시로 빈 배열 반환
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         console.error('❌ 최근 세션 조회 실패:', error);
-        return { success: false, error: error?.message || '알 수 없는 오류' };
+        return { success: false, error: errorMessage };
       }
     });
 
-    this.registerHandler('db:export-data', async (_event: IpcMainInvokeEvent, options: any) => {
+    this.registerHandler('db:export-data', async (_event: IpcMainInvokeEvent, options: Record<string, unknown>) => {
       try {
         // TODO: DatabaseManager에 exportData 메서드 추가 필요
         console.log('데이터 내보내기 요청:', options);
         return { success: true, data: { message: '데이터 내보내기 기능 구현 예정' } };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         console.error('❌ 데이터 내보내기 실패:', error);
-        return { success: false, error: error?.message || '알 수 없는 오류' };
+        return { success: false, error: errorMessage };
       }
     });
   }
@@ -159,7 +163,7 @@ export class HandlersManager {
       return { success: false, error: '윈도우를 찾을 수 없습니다' };
     });
 
-    this.registerHandler('window:set-bounds', async (_event: IpcMainInvokeEvent, bounds: any) => {
+    this.registerHandler('window:set-bounds', async (_event: IpcMainInvokeEvent, bounds: Electron.Rectangle) => {
       if (this.mainWindow && !this.mainWindow.isDestroyed()) {
         this.mainWindow.setBounds(bounds);
         return { success: true };
@@ -216,13 +220,16 @@ export class HandlersManager {
   /**
    * 핸들러 등록
    */
-  private registerHandler(channel: string, handler: (event: IpcMainInvokeEvent, ...args: any[]) => Promise<any>): void {
+  private registerHandler<T = any, R = any>(
+    channel: string, 
+    handler: (event: IpcMainInvokeEvent, ...args: T[]) => Promise<R>
+  ): void {
     try {
       ipcMain.handle(channel, handler);
       
       this.handlers.set(channel, {
         channel,
-        handler,
+        handler: handler as IpcHandlerFunction<any, any>,
         registered: true,
         registeredAt: Date.now()
       });

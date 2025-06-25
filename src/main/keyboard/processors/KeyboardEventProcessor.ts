@@ -5,9 +5,9 @@
 
 import { EventEmitter } from 'events';
 import { UiohookKeyboardEvent } from 'uiohook-napi';
-import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, INFO_MESSAGES } from '@main/keyboard/constants';
-import { GigaChadLogger } from '@main/keyboard/logger';
-import { HealthCheckManager } from '@main/keyboard/HealthCheckManager';
+import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, INFO_MESSAGES } from '../constants';
+import { GigaChadLogger } from '../logger';
+import { HealthCheckManager } from '../HealthCheckManager';
 
 export interface KeyEvent {
   keycode: number;

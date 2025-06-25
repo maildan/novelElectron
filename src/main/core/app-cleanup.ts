@@ -4,7 +4,7 @@
  */
 
 import { BrowserWindow } from 'electron';
-import type { AppState } from '@main/managers/AppLifecycle';
+import type { AppState } from '../managers/AppLifecycle';
 
 /**
  * 애플리케이션 정리

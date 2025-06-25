@@ -25,11 +25,11 @@ export const setSecurityHeaders = (webContents: Electron.WebContents) => {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' data: blob:; " +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-          "connect-src 'self' ws: wss: http: https:; " +
-          "img-src 'self' data: blob: https:; " +
-          "style-src 'self' 'unsafe-inline';"
+          "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* ws://localhost:*; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*; " +
+          "style-src 'self' 'unsafe-inline' http://localhost:*; " +
+          "img-src 'self' data: blob: http://localhost:*; " +
+          "connect-src 'self' ws: wss: http://localhost:* ws://localhost:*;"
         ]
       }
     });

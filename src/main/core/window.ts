@@ -5,13 +5,14 @@
 
 import { BrowserWindow, screen } from 'electron';
 import { join } from 'path';
-import { isDev } from '@main/utils/environment';
+import { isDev } from '../utils/environment';
+import { log } from '../../shared/logger';
 
 /**
  * 메인 윈도우 생성
  */
 export async function createMainWindow(): Promise<BrowserWindow> {
-  console.log('🪟 기가차드 메인 윈도우 생성 중...');
+  log.gigachad('WindowManager', '메인 윈도우 생성 중...');
 
   // 화면 크기 정보 가져오기
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -29,14 +30,16 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../../dist/preload/index.js'),
       webSecurity: true,
       allowRunningInsecureContent: false,
       experimentalFeatures: false
     },
 
-    // UI 설정
+    // UI 설정 - OS 네이티브 헤더바 사용
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    frame: true, // OS 네이티브 프레임 사용
+    autoHideMenuBar: false, // 메뉴바 표시
     icon: join(__dirname, '../../public/icon.png')
   };
 
@@ -47,7 +50,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     ? 'http://localhost:5500' 
     : `file://${join(__dirname, '../renderer/out/index.html')}`;
 
-  console.log(`🌐 로딩 URL: ${startUrl}`);
+  log.info('WindowManager', `로딩 URL: ${startUrl}`);
 
   try {
     await mainWindow.loadURL(startUrl);
@@ -55,35 +58,52 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     // 준비되면 윈도우 표시
     mainWindow.once('ready-to-show', () => {
       mainWindow.show();
+      mainWindow.focus();
+      centerWindow(mainWindow);
       
-      // 개발 환경에서 DevTools 자동 열기
+      // 개발 환경에서 DevTools 별도 창으로 열기
       if (isDev) {
-        mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
       }
       
-      console.log('✅ 메인 윈도우 표시 완료');
+      log.success('WindowManager', '✅ 메인 윈도우 표시 완료');
     });
 
+    // 더 짧은 Fallback으로 수정
+    setTimeout(() => {
+      if (!mainWindow.isVisible()) {
+        log.warn('WindowManager', '🔧 윈도우 강제 표시 (Fallback)');
+        mainWindow.show();
+        mainWindow.focus();
+        centerWindow(mainWindow);
+        
+        // DevTools도 함께 열기
+        if (isDev) {
+          mainWindow.webContents.openDevTools({ mode: 'detach' });
+        }
+      }
+    }, 1500); // 3초에서 1.5초로 단축
+
   } catch (error) {
-    console.error('❌ 윈도우 로딩 실패:', error);
+    log.error('WindowManager', '윈도우 로딩 실패', error);
     throw error;
   }
 
   // 윈도우 이벤트 핸들러
   mainWindow.on('closed', () => {
-    console.log('🪟 메인 윈도우 닫힘');
+    log.info('WindowManager', '메인 윈도우 닫힘');
   });
 
   mainWindow.webContents.on('render-process-gone', () => {
-    console.error('💥 렌더러 프로세스 크래시');
+    log.error('WindowManager', '렌더러 프로세스 크래시');
   });
 
   mainWindow.webContents.on('unresponsive', () => {
-    console.warn('⚠️ 렌더러 프로세스 응답 없음');
+    log.warn('WindowManager', '렌더러 프로세스 응답 없음');
   });
 
   mainWindow.webContents.on('responsive', () => {
-    console.log('✅ 렌더러 프로세스 응답 복구');
+    log.success('WindowManager', '렌더러 프로세스 응답 복구');
   });
 
   // 보안: 새 윈도우 차단

@@ -3,13 +3,10 @@
  * Loop Advanced Keyboard IPC Handlers - IPC 통신 관리
  */
 
-import { ipcMain } from 'electron';
+import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { SUCCESS_MESSAGES } from './constants';
 import { GigaChadLogger } from './logger';
-
-export interface IpcHandler {
-  [channel: string]: (...args: any[]) => any;
-}
+import type { TypedIpcHandler, KeyboardEngine, KeyboardConfig } from '@shared/types';
 
 /**
  * 🔥 기가차드 키보드 IPC 핸들러
@@ -22,7 +19,7 @@ export class KeyboardIpcHandlers {
   /**
    * IPC 핸들러 등록
    */
-  public registerHandlers(handlers: IpcHandler): void {
+  public registerHandlers(handlers: TypedIpcHandler): void {
     for (const [channel, handler] of Object.entries(handlers)) {
       ipcMain.handle(channel, handler);
       this.registeredChannels.push(channel);
@@ -34,7 +31,7 @@ export class KeyboardIpcHandlers {
   /**
    * 기본 키보드 IPC 핸들러들 생성
    */
-  public createDefaultHandlers(keyboardEngine: any): IpcHandler {
+  public createDefaultHandlers(keyboardEngine: KeyboardEngine): TypedIpcHandler {
     return {
       // 모니터링 제어
       'keyboard-engine:start-monitoring': () => keyboardEngine.startMonitoring(),
@@ -47,7 +44,7 @@ export class KeyboardIpcHandlers {
       'keyboard-engine:get-permissions': () => keyboardEngine.getPermissionStatus(),
 
       // 설정 관리
-      'keyboard-engine:update-config': (_event: any, config: any) => keyboardEngine.updateConfig(config),
+      'keyboard-engine:update-config': (_event: IpcMainInvokeEvent, config: Partial<KeyboardConfig>) => keyboardEngine.updateConfig(config),
       'keyboard-engine:get-config': () => keyboardEngine.getConfig(),
 
       // 권한 관리
@@ -71,7 +68,10 @@ export class KeyboardIpcHandlers {
   /**
    * 특정 채널의 핸들러 등록
    */
-  public registerHandler(channel: string, handler: (...args: any[]) => any): void {
+  public registerHandler<T = unknown, R = unknown>(
+    channel: string, 
+    handler: (event: IpcMainInvokeEvent, ...args: T[]) => Promise<R> | R
+  ): void {
     ipcMain.handle(channel, handler);
     this.registeredChannels.push(channel);
     
