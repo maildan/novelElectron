@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 관리자
  * Loop Typing Analytics - IPC Handlers Manager
  */
@@ -10,7 +11,7 @@ import { dashboardIpcHandlers } from './dashboardIpcHandlers';
  * 모든 IPC 핸들러 설정
  */
 export function setupIpcHandlers(): void {
-  console.log('🔌 기가차드 IPC 핸들러 등록 시작...');
+  log.info("Console", '🔌 기가차드 IPC 핸들러 등록 시작...');
 
   try {
     // Dashboard IPC 핸들러 등록
@@ -22,9 +23,9 @@ export function setupIpcHandlers(): void {
     // 키보드 핸들러 등록
     registerKeyboardHandlers();
 
-    console.log('✅ 모든 IPC 핸들러 등록 완료');
+    log.info("Console", '✅ 모든 IPC 핸들러 등록 완료');
   } catch (error) {
-    console.error('❌ IPC 핸들러 등록 실패:', error);
+    log.error("Console", '❌ IPC 핸들러 등록 실패:', error);
     throw error;
   }
 }
@@ -34,7 +35,7 @@ export function setupIpcHandlers(): void {
  */
 function registerDashboardHandlers(): void {
   dashboardIpcHandlers.registerHandlers();
-  console.log('✅ Dashboard IPC 핸들러 등록 완료');
+  log.info("Console", '✅ Dashboard IPC 핸들러 등록 완료');
 }
 
 /**
@@ -62,7 +63,7 @@ function registerAppHandlers(): void {
     app.quit();
   });
 
-  console.log('✅ 기본 앱 IPC 핸들러 등록 완료');
+  log.info("Console", '✅ 기본 앱 IPC 핸들러 등록 완료');
 }
 
 /**
@@ -85,7 +86,7 @@ function registerKeyboardHandlers(): void {
         message: success ? '키보드 모니터링이 시작되었습니다' : '키보드 모니터링 시작에 실패했습니다'
       };
     } catch (error) {
-      console.error('키보드 모니터링 시작 오류:', error);
+      log.error("Console", '키보드 모니터링 시작 오류:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '알 수 없는 오류'
@@ -104,7 +105,7 @@ function registerKeyboardHandlers(): void {
         message: success ? '키보드 모니터링이 중지되었습니다' : '키보드 모니터링 중지에 실패했습니다'
       };
     } catch (error) {
-      console.error('키보드 모니터링 중지 오류:', error);
+      log.error("Console", '키보드 모니터링 중지 오류:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : '알 수 없는 오류'
@@ -123,7 +124,7 @@ function registerKeyboardHandlers(): void {
         message: status.isActive ? '모니터링 중' : '정지됨'
       };
     } catch (error) {
-      console.error('키보드 모니터링 상태 확인 오류:', error);
+      log.error("Console", '키보드 모니터링 상태 확인 오류:', error);
       return {
         isActive: false,
         message: '상태 확인 실패'
@@ -131,19 +132,19 @@ function registerKeyboardHandlers(): void {
     }
   });
 
-  console.log('✅ 키보드 IPC 핸들러 등록 완료');
+  log.info("Console", '✅ 키보드 IPC 핸들러 등록 완료');
 }
 
 /**
  * 모든 IPC 핸들러 정리
  */
 export function cleanupIpcHandlers(): void {
-  console.log('🧹 IPC 핸들러 정리 시작...');
+  log.info("Console", '🧹 IPC 핸들러 정리 시작...');
   
   try {
     ipcMain.removeAllListeners();
-    console.log('✅ 모든 IPC 핸들러 정리 완료');
+    log.info("Console", '✅ 모든 IPC 핸들러 정리 완료');
   } catch (error) {
-    console.error('❌ IPC 핸들러 정리 실패:', error);
+    log.error("Console", '❌ IPC 핸들러 정리 실패:', error);
   }
 }

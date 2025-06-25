@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 설정 매니저
  * Loop Typing Analytics - Settings Manager
  */
@@ -91,9 +92,9 @@ export class SettingsManager {
       this.setupIpcHandlers();
       
       this.isInitialized = true;
-      console.log('🔧 기가차드 설정 매니저 초기화 완료');
+      log.info("Console", '🔧 기가차드 설정 매니저 초기화 완료');
     } catch (error) {
-      console.error('❌ 설정 매니저 초기화 실패:', error);
+      log.error("Console", '❌ 설정 매니저 초기화 실패:', error);
       throw error;
     }
   }
@@ -109,13 +110,13 @@ export class SettingsManager {
       // 기본 설정과 병합 (누락된 설정은 기본값으로)
       this.settings = { ...DEFAULT_SETTINGS, ...loadedSettings };
       
-      console.log('✅ 설정 로드 완료');
+      log.info("Console", '✅ 설정 로드 완료');
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        console.log('ℹ️ 설정 파일이 없습니다. 기본 설정을 생성합니다.');
+        log.info("Console", 'ℹ️ 설정 파일이 없습니다. 기본 설정을 생성합니다.');
         await this.saveSettings();
       } else {
-        console.error('❌ 설정 로드 실패:', error);
+        log.error("Console", '❌ 설정 로드 실패:', error);
         throw error;
       }
     }
@@ -128,9 +129,9 @@ export class SettingsManager {
     try {
       const settingsData = JSON.stringify(this.settings, null, 2);
       await fs.writeFile(this.settingsPath, settingsData, 'utf-8');
-      console.log('✅ 설정 저장 완료');
+      log.info("Console", '✅ 설정 저장 완료');
     } catch (error) {
-      console.error('❌ 설정 저장 실패:', error);
+      log.error("Console", '❌ 설정 저장 실패:', error);
       throw error;
     }
   }
@@ -160,9 +161,9 @@ export class SettingsManager {
       // 다른 프로세스에 설정 변경 알림
       this.notifySettingsChanged();
       
-      console.log('✅ 설정 업데이트 완료');
+      log.info("Console", '✅ 설정 업데이트 완료');
     } catch (error) {
-      console.error('❌ 설정 업데이트 실패:', error);
+      log.error("Console", '❌ 설정 업데이트 실패:', error);
       throw error;
     }
   }
@@ -187,9 +188,9 @@ export class SettingsManager {
       
       this.notifySettingsChanged();
       
-      console.log('✅ 설정 초기화 완료');
+      log.info("Console", '✅ 설정 초기화 완료');
     } catch (error) {
-      console.error('❌ 설정 초기화 실패:', error);
+      log.error("Console", '❌ 설정 초기화 실패:', error);
       throw error;
     }
   }
@@ -207,7 +208,7 @@ export class SettingsManager {
         mainWindow.webContents.send('settings-changed', this.settings);
       }
     } catch (error) {
-      console.warn('⚠️ 설정 변경 알림 전송 실패:', error);
+      log.warn("Console", '⚠️ 설정 변경 알림 전송 실패:', error);
     }
   }
 
@@ -258,12 +259,12 @@ export class SettingsManager {
         }
         throw new Error('잘못된 설정 데이터입니다');
       } catch (error) {
-        console.error('❌ 설정 가져오기 실패:', error);
+        log.error("Console", '❌ 설정 가져오기 실패:', error);
         throw error;
       }
     });
 
-    console.log('✅ 설정 IPC 핸들러 설정 완료');
+    log.info("Console", '✅ 설정 IPC 핸들러 설정 완료');
   }
 
   /**
@@ -283,9 +284,9 @@ export class SettingsManager {
       ipcMain.removeHandler('import-settings');
       
       this.isInitialized = false;
-      console.log('✅ 설정 매니저 정리 완료');
+      log.info("Console", '✅ 설정 매니저 정리 완료');
     } catch (error) {
-      console.error('❌ 설정 매니저 정리 실패:', error);
+      log.error("Console", '❌ 설정 매니저 정리 실패:', error);
     }
   }
 }

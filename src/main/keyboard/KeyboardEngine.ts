@@ -1,8 +1,9 @@
 import { ipcMain, BrowserWindow, app } from 'electron';
 import { EventEmitter } from 'events';
-import { logger } from './logger';
-import { log } from '@shared/logger';
+import { Logger } from './logger';
 import { trackPerformance, BenchmarkMetrics } from '@shared/common';
+
+const logger = Logger;
 import { 
   KEYBOARD_CONSTANTS, 
   ERROR_MESSAGES, 
@@ -310,7 +311,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 현재 앱 정보 반환
    */
-  public getCurrentApp(): Record<string, unknown> | null {
+  public getCurrentApp(): unknown {
     return this.appDetector?.getLastAppInfo() || null;
   }
 

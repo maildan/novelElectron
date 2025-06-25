@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 플랫폼 매니저 - 간단 버전
  * Loop Typing Analytics - Platform Manager
  */
@@ -95,6 +96,6 @@ export class PlatformManager {
    * 정리
    */
   cleanup(): void {
-    console.log('🧹 플랫폼 매니저 정리 완료');
+    log.info("Console", '🧹 플랫폼 매니저 정리 완료');
   }
 }

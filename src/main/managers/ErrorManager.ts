@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 에러 매니저
  * Loop Typing Analytics - Error Manager
  */
@@ -29,12 +30,12 @@ export class ErrorManager {
    * 에러 매니저 초기화
    */
   initialize(): void {
-    console.log('🔥 기가차드 에러 매니저 초기화 시작...');
+    log.info("Console", '🔥 기가차드 에러 매니저 초기화 시작...');
 
     // 전역 에러 핸들러 등록
     this.setupGlobalErrorHandlers();
     
-    console.log('✅ 에러 매니저 초기화 완료');
+    log.info("Console", '✅ 에러 매니저 초기화 완료');
   }
 
   /**
@@ -44,9 +45,9 @@ export class ErrorManager {
     if (!existsSync(this.errorLogDir)) {
       try {
         mkdirSync(this.errorLogDir, { recursive: true });
-        console.log('📁 에러 로그 디렉토리 생성:', this.errorLogDir);
+        log.info("Console", '📁 에러 로그 디렉토리 생성:', this.errorLogDir);
       } catch (err) {
-        console.error('❌ 에러 로그 디렉토리 생성 실패:', err);
+        log.error("Console", '❌ 에러 로그 디렉토리 생성 실패:', err);
       }
     }
   }
@@ -57,7 +58,7 @@ export class ErrorManager {
   private setupGlobalErrorHandlers(): void {
     // 처리되지 않은 예외
     process.on('uncaughtException', (error: Error) => {
-      console.error('💥 처리되지 않은 예외:', error);
+      log.error("Console", '💥 처리되지 않은 예외:', error);
       this.logError(error, 'uncaughtException');
       this.showErrorDialog(error, '심각한 오류 발생');
       
@@ -70,7 +71,7 @@ export class ErrorManager {
     // 처리되지 않은 Promise 거부
     process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
       const error = reason instanceof Error ? reason : new Error(String(reason));
-      console.error('💥 처리되지 않은 Promise 거부:', error);
+      log.error("Console", '💥 처리되지 않은 Promise 거부:', error);
       this.logError(error, 'unhandledRejection');
       this.showErrorDialog(error, '비동기 작업 오류');
     });
@@ -78,7 +79,7 @@ export class ErrorManager {
     // Electron 관련 에러
     app.on('render-process-gone', (event, webContents, details) => {
       const error = new Error(`렌더러 프로세스 크래시: ${details.reason}`);
-      console.error('💥 렌더러 프로세스 크래시:', details);
+      log.error("Console", '💥 렌더러 프로세스 크래시:', details);
       this.logError(error, 'render-process-gone');
       
       // 윈도우 재생성 시도
@@ -96,9 +97,9 @@ export class ErrorManager {
 
     try {
       appendFileSync(this.errorLogFile, logEntry);
-      console.log(`📝 에러 로그 기록: ${context}`);
+      log.info("Console", `📝 에러 로그 기록: ${context}`);
     } catch (err) {
-      console.error('❌ 에러 로깅 실패:', err);
+      log.error("Console", '❌ 에러 로깅 실패:', err);
     }
   }
 
@@ -123,18 +124,18 @@ export class ErrorManager {
    * 윈도우 복구 시도
    */
   private attemptWindowRecovery(): void {
-    console.log('🔄 윈도우 복구 시도...');
+    log.info("Console", '🔄 윈도우 복구 시도...');
     
     try {
       const windows = BrowserWindow.getAllWindows();
       if (windows.length === 0) {
         // 윈도우가 없으면 새로 생성 (WindowManager 사용)
-        console.log('🪟 새 윈도우 생성 시도');
+        log.info("Console", '🪟 새 윈도우 생성 시도');
         // 여기서는 직접 생성하지 않고 AppLifecycle에서 처리하도록 이벤트 발생
         app.emit('window-recovery-needed' as keyof Electron.App);
       }
     } catch (recoveryError) {
-      console.error('❌ 윈도우 복구 실패:', recoveryError);
+      log.error("Console", '❌ 윈도우 복구 실패:', recoveryError);
       this.logError(recoveryError as Error, 'window-recovery');
     }
   }
@@ -157,7 +158,7 @@ export class ErrorManager {
         lastError: errorEntries.length > 0 ? errorEntries[errorEntries.length - 1] : null
       };
     } catch (err) {
-      console.error('❌ 에러 통계 조회 실패:', err);
+      log.error("Console", '❌ 에러 통계 조회 실패:', err);
       return { totalErrors: 0, lastError: null };
     }
   }
@@ -166,10 +167,10 @@ export class ErrorManager {
    * 정리
    */
   cleanup(): void {
-    console.log('🧹 에러 매니저 정리 시작...');
+    log.info("Console", '🧹 에러 매니저 정리 시작...');
     
     // 전역 핸들러 제거는 프로세스 종료 시 자동으로 됨
     
-    console.log('✅ 에러 매니저 정리 완료');
+    log.info("Console", '✅ 에러 매니저 정리 완료');
   }
 }

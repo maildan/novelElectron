@@ -1,7 +1,8 @@
-'use client';
+import { Logger } from "../../shared/logger";
+const log = Logger;'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Log, TypingStats, IpcResponse } from '@shared/types';
+import { Log, TypingStats, IpcResponse, SessionStats } from '@shared/types';
 
 interface UseLoopDataReturn {
   // 로그 관련
@@ -63,24 +64,25 @@ export function useLoopData(): UseLoopDataReturn {
         try {
           const sessions = await window.electronAPI.database.getSessions();
           
-          // Session 데이터를 Log 형식으로 변환
-          const convertedLogs: Log[] = sessions.map((session: DatabaseSession, index: number) => ({
-            id: session.id || `session-${Date.now()}-${index}`,
+          // Session 데이터를 Log 형식으로 변환 - 타입 안전하게 변환
+          const sessionData = sessions as unknown as SessionStats[];
+          const convertedLogs: Log[] = sessionData.map((session: SessionStats, index: number) => ({
+            id: session.id || session.sessionId || `session-${Date.now()}-${index}`,
             content: session.content || `타이핑 세션 ${index + 1}`,
-            keyCount: session.keyCount || 0,
+            keyCount: session.totalKeys || session.keyCount || 0,
             typingTime: session.duration || 0,
-            timestamp: session.createdAt || new Date().toISOString(),
-            totalChars: session.totalChars || session.keyCount || 0
+            timestamp: session.createdAt?.toISOString() || session.timestamp || new Date().toISOString(),
+            totalChars: session.totalChars || session.charactersTyped || session.characters || session.totalKeys || 0
           }));
           
           setLogs(convertedLogs);
         } catch (ipcError) {
-          console.error('IPC 데이터 로딩 실패:', ipcError);
+          log.error("Console", 'IPC 데이터 로딩 실패:', ipcError);
           setError('데이터베이스 연결에 실패했습니다');
           setLogs([]); // 에러 시 빈 배열
         }
       } else {
-        console.warn('ElectronAPI를 찾을 수 없습니다');
+        log.warn("Console", 'ElectronAPI를 찾을 수 없습니다');
         setError('Electron API를 사용할 수 없습니다');
         setLogs([]);
       }
@@ -88,7 +90,7 @@ export function useLoopData(): UseLoopDataReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '로그 로딩에 실패했습니다';
       setError(errorMessage);
-      console.error('loadLogs 에러:', err);
+      log.error("Console", 'loadLogs 에러:', err);
     } finally {
       setLoading(false);
     }
@@ -131,9 +133,12 @@ export function useLoopData(): UseLoopDataReturn {
           const sessions = await window.electronAPI.database.getSessions();
           
           if (sessions && sessions.length > 0) {
-            const totalKeys = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.keyCount || 0), 0);
-            const totalTime = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.duration || 0), 0);
-            const totalChars = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.totalChars || 0), 0);
+            // 타입 안전하게 변환하여 사용
+            const sessionsArray = sessions as unknown as SessionStats[];
+            const totalKeys = sessionsArray.reduce((sum: number, session: SessionStats) => sum + (session.totalKeys || session.keyCount || 0), 0);
+            const totalTime = sessionsArray.reduce((sum: number, session: SessionStats) => sum + (session.duration || 0), 0);
+            const totalChars = sessionsArray.reduce((sum: number, session: SessionStats) => 
+              sum + (session.totalChars || session.charactersTyped || session.characters || session.totalKeys || 0), 0);
             
             // WPM 계산 (분당 단어수 = 글자수 / 5 / 분)
             const wpm = totalTime > 0 ? Math.round((totalChars / 5) / (totalTime / 60000)) : 0;
@@ -142,10 +147,10 @@ export function useLoopData(): UseLoopDataReturn {
             const accuracy = totalKeys > 0 ? Math.min(95, Math.max(70, 100 - (totalKeys - totalChars) / totalKeys * 100)) : 0;
             
             setTypingStats({
-              wpm: wpm,
+              wpm: Number(wpm),
               accuracy: Number(accuracy.toFixed(1)),
-              totalKeys: totalKeys,
-              totalTime: totalTime
+              totalKeys: Number(totalKeys),
+              totalTime: Number(totalTime)
             });
           } else {
             // 세션이 없으면 기본값
@@ -157,7 +162,7 @@ export function useLoopData(): UseLoopDataReturn {
             });
           }
         } catch (ipcError) {
-          console.warn('타이핑 통계 로딩 실패:', ipcError);
+          log.warn("Console", '타이핑 통계 로딩 실패:', ipcError);
           setTypingStats({
             wpm: 0,
             accuracy: 0,

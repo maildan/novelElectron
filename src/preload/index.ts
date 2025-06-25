@@ -1,4 +1,5 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { Logger } from "../shared/logger";
+const log = Logger;import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { 
   LoopKeyboardEvent, 
   SessionStats, 
@@ -107,11 +108,13 @@ const electronAPI: ElectronAPI = {
   invoke: <T = unknown>(channel: string, ...args: unknown[]): Promise<T> => 
     ipcRenderer.invoke(channel, ...args),
   
-  on: (channel: string, callback: IpcCallback): void => 
-    ipcRenderer.on(channel, callback),
+  on: (channel: string, callback: IpcCallback): void => {
+    ipcRenderer.on(channel, callback);
+  },
   
-  removeAllListeners: (channel: string): void => 
-    ipcRenderer.removeAllListeners(channel),
+  removeAllListeners: (channel: string): void => {
+    ipcRenderer.removeAllListeners(channel);
+  },
 
   app: {
     getVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
@@ -193,4 +196,4 @@ const electronAPI: ElectronAPI = {
 // Context Bridge로 안전하게 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-console.log('� 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');
+log.info("Console", '� 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');

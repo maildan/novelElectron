@@ -1,10 +1,11 @@
-'use client';
+import { Logger } from "../../../shared/logger";
+const log = Logger;'use client';
 
 import { useState, useEffect } from 'react';
 import { CommonComponentProps } from '@shared/types';
 import { 
   debugEntry, debugExit, withDebug, transformSessionToFile, 
-  getStatusColor, formatTime, initGigaChadDebug 
+  StatusColor, formatTime, initGigaChadDebug 
 } from '@shared/common';
 import { 
   Play, 
@@ -67,10 +68,10 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           const analyticsData = await window.electronAPI.invoke('database:get-analytics', 'latest');
 
           // 공통 유틸리티로 변환 - 타입 호환성 보장
-          const recentFilesData = sessionsData.slice(0, 3).map((session, index) => ({
-            id: session.id,
+          const recentFilesData: RecentFile[] = sessionsData.slice(0, 3).map((session, index) => ({
+            id: (session.id || session.sessionId || `session-${Date.now()}-${index}`) as string,
             name: `문서 ${index + 1}`,
-            path: `/sessions/${session.id}`,
+            path: `/sessions/${session.id || session.sessionId}`,
             type: 'document',
             project: session.content?.substring(0, 20) + "..." || "타이핑 세션",
             time: session.timestamp ? new Date(session.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString(),
@@ -102,7 +103,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           setActiveProjects(projectsData);
         }
       } catch (error) {
-        console.error('대시보드 데이터 로딩 실패:', error);
+        log.error("Console", '대시보드 데이터 로딩 실패:', error);
         setRecentFiles([]);
         setActiveProjects([]);
       }

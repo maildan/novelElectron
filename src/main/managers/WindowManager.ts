@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 윈도우 매니저 - 완전히 모듈화된 싱글톤 패턴
  * Loop Typing Analytics - Advanced Window Manager
  */
@@ -123,13 +124,13 @@ export class WindowManager {
       // localhost 또는 file 프로토콜만 허용
       if (parsedUrl.origin !== 'http://localhost:5500' && parsedUrl.protocol !== 'file:') {
         event.preventDefault();
-        console.warn('🚫 외부 네비게이션 차단:', navigationUrl);
+        log.warn("Console", '🚫 외부 네비게이션 차단:', navigationUrl);
       }
     });
 
     // 새 윈도우 생성 차단
     this.mainWindow.webContents.setWindowOpenHandler(() => {
-      console.warn('🚫 새 윈도우 생성 차단');
+      log.warn("Console", '🚫 새 윈도우 생성 차단');
       return { action: 'deny' };
     });
 
@@ -154,23 +155,23 @@ export class WindowManager {
       ? 'http://localhost:5500' 
       : `file://${join(__dirname, '../../../out/index.html')}`;
 
-    console.log(`🌐 로딩 URL: ${startUrl}`);
+    log.info("Console", `🌐 로딩 URL: ${startUrl}`);
 
     try {
       await this.mainWindow.loadURL(startUrl);
-      console.log('✅ 콘텐츠 로드 성공');
+      log.info("Console", '✅ 콘텐츠 로드 성공');
     } catch (error) {
-      console.error('❌ 콘텐츠 로드 실패:', error);
+      log.error("Console", '❌ 콘텐츠 로드 실패:', error);
       
       // 개발 환경에서 Next.js 서버가 아직 시작되지 않은 경우 재시도
       if (isDev) {
-        console.log('🔄 3초 후 재시도...');
+        log.info("Console", '🔄 3초 후 재시도...');
         setTimeout(async () => {
           try {
             await this.mainWindow?.loadURL(startUrl);
-            console.log('✅ 재시도 성공');
+            log.info("Console", '✅ 재시도 성공');
           } catch (retryError) {
-            console.error('❌ 재시도 실패:', retryError);
+            log.error("Console", '❌ 재시도 실패:', retryError);
           }
         }, 3000);
       }
@@ -228,7 +229,7 @@ export class WindowManager {
    * 정리
    */
   cleanup(): void {
-    console.log('🧹 윈도우 매니저 정리 중...');
+    log.info("Console", '🧹 윈도우 매니저 정리 중...');
     
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.removeAllListeners();
@@ -237,6 +238,6 @@ export class WindowManager {
     }
     
     this.mainWindow = null;
-    console.log('✅ 윈도우 매니저 정리 완료');
+    log.info("Console", '✅ 윈도우 매니저 정리 완료');
   }
 }

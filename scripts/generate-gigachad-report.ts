@@ -6,9 +6,11 @@
 import { runGigaChadBenchmarks } from '../src/shared/common';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { log } from '../src/shared/logger';
 
 async function generateFinalReport() {
-  console.log('🔥 기가차드 최종 리포트 생성 시작!');
+  log.info('GigaChadReport', '🔥 기가차드 최종 리포트 생성 시작!');
+  log.info('GigaChadReport', '📊 기가차드 벤치마크 실행 중...');
   
   try {
     const report = await runGigaChadBenchmarks();
@@ -31,14 +33,14 @@ async function generateFinalReport() {
       report.markdownTable
     );
     
-    debugLog('✅ 기가차드 최종 리포트 생성 완료!');
-    debugLog('📊 파일 생성:');
-    debugLog('  - gigachad-performance-schema.json');
-    debugLog('  - gigachad-diff-patch.json');
-    debugLog('  - GIGACHAD_FINAL_REPORT.md');
+    log.info('GigaChadReport', '✅ 기가차드 최종 리포트 생성 완료!');
+    log.info('GigaChadReport', '📊 파일 생성:');
+    log.info('GigaChadReport', '  - gigachad-performance-schema.json');
+    log.info('GigaChadReport', '  - gigachad-diff-patch.json');
+    log.info('GigaChadReport', '  - GIGACHAD_FINAL_REPORT.md');
 
   } catch (error) {
-    debugLog('❌ 리포트 생성 실패:', error);
+    log.error('GigaChadReport', '❌ 리포트 생성 실패:', error);
   }
 }
 

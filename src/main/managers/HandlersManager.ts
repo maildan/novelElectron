@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 핸들러 매니저
  * Loop Typing Analytics - Handlers Manager
  * 
@@ -38,12 +39,12 @@ export class HandlersManager {
    * 핸들러 매니저 초기화
    */
   initialize(mainWindow: BrowserWindow): void {
-    console.log('🔧 기가차드 핸들러 매니저: 초기화 시작...');
+    log.info("Console", '🔧 기가차드 핸들러 매니저: 초기화 시작...');
     
     this.mainWindow = mainWindow;
     this.registerAllHandlers();
     
-    console.log('✅ 핸들러 매니저 초기화 완료');
+    log.info("Console", '✅ 핸들러 매니저 초기화 완료');
   }
 
   /**
@@ -119,7 +120,7 @@ export class HandlersManager {
         return { success: true, data: stats };
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-        console.error('❌ 통계 조회 실패:', error);
+        log.error("Console", '❌ 통계 조회 실패:', error);
         return { success: false, error: errorMessage };
       }
     });
@@ -127,11 +128,11 @@ export class HandlersManager {
     this.registerHandler('db:get-recent-sessions', async (_event: IpcMainInvokeEvent, limit = 10) => {
       try {
         // TODO: DatabaseManager에 getAllSessions 메서드 추가 필요
-        console.log('최근 세션 조회 요청, limit:', limit);
+        log.info("Console", '최근 세션 조회 요청, limit:', limit);
         return { success: true, data: [] }; // 임시로 빈 배열 반환
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-        console.error('❌ 최근 세션 조회 실패:', error);
+        log.error("Console", '❌ 최근 세션 조회 실패:', error);
         return { success: false, error: errorMessage };
       }
     });
@@ -139,11 +140,11 @@ export class HandlersManager {
     this.registerHandler('db:export-data', async (_event: IpcMainInvokeEvent, options: Record<string, unknown>) => {
       try {
         // TODO: DatabaseManager에 exportData 메서드 추가 필요
-        console.log('데이터 내보내기 요청:', options);
+        log.info("Console", '데이터 내보내기 요청:', options);
         return { success: true, data: { message: '데이터 내보내기 기능 구현 예정' } };
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
-        console.error('❌ 데이터 내보내기 실패:', error);
+        log.error("Console", '❌ 데이터 내보내기 실패:', error);
         return { success: false, error: errorMessage };
       }
     });
@@ -234,9 +235,9 @@ export class HandlersManager {
         registeredAt: Date.now()
       });
       
-      console.log(`🔧 핸들러 등록: ${channel}`);
+      log.info("Console", `🔧 핸들러 등록: ${channel}`);
     } catch (error) {
-      console.error(`❌ 핸들러 등록 실패 [${channel}]:`, error);
+      log.error("Console", `❌ 핸들러 등록 실패 [${channel}]:`, error);
     }
   }
 
@@ -247,9 +248,9 @@ export class HandlersManager {
     try {
       ipcMain.removeHandler(channel);
       this.handlers.delete(channel);
-      console.log(`🔧 핸들러 등록 해제: ${channel}`);
+      log.info("Console", `🔧 핸들러 등록 해제: ${channel}`);
     } catch (error) {
-      console.error(`❌ 핸들러 등록 해제 실패 [${channel}]:`, error);
+      log.error("Console", `❌ 핸들러 등록 해제 실패 [${channel}]:`, error);
     }
   }
 
@@ -257,7 +258,7 @@ export class HandlersManager {
    * 모든 핸들러 등록 해제
    */
   cleanup(): void {
-    console.log('🧹 핸들러 매니저 정리 시작...');
+    log.info("Console", '🧹 핸들러 매니저 정리 시작...');
     
     for (const [channel] of this.handlers) {
       this.unregisterHandler(channel);
@@ -266,7 +267,7 @@ export class HandlersManager {
     this.handlers.clear();
     this.mainWindow = null;
     
-    console.log('✅ 핸들러 매니저 정리 완료');
+    log.info("Console", '✅ 핸들러 매니저 정리 완료');
   }
 
   /**

@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * Menu action handlers
  * Modularized from MenuManager.ts
  */
@@ -47,7 +48,7 @@ export class MenuHandlers {
    */
   static async showPreferences(): Promise<void> {
     // TODO: Implement preferences window
-    console.log('📋 Opening preferences...');
+    log.info("Console", '📋 Opening preferences...');
     
     // For now, send IPC to main window to navigate to settings
     const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -63,7 +64,7 @@ export class MenuHandlers {
    * Create new typing session
    */
   static async createNewSession(): Promise<void> {
-    console.log('✨ Creating new typing session...');
+    log.info("Console", '✨ Creating new typing session...');
     
     const mainWindow = BrowserWindow.getAllWindows()[0];
     if (mainWindow && 'webContents' in mainWindow) {
@@ -101,7 +102,7 @@ export class MenuHandlers {
 
       if (!result.canceled && result.filePath) {
         // TODO: Implement actual data export
-        console.log('📤 Exporting data to:', result.filePath);
+        log.info("Console", '📤 Exporting data to:', result.filePath);
         
         // Send IPC to main process to handle export
         const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -111,7 +112,7 @@ export class MenuHandlers {
         }
       }
     } catch (error) {
-      console.error('❌ Export error:', error);
+      log.error("Console", '❌ Export error:', error);
       await this.showErrorDialog('Export failed', String(error));
     }
   }
@@ -143,7 +144,7 @@ export class MenuHandlers {
 
       if (!result.canceled && result.filePaths.length > 0) {
         const filePath = result.filePaths[0];
-        console.log('📥 Importing data from:', filePath);
+        log.info("Console", '📥 Importing data from:', filePath);
         
         // Send IPC to main process to handle import
         const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -153,7 +154,7 @@ export class MenuHandlers {
         }
       }
     } catch (error) {
-      console.error('❌ Import error:', error);
+      log.error("Console", '❌ Import error:', error);
       await this.showErrorDialog('Import failed', String(error));
     }
   }
@@ -239,7 +240,7 @@ export class MenuHandlers {
    * Check for application updates
    */
   static async checkForUpdates(): Promise<void> {
-    console.log('🔄 Checking for updates...');
+    log.info("Console", '🔄 Checking for updates...');
     
     // TODO: Implement actual update checking
     const focusedWindow = BrowserWindow.getFocusedWindow();
@@ -267,7 +268,7 @@ export class MenuHandlers {
     try {
       await shell.openExternal(url);
     } catch (error) {
-      console.error('❌ Failed to open external URL:', url, error);
+      log.error("Console", `❌ Failed to open external URL: ${url}`, error);
       await this.showErrorDialog('Failed to open link', `Could not open ${url}`);
     }
   }
@@ -298,7 +299,7 @@ export class MenuHandlers {
    * Clear recent files
    */
   static async clearRecentFiles(): Promise<void> {
-    console.log('🗑️ Clearing recent files...');
+    log.info("Console", '🗑️ Clearing recent files...');
     // TODO: Implement recent files clearing
     app.clearRecentDocuments();
   }

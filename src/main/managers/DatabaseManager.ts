@@ -74,13 +74,13 @@ export class DatabaseManager {
     try {
       // 개발 환경에서는 push 사용 (자동 스키마 동기화)
       if (process.env.NODE_ENV === 'development') {
-        console.log('🔄 개발 환경: 스키마 동기화 중...');
+        log.info("Console", '🔄 개발 환경: 스키마 동기화 중...');
         // prisma db push 로직은 CLI에서 실행하므로 여기서는 생략
       }
       
-      console.log('✅ 데이터베이스 마이그레이션 완료');
+      log.info("Console", '✅ 데이터베이스 마이그레이션 완료');
     } catch (error) {
-      console.error('❌ 데이터베이스 마이그레이션 실패:', error);
+      log.error("Console", '❌ 데이터베이스 마이그레이션 실패:', error);
       // 마이그레이션 실패는 치명적이지 않을 수 있음
     }
   }
@@ -313,18 +313,18 @@ export class DatabaseManager {
    * 정리
    */
   async cleanup(): Promise<void> {
-    console.log('🧹 데이터베이스 매니저 정리 중...');
+    log.info("Console", '🧹 데이터베이스 매니저 정리 중...');
 
     try {
       if (this.prisma) {
         await this.prisma.$disconnect();
         this.prisma = null;
-        console.log('✅ 데이터베이스 연결 해제 완료');
+        log.info("Console", '✅ 데이터베이스 연결 해제 완료');
       }
 
-      console.log('✅ 데이터베이스 매니저 정리 완료');
+      log.info("Console", '✅ 데이터베이스 매니저 정리 완료');
     } catch (error) {
-      console.error('❌ 데이터베이스 정리 실패:', error);
+      log.error("Console", '❌ 데이터베이스 정리 실패:', error);
     }
   }
 }

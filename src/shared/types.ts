@@ -38,6 +38,7 @@ export interface KeyboardConfig {
 // 세션 통계 타입 - 완전한 통합 버전
 export interface SessionStats {
   sessionId: string
+  id?: string              // 데이터베이스 ID (호환성)
   startTime: number
   endTime?: number
   lastActivity?: number
@@ -48,6 +49,7 @@ export interface SessionStats {
   keystrokes?: number      // 키스트로크 카운트
   charactersTyped?: number // 타이핑된 문자 수
   characters?: number      // charactersTyped와 동일한 의미
+  totalChars?: number      // 총 문자 수 (호환성)
   wordsTyped?: number
   wpm: number
   cpm?: number
@@ -58,6 +60,10 @@ export interface SessionStats {
   windowTitle?: string
   language?: string
   applications?: Set<string> // 세션 중 사용된 앱들
+  content?: string         // 세션 내용 (호환성)
+  timestamp?: string       // 타임스탬프 문자열 (호환성)
+  typingTime?: number      // 타이핑 시간 (호환성)
+  createdAt?: Date         // 생성 시간 (호환성)
 }
 
 // 앱 상태 타입

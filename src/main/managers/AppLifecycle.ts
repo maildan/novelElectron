@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 앱 라이프사이클 매니저
  * Loop Typing Analytics - Application Lifecycle Manager
  */
@@ -17,8 +18,8 @@ export interface AppState {
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
-  unifiedKeyboardHandler?: unknown; // 통합 키보드 핸들러
-  errorManager?: unknown; // 에러 매니저
+  unifiedKeyboardHandler?: { cleanup: () => Promise<void> } | null; // 통합 키보드 핸들러
+  errorManager?: { cleanup: () => Promise<void> } | null; // 에러 매니저
 }
 
 export class AppLifecycle {
@@ -47,41 +48,41 @@ export class AppLifecycle {
    * 앱 초기화
    */
   async initializeApp(): Promise<void> {
-    console.log('🔥 기가차드 앱 라이프사이클: 초기화 시작...');
+    log.info("Console", '🔥 기가차드 앱 라이프사이클: 초기화 시작...');
 
     try {
       // 1. 보안 매니저 초기화
       this.appState.securityManager = SecurityManager.getInstance();
       await this.appState.securityManager.initialize();
-      console.log('✅ 보안 매니저 초기화 완료');
+      log.info("Console", '✅ 보안 매니저 초기화 완료');
 
       // 2. 데이터베이스 매니저 초기화
       this.appState.databaseManager = DatabaseManager.getInstance();
       await this.appState.databaseManager.initialize();
-      console.log('✅ 데이터베이스 매니저 초기화 완료');
+      log.info("Console", '✅ 데이터베이스 매니저 초기화 완료');
 
       // 3. IPC 매니저 초기화
       this.appState.ipcManager = IpcManager.getInstance();
       this.appState.ipcManager.initialize();
-      console.log('✅ IPC 매니저 초기화 완료');
+      log.info("Console", '✅ IPC 매니저 초기화 완료');
 
       // 4. 윈도우 매니저 초기화
       this.appState.windowManager = WindowManager.getInstance();
       await this.appState.windowManager.createMainWindow();
-      console.log('✅ 윈도우 매니저 초기화 완료');
+      log.info("Console", '✅ 윈도우 매니저 초기화 완료');
 
       // 5. 키보드 매니저 초기화
       this.appState.keyboardManager = KeyboardManager.getInstance();
       const mainWindow = this.appState.windowManager.getMainWindow();
       if (mainWindow) {
         await this.appState.keyboardManager.initialize(); // 인자 없이 호출
-        console.log('✅ 키보드 매니저 초기화 완료');
+        log.info("Console", '✅ 키보드 매니저 초기화 완료');
       }
 
       this.appState.isInitialized = true;
-      console.log('🚀 기가차드 앱 라이프사이클: 초기화 완료!');
+      log.info("Console", '🚀 기가차드 앱 라이프사이클: 초기화 완료!');
     } catch (error) {
-      console.error('❌ 앱 초기화 실패:', error);
+      log.error("Console", '❌ 앱 초기화 실패:', error);
       throw error;
     }
   }
@@ -90,48 +91,48 @@ export class AppLifecycle {
    * 앱 정리
    */
   async cleanupApp(): Promise<void> {
-    console.log('🧹 기가차드 앱 라이프사이클: 정리 시작...');
+    log.info("Console", '🧹 기가차드 앱 라이프사이클: 정리 시작...');
 
     try {
       // 키보드 매니저 정리
       if (this.appState.keyboardManager) {
         this.appState.keyboardManager.cleanup();
         this.appState.keyboardManager = null;
-        console.log('✅ 키보드 매니저 정리 완료');
+        log.info("Console", '✅ 키보드 매니저 정리 완료');
       }
 
       // 윈도우 매니저 정리
       if (this.appState.windowManager) {
         this.appState.windowManager.cleanup();
         this.appState.windowManager = null;
-        console.log('✅ 윈도우 매니저 정리 완료');
+        log.info("Console", '✅ 윈도우 매니저 정리 완료');
       }
 
       // IPC 매니저 정리
       if (this.appState.ipcManager) {
         this.appState.ipcManager.cleanup();
         this.appState.ipcManager = null;
-        console.log('✅ IPC 매니저 정리 완료');
+        log.info("Console", '✅ IPC 매니저 정리 완료');
       }
 
       // 데이터베이스 매니저 정리
       if (this.appState.databaseManager) {
         await this.appState.databaseManager.cleanup();
         this.appState.databaseManager = null;
-        console.log('✅ 데이터베이스 매니저 정리 완료');
+        log.info("Console", '✅ 데이터베이스 매니저 정리 완료');
       }
 
       // 보안 매니저 정리
       if (this.appState.securityManager) {
         this.appState.securityManager.cleanup();
         this.appState.securityManager = null;
-        console.log('✅ 보안 매니저 정리 완료');
+        log.info("Console", '✅ 보안 매니저 정리 완료');
       }
 
       this.appState.isInitialized = false;
-      console.log('✅ 앱 라이프사이클 정리 완료');
+      log.info("Console", '✅ 앱 라이프사이클 정리 완료');
     } catch (error) {
-      console.error('❌ 앱 정리 실패:', error);
+      log.error("Console", '❌ 앱 정리 실패:', error);
     }
   }
 
@@ -169,7 +170,7 @@ export class AppLifecycle {
    * 앱 재시작
    */
   async restartApp(): Promise<void> {
-    console.log('🔄 앱 재시작 중...');
+    log.info("Console", '🔄 앱 재시작 중...');
     
     await this.cleanupApp();
     app.relaunch();
@@ -180,7 +181,7 @@ export class AppLifecycle {
    * 앱 종료
    */
   async quitApp(): Promise<void> {
-    console.log('🛑 앱 종료 중...');
+    log.info("Console", '🛑 앱 종료 중...');
     
     await this.cleanupApp();
     app.quit();
@@ -190,7 +191,7 @@ export class AppLifecycle {
    * 새 윈도우 생성 (두 번째 인스턴스 시도 시)
    */
   async handleSecondInstance(): Promise<void> {
-    console.log('🔄 두 번째 인스턴스 감지: 기존 윈도우 포커스');
+    log.info("Console", '🔄 두 번째 인스턴스 감지: 기존 윈도우 포커스');
     
     if (this.appState.windowManager) {
       this.appState.windowManager.focusMainWindow();
@@ -204,7 +205,7 @@ export class AppLifecycle {
    * macOS에서 앱 활성화 처리
    */
   async handleAppActivation(): Promise<void> {
-    console.log('🍎 macOS 앱 활성화');
+    log.info("Console", '🍎 macOS 앱 활성화');
     
     if (BrowserWindow.getAllWindows().length === 0) {
       if (this.appState.isInitialized) {

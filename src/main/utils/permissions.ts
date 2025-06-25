@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🛡️ 권한 관리 유틸리티
  * macOS Screen Recording 권한 및 접근성 권한 관리
  */
@@ -27,7 +28,7 @@ export class PermissionManager {
       // 성공적으로 실행되면 권한이 있음
       return stdout.trim() !== '';
     } catch (error) {
-      console.warn('⚠️ Screen Recording 권한 확인 실패:', error);
+      log.warn("Console", '⚠️ Screen Recording 권한 확인 실패:', error);
       return false;
     }
   }
@@ -48,7 +49,7 @@ export class PermissionManager {
       
       return stdout.trim() === 'true';
     } catch (error) {
-      console.warn('⚠️ 접근성 권한 확인 실패:', error);
+      log.warn("Console", '⚠️ 접근성 권한 확인 실패:', error);
       return false;
     }
   }
@@ -116,19 +117,19 @@ export class PermissionManager {
     const permissions = await this.verifyAllPermissions();
 
     if (permissions.allGranted) {
-      console.log('✅ 모든 권한이 허용되어 있습니다.');
+      log.info("Console", '✅ 모든 권한이 허용되어 있습니다.');
       return true;
     }
 
     // Screen Recording 권한 요청
     if (!permissions.screenRecording) {
-      console.log('⚠️ Screen Recording 권한이 필요합니다.');
+      log.info("Console", '⚠️ Screen Recording 권한이 필요합니다.');
       await this.showPermissionDialog('screen-recording');
     }
 
     // 접근성 권한 요청
     if (!permissions.accessibility) {
-      console.log('⚠️ 접근성 권한이 필요합니다.');
+      log.info("Console", '⚠️ 접근성 권한이 필요합니다.');
       await this.showPermissionDialog('accessibility');
     }
 

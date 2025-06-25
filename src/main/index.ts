@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 Electron 메인 프로세스 진입점
  * Loop Typing Analytics - Main Process Entry Point
  */
@@ -10,7 +11,6 @@ import { initializeSecurity, setSecurityHeaders, disableDevTools } from './core/
 import { setupIpcHandlers } from './handlers';
 import { initializeDatabase } from './services/databaseService';
 import { registerKeyboardListener, stopKeyboardListener } from './services/keyboardService';
-import { log } from '../shared/logger';
 
 // 전역 상태
 let mainWindow: BrowserWindow | null = null;

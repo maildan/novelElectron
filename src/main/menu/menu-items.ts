@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * Menu items and templates for the application
  * Modularized from MenuManager.ts
  */
@@ -27,7 +28,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
           accelerator: 'Cmd+,',
           click: () => {
             // TODO: Open preferences window
-            console.log('Open preferences');
+            log.info("Console", 'Open preferences');
           }
         },
         { type: 'separator' },
@@ -72,7 +73,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+N',
         click: () => {
           // TODO: Create new typing session
-          console.log('New session');
+          log.info("Console", 'New session');
         }
       },
       {
@@ -82,7 +83,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
             label: 'Clear Recently Used',
             click: () => {
               // TODO: Clear recent files
-              console.log('Clear recent');
+              log.info("Console", 'Clear recent');
             }
           }
         ]
@@ -93,7 +94,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+E',
         click: async () => {
           // TODO: Export user data
-          console.log('Export data');
+          log.info("Console", 'Export data');
         }
       },
       {
@@ -101,7 +102,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+I',
         click: async () => {
           // TODO: Import user data
-          console.log('Import data');
+          log.info("Console", 'Import data');
         }
       },
       { type: 'separator' },
@@ -111,7 +112,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
           accelerator: 'Ctrl+,',
           click: () => {
             // TODO: Open preferences window
-            console.log('Open preferences');
+            log.info("Console", 'Open preferences');
           }
         } as MenuItemConstructorOptions,
         { type: 'separator' } as MenuItemConstructorOptions,
@@ -174,7 +175,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+D',
         click: () => {
           // TODO: Navigate to dashboard
-          console.log('Navigate to dashboard');
+          log.info("Console", 'Navigate to dashboard');
         }
       },
       {
@@ -182,7 +183,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+A',
         click: () => {
           // TODO: Navigate to analytics
-          console.log('Navigate to analytics');
+          log.info("Console", 'Navigate to analytics');
         }
       },
       {
@@ -190,7 +191,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+S',
         click: () => {
           // TODO: Navigate to settings
-          console.log('Navigate to settings');
+          log.info("Console", 'Navigate to settings');
         }
       }
     ]
@@ -220,7 +221,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         label: 'About Loop',
         click: () => {
           // TODO: Show about dialog
-          console.log('Show about');
+          log.info("Console", 'Show about');
         }
       },
       {
@@ -234,7 +235,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         accelerator: 'CmdOrCtrl+?',
         click: () => {
           // TODO: Show shortcuts help
-          console.log('Show shortcuts');
+          log.info("Console", 'Show shortcuts');
         }
       },
       { type: 'separator' },
@@ -255,7 +256,7 @@ export function getApplicationMenuTemplate(): MenuItemConstructorOptions[] {
         label: 'Check for Updates...',
         click: () => {
           // TODO: Check for updates
-          console.log('Check for updates');
+          log.info("Console", 'Check for updates');
         }
       }
     ]
@@ -300,7 +301,7 @@ export function getDockMenuTemplate(): MenuItemConstructorOptions[] {
       label: 'New Session',
       click: () => {
         // TODO: Create new typing session
-        console.log('New session from dock');
+        log.info("Console", 'New session from dock');
       }
     },
     {

@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 애플리케이션 설정 관리
  * Application Configuration Manager
  */
@@ -47,7 +48,7 @@ let appConfig: AppConfig;
  * 앱 설정 초기화
  */
 export function initializeAppConfig(): AppConfig {
-  console.log('🔧 앱 설정 초기화 중...');
+  log.info("Console", '🔧 앱 설정 초기화 중...');
 
   // Load environment variables
   config();
@@ -84,13 +85,13 @@ export function initializeAppConfig(): AppConfig {
   };
 
   // 환경 정보 로깅
-  console.log(`📱 앱: ${appConfig.name} v${appConfig.version}`);
-  console.log(`🔧 환경: ${isDev ? 'Development' : isProd ? 'Production' : 'Test'}`);
-  console.log(`💻 플랫폼: ${appConfig.platform} (${appConfig.arch})`);
-  console.log(`📁 사용자 데이터: ${appConfig.userDataPath}`);
-  console.log(`📁 앱 경로: ${appConfig.appPath}`);
-  console.log(`📁 로그 경로: ${appConfig.logsPath}`);
-  console.log(`💾 DB 경로: ${appConfig.dbPath}`);
+  log.info("Console", `📱 앱: ${appConfig.name} v${appConfig.version}`);
+  log.info("Console", `🔧 환경: ${isDev ? 'Development' : isProd ? 'Production' : 'Test'}`);
+  log.info("Console", `💻 플랫폼: ${appConfig.platform} (${appConfig.arch})`);
+  log.info("Console", `📁 사용자 데이터: ${appConfig.userDataPath}`);
+  log.info("Console", `📁 앱 경로: ${appConfig.appPath}`);
+  log.info("Console", `📁 로그 경로: ${appConfig.logsPath}`);
+  log.info("Console", `💾 DB 경로: ${appConfig.dbPath}`);
 
   return appConfig;
 }

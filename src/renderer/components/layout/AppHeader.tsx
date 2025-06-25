@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 앱 헤더 컴포넌트 - 실제 데이터 연동
  * Loop Typing Analytics - App Header with Real Data Integration
  */
@@ -53,7 +54,7 @@ export function AppHeader({
           });
         }
       } catch (error) {
-        console.error('버전 정보 로드 실패:', error);
+        log.error("Console", '버전 정보 로드 실패:', error);
       }
     };
 
@@ -66,7 +67,7 @@ export function AppHeader({
           setMonitoringStatus(status?.isActive ? '모니터링 중' : '정지됨');
         }
       } catch (error) {
-        console.error('모니터링 상태 확인 실패:', error);
+        log.error("Console", '모니터링 상태 확인 실패:', error);
         setIsMonitoring(false);
         setMonitoringStatus('오류');
       }
@@ -76,9 +77,12 @@ export function AppHeader({
     checkMonitoringStatus();
 
     // 실시간 모니터링 상태 업데이트 리스너
-    const handleMonitoringUpdate = (status: MonitoringStatus) => {
-      setIsMonitoring(status.isActive);
-      setMonitoringStatus(status.isActive ? '모니터링 중' : '정지됨');
+    const handleMonitoringUpdate = (event: unknown, ...args: unknown[]) => {
+      const status = args[0] as MonitoringStatus | undefined;
+      if (status) {
+        setIsMonitoring(status.isActive);
+        setMonitoringStatus(status.isActive ? '모니터링 중' : '정지됨');
+      }
     };
 
     if (typeof window !== 'undefined' && window.electronAPI) {
@@ -105,7 +109,7 @@ export function AppHeader({
         }
       }
     } catch (error) {
-      console.error('모니터링 토글 실패:', error);
+      log.error("Console", '모니터링 토글 실패:', error);
     }
   };
 

@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 IPC 매니저
  * Loop Typing Analytics - IPC Manager
  */
@@ -24,13 +25,13 @@ export class IpcManager {
    * IPC 매니저 초기화
    */
   initialize(): void {
-    console.log('🔥 기가차드 IPC 매니저 초기화 시작...');
+    log.info("Console", '🔥 기가차드 IPC 매니저 초기화 시작...');
     
     // 기본 핸들러들 등록
     this.registerBasicHandlers();
     
-    console.log('✅ IPC 매니저 초기화 완료');
-    console.log('🎯 키보드 관련 IPC는 UnifiedKeyboardHandler에서 별도 관리됩니다');
+    log.info("Console", '✅ IPC 매니저 초기화 완료');
+    log.info("Console", '🎯 키보드 관련 IPC는 UnifiedKeyboardHandler에서 별도 관리됩니다');
   }
 
   /**
@@ -51,7 +52,7 @@ export class IpcManager {
       return { status: 'ok', timestamp: Date.now() };
     });
 
-    console.log('✅ 기본 IPC 핸들러 등록 완료');
+    log.info("Console", '✅ 기본 IPC 핸들러 등록 완료');
   }
 
   /**
@@ -59,17 +60,17 @@ export class IpcManager {
    */
   registerHandler(channel: string, handler: Function): void {
     if (this.handlers.has(channel)) {
-      console.warn(`⚠️ IPC 핸들러 덮어쓰기: ${channel}`);
+      log.warn("Console", `⚠️ IPC 핸들러 덮어쓰기: ${channel}`);
     }
 
     this.handlers.set(channel, handler);
     ipcMain.handle(channel, async (event, ...args) => {
       try {
-        console.log(`📡 IPC 호출: ${channel}`, args.length > 0 ? args : '');
+        log.info("Console", `📡 IPC 호출: ${channel}`, args.length > 0 ? args : '');
         const result = await handler(...args);
         return result;
       } catch (error) {
-        console.error(`❌ IPC 핸들러 에러 [${channel}]:`, error);
+        log.error("Console", `❌ IPC 핸들러 에러 [${channel}]:`, error);
         throw error;
       }
     });
@@ -82,7 +83,7 @@ export class IpcManager {
     if (this.handlers.has(channel)) {
       ipcMain.removeHandler(channel);
       this.handlers.delete(channel);
-      console.log(`🗑️ IPC 핸들러 제거: ${channel}`);
+      log.info("Console", `🗑️ IPC 핸들러 제거: ${channel}`);
     }
   }
 
@@ -97,7 +98,7 @@ export class IpcManager {
    * 정리
    */
   cleanup(): void {
-    console.log('🧹 IPC 매니저 정리 시작...');
+    log.info("Console", '🧹 IPC 매니저 정리 시작...');
     
     // 모든 핸들러 제거
     for (const channel of this.handlers.keys()) {
@@ -105,7 +106,7 @@ export class IpcManager {
     }
     
     this.handlers.clear();
-    console.log('✅ IPC 매니저 정리 완료');
+    log.info("Console", '✅ IPC 매니저 정리 완료');
   }
 
   /**
@@ -121,6 +122,6 @@ export class IpcManager {
       }
     }
     
-    console.log(`📢 브로드캐스트: ${channel}`, data);
+    log.info("Console", `📢 브로드캐스트: ${channel}`, data);
   }
 }

@@ -1,4 +1,5 @@
-'use client';
+import { Logger } from "../../../shared/logger";
+const log = Logger;'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { CommonComponentProps } from '@shared/types';
@@ -81,7 +82,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         setAiFeatures([]);
       }
     } catch (error) {
-      console.error('AI 기능 로딩 실패:', error);
+      log.error("Console", 'AI 기능 로딩 실패:', error);
       setAiFeatures([]);
     }
   }, [logs]);
@@ -108,7 +109,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         setQuickQuestions(["AI 기능을 사용하려면 Electron API가 필요합니다"]);
       }
     } catch (error) {
-      console.error('Quick questions 로딩 실패:', error);
+      log.error("Console", 'Quick questions 로딩 실패:', error);
       setQuickQuestions([]);
     }
   }, [logs]);
@@ -119,15 +120,18 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         // TODO: 실제 AI 채팅 히스토리 API 구현
         setChatHistory([
           {
-            type: 'ai',
-            message: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?'
+            id: 'ai-welcome',
+            sender: 'ai',
+            type: 'suggestion',
+            message: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?',
+            timestamp: new Date().toISOString()
           }
         ]);
       } else {
         setChatHistory([]);
       }
     } catch (error) {
-      console.error('Chat history 로딩 실패:', error);
+      log.error("Console", 'Chat history 로딩 실패:', error);
       setChatHistory([]);
     }
   }, []);
@@ -158,22 +162,28 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // 임시 응답 추가
-      const newChatHistory = [
-        ...chatHistory,
-        {
-          type: 'user',
-          message: aiPrompt
-        },
-        {
-          type: 'ai', 
-          message: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!'
-        }
-      ];
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        sender: 'user',
+        type: 'question',
+        message: aiPrompt,
+        timestamp: new Date().toISOString()
+      };
+      
+      const aiResponse: ChatMessage = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        type: 'answer',
+        message: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!',
+        timestamp: new Date().toISOString()
+      };
+      
+      const newChatHistory = [...chatHistory, userMessage, aiResponse];
       
       setChatHistory(newChatHistory);
       setAiPrompt("");
     } catch (error) {
-      console.error('AI 요청 실패:', error);
+      log.error("Console", 'AI 요청 실패:', error);
     } finally {
       setLoadingAI(false);
     }
@@ -189,7 +199,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
             <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-start space-x-4">
                 <div className={`p-3 rounded-lg ${getFeatureColor(feature.color)}`}>
-                  <IconComponent size={24} />
+                  <IconComponent className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
@@ -239,9 +249,9 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
           ) : (
             <div className="space-y-4">
               {chatHistory.map((chat, index) => (
-                <div key={index} className={`flex ${chat.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div key={index} className={`flex ${chat.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] p-3 rounded-lg ${
-                    chat.type === 'user' 
+                    chat.sender === 'user' 
                       ? 'bg-blue-500 text-white' 
                       : 'bg-gray-100 text-gray-800'
                   }`}>

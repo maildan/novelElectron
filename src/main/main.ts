@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 메인 프로세스 - 돌아가게 만들기
  * Main entry point for the Electron application
  */
@@ -13,11 +14,11 @@ import { initializeAppConfig, isDevMode } from './config/app-config';
  * 🔥 기가차드식 에러 핸들링 - 간단하게!
  */
 process.on('uncaughtException', (error) => {
-  console.error('🔥 기가차드 에러 캐치:', error);
+  log.error("Console", '🔥 기가차드 에러 캐치:', error);
 });
 
 process.on('unhandledRejection', (reason) => {
-  console.error('🔥 기가차드 프로미스 에러:', reason);
+  log.error("Console", '🔥 기가차드 프로미스 에러:', reason);
 });
 
 /**
@@ -59,9 +60,9 @@ app.on('window-all-closed', () => {
 app.whenReady().then(async () => {
   try {
     await AppLifecycle.getInstance().initializeApp();
-    console.log('✅ 🔥 기가차드 앱 초기화 완료!');
+    log.info("Console", '✅ 🔥 기가차드 앱 초기화 완료!');
   } catch (error) {
-    console.error('❌ 🔥 기가차드 앱 초기화 실패:', error);
+    log.error("Console", '❌ 🔥 기가차드 앱 초기화 실패:', error);
     app.quit();
   }
 });
@@ -70,14 +71,14 @@ app.whenReady().then(async () => {
  * Handle before quit
  */
 app.on('before-quit', async (event) => {
-  console.log('🔄 Application shutting down...');
+  log.info("Console", '🔄 Application shutting down...');
   event.preventDefault();
   
   try {
     await AppLifecycle.getInstance().cleanupApp();
     app.exit(0);
   } catch (error) {
-    console.error('❌ 정리 중 오류:', error);
+    log.error("Console", '❌ 정리 중 오류:', error);
     app.exit(1);
   }
 });

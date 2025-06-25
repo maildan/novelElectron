@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 키보드 권한 매니저
  * Keyboard Permission Manager based on Loop 6 security practices
  */
@@ -58,7 +59,7 @@ export class KeyboardPermissionManager extends EventEmitter {
    * 권한 상태 확인
    */
   async checkPermissions(): Promise<PermissionCheckResult> {
-    console.log('🔒 키보드 권한 상태 확인 중...');
+    log.info("Console", '🔒 키보드 권한 상태 확인 중...');
     
     try {
       this.lastCheckTime = Date.now();
@@ -73,12 +74,12 @@ export class KeyboardPermissionManager extends EventEmitter {
 
       const result = this.analyzePermissionStatus();
       
-      console.log('✅ 권한 확인 완료:', result);
+      log.info("Console", '✅ 권한 확인 완료:', result);
       this.emit('permissions-checked', result);
       
       return result;
     } catch (error) {
-      console.error('❌ 권한 확인 실패:', error);
+      log.error("Console", '❌ 권한 확인 실패:', error);
       this.emit('permission-check-error', error);
       
       return {
@@ -109,7 +110,7 @@ export class KeyboardPermissionManager extends EventEmitter {
       this.currentStatus.fullDiskAccess = await this.checkFullDiskAccessPermission();
       
     } catch (error) {
-      console.error('❌ macOS 권한 확인 실패:', error);
+      log.error("Console", '❌ macOS 권한 확인 실패:', error);
       // 확인 실패 시 모든 권한을 false로 설정
       this.currentStatus.accessibility = false;
       this.currentStatus.screenRecording = false;
@@ -130,7 +131,7 @@ export class KeyboardPermissionManager extends EventEmitter {
       this.currentStatus.fullDiskAccess = true;
       
     } catch (error) {
-      console.error('❌ Windows 권한 확인 실패:', error);
+      log.error("Console", '❌ Windows 권한 확인 실패:', error);
       this.currentStatus.accessibility = false;
       this.currentStatus.screenRecording = false;
       this.currentStatus.inputMonitoring = false;
@@ -150,7 +151,7 @@ export class KeyboardPermissionManager extends EventEmitter {
       this.currentStatus.fullDiskAccess = true;
       
     } catch (error) {
-      console.error('❌ Linux 권한 확인 실패:', error);
+      log.error("Console", '❌ Linux 권한 확인 실패:', error);
       this.currentStatus.accessibility = false;
       this.currentStatus.screenRecording = false;
       this.currentStatus.inputMonitoring = false;
@@ -192,7 +193,7 @@ export class KeyboardPermissionManager extends EventEmitter {
    * 권한 요청
    */
   async requestPermissions(): Promise<boolean> {
-    console.log('📋 키보드 권한 요청 중...');
+    log.info("Console", '📋 키보드 권한 요청 중...');
     
     try {
       if (process.platform === 'darwin') {
@@ -203,7 +204,7 @@ export class KeyboardPermissionManager extends EventEmitter {
         return false;
       }
     } catch (error) {
-      console.error('❌ 권한 요청 실패:', error);
+      log.error("Console", '❌ 권한 요청 실패:', error);
       this.emit('permission-request-error', error);
       return false;
     }
@@ -235,7 +236,7 @@ export class KeyboardPermissionManager extends EventEmitter {
       
       return result.response === 0;
     } catch (error) {
-      console.error('❌ macOS 권한 요청 실패:', error);
+      log.error("Console", '❌ macOS 권한 요청 실패:', error);
       return false;
     }
   }
@@ -256,7 +257,7 @@ export class KeyboardPermissionManager extends EventEmitter {
         await shell.openExternal('gnome-control-center');
       }
     } catch (error) {
-      console.error('❌ 시스템 설정 열기 실패:', error);
+      log.error("Console", '❌ 시스템 설정 열기 실패:', error);
       throw error;
     }
   }
@@ -315,7 +316,7 @@ Windows 10:
       this.emit('permission-status-changed', result);
     }, intervalMs);
 
-    console.log(`🔍 권한 모니터링 시작 (${intervalMs}ms 간격)`);
+    log.info("Console", `🔍 권한 모니터링 시작 (${intervalMs}ms 간격)`);
   }
 
   /**
@@ -325,7 +326,7 @@ Windows 10:
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
-      console.log('🛑 권한 모니터링 중지');
+      log.info("Console", '🛑 권한 모니터링 중지');
     }
   }
 
@@ -342,7 +343,7 @@ Windows 10:
   cleanup(): void {
     this.stopMonitoring();
     this.removeAllListeners();
-    console.log('🧹 권한 매니저 정리 완료');
+    log.info("Console", '🧹 권한 매니저 정리 완료');
   }
 
   // ==================== Platform-specific Permission Checks ====================
@@ -361,7 +362,7 @@ Windows 10:
         }, 100);
       });
     } catch (error) {
-      console.error('❌ 접근성 권한 확인 실패:', error);
+      log.error("Console", '❌ 접근성 권한 확인 실패:', error);
       return false;
     }
   }
@@ -378,7 +379,7 @@ Windows 10:
         }, 100);
       });
     } catch (error) {
-      console.error('❌ 화면 녹화 권한 확인 실패:', error);
+      log.error("Console", '❌ 화면 녹화 권한 확인 실패:', error);
       return false;
     }
   }
@@ -395,7 +396,7 @@ Windows 10:
         }, 100);
       });
     } catch (error) {
-      console.error('❌ 입력 모니터링 권한 확인 실패:', error);
+      log.error("Console", '❌ 입력 모니터링 권한 확인 실패:', error);
       return false;
     }
   }
@@ -412,7 +413,7 @@ Windows 10:
         }, 100);
       });
     } catch (error) {
-      console.error('❌ 전체 디스크 접근 권한 확인 실패:', error);
+      log.error("Console", '❌ 전체 디스크 접근 권한 확인 실패:', error);
       return false;
     }
   }
@@ -425,7 +426,7 @@ Windows 10:
       // Windows에서는 일반적으로 권한이 필요하지 않음
       return true;
     } catch (error) {
-      console.error('❌ Windows 입력 모니터링 확인 실패:', error);
+      log.error("Console", '❌ Windows 입력 모니터링 확인 실패:', error);
       return false;
     }
   }
@@ -438,7 +439,7 @@ Windows 10:
       // input 그룹 멤버십 확인 등
       return true;
     } catch (error) {
-      console.error('❌ Linux 입력 접근 권한 확인 실패:', error);
+      log.error("Console", '❌ Linux 입력 접근 권한 확인 실패:', error);
       return false;
     }
   }

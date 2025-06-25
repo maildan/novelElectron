@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 통합 키보드 핸들러
  * Unified Keyboard Handler integrating all keyboard modules
  */
@@ -60,7 +61,7 @@ export class UnifiedKeyboardHandler {
    * 핸들러 초기화 및 등록
    */
   async initialize(mainWindow: BrowserWindow): Promise<void> {
-    console.log('🔌 통합 키보드 핸들러 초기화 시작...');
+    log.info("Console", '🔌 통합 키보드 핸들러 초기화 시작...');
     
     this.mainWindow = mainWindow;
     
@@ -77,7 +78,7 @@ export class UnifiedKeyboardHandler {
     await this.permissionManager.checkPermissions();
     
     this.isRegistered = true;
-    console.log('✅ 통합 키보드 핸들러 초기화 완료');
+    log.info("Console", '✅ 통합 키보드 핸들러 초기화 완료');
   }
 
   /**
@@ -147,7 +148,7 @@ export class UnifiedKeyboardHandler {
       this.sendToRenderer('keyboard:pattern-analysis', patterns);
     });
 
-    console.log('🔗 키보드 시스템 이벤트 리스너 설정 완료');
+    log.info("Console", '🔗 키보드 시스템 이벤트 리스너 설정 완료');
   }
 
   /**
@@ -155,7 +156,7 @@ export class UnifiedKeyboardHandler {
    */
   private registerIpcHandlers(): void {
     if (this.isRegistered) {
-      console.warn('⚠️ IPC 핸들러가 이미 등록되어 있습니다');
+      log.warn("Console", '⚠️ IPC 핸들러가 이미 등록되어 있습니다');
       return;
     }
 
@@ -240,7 +241,7 @@ export class UnifiedKeyboardHandler {
       ipcMain.handle(channel, handler);
     }
 
-    console.log('📡 통합 키보드 IPC 핸들러 등록 완료');
+    log.info("Console", '📡 통합 키보드 IPC 핸들러 등록 완료');
   }
 
   /**
@@ -333,10 +334,10 @@ export class UnifiedKeyboardHandler {
   private simulateKeyEvent(keycode: number, type: 'keydown' | 'keyup'): boolean {
     try {
       // 실제 구현에서는 keyboardEngine에 테스트 이벤트 전송
-      console.log(`🧪 키 이벤트 시뮬레이션: ${keycode} (${type})`);
+      log.info("Console", `🧪 키 이벤트 시뮬레이션: ${keycode} (${type})`);
       return true;
     } catch (error) {
-      console.error('❌ 키 이벤트 시뮬레이션 실패:', error);
+      log.error("Console", '❌ 키 이벤트 시뮬레이션 실패:', error);
       return false;
     }
   }
@@ -355,7 +356,7 @@ export class UnifiedKeyboardHandler {
       
       return JSON.stringify(data, null, 2);
     } catch (error) {
-      console.error('❌ 세션 데이터 내보내기 실패:', error);
+      log.error("Console", '❌ 세션 데이터 내보내기 실패:', error);
       return JSON.stringify({ error: '데이터 내보내기 실패' });
     }
   }
@@ -366,12 +367,12 @@ export class UnifiedKeyboardHandler {
   private importSessionData(data: string): boolean {
     try {
       const parsedData = JSON.parse(data);
-      console.log('📥 세션 데이터 가져오기:', parsedData);
+      log.info("Console", '📥 세션 데이터 가져오기:', parsedData);
       
       // 실제 구현에서는 데이터 검증 및 복원 로직 추가
       return true;
     } catch (error) {
-      console.error('❌ 세션 데이터 가져오기 실패:', error);
+      log.error("Console", '❌ 세션 데이터 가져오기 실패:', error);
       return false;
     }
   }
@@ -422,16 +423,37 @@ export class UnifiedKeyboardHandler {
   /**
    * 설정 가져오기
    */
-  private getConfig(): Record<string, unknown> {
-    // ConfigManager에서 설정 가져오기 (KeyboardEngine을 통해)
-    return {}; // 임시 반환값
+  private getConfig(): KeyboardConfig {
+    log.debug('UnifiedHandler', '설정 정보 가져오기 요청');
+    // 기본 설정 반환 - 실제로는 ConfigManager에서 가져와야 함
+    return {
+      enabled: true,
+      language: 'korean',
+      enableIme: true,
+      enableGlobalShortcuts: true,
+      enableAppDetection: true,
+      autoSaveInterval: 60000,
+      debugMode: false,
+      autoStartMonitoring: true,
+      sessionTimeout: 30,
+      enableBatchProcessing: true,
+      batchSize: 100,
+      debounceDelay: 300
+    };
   }
 
   /**
    * 권한 상태 가져오기
    */
-  private getPermissionStatus(): Record<string, unknown> {
-    return {}; // 임시 반환값
+  private getPermissionStatus(): PermissionStatus {
+    log.debug('UnifiedHandler', '권한 상태 가져오기 요청');
+    // 기본 권한 상태 반환 - 실제로는 권한 확인 로직 필요
+    return {
+      accessibility: true,
+      screenRecording: true,
+      inputMonitoring: true,
+      all: true
+    };
   }
 
   /**
@@ -465,14 +487,14 @@ export class UnifiedKeyboardHandler {
   /**
    * 실시간 통계 가져오기
    */
-  private getRealtimeStats(): Record<string, unknown> {
+  private getRealtimeStats(): unknown {
     return this.statsManager.getRealtimeStats();
   }
 
   /**
    * 한글 분해
    */
-  private decomposeHangul(char: string): Record<string, unknown> {
+  private decomposeHangul(char: string): unknown {
     return HangulComposer.decomposeHangul(char);
   }
 
@@ -558,14 +580,14 @@ export class UnifiedKeyboardHandler {
       ipcMain.removeHandler(channel);
     }
 
-    console.log('🔌 통합 키보드 IPC 핸들러 해제 완료');
+    log.info("Console", '🔌 통합 키보드 IPC 핸들러 해제 완료');
   }
 
   /**
    * 정리 및 종료
    */
   async cleanup(): Promise<void> {
-    console.log('🧹 통합 키보드 핸들러 정리 시작...');
+    log.info("Console", '🧹 통합 키보드 핸들러 정리 시작...');
 
     try {
       // 권한 모니터링 중지
@@ -591,9 +613,9 @@ export class UnifiedKeyboardHandler {
       this.isRegistered = false;
       this.mainWindow = null;
 
-      console.log('✅ 통합 키보드 핸들러 정리 완료');
+      log.info("Console", '✅ 통합 키보드 핸들러 정리 완료');
     } catch (error) {
-      console.error('❌ 통합 키보드 핸들러 정리 실패:', error);
+      log.error("Console", '❌ 통합 키보드 핸들러 정리 실패:', error);
     }
   }
 

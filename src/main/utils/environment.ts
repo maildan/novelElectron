@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 개발 환경 체크 유틸리티
  */
 
@@ -26,6 +27,6 @@ export const appInfo = {
   description: '작가를 위한 타이핑 분석 도구'
 };
 
-console.log(`🔧 Environment: ${isDev ? 'Development' : 'Production'}`);
-console.log(`💻 Platform: ${process.platform}`);
-console.log(`📱 App: ${appInfo.name} v${appInfo.version}`);
+log.info("Console", `🔧 Environment: ${isDev ? 'Development' : 'Production'}`);
+log.info("Console", `💻 Platform: ${process.platform}`);
+log.info("Console", `📱 App: ${appInfo.name} v${appInfo.version}`);

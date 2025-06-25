@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 - 중앙집중식 IPC 관리
  * Loop Typing Analytics - IPC Handlers
  */
@@ -36,9 +37,9 @@ export class IpcHandlers {
       this.setupAppHandlers();
       
       this.isInitialized = true;
-      console.log('🔥 기가차드 IPC 핸들러 초기화 완료');
+      log.info("Console", '🔥 기가차드 IPC 핸들러 초기화 완료');
     } catch (error) {
-      console.error('❌ IPC 핸들러 초기화 실패:', error);
+      log.error("Console", '❌ IPC 핸들러 초기화 실패:', error);
     }
   }
 
@@ -52,7 +53,7 @@ export class IpcHandlers {
         const systemMonitor = SystemMonitor.getInstance();
         return systemMonitor.getSystemStats();
       } catch (error) {
-        console.error('시스템 통계 조회 실패:', error);
+        log.error("Console", '시스템 통계 조회 실패:', error);
         throw error;
       }
     });
@@ -63,7 +64,7 @@ export class IpcHandlers {
         const systemMonitor = SystemMonitor.getInstance();
         return systemMonitor.getAppStats();
       } catch (error) {
-        console.error('앱 통계 조회 실패:', error);
+        log.error("Console", '앱 통계 조회 실패:', error);
         throw error;
       }
     });
@@ -75,7 +76,7 @@ export class IpcHandlers {
         systemMonitor.startMonitoring(intervalMs);
         return true;
       } catch (error) {
-        console.error('시스템 모니터링 시작 실패:', error);
+        log.error("Console", '시스템 모니터링 시작 실패:', error);
         throw error;
       }
     });
@@ -87,7 +88,7 @@ export class IpcHandlers {
         systemMonitor.stopMonitoring();
         return true;
       } catch (error) {
-        console.error('시스템 모니터링 중지 실패:', error);
+        log.error("Console", '시스템 모니터링 중지 실패:', error);
         throw error;
       }
     });
@@ -103,7 +104,7 @@ export class IpcHandlers {
         const dbManager = DatabaseManager.getInstance();
         return await dbManager.createTypingSession(sessionData);
       } catch (error) {
-        console.error('타이핑 세션 저장 실패:', error);
+        log.error("Console", '타이핑 세션 저장 실패:', error);
         throw error;
       }
     });
@@ -114,7 +115,7 @@ export class IpcHandlers {
         const dbManager = DatabaseManager.getInstance();
         return await dbManager.createKeyEvent(keyEventData);
       } catch (error) {
-        console.error('키 이벤트 저장 실패:', error);
+        log.error("Console", '키 이벤트 저장 실패:', error);
         throw error;
       }
     });
@@ -126,7 +127,7 @@ export class IpcHandlers {
         await dbManager.initialize();
         return true;
       } catch (error) {
-        console.error('데이터베이스 초기화 실패:', error);
+        log.error("Console", '데이터베이스 초기화 실패:', error);
         throw error;
       }
     });
@@ -138,7 +139,7 @@ export class IpcHandlers {
         const prisma = dbManager.getPrisma();
         return { connected: !!prisma };
       } catch (error) {
-        console.error('데이터베이스 상태 확인 실패:', error);
+        log.error("Console", '데이터베이스 상태 확인 실패:', error);
         return { connected: false, error: (error as Error).message };
       }
     });
@@ -155,7 +156,7 @@ export class IpcHandlers {
         await keyboardManager.initialize(); // window 인자 제거
         return true;
       } catch (error) {
-        console.error('키보드 매니저 초기화 실패:', error);
+        log.error("Console", '키보드 매니저 초기화 실패:', error);
         throw error;
       }
     });
@@ -166,7 +167,7 @@ export class IpcHandlers {
         const keyboardManager = KeyboardManager.getInstance();
         return keyboardManager.getCurrentSession();
       } catch (error) {
-        console.error('현재 세션 정보 조회 실패:', error);
+        log.error("Console", '현재 세션 정보 조회 실패:', error);
         throw error;
       }
     });
@@ -178,7 +179,7 @@ export class IpcHandlers {
         // 임시로 간단한 상태 반환
         return { active: true, message: 'Keyboard manager is running' };
       } catch (error) {
-        console.error('세션 정보 조회 실패:', error);
+        log.error("Console", '세션 정보 조회 실패:', error);
         throw error;
       }
     });
@@ -190,7 +191,7 @@ export class IpcHandlers {
         await keyboardManager.cleanup();
         return true;
       } catch (error) {
-        console.error('키보드 매니저 정리 실패:', error);
+        log.error("Console", '키보드 매니저 정리 실패:', error);
         throw error;
       }
     });
@@ -209,7 +210,7 @@ export class IpcHandlers {
         }
         return true;
       } catch (error) {
-        console.error('윈도우 최소화 실패:', error);
+        log.error("Console", '윈도우 최소화 실패:', error);
         throw error;
       }
     });
@@ -227,7 +228,7 @@ export class IpcHandlers {
         }
         return true;
       } catch (error) {
-        console.error('윈도우 최대화/복원 실패:', error);
+        log.error("Console", '윈도우 최대화/복원 실패:', error);
         throw error;
       }
     });
@@ -241,7 +242,7 @@ export class IpcHandlers {
         }
         return true;
       } catch (error) {
-        console.error('윈도우 닫기 실패:', error);
+        log.error("Console", '윈도우 닫기 실패:', error);
         throw error;
       }
     });
@@ -255,7 +256,7 @@ export class IpcHandlers {
         }
         return true;
       } catch (error) {
-        console.error('개발자 도구 토글 실패:', error);
+        log.error("Console", '개발자 도구 토글 실패:', error);
         throw error;
       }
     });
@@ -277,7 +278,7 @@ export class IpcHandlers {
           arch: process.arch,
         };
       } catch (error) {
-        console.error('앱 정보 조회 실패:', error);
+        log.error("Console", '앱 정보 조회 실패:', error);
         throw error;
       }
     });
@@ -288,7 +289,7 @@ export class IpcHandlers {
         app.quit();
         return true;
       } catch (error) {
-        console.error('앱 종료 실패:', error);
+        log.error("Console", '앱 종료 실패:', error);
         throw error;
       }
     });
@@ -300,7 +301,7 @@ export class IpcHandlers {
         app.exit();
         return true;
       } catch (error) {
-        console.error('앱 재시작 실패:', error);
+        log.error("Console", '앱 재시작 실패:', error);
         throw error;
       }
     });
@@ -315,7 +316,7 @@ export class IpcHandlers {
         const result = await dialog.showOpenDialog(window, options);
         return result;
       } catch (error) {
-        console.error('파일 대화상자 열기 실패:', error);
+        log.error("Console", '파일 대화상자 열기 실패:', error);
         throw error;
       }
     });
@@ -330,7 +331,7 @@ export class IpcHandlers {
         const result = await dialog.showSaveDialog(window, options);
         return result;
       } catch (error) {
-        console.error('저장 대화상자 열기 실패:', error);
+        log.error("Console", '저장 대화상자 열기 실패:', error);
         throw error;
       }
     });
@@ -345,9 +346,9 @@ export class IpcHandlers {
       ipcMain.removeAllListeners();
       
       this.isInitialized = false;
-      console.log('✅ IPC 핸들러 정리 완료');
+      log.info("Console", '✅ IPC 핸들러 정리 완료');
     } catch (error) {
-      console.error('❌ IPC 핸들러 정리 실패:', error);
+      log.error("Console", '❌ IPC 핸들러 정리 실패:', error);
     }
   }
 }

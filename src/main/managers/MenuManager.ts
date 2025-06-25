@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 메뉴 매니저 - 모듈화 버전
  * Loop Typing Analytics - Menu Manager
  */
@@ -49,9 +50,9 @@ export class MenuManager {
       this.bindMenuHandlers();
       
       this.isInitialized = true;
-      console.log('🔥 기가차드 메뉴 매니저 초기화 완료');
+      log.info("Console", '🔥 기가차드 메뉴 매니저 초기화 완료');
     } catch (error) {
-      console.error('❌ 메뉴 매니저 초기화 실패:', error);
+      log.error("Console", '❌ 메뉴 매니저 초기화 실패:', error);
     }
   }
 
@@ -68,9 +69,9 @@ export class MenuManager {
       this.applicationMenu = Menu.buildFromTemplate(template);
       Menu.setApplicationMenu(this.applicationMenu);
       
-      console.log('✅ 애플리케이션 메뉴 생성 완료');
+      log.info("Console", '✅ 애플리케이션 메뉴 생성 완료');
     } catch (error) {
-      console.error('❌ 애플리케이션 메뉴 생성 실패:', error);
+      log.error("Console", '❌ 애플리케이션 메뉴 생성 실패:', error);
     }
   }
 
@@ -82,9 +83,9 @@ export class MenuManager {
       const template = getContextMenuTemplate();
       this.contextMenu = Menu.buildFromTemplate(template);
       
-      console.log('✅ 컨텍스트 메뉴 생성 완료');
+      log.info("Console", '✅ 컨텍스트 메뉴 생성 완료');
     } catch (error) {
-      console.error('❌ 컨텍스트 메뉴 생성 실패:', error);
+      log.error("Console", '❌ 컨텍스트 메뉴 생성 실패:', error);
     }
   }
 
@@ -113,7 +114,7 @@ export class MenuManager {
    */
   private bindMenuHandlers(): void {
     // IPC 이벤트 리스너 등록 (필요시)
-    console.log('✅ 메뉴 핸들러 바인딩 완료');
+    log.info("Console", '✅ 메뉴 핸들러 바인딩 완료');
   }
 
   /**
@@ -121,7 +122,7 @@ export class MenuManager {
    */
   showContextMenu(window?: BrowserWindow): void {
     if (!this.contextMenu) {
-      console.warn('⚠️ 컨텍스트 메뉴가 초기화되지 않았습니다');
+      log.warn("Console", '⚠️ 컨텍스트 메뉴가 초기화되지 않았습니다');
       return;
     }
 
@@ -131,7 +132,7 @@ export class MenuManager {
         this.contextMenu.popup({ window: targetWindow });
       }
     } catch (error) {
-      console.error('❌ 컨텍스트 메뉴 표시 실패:', error);
+      log.error("Console", '❌ 컨텍스트 메뉴 표시 실패:', error);
     }
   }
 
@@ -144,9 +145,9 @@ export class MenuManager {
       this.contextMenu = null;
       this.isInitialized = false;
       
-      console.log('✅ 메뉴 매니저 정리 완료');
+      log.info("Console", '✅ 메뉴 매니저 정리 완료');
     } catch (error) {
-      console.error('❌ 메뉴 매니저 정리 실패:', error);
+      log.error("Console", '❌ 메뉴 매니저 정리 실패:', error);
     }
   }
 }

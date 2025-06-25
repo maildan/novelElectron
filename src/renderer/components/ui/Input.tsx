@@ -49,8 +49,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       inputSizes[size],
       {
         'border-red-500 focus:border-red-500 focus:ring-red-500/20': error,
-        'pl-10': leftIcon,
-        'pr-10': rightIcon || loading,
+        'pl-10': !!leftIcon,
+        'pr-10': !!(rightIcon || loading),
       },
       className
     );

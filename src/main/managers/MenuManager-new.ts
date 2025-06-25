@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * Simplified and modularized MenuManager
  * Uses separate modules for menu items and handlers
  */
@@ -51,12 +52,12 @@ export class MenuManager {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.log('⚠️ MenuManager already initialized');
+      log.info("Console", '⚠️ MenuManager already initialized');
       return;
     }
 
     try {
-      console.log('🎯 Initializing MenuManager...');
+      log.info("Console", '🎯 Initializing MenuManager...');
       
       // Setup application menu
       await this.setupApplicationMenu();
@@ -73,9 +74,9 @@ export class MenuManager {
       this.registerMenuHandlers();
 
       this.initialized = true;
-      console.log('✅ MenuManager initialized successfully');
+      log.info("Console", '✅ MenuManager initialized successfully');
     } catch (error) {
-      console.error('❌ MenuManager initialization failed:', error);
+      log.error("Console", '❌ MenuManager initialization failed:', error);
       throw error;
     }
   }
@@ -96,9 +97,9 @@ export class MenuManager {
       this.applicationMenu = Menu.buildFromTemplate(template);
       Menu.setApplicationMenu(this.applicationMenu);
       
-      console.log('✅ Application menu set successfully');
+      log.info("Console", '✅ Application menu set successfully');
     } catch (error) {
-      console.error('❌ Failed to setup application menu:', error);
+      log.error("Console", '❌ Failed to setup application menu:', error);
       throw error;
     }
   }
@@ -111,9 +112,9 @@ export class MenuManager {
       const template = getContextMenuTemplate();
       this.contextMenu = Menu.buildFromTemplate(template);
       
-      console.log('✅ Context menu setup successfully');
+      log.info("Console", '✅ Context menu setup successfully');
     } catch (error) {
-      console.error('❌ Failed to setup context menu:', error);
+      log.error("Console", '❌ Failed to setup context menu:', error);
     }
   }
 
@@ -128,9 +129,9 @@ export class MenuManager {
       this.dockMenu = Menu.buildFromTemplate(template);
       // Note: Dock menu is set when needed, not immediately
       
-      console.log('✅ Dock menu setup successfully');
+      log.info("Console", '✅ Dock menu setup successfully');
     } catch (error) {
-      console.error('❌ Failed to setup dock menu:', error);
+      log.error("Console", '❌ Failed to setup dock menu:', error);
     }
   }
 
@@ -140,7 +141,7 @@ export class MenuManager {
   private registerMenuHandlers(): void {
     // Menu handlers are integrated directly in menu-items.ts
     // This method can be used for additional global menu handling
-    console.log('✅ Menu handlers registered');
+    log.info("Console", '✅ Menu handlers registered');
   }
 
   /**
@@ -148,7 +149,7 @@ export class MenuManager {
    */
   showContextMenu(window?: BrowserWindow, options?: ContextMenuOptions): void {
     if (!this.contextMenu) {
-      console.warn('⚠️ Context menu not initialized');
+      log.warn("Console", '⚠️ Context menu not initialized');
       return;
     }
 
@@ -162,7 +163,7 @@ export class MenuManager {
         });
       }
     } catch (error) {
-      console.error('❌ Failed to show context menu:', error);
+      log.error("Console", '❌ Failed to show context menu:', error);
     }
   }
 
@@ -175,9 +176,9 @@ export class MenuManager {
       this.applicationMenu = Menu.buildFromTemplate(menuTemplate);
       Menu.setApplicationMenu(this.applicationMenu);
       
-      console.log('✅ Application menu updated');
+      log.info("Console", '✅ Application menu updated');
     } catch (error) {
-      console.error('❌ Failed to update application menu:', error);
+      log.error("Console", '❌ Failed to update application menu:', error);
     }
   }
 
@@ -190,9 +191,9 @@ export class MenuManager {
     try {
       const { app } = require('electron');
       app.dock.setMenu(this.dockMenu);
-      console.log('✅ Dock menu set');
+      log.info("Console", '✅ Dock menu set');
     } catch (error) {
-      console.error('❌ Failed to set dock menu:', error);
+      log.error("Console", '❌ Failed to set dock menu:', error);
     }
   }
 
@@ -203,9 +204,9 @@ export class MenuManager {
     try {
       const { app } = require('electron');
       app.addRecentDocument(filePath);
-      console.log('✅ Added recent file:', filePath);
+      log.info("Console", '✅ Added recent file:', filePath);
     } catch (error) {
-      console.error('❌ Failed to add recent file:', error);
+      log.error("Console", '❌ Failed to add recent file:', error);
     }
   }
 
@@ -215,9 +216,9 @@ export class MenuManager {
   clearRecentFiles(): void {
     try {
       MenuHandlers.clearRecentFiles();
-      console.log('✅ Recent files cleared');
+      log.info("Console", '✅ Recent files cleared');
     } catch (error) {
-      console.error('❌ Failed to clear recent files:', error);
+      log.error("Console", '❌ Failed to clear recent files:', error);
     }
   }
 
@@ -246,9 +247,9 @@ export class MenuManager {
       this.dockMenu = null;
       this.initialized = false;
       
-      console.log('✅ MenuManager cleanup completed');
+      log.info("Console", '✅ MenuManager cleanup completed');
     } catch (error) {
-      console.error('❌ MenuManager cleanup failed:', error);
+      log.error("Console", '❌ MenuManager cleanup failed:', error);
     }
   }
 

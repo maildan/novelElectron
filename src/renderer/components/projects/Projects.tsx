@@ -1,8 +1,8 @@
-'use client';
+import { Logger } from "../../../shared/logger";
+const log = Logger;'use client';
 
 import { useState, useEffect } from 'react';
-import { CommonComponentProps } from '@shared/types';
-import type { TypingSession } from '@shared/types';
+import { CommonComponentProps, SessionStats } from '@shared/types';
 import { 
   debugEntry, debugExit, withDebug, transformSessionToProject, 
   getStatusColor as getStatusColorUtil
@@ -34,15 +34,16 @@ export function Projects({ logs, loading }: CommonComponentProps) {
           // #DEBUG: 프로젝트 데이터 로드 시작
           const sessionsData = await window.electronAPI.database.getSessions();
           
-          // 세션 데이터를 프로젝트로 변환
-          const projectsData: ProjectItem[] = sessionsData.slice(0, 5).map((session: TypingSession, index: number) => ({
+          // 세션 데이터를 프로젝트로 변환 - 타입 안전성 보장
+          const sessions = sessionsData as unknown as SessionStats[];
+          const projectsData: ProjectItem[] = sessions.slice(0, 5).map((session: SessionStats, index: number) => ({
             title: `프로젝트 ${index + 1}`,
             description: session.content?.substring(0, 50) + "..." || "타이핑 세션 데이터",
-            progress: Math.min((session.keyCount || 0) / 10, 100),
-            status: session.wpm > 50 ? "진행중" : "초안",
+            progress: Math.min((session.totalKeys || session.keyCount || 0) / 10, 100),
+            status: (session.wpm || 0) > 50 ? "진행중" : "초안",
             lastModified: session.timestamp ? new Date(session.timestamp).toLocaleString() : new Date().toLocaleString(),
-            wordCount: Math.floor((session.keyCount || 0) / 5).toLocaleString(),
-            chapters: Math.ceil((session.keyCount || 0) / 500),
+            wordCount: Math.floor((session.totalKeys || session.keyCount || 0) / 5).toLocaleString(),
+            chapters: Math.ceil((session.totalKeys || 0) / 500),
             genre: session.accuracy > 90 ? "고품질" : "일반",
             starred: session.wpm > 60,
           }));
@@ -51,7 +52,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
           // #DEBUG: 프로젝트 데이터 로드 완료
         }
       } catch (error) {
-        console.error('프로젝트 데이터 로딩 실패:', error);
+        log.error("Console", '프로젝트 데이터 로딩 실패:', error);
         setProjects([]);
       }
     };

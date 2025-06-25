@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 메뉴 핸들러
  * Loop Typing Analytics - Menu Handlers
  */
@@ -33,7 +34,7 @@ export class MenuHandlers {
    */
   static openPreferences(): void {
     // TODO: 환경설정 창 구현
-    console.log('⚙️ 환경설정 열기');
+    log.info("Console", '⚙️ 환경설정 열기');
     
     // 임시로 다이얼로그 표시
     const focusedWindow = BrowserWindow.getFocusedWindow();
@@ -52,7 +53,7 @@ export class MenuHandlers {
    */
   static createNewSession(): void {
     // TODO: 새 세션 생성 구현
-    console.log('🆕 새 세션 생성');
+    log.info("Console", '🆕 새 세션 생성');
     
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
@@ -64,7 +65,7 @@ export class MenuHandlers {
    * 키보드 모니터링 토글
    */
   static toggleKeyboardMonitoring(): void {
-    console.log('⌨️ 키보드 모니터링 토글');
+    log.info("Console", '⌨️ 키보드 모니터링 토글');
     
     const focusedWindow = BrowserWindow.getFocusedWindow();
     if (focusedWindow) {
@@ -92,11 +93,11 @@ export class MenuHandlers {
 
       if (!result.canceled && result.filePath) {
         // TODO: 실제 데이터 내보내기 구현
-        console.log('📤 데이터 내보내기:', result.filePath);
+        log.info("Console", '📤 데이터 내보내기:', result.filePath);
         focusedWindow.webContents.send('menu:export-data', result.filePath);
       }
     } catch (error) {
-      console.error('❌ 데이터 내보내기 실패:', error);
+      log.error("Console", '❌ 데이터 내보내기 실패:', error);
     }
   }
 
@@ -106,9 +107,9 @@ export class MenuHandlers {
   static clearRecentFiles(): void {
     try {
       app.clearRecentDocuments();
-      console.log('✅ 최근 파일 목록 지움');
+      log.info("Console", '✅ 최근 파일 목록 지움');
     } catch (error) {
-      console.error('❌ 최근 파일 지우기 실패:', error);
+      log.error("Console", '❌ 최근 파일 지우기 실패:', error);
     }
   }
 
@@ -120,7 +121,7 @@ export class MenuHandlers {
       app.relaunch();
       app.exit(0);
     } catch (error) {
-      console.error('❌ 앱 재시작 실패:', error);
+      log.error("Console", '❌ 앱 재시작 실패:', error);
     }
   }
 

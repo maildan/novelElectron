@@ -1,4 +1,5 @@
-'use client';
+import { Logger } from "../../../shared/logger";
+const log = Logger;'use client';
 
 import { CommonComponentProps } from '@shared/types';
 import { StatisticsData, WeeklyChartData, ProjectData, ActivityPattern, Goal, Genre } from '@shared/types';
@@ -48,7 +49,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
           setGoals([]);
           setGenres([]);
         } catch (error) {
-          console.error('통계 데이터 로딩 실패:', error);
+          log.error("Console", '통계 데이터 로딩 실패:', error);
         }
       }
     };

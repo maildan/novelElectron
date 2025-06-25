@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 키보드 서비스 - KeyboardEngine 인터페이스
  */
 
@@ -13,14 +14,14 @@ export const registerKeyboardListener = async () => {
     // KeyboardEngine 초기화 확인 및 필요시 초기화
     const status = keyboardEngine.getStatus();
     if (!status.isInitialized) {
-      console.log('KeyboardEngine 초기화 중...');
+      log.info("Console", 'KeyboardEngine 초기화 중...');
       await keyboardEngine.initialize();
     }
     
-    console.log('KeyboardEngine 리스닝 시작...');
+    log.info("Console", 'KeyboardEngine 리스닝 시작...');
     return keyboardEngine.startListening();
   } catch (error) {
-    console.error('키보드 리스너 등록 실패:', error);
+    log.error("Console", '키보드 리스너 등록 실패:', error);
     throw error;
   }
 };
@@ -86,7 +87,7 @@ export const getMonitoringStatus = () => {
       message: status.isListening ? '모니터링 중' : '정지됨'
     };
   } catch (error) {
-    console.error('모니터링 상태 확인 실패:', error);
+    log.error("Console", '모니터링 상태 확인 실패:', error);
     return {
       isActive: false,
       isInitialized: false,

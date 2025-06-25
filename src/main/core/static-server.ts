@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 정적 서버
  * Loop Typing Analytics - Static File Server
  * 
@@ -26,7 +27,7 @@ export class StaticServer {
         const address = this.server?.address();
         if (address && typeof address === 'object') {
           this.port = address.port;
-          console.log(`🌐 기가차드 정적 서버 시작: http://localhost:${this.port}`);
+          log.info("Console", `🌐 기가차드 정적 서버 시작: http://localhost:${this.port}`);
           resolve(this.port);
         } else {
           reject(new Error('서버 주소를 가져올 수 없습니다'));
@@ -34,7 +35,7 @@ export class StaticServer {
       });
 
       this.server.on('error', (error) => {
-        console.error('❌ 정적 서버 에러:', error);
+        log.error("Console", '❌ 정적 서버 에러:', error);
         reject(error);
       });
     });
@@ -85,7 +86,7 @@ export class StaticServer {
       this.serveFile(fullPath, res, mimeType);
 
     } catch (error) {
-      console.error('❌ 요청 처리 에러:', error);
+      log.error("Console", '❌ 요청 처리 에러:', error);
       this.send500(res);
     }
   }
@@ -105,12 +106,12 @@ export class StaticServer {
           const mimeType = this.getMimeType(path.extname(buildPath));
           this.serveFile(buildPath, res, mimeType);
         } else {
-          console.warn(`⚠️ Next.js 리소스를 찾을 수 없음: ${assetPath}`);
+          log.warn("Console", `⚠️ Next.js 리소스를 찾을 수 없음: ${assetPath}`);
           this.send404(res);
         }
       }
     } catch (error) {
-      console.error('❌ Next.js 리소스 처리 에러:', error);
+      log.error("Console", '❌ Next.js 리소스 처리 에러:', error);
       this.send500(res);
     }
   }
@@ -160,7 +161,7 @@ export class StaticServer {
       
       res.end(content);
     } catch (error) {
-      console.error('❌ 파일 서빙 에러:', error);
+      log.error("Console", '❌ 파일 서빙 에러:', error);
       this.send500(res);
     }
   }
@@ -223,7 +224,7 @@ export class StaticServer {
     return new Promise((resolve) => {
       if (this.server) {
         this.server.close(() => {
-          console.log('🛑 기가차드 정적 서버 중지');
+          log.info("Console", '🛑 기가차드 정적 서버 중지');
           resolve();
         });
       } else {

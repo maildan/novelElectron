@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 핸들러 통합 관리자
  * Loop Typing Analytics - Handlers Manager
  * 
@@ -14,11 +15,11 @@ import { DashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
 
 // 간단한 디버그 로깅
 function debugLog(message: string, ...args: unknown[]): void {
-  console.log(`[🔥 HandlersManager] ${message}`, ...args);
+  log.info("Console", `[🔥 HandlersManager] ${message}`, ...args);
 }
 
 function errorLog(message: string, ...args: unknown[]): void {
-  console.error(`[❌ HandlersManager] ${message}`, ...args);
+  log.error("Console", `[❌ HandlersManager] ${message}`, ...args);
 }
 
 // 핸들러 관리 상태

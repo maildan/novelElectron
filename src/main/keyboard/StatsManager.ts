@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 키보드 통계 관리자
  * Advanced Keyboard Statistics Manager with real-time analytics
  */
@@ -181,7 +182,7 @@ export class KeyboardStatsManager extends EventEmitter {
     this.trigramCounts.clear();
     this.keyCounts.clear();
 
-    console.log(`📊 새 타이핑 세션 시작: ${sessionId} (${appName})`);
+    log.info("Console", `📊 새 타이핑 세션 시작: ${sessionId} (${appName})`);
     this.emit('session-started', this.currentSession);
   }
 
@@ -200,7 +201,7 @@ export class KeyboardStatsManager extends EventEmitter {
 
     const finalSession = { ...this.currentSession };
     
-    console.log(`📈 타이핑 세션 종료: ${finalSession.sessionId}`, {
+    log.info("Console", `📈 타이핑 세션 종료: ${finalSession.sessionId}`, {
       duration: `${Math.round(finalSession.duration / 1000)}초`,
       totalKeys: finalSession.totalKeys,
       wpm: finalSession.wpm,
@@ -619,7 +620,7 @@ export class KeyboardStatsManager extends EventEmitter {
     this.trigramCounts.clear();
     this.keyCounts.clear();
     
-    console.log('📊 키보드 통계 리셋 완료');
+    log.info("Console", '📊 키보드 통계 리셋 완료');
     this.emit('stats-reset');
   }
 
@@ -632,7 +633,7 @@ export class KeyboardStatsManager extends EventEmitter {
     }
     this.reset();
     this.removeAllListeners();
-    console.log('🧹 키보드 통계 관리자 정리 완료');
+    log.info("Console", '🧹 키보드 통계 관리자 정리 완료');
   }
 }
 

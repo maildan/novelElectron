@@ -1,4 +1,5 @@
-'use client';
+import { Logger } from "../../shared/logger";
+const log = Logger;'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import type { ElectronAPI } from '@/preload';
@@ -23,11 +24,11 @@ export function useDashboardIpc() {
         return await window.electronAPI.invoke(channel, ...args);
       } else {
         // 웹 환경에서는 mock 데이터 반환
-        console.warn(`IPC call to ${channel} - running in web mode`);
+        log.warn("Console", `IPC call to ${channel} - running in web mode`);
         return { success: false, message: 'IPC not available in web mode' };
       }
     } catch (error) {
-      console.error(`IPC call failed: ${channel}`, error);
+      log.error("Console", `IPC call failed: ${channel}`, error);
       return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
     }
   }, []);
@@ -39,9 +40,9 @@ export function useDashboardIpc() {
       const result = await invokeIpc('dashboard:start-monitoring');
       if (result.success) {
         setIsMonitoringActive(true);
-        console.log('🔥 키보드 모니터링 시작됨');
+        log.info("Console", '🔥 키보드 모니터링 시작됨');
       } else {
-        console.error('모니터링 시작 실패:', result.message);
+        log.error("Console", '모니터링 시작 실패:', result.message);
       }
       return result;
     } finally {
@@ -56,9 +57,9 @@ export function useDashboardIpc() {
       const result = await invokeIpc('dashboard:stop-monitoring');
       if (result.success) {
         setIsMonitoringActive(false);
-        console.log('🛑 키보드 모니터링 중지됨');
+        log.info("Console", '🛑 키보드 모니터링 중지됨');
       } else {
-        console.error('모니터링 중지 실패:', result.message);
+        log.error("Console", '모니터링 중지 실패:', result.message);
       }
       return result;
     } finally {
@@ -100,9 +101,9 @@ export function useDashboardIpc() {
     try {
       const result = await invokeIpc('dashboard:save-typing-log', logData);
       if (result.success) {
-        console.log('✅ 타이핑 로그 저장됨:', result.data);
+        log.info("Console", '✅ 타이핑 로그 저장됨:', result.data);
       } else {
-        console.error('타이핑 로그 저장 실패:', result.message);
+        log.error("Console", '타이핑 로그 저장 실패:', result.message);
       }
       return result;
     } finally {

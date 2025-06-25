@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 - Dashboard 백엔드 연결
  */
 
@@ -245,7 +246,7 @@ export class DashboardIpcHandlers {
       }
     });
 
-    console.log('🔥 Dashboard IPC 핸들러 등록 완료!');
+    log.info("Console", '🔥 Dashboard IPC 핸들러 등록 완료!');
   }
 
   public cleanup(): void {
@@ -261,7 +262,7 @@ export class DashboardIpcHandlers {
       ipcMain.removeAllListeners(channel);
     });
 
-    console.log('🛑 Dashboard IPC 핸들러 정리 완료');
+    log.info("Console", '🛑 Dashboard IPC 핸들러 정리 완료');
   }
 }
 

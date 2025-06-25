@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 시스템 모니터 - 간단 버전
  * Loop Typing Analytics - System Monitor
  */
@@ -52,7 +53,7 @@ export class SystemMonitor extends EventEmitter {
       this.emit('stats', stats);
     }, intervalMs);
 
-    console.log('📊 시스템 모니터링 시작됨');
+    log.info("Console", '📊 시스템 모니터링 시작됨');
   }
 
   /**
@@ -64,7 +65,7 @@ export class SystemMonitor extends EventEmitter {
       this.monitoringInterval = null;
     }
     this.isMonitoring = false;
-    console.log('📊 시스템 모니터링 중지됨');
+    log.info("Console", '📊 시스템 모니터링 중지됨');
   }
 
   /**
@@ -120,6 +121,6 @@ export class SystemMonitor extends EventEmitter {
   cleanup(): void {
     this.stopMonitoring();
     this.removeAllListeners();
-    console.log('🧹 시스템 모니터 정리 완료');
+    log.info("Console", '🧹 시스템 모니터 정리 완료');
   }
 }

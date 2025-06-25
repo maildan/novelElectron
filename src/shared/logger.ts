@@ -8,7 +8,7 @@ import { join } from 'path';
 import { app } from 'electron';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
-export type LogMeta = Record<string, unknown> | string | number | boolean | null;
+export type LogMeta = unknown;
 
 export interface LogEntry {
   timestamp: string;
@@ -180,14 +180,14 @@ export class GigaChadLogger {
   /**
    * Warning 로그
    */
-  public warn(component: string, message: string, meta?: LogMeta): void {
+  public warn(component: string, message: string, meta?: unknown): void {
     this.writeLog('warn', component, message, meta);
   }
 
   /**
    * Error 로그
    */
-  public error(component: string, message: string, meta?: LogMeta): void {
+  public error(component: string, message: string, meta?: unknown): void {
     this.writeLog('error', component, message, meta);
   }
 
@@ -223,13 +223,14 @@ export class GigaChadLogger {
 
 // 싱글톤 인스턴스 내보내기
 export const logger = GigaChadLogger.getInstance();
+export const Logger = GigaChadLogger.getInstance(); // 호환성을 위한 별칭
 
 // 편의 함수들
 export const log = {
   debug: (component: string, message: string, meta?: LogMeta) => logger.debug(component, message, meta),
   info: (component: string, message: string, meta?: LogMeta) => logger.info(component, message, meta),
-  warn: (component: string, message: string, meta?: LogMeta) => logger.warn(component, message, meta),
-  error: (component: string, message: string, meta?: LogMeta) => logger.error(component, message, meta),
+  warn: (component: string, message: string, meta?: unknown) => logger.warn(component, message, meta),
+  error: (component: string, message: string, meta?: unknown) => logger.error(component, message, meta),
   success: (component: string, message: string, meta?: LogMeta) => logger.success(component, message, meta),
   gigachad: (component: string, message: string, meta?: LogMeta) => logger.gigachad(component, message, meta),
 };

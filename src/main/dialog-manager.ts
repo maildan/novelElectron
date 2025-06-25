@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 다이얼로그 매니저 - 돌아가게 버전!
  * Loop Typing Analytics - Dialog Manager
  */
@@ -57,7 +58,7 @@ export class DialogManager {
         checkboxChecked: result.checkboxChecked
       };
     } catch (error) {
-      console.error('🔥 기가차드 다이얼로그 에러:', error);
+      log.error("Console", '🔥 기가차드 다이얼로그 에러:', error);
       throw error;
     }
   }
@@ -85,7 +86,7 @@ export class DialogManager {
 
       return result.canceled ? [] : result.filePaths;
     } catch (error) {
-      console.error('🔥 기가차드 파일 열기 에러:', error);
+      log.error("Console", '🔥 기가차드 파일 열기 에러:', error);
       return [];
     }
   }
@@ -113,7 +114,7 @@ export class DialogManager {
 
       return result.canceled ? null : result.filePath || null;
     } catch (error) {
-      console.error('🔥 기가차드 파일 저장 에러:', error);
+      log.error("Console", '🔥 기가차드 파일 저장 에러:', error);
       return null;
     }
   }
@@ -182,7 +183,7 @@ export class DialogManager {
     try {
       await shell.openExternal(url);
     } catch (error) {
-      console.error('🔥 기가차드 링크 열기 에러:', error);
+      log.error("Console", '🔥 기가차드 링크 열기 에러:', error);
       await this.showError('링크 열기 실패', `링크를 열 수 없습니다: ${url}`);
     }
   }
@@ -194,7 +195,7 @@ export class DialogManager {
     try {
       await shell.openPath(path);
     } catch (error) {
-      console.error('🔥 기가차드 폴더 열기 에러:', error);
+      log.error("Console", '🔥 기가차드 폴더 열기 에러:', error);
       await this.showError('폴더 열기 실패', `폴더를 열 수 없습니다: ${path}`);
     }
   }

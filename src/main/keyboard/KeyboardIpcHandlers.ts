@@ -44,7 +44,9 @@ export class KeyboardIpcHandlers {
       'keyboard-engine:get-permissions': () => keyboardEngine.getPermissionStatus(),
 
       // 설정 관리
-      'keyboard-engine:update-config': (_event: IpcMainInvokeEvent, config: Partial<KeyboardConfig>) => keyboardEngine.updateConfig(config),
+      'keyboard-engine:update-config': (_event: IpcMainInvokeEvent, config: unknown) => {
+        return keyboardEngine.updateConfig(config as Partial<KeyboardConfig>);
+      },
       'keyboard-engine:get-config': () => keyboardEngine.getConfig(),
 
       // 권한 관리

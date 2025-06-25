@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 글로벌 단축키 매니저
  * Loop Typing Analytics - Global Shortcuts Manager
  * 
@@ -44,9 +45,9 @@ export class ShortcutsManager {
     try {
       this.registerDefaultShortcuts();
       this.isInitialized = true;
-      console.log('🔥 기가차드 글로벌 단축키 초기화 완료');
+      log.info("Console", '🔥 기가차드 글로벌 단축키 초기화 완료');
     } catch (error) {
-      console.error('❌ 단축키 매니저 초기화 실패:', error);
+      log.error("Console", '❌ 단축키 매니저 초기화 실패:', error);
       throw error;
     }
   }
@@ -91,20 +92,20 @@ export class ShortcutsManager {
   registerShortcut(key: string, shortcut: ShortcutDefinition): boolean {
     try {
       const success = globalShortcut.register(shortcut.accelerator, () => {
-        console.log(`🔥 글로벌 단축키 실행: ${shortcut.description} (${shortcut.accelerator})`);
+        log.info("Console", `🔥 글로벌 단축키 실행: ${shortcut.description} (${shortcut.accelerator})`);
         shortcut.action();
       });
 
       if (success) {
         this.registeredShortcuts.set(key, shortcut);
-        console.log(`✅ 글로벌 단축키 등록: ${shortcut.accelerator} - ${shortcut.description}`);
+        log.info("Console", `✅ 글로벌 단축키 등록: ${shortcut.accelerator} - ${shortcut.description}`);
         return true;
       } else {
-        console.warn(`⚠️ 글로벌 단축키 등록 실패: ${shortcut.accelerator} (이미 사용 중)`);
+        log.warn("Console", `⚠️ 글로벌 단축키 등록 실패: ${shortcut.accelerator} (이미 사용 중)`);
         return false;
       }
     } catch (error) {
-      console.error(`❌ 글로벌 단축키 등록 에러: ${shortcut.accelerator}`, error);
+      log.error("Console", `❌ 글로벌 단축키 등록 에러: ${shortcut.accelerator}`, error);
       return false;
     }
   }
@@ -121,10 +122,10 @@ export class ShortcutsManager {
     try {
       globalShortcut.unregister(shortcut.accelerator);
       this.registeredShortcuts.delete(key);
-      console.log(`🗑️ 글로벌 단축키 해제: ${shortcut.accelerator}`);
+      log.info("Console", `🗑️ 글로벌 단축키 해제: ${shortcut.accelerator}`);
       return true;
     } catch (error) {
-      console.error(`❌ 글로벌 단축키 해제 에러: ${shortcut.accelerator}`, error);
+      log.error("Console", `❌ 글로벌 단축키 해제 에러: ${shortcut.accelerator}`, error);
       return false;
     }
   }
@@ -160,7 +161,7 @@ export class ShortcutsManager {
         app.focus();
       }
       
-      console.log('🔥 메인 윈도우 포커스됨');
+      log.info("Console", '🔥 메인 윈도우 포커스됨');
     }
   }
 
@@ -191,7 +192,7 @@ export class ShortcutsManager {
         timestamp: Date.now()
       });
       
-      console.log('🚀 빠른 세션 시작됨');
+      log.info("Console", '🚀 빠른 세션 시작됨');
     }
   }
 
@@ -224,7 +225,7 @@ export class ShortcutsManager {
    * 정리 (앱 종료 시 호출)
    */
   cleanup(): void {
-    console.log('🧹 글로벌 단축키 정리 시작...');
+    log.info("Console", '🧹 글로벌 단축키 정리 시작...');
     
     try {
       // 모든 글로벌 단축키 해제
@@ -232,9 +233,9 @@ export class ShortcutsManager {
       this.registeredShortcuts.clear();
       this.isInitialized = false;
       
-      console.log('✅ 글로벌 단축키 정리 완료');
+      log.info("Console", '✅ 글로벌 단축키 정리 완료');
     } catch (error) {
-      console.error('❌ 글로벌 단축키 정리 실패:', error);
+      log.error("Console", '❌ 글로벌 단축키 정리 실패:', error);
     }
   }
 }

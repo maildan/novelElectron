@@ -1,4 +1,5 @@
-/**
+import { Logger } from "../shared/logger";
+const log = Logger;/**
  * 🔥 기가차드 트레이 매니저
  * Loop Typing Analytics - Tray Manager
  */
@@ -34,9 +35,9 @@ export class TrayManager {
       this.setupEventHandlers();
       
       this.isInitialized = true;
-      console.log('🔔 기가차드 트레이 매니저 초기화 완료');
+      log.info("Console", '🔔 기가차드 트레이 매니저 초기화 완료');
     } catch (error) {
-      console.error('❌ 트레이 매니저 초기화 실패:', error);
+      log.error("Console", '❌ 트레이 매니저 초기화 실패:', error);
     }
   }
 
@@ -58,9 +59,9 @@ export class TrayManager {
       // 컨텍스트 메뉴 생성
       this.createContextMenu();
       
-      console.log('✅ 트레이 생성 완료');
+      log.info("Console", '✅ 트레이 생성 완료');
     } catch (error) {
-      console.error('❌ 트레이 생성 실패:', error);
+      log.error("Console", '❌ 트레이 생성 실패:', error);
       throw error;
     }
   }
@@ -149,7 +150,7 @@ export class TrayManager {
       });
     }
 
-    console.log('✅ 트레이 이벤트 핸들러 설정 완료');
+    log.info("Console", '✅ 트레이 이벤트 핸들러 설정 완료');
   }
 
   /**
@@ -294,7 +295,7 @@ export class TrayManager {
       this.createContextMenu();
       
     } catch (error) {
-      console.error('❌ 트레이 상태 업데이트 실패:', error);
+      log.error("Console", '❌ 트레이 상태 업데이트 실패:', error);
     }
   }
 
@@ -311,7 +312,7 @@ export class TrayManager {
         icon: nativeImage.createFromPath(this.getTrayIconPath())
       });
     } catch (error) {
-      console.error('❌ 트레이 알림 표시 실패:', error);
+      log.error("Console", '❌ 트레이 알림 표시 실패:', error);
     }
   }
 
@@ -347,7 +348,7 @@ export class TrayManager {
       }, duration);
       
     } catch (error) {
-      console.error('❌ 트레이 깜빡임 효과 실패:', error);
+      log.error("Console", '❌ 트레이 깜빡임 효과 실패:', error);
     }
   }
 
@@ -364,9 +365,9 @@ export class TrayManager {
       this.mainWindow = null;
       this.isInitialized = false;
       
-      console.log('✅ 트레이 매니저 정리 완료');
+      log.info("Console", '✅ 트레이 매니저 정리 완료');
     } catch (error) {
-      console.error('❌ 트레이 매니저 정리 실패:', error);
+      log.error("Console", '❌ 트레이 매니저 정리 실패:', error);
     }
   }
 }

@@ -12,26 +12,26 @@ export enum LogLevel {
   ERROR = 3
 }
 
-type LogMeta = Record<string, unknown> | string | number | boolean | null;
+type LogMeta = unknown;
 
 interface LogEntry {
   timestamp: number;
   level: LogLevel;
   component: string;
   message: string;
-  meta?: LogMeta;
+  meta?: unknown;
   stack?: string;
 }
 
 export class GigaChadLogger {
   private static instance: GigaChadLogger;
-  private logBuffer: LogEntry[] = [];
-  private logLevel: LogLevel = LogLevel.INFO;
+  private consoleBuffer: LogEntry[] = [];
+  private consoleLevel: LogLevel = LogLevel.INFO;
 
   private constructor() {
     // 개발 환경에서는 DEBUG 레벨
     if (KEYBOARD_CONSTANTS.ENABLE_VERBOSE_LOGGING) {
-      this.logLevel = LogLevel.DEBUG;
+      this.consoleLevel = LogLevel.DEBUG;
     }
   }
 
@@ -46,28 +46,28 @@ export class GigaChadLogger {
    * 🔥 기가차드 정보 로그
    */
   static info(component: string, message: string, meta?: LogMeta): void {
-    const logger = GigaChadLogger.getInstance();
-    logger.log(LogLevel.INFO, component, message, meta);
-    console.log(`🔥 [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
+    const consoleger = GigaChadLogger.getInstance();
+    consoleger.console(LogLevel.INFO, component, message, meta);
+    console.info("Console", `🔥 [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
   }
 
   /**
    * 🔥 기가차드 에러 로그
    */
   static error(component: string, message: string, error?: Error | LogMeta | unknown): void {
-    const logger = GigaChadLogger.getInstance();
+    const consoleger = GigaChadLogger.getInstance();
     const stack = error instanceof Error ? error.stack : undefined;
-    logger.log(LogLevel.ERROR, component, message, error as LogMeta, stack);
-    console.error(`❌ [${new Date().toISOString()}] ${component}: ${message}`, error || '');
+    consoleger.console(LogLevel.ERROR, component, message, error as LogMeta, stack);
+    console.error("Console", `❌ [${new Date().toISOString()}] ${component}: ${message}`, error || '');
   }
 
   /**
    * 🔥 기가차드 경고 로그
    */
-  static warn(component: string, message: string, meta?: LogMeta): void {
-    const logger = GigaChadLogger.getInstance();
-    logger.log(LogLevel.WARN, component, message, meta);
-    console.warn(`⚠️ [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
+  static warn(component: string, message: string, meta?: unknown): void {
+    const consoleger = GigaChadLogger.getInstance();
+    consoleger.console(LogLevel.WARN, component, message, meta);
+    console.warn("Console", `⚠️ [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
   }
 
   /**
@@ -76,16 +76,16 @@ export class GigaChadLogger {
   static debug(component: string, message: string, meta?: LogMeta): void {
     if (!KEYBOARD_CONSTANTS.ENABLE_VERBOSE_LOGGING) return;
     
-    const logger = GigaChadLogger.getInstance();
-    logger.log(LogLevel.DEBUG, component, message, meta);
-    console.log(`🔍 [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
+    const consoleger = GigaChadLogger.getInstance();
+    consoleger.console(LogLevel.DEBUG, component, message, meta);
+    console.info("Console", `🔍 [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
   }
 
   /**
    * 내부 로그 저장
    */
-  private log(level: LogLevel, component: string, message: string, meta?: LogMeta, stack?: string): void {
-    if (level < this.logLevel) return;
+  private console(level: LogLevel, component: string, message: string, meta?: unknown, stack?: string): void {
+    if (level < this.consoleLevel) return;
 
     const entry: LogEntry = {
       timestamp: Date.now(),
@@ -96,11 +96,11 @@ export class GigaChadLogger {
       stack
     };
 
-    this.logBuffer.push(entry);
+    this.consoleBuffer.push(entry);
 
     // 🔥 기가차드 메모리 관리: 로그 버퍼 크기 제한
-    if (this.logBuffer.length > KEYBOARD_CONSTANTS.LOG_BUFFER_SIZE) {
-      this.logBuffer.splice(0, Math.floor(KEYBOARD_CONSTANTS.LOG_BUFFER_SIZE * 0.3));
+    if (this.consoleBuffer.length > KEYBOARD_CONSTANTS.LOG_BUFFER_SIZE) {
+      this.consoleBuffer.splice(0, Math.floor(KEYBOARD_CONSTANTS.LOG_BUFFER_SIZE * 0.3));
     }
   }
 
@@ -108,20 +108,20 @@ export class GigaChadLogger {
    * 최근 로그 가져오기
    */
   getRecentLogs(count: number = 100, level?: LogLevel): LogEntry[] {
-    let logs = this.logBuffer.slice(-count);
+    let consoles = this.consoleBuffer.slice(-count);
     
     if (level !== undefined) {
-      logs = logs.filter(log => log.level >= level);
+      consoles = consoles.filter(console => console.level >= level);
     }
     
-    return logs.sort((a, b) => b.timestamp - a.timestamp);
+    return consoles.sort((a, b) => b.timestamp - a.timestamp);
   }
 
   /**
    * 로그 버퍼 클리어
    */
   clearLogs(): void {
-    this.logBuffer.length = 0;
+    this.consoleBuffer.length = 0;
     GigaChadLogger.info('Logger', '🧹 로그 버퍼가 클리어되었습니다');
   }
 
@@ -129,7 +129,7 @@ export class GigaChadLogger {
    * 로그 레벨 설정
    */
   setLogLevel(level: LogLevel): void {
-    this.logLevel = level;
+    this.consoleLevel = level;
     GigaChadLogger.info('Logger', `로그 레벨이 ${LogLevel[level]}로 설정되었습니다`);
   }
 
@@ -155,7 +155,7 @@ export class GigaChadLogger {
 }
 
 // 🔥 기가차드 편의 함수들
-export const logger = {
+export const consoleger = {
   info: GigaChadLogger.info,
   error: GigaChadLogger.error,
   warn: GigaChadLogger.warn,
@@ -163,3 +163,6 @@ export const logger = {
   startTimer: GigaChadLogger.startTimer,
   endTimer: GigaChadLogger.endTimer
 };
+
+export const Logger = GigaChadLogger;
+export default GigaChadLogger;
