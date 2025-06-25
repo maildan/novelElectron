@@ -30,18 +30,39 @@ export async function setupSecurity(): Promise<void> {
 }
 
 /**
- * Content Security Policy 설정
+ * Content Security Policy 설정 (Next.js 15 + Turbopack 호환)
  */
 function setupContentSecurityPolicy(): void {
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    // Turbopack과 Next.js 15 호환 CSP 설정
+    const devCSP = [
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:* wss://localhost:* data: blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* https://localhost:*",
+      "style-src 'self' 'unsafe-inline' http://localhost:* https://localhost:*",
+      "connect-src 'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:*",
+      "worker-src 'self' blob:",
+      "child-src 'self'",
+      "img-src 'self' data: blob: http://localhost:* https://localhost:*",
+      "font-src 'self' data:",
+      "media-src 'self' data:"
+    ].join('; ');
+
+    const prodCSP = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "connect-src 'self'",
+      "worker-src 'self' blob:",
+      "child-src 'self'",
+      "img-src 'self' data: blob:",
+      "font-src 'self' data:",
+      "media-src 'self' data:"
+    ].join('; ');
+
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [
-          isDev 
-            ? "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5500 ws://localhost:5500"
-            : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-        ]
+        'Content-Security-Policy': [isDev ? devCSP : prodCSP]
       }
     });
   });
@@ -109,28 +130,46 @@ function setupNetworkSecurity(): void {
 }
 
 /**
- * 개발 환경 보안 설정
+ * 개발 환경 보안 설정 (Next.js 15 + Turbopack)
  */
 function setupDevelopmentSecurity(): void {
-  console.log('🔧 개발 환경 보안 설정 적용');
+  console.log('🔧 개발 환경 보안 설정 적용 (Next.js 15 + Turbopack)');
   
   // DevTools 접근 허용
   session.defaultSession.setPermissionCheckHandler(() => true);
   
-  // 개발 서버 CORS 허용
+  // Turbopack HMR 및 개발 서버 CORS 허용
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    if (details.url.includes('localhost:5500')) {
+    const url = details.url;
+    const isDevServer = url.includes('localhost:') || url.includes('127.0.0.1:');
+    const isTurbopack = url.includes('_next/') || url.includes('__turbopack');
+    
+    if (isDevServer || isTurbopack) {
       callback({
         responseHeaders: {
           ...details.responseHeaders,
           'Access-Control-Allow-Origin': ['*'],
           'Access-Control-Allow-Methods': ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-          'Access-Control-Allow-Headers': ['Content-Type', 'Authorization']
+          'Access-Control-Allow-Headers': ['Content-Type', 'Authorization', 'X-Requested-With'],
+          'Access-Control-Allow-Credentials': ['true']
         }
       });
     } else {
       callback({});
     }
+  });
+
+  // Turbopack 웹소켓 연결 허용
+  session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+    const url = details.url;
+    const isWebSocket = url.startsWith('ws://') || url.startsWith('wss://');
+    const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
+    
+    if (isWebSocket && isLocalhost) {
+      console.log('🔌 Turbopack HMR 웹소켓 연결 허용:', url);
+    }
+    
+    callback({});
   });
 }
 

@@ -59,6 +59,12 @@ export class StaticServer {
         return;
       }
 
+      // Next.js 15 정적 리소스 처리
+      if (filePath.startsWith('/_next/') || filePath.startsWith('/static/')) {
+        this.handleNextJsAssets(filePath, res);
+        return;
+      }
+
       // 정적 파일 경로 생성
       const fullPath = path.join(this.staticPath, filePath);
 
@@ -80,6 +86,31 @@ export class StaticServer {
 
     } catch (error) {
       console.error('❌ 요청 처리 에러:', error);
+      this.send500(res);
+    }
+  }
+
+  private handleNextJsAssets(assetPath: string, res: http.ServerResponse): void {
+    try {
+      // Next.js 15 정적 리소스 경로 처리
+      const fullPath = path.join(this.staticPath, assetPath);
+      
+      if (fs.existsSync(fullPath)) {
+        const mimeType = this.getMimeType(path.extname(fullPath));
+        this.serveFile(fullPath, res, mimeType);
+      } else {
+        // Next.js 빌드 디렉토리에서 찾아보기
+        const buildPath = path.join(this.staticPath, '.next', assetPath.replace('/_next/', ''));
+        if (fs.existsSync(buildPath)) {
+          const mimeType = this.getMimeType(path.extname(buildPath));
+          this.serveFile(buildPath, res, mimeType);
+        } else {
+          console.warn(`⚠️ Next.js 리소스를 찾을 수 없음: ${assetPath}`);
+          this.send404(res);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Next.js 리소스 처리 에러:', error);
       this.send500(res);
     }
   }
@@ -138,17 +169,25 @@ export class StaticServer {
     const mimeTypes: { [key: string]: string } = {
       '.html': 'text/html',
       '.js': 'application/javascript',
+      '.mjs': 'application/javascript',
+      '.ts': 'application/javascript',
       '.css': 'text/css',
       '.json': 'application/json',
       '.png': 'image/png',
       '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
       '.gif': 'image/gif',
       '.svg': 'image/svg+xml',
       '.ico': 'image/x-icon',
       '.woff': 'font/woff',
       '.woff2': 'font/woff2',
       '.ttf': 'font/ttf',
-      '.eot': 'application/vnd.ms-fontobject'
+      '.eot': 'application/vnd.ms-fontobject',
+      '.webp': 'image/webp',
+      '.avif': 'image/avif',
+      '.map': 'application/json',
+      '.txt': 'text/plain',
+      '.md': 'text/markdown'
     };
 
     return mimeTypes[ext.toLowerCase()] || 'application/octet-stream';

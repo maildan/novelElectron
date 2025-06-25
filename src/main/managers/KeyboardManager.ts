@@ -24,6 +24,7 @@ export class KeyboardManager {
   private databaseManager: DatabaseManager | null = null;
   private currentSession: ActiveSession | null = null;
   private sessionTimeout: NodeJS.Timeout | null = null;
+  private hasWarnedAboutPermissions: boolean = false; // 🔥 기가차드 권한 경고 플래그
 
   private constructor() {}
 
@@ -134,7 +135,29 @@ export class KeyboardManager {
         };
       }
     } catch (error) {
-      console.error('❌ 활성 윈도우 정보 가져오기 실패:', error);
+      // 🔥 기가차드 스타일: 권한 에러는 조용히 처리
+      const errorMessage = (error as Error).message || '';
+      
+      if (errorMessage.includes('screen recording permission') || 
+          errorMessage.includes('Privacy & Security') ||
+          errorMessage.includes('permission') ||
+          errorMessage.includes('denied')) {
+        // 권한 에러는 한 번만 알리고 조용히
+        if (!this.hasWarnedAboutPermissions) {
+          console.warn('⚠️ 기가차드: macOS Screen Recording 권한이 필요합니다. 시스템 설정 > 개인정보 보호 및 보안 > 화면 녹화에서 허용해주세요.');
+          this.hasWarnedAboutPermissions = true;
+          
+          // 🔥 기가차드식 대안: 메인 윈도우를 통해 알림
+          if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+            this.mainWindow.webContents.send('screen-permission-needed', {
+              message: 'Screen Recording 권한이 필요합니다.',
+              action: 'open-privacy-settings'
+            });
+          }
+        }
+      } else {
+        console.error('❌ 활성 윈도우 정보 가져오기 실패:', error);
+      }
     }
 
     return {

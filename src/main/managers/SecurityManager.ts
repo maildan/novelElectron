@@ -50,18 +50,18 @@ export class SecurityManager {
       
       const cspPolicy = isDev 
         ? [
-            // 개발 환경: HMR과 DevTools를 위한 설정
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5500 ws://localhost:5500 data: blob:;",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5500;",
-            "style-src 'self' 'unsafe-inline' http://localhost:5500;",
-            "connect-src 'self' http://localhost:5500 ws://localhost:5500;",
-            "img-src 'self' data: blob: http://localhost:5500;",
-            "font-src 'self' data:;"
+            // 🔥 기가차드 개발 환경: 모든 인라인 허용!
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:* data: blob:;",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* blob:;",
+            "style-src 'self' 'unsafe-inline' http://localhost:*;",
+            "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*;",
+            "img-src 'self' data: blob: http://localhost:*;",
+            "font-src 'self' data: http://localhost:*;"
           ].join(' ')
         : [
-            // 프로덕션 환경: 보안 강화
-            "default-src 'self';",
-            "script-src 'self';",
+            // 프로덕션 환경: 보안 강화하되 인라인 허용
+            "default-src 'self' 'unsafe-inline';",
+            "script-src 'self' 'unsafe-inline';",
             "style-src 'self' 'unsafe-inline';",
             "connect-src 'self';",
             "img-src 'self' data: blob:;",

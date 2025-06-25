@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Electron과 통합을 위한 설정
+  // 🔥 기가차드 Electron + Next.js 15 + Turbopack 통합!
   output: 'export',
   distDir: 'out',
   trailingSlash: true,
@@ -8,17 +8,12 @@ const nextConfig = {
     unoptimized: true
   },
   
-  // 개발 환경 설정
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.target = 'electron-renderer'
+  // 🔥 Turbopack stable 설정!
+  turbopack: {
+    resolveAlias: {
+      'global': 'globalThis',
+      'process': 'process/browser'
     }
-    return config
-  },
-
-  // 실험적 기능
-  experimental: {
-    esmExternals: false
   }
 }
 
