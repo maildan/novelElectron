@@ -1,5 +1,8 @@
-import { Logger } from "../shared/logger";
-const log = Logger;import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+// Logger는 preload에서 사용하지 않음 (보안상 이유)
+// import { Logger } from "@shared/logger";
+// const log = Logger;
+
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { 
   LoopKeyboardEvent, 
   SessionStats, 
@@ -196,4 +199,4 @@ const electronAPI: ElectronAPI = {
 // Context Bridge로 안전하게 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-log.info("Console", '� 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');
+console.log('🔥 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');

@@ -9,6 +9,21 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
+
+  // 🔥 CSP 보안 헤더 추가 (Electron 환경 최적화)
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws://localhost:* http://localhost:*; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;"
+          }
+        ]
+      }
+    ];
+  },
   
   // 🔥 핫리로드 지옥 방지! - 기가차드 업그레이드
   webpack: (config, { dev }) => {
@@ -16,8 +31,8 @@ const nextConfig = {
       // 파일 변경 감지 최적화
       config.watchOptions = {
         ...config.watchOptions,
-        poll: 3000, // 3초마다 폴링 (더 느리게 해서 CPU 절약)
-        aggregateTimeout: 1500, // 1.5초 지연 (무한 리컴파일 방지)
+        poll: 5000, // 5초마다 폴링 (더 느리게 해서 CPU 절약)
+        aggregateTimeout: 2000, // 2초 지연 (무한 리컴파일 방지)
         ignored: [
           /node_modules/,
           /\.git/,
@@ -31,7 +46,10 @@ const nextConfig = {
           /prisma/,
           /userData/,
           /backup/,
-          /scripts/
+          /scripts/,
+          /docs/,
+          /\.md$/,
+          /\.json$/
         ]
       };
       

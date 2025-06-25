@@ -31,7 +31,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../../preload/index.js'),
       webSecurity: true,
       allowRunningInsecureContent: false,
       experimentalFeatures: false
@@ -41,7 +41,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     frame: true, // OS 네이티브 프레임 사용
     autoHideMenuBar: false, // 메뉴바 표시
-    icon: join(__dirname, '../../public/icon.png')
+    icon: join(__dirname, '../../public/appIcon.png')
   };
 
   const mainWindow = new BrowserWindow(windowOptions);

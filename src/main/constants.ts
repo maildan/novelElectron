@@ -35,7 +35,7 @@ export const SETTINGS_PATH = path.join(USER_DATA_PATH, 'settings.json');
 // Preload path - works in both dev and production
 export const PRELOAD_PATH = IS_PACKAGED 
   ? path.join(process.resourcesPath, 'app.asar', 'dist', 'preload', 'index.js')
-  : path.join(__dirname, '..', 'preload', 'index.js');
+  : path.join(__dirname, '..', '..', 'preload', 'index.js');
 
 // ========================
 // WINDOW CONFIGURATION
