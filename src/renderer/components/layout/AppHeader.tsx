@@ -19,6 +19,11 @@ interface VersionInfo {
   platform: string;
 }
 
+interface MonitoringStatus {
+  isActive: boolean;
+  message?: string;
+}
+
 export function AppHeader({ 
   onMenuToggle,
   showMonitoring = true 
@@ -71,7 +76,7 @@ export function AppHeader({
     checkMonitoringStatus();
 
     // 실시간 모니터링 상태 업데이트 리스너
-    const handleMonitoringUpdate = (status: any) => {
+    const handleMonitoringUpdate = (status: MonitoringStatus) => {
       setIsMonitoring(status.isActive);
       setMonitoringStatus(status.isActive ? '모니터링 중' : '정지됨');
     };

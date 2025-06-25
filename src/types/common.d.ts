@@ -76,6 +76,14 @@ declare module '@shared/common' {
     executionTime: number;
     functionName: string;
   }
+
+  // 벤치마크 메트릭 타입
+  export interface BenchmarkMetrics {
+    operationsPerSecond: number;
+    memoryUsage: number;
+    executionTime: number;
+    functionName: string;
+  }
 }
 
 // 전역 윈도우 타입 확장
@@ -83,7 +91,7 @@ declare global {
   interface Window {
     // 디버그용 전역 함수
     __GIGACHAD_DEBUG__?: {
-      benchmark: <T>(fn: () => T, name: string) => { result: T; metrics: any };
+      benchmark: <T>(fn: () => T, name: string) => { result: T; metrics: BenchmarkMetrics };
       memoryUsage: () => number;
       logPerformance: (operation: string) => void;
     };

@@ -15,11 +15,32 @@ import {
   FileText
 } from 'lucide-react';
 
+// #DEBUG: 프로젝트 관련 타입 정의
+interface ProjectItem {
+  title: string;
+  description: string;
+  progress: number;
+  status: string;
+  lastModified: string;
+  wordCount: string;
+  chapters: number;
+  genre: string;
+  starred: boolean;
+}
+
+interface SessionData {
+  content?: string;
+  keyCount: number;
+  timestamp: string;
+  wpm: number;
+  accuracy: number;
+}
+
 export function Projects({ logs, loading }: CommonComponentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   // 🔥 실제 데이터 상태 관리 - 더미 데이터 박멸
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
 
   // 🔥 실제 프로젝트 데이터 로드
   useEffect(() => {
@@ -30,7 +51,7 @@ export function Projects({ logs, loading }: CommonComponentProps) {
           const sessionsData = await window.electronAPI.database.getSessions();
           
           // 세션 데이터를 프로젝트로 변환
-          const projectsData = sessionsData.slice(0, 5).map((session: any, index: number) => ({
+          const projectsData = sessionsData.slice(0, 5).map((session: SessionData, index: number) => ({
             title: `프로젝트 ${index + 1}`,
             description: session.content?.substring(0, 50) + "..." || "타이핑 세션 데이터",
             progress: Math.min((session.keyCount || 0) / 10, 100),

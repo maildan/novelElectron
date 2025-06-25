@@ -1,7 +1,17 @@
-// import type { Config } from 'tailwindcss'
-type Config = any;
+// 🔥 기가차드 Tailwind 설정 - any 박살내기
+interface TailwindConfig {
+  content: string[];
+  theme: {
+    extend: {
+      colors: Record<string, Record<string | number, string>>;
+      fontFamily: Record<string, string[]>;
+      animation: Record<string, string>;
+    };
+  };
+  plugins: unknown[];
+}
 
-const config: Config = {
+const config: TailwindConfig = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',

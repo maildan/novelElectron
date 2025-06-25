@@ -8,13 +8,14 @@ import { join } from 'path';
 import { app } from 'electron';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
+export type LogMeta = Record<string, unknown> | string | number | boolean | null;
 
 export interface LogEntry {
   timestamp: string;
   level: LogLevel;
   component: string;
   message: string;
-  meta?: any;
+  meta?: LogMeta;
 }
 
 /**
@@ -85,7 +86,7 @@ export class GigaChadLogger {
   /**
    * 로그 출력
    */
-  private writeLog(level: LogLevel, component: string, message: string, meta?: any): void {
+  private writeLog(level: LogLevel, component: string, message: string, meta?: LogMeta): void {
     if (!this.shouldLog(level)) return;
 
     const timestamp = new Date().toISOString();
@@ -165,42 +166,42 @@ export class GigaChadLogger {
   /**
    * Debug 로그
    */
-  public debug(component: string, message: string, meta?: any): void {
+  public debug(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('debug', component, message, meta);
   }
 
   /**
    * Info 로그
    */
-  public info(component: string, message: string, meta?: any): void {
+  public info(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('info', component, message, meta);
   }
 
   /**
    * Warning 로그
    */
-  public warn(component: string, message: string, meta?: any): void {
+  public warn(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('warn', component, message, meta);
   }
 
   /**
    * Error 로그
    */
-  public error(component: string, message: string, meta?: any): void {
+  public error(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('error', component, message, meta);
   }
 
   /**
    * Success 로그
    */
-  public success(component: string, message: string, meta?: any): void {
+  public success(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('success', component, message, meta);
   }
 
   /**
    * 기가차드 스타일 시작 로그
    */
-  public gigachad(component: string, message: string, meta?: any): void {
+  public gigachad(component: string, message: string, meta?: LogMeta): void {
     this.writeLog('success', component, `🔥 ${message}`, meta);
   }
 
@@ -225,12 +226,12 @@ export const logger = GigaChadLogger.getInstance();
 
 // 편의 함수들
 export const log = {
-  debug: (component: string, message: string, meta?: any) => logger.debug(component, message, meta),
-  info: (component: string, message: string, meta?: any) => logger.info(component, message, meta),
-  warn: (component: string, message: string, meta?: any) => logger.warn(component, message, meta),
-  error: (component: string, message: string, meta?: any) => logger.error(component, message, meta),
-  success: (component: string, message: string, meta?: any) => logger.success(component, message, meta),
-  gigachad: (component: string, message: string, meta?: any) => logger.gigachad(component, message, meta),
+  debug: (component: string, message: string, meta?: LogMeta) => logger.debug(component, message, meta),
+  info: (component: string, message: string, meta?: LogMeta) => logger.info(component, message, meta),
+  warn: (component: string, message: string, meta?: LogMeta) => logger.warn(component, message, meta),
+  error: (component: string, message: string, meta?: LogMeta) => logger.error(component, message, meta),
+  success: (component: string, message: string, meta?: LogMeta) => logger.success(component, message, meta),
+  gigachad: (component: string, message: string, meta?: LogMeta) => logger.gigachad(component, message, meta),
 };
 
 // 기본 로거 설정

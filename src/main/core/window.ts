@@ -7,7 +7,6 @@ import { BrowserWindow, screen } from 'electron';
 import { join } from 'path';
 import { isDev } from '../utils/environment';
 import { log } from '../../shared/logger';
-import { PRELOAD_PATH } from '../constants';
 
 /**
  * 메인 윈도우 생성
@@ -31,7 +30,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: PRELOAD_PATH,
+      preload: join(__dirname, '../preload/index.js'),
       webSecurity: true,
       allowRunningInsecureContent: false,
       experimentalFeatures: false

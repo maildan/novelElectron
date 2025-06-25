@@ -231,7 +231,7 @@ export class SettingsManager {
     });
 
     // 특정 설정 업데이트
-    ipcMain.handle('update-setting', async (event, key: keyof AppSettings, value: any) => {
+    ipcMain.handle('update-setting', async (event, key: keyof AppSettings, value: AppSettings[keyof AppSettings]) => {
       return await this.updateSetting(key, value);
     });
 
@@ -250,7 +250,7 @@ export class SettingsManager {
     });
 
     // 설정 가져오기
-    ipcMain.handle('import-settings', async (event, importData: any) => {
+    ipcMain.handle('import-settings', async (event, importData: { settings?: Partial<AppSettings>; timestamp?: string; version?: string }) => {
       try {
         if (importData && importData.settings) {
           await this.updateSettings(importData.settings);

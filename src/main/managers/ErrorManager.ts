@@ -68,7 +68,7 @@ export class ErrorManager {
     });
 
     // 처리되지 않은 Promise 거부
-    process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
       const error = reason instanceof Error ? reason : new Error(String(reason));
       console.error('💥 처리되지 않은 Promise 거부:', error);
       this.logError(error, 'unhandledRejection');
@@ -131,7 +131,7 @@ export class ErrorManager {
         // 윈도우가 없으면 새로 생성 (WindowManager 사용)
         console.log('🪟 새 윈도우 생성 시도');
         // 여기서는 직접 생성하지 않고 AppLifecycle에서 처리하도록 이벤트 발생
-        app.emit('window-recovery-needed' as any);
+        app.emit('window-recovery-needed' as keyof Electron.App);
       }
     } catch (recoveryError) {
       console.error('❌ 윈도우 복구 실패:', recoveryError);

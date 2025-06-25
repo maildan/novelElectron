@@ -6,7 +6,7 @@
 export type ClassValue = string | number | boolean | undefined | null | ClassArray | ClassDictionary;
 export interface ClassArray extends Array<ClassValue> {}
 export interface ClassDictionary {
-  [key: string]: any;
+  [key: string]: boolean | undefined | null;
 }
 
 /**
@@ -88,7 +88,7 @@ export function conditional(condition: boolean, trueClass: string, falseClass?: 
 /**
  * 변형(variant) 기반 클래스명 생성
  */
-export function variant<T extends Record<string, any>>(
+export function variant<T extends Record<string, string>>(
   variants: T,
   selected: keyof T,
   base?: string

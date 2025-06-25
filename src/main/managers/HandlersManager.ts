@@ -12,7 +12,7 @@ import type { IpcHandlerFunction } from '@shared/types';
 
 export interface HandlerInfo {
   channel: string;
-  handler: IpcHandlerFunction<any, any>;
+  handler: IpcHandlerFunction<unknown, unknown>;
   registered: boolean;
   registeredAt: number;
 }
@@ -220,7 +220,7 @@ export class HandlersManager {
   /**
    * 핸들러 등록
    */
-  private registerHandler<T = any, R = any>(
+  private registerHandler<T = unknown, R = unknown>(
     channel: string, 
     handler: (event: IpcMainInvokeEvent, ...args: T[]) => Promise<R>
   ): void {
@@ -229,7 +229,7 @@ export class HandlersManager {
       
       this.handlers.set(channel, {
         channel,
-        handler: handler as IpcHandlerFunction<any, any>,
+        handler: handler as IpcHandlerFunction<unknown, unknown>,
         registered: true,
         registeredAt: Date.now()
       });

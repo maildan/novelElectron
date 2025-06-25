@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElectronAPI } from '@/preload';
 
-export interface IpcResponse<T = any> {
+export interface IpcResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -14,9 +14,9 @@ export function useDashboardIpc() {
   const [loading, setLoading] = useState(false);
 
   // IPC 호출 헬퍼
-  const invokeIpc = useCallback(async <T = any>(
+  const invokeIpc = useCallback(async <T = unknown>(
     channel: string, 
-    ...args: any[]
+    ...args: unknown[]
   ): Promise<IpcResponse<T>> => {
     try {
       if (typeof window !== 'undefined' && window.electronAPI) {

@@ -24,6 +24,18 @@ interface UseLoopDataReturn {
   clearError: () => void;
 }
 
+// #DEBUG: 데이터베이스 세션 타입 정의
+interface DatabaseSession {
+  id: string;
+  content?: string;
+  keyCount: number;
+  duration: number;
+  createdAt: string;
+  totalChars?: number;
+  wpm?: number;
+  accuracy?: number;
+}
+
 /**
  * 🔥 기가차드 Loop 데이터 관리 훅
  * - 더미 데이터 제거
@@ -52,7 +64,7 @@ export function useLoopData(): UseLoopDataReturn {
           const sessions = await window.electronAPI.database.getSessions();
           
           // Session 데이터를 Log 형식으로 변환
-          const convertedLogs: Log[] = sessions.map((session: any, index: number) => ({
+          const convertedLogs: Log[] = sessions.map((session: DatabaseSession, index: number) => ({
             id: session.id || `session-${Date.now()}-${index}`,
             content: session.content || `타이핑 세션 ${index + 1}`,
             keyCount: session.keyCount || 0,
@@ -119,9 +131,9 @@ export function useLoopData(): UseLoopDataReturn {
           const sessions = await window.electronAPI.database.getSessions();
           
           if (sessions && sessions.length > 0) {
-            const totalKeys = sessions.reduce((sum: number, session: any) => sum + (session.keyCount || 0), 0);
-            const totalTime = sessions.reduce((sum: number, session: any) => sum + (session.duration || 0), 0);
-            const totalChars = sessions.reduce((sum: number, session: any) => sum + (session.totalChars || 0), 0);
+            const totalKeys = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.keyCount || 0), 0);
+            const totalTime = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.duration || 0), 0);
+            const totalChars = sessions.reduce((sum: number, session: DatabaseSession) => sum + (session.totalChars || 0), 0);
             
             // WPM 계산 (분당 단어수 = 글자수 / 5 / 분)
             const wpm = totalTime > 0 ? Math.round((totalChars / 5) / (totalTime / 60000)) : 0;
@@ -130,98 +142,34 @@ export function useLoopData(): UseLoopDataReturn {
             const accuracy = totalKeys > 0 ? Math.min(95, Math.max(70, 100 - (totalKeys - totalChars) / totalKeys * 100)) : 0;
             
             setTypingStats({
-              sessionId: 'current-session',
-              startTime: Date.now(),
-              duration: totalTime,
-              totalKeys: totalKeys,
-              charactersTyped: totalChars,
-              wordsTyped: Math.floor(totalChars / 5),
               wpm: wpm,
-              cpm: totalChars * (60000 / totalTime),
-              kps: totalKeys / (totalTime / 1000),
               accuracy: Number(accuracy.toFixed(1)),
-              errorCount: Math.max(0, totalKeys - totalChars),
-              backspaceCount: 0,
-              averageKeyInterval: totalTime / Math.max(1, totalKeys),
-              keyIntervalVariance: 0,
-              burstTypingSegments: 0,
-              pauseCount: 0,
-              appName: 'Loop',
-              language: 'ko-KR',
-              hourlyDistribution: new Array(24).fill(0),
+              totalKeys: totalKeys,
               totalTime: totalTime
             });
           } else {
             // 세션이 없으면 기본값
             setTypingStats({
-              sessionId: 'empty-session',
-              startTime: Date.now(),
-              duration: 0,
-              totalKeys: 0,
-              charactersTyped: 0,
-              wordsTyped: 0,
               wpm: 0,
-              cpm: 0,
-              kps: 0,
               accuracy: 0,
-              errorCount: 0,
-              backspaceCount: 0,
-              averageKeyInterval: 0,
-              keyIntervalVariance: 0,
-              burstTypingSegments: 0,
-              pauseCount: 0,
-              appName: 'Loop',
-              language: 'ko-KR',
-              hourlyDistribution: new Array(24).fill(0),
+              totalKeys: 0,
               totalTime: 0
             });
           }
         } catch (ipcError) {
           console.warn('타이핑 통계 로딩 실패:', ipcError);
           setTypingStats({
-            sessionId: 'error-session',
-            startTime: Date.now(),
-            duration: 0,
-            totalKeys: 0,
-            charactersTyped: 0,
-            wordsTyped: 0,
             wpm: 0,
-            cpm: 0,
-            kps: 0,
             accuracy: 0,
-            errorCount: 0,
-            backspaceCount: 0,
-            averageKeyInterval: 0,
-            keyIntervalVariance: 0,
-            burstTypingSegments: 0,
-            pauseCount: 0,
-            appName: 'Loop',
-            language: 'ko-KR',
-            hourlyDistribution: new Array(24).fill(0),
+            totalKeys: 0,
             totalTime: 0
           });
         }
       } else {
         setTypingStats({
-          sessionId: 'no-api-session',
-          startTime: Date.now(),
-          duration: 0,
-          totalKeys: 0,
-          charactersTyped: 0,
-          wordsTyped: 0,
           wpm: 0,
-          cpm: 0,
-          kps: 0,
           accuracy: 0,
-          errorCount: 0,
-          backspaceCount: 0,
-          averageKeyInterval: 0,
-          keyIntervalVariance: 0,
-          burstTypingSegments: 0,
-          pauseCount: 0,
-          appName: 'Loop',
-          language: 'ko-KR',
-          hourlyDistribution: new Array(24).fill(0),
+          totalKeys: 0,
           totalTime: 0
         });
       }

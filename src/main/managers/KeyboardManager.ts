@@ -41,7 +41,7 @@ export class KeyboardManager {
   /**
    * 상태 확인
    */
-  getStatus(): any {
+  getStatus(): Record<string, unknown> {
     return keyboardEngine.getStatus();
   }
 
@@ -55,14 +55,14 @@ export class KeyboardManager {
   /**
    * 현재 세션 정보 가져오기
    */
-  getCurrentSession(): any {
+  getCurrentSession(): Record<string, unknown> {
     return keyboardEngine.getSessionData();
   }
 
   /**
    * 세션 통계 정보 가져오기
    */
-  getSessionStats(): any {
+  getSessionStats(): Record<string, unknown> {
     return keyboardEngine.getSessionData();
   }
 }

@@ -12,12 +12,14 @@ export enum LogLevel {
   ERROR = 3
 }
 
+type LogMeta = Record<string, unknown> | string | number | boolean | null;
+
 interface LogEntry {
   timestamp: number;
   level: LogLevel;
   component: string;
   message: string;
-  meta?: any;
+  meta?: LogMeta;
   stack?: string;
 }
 
@@ -43,7 +45,7 @@ export class GigaChadLogger {
   /**
    * 🔥 기가차드 정보 로그
    */
-  static info(component: string, message: string, meta?: any): void {
+  static info(component: string, message: string, meta?: LogMeta): void {
     const logger = GigaChadLogger.getInstance();
     logger.log(LogLevel.INFO, component, message, meta);
     console.log(`🔥 [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
@@ -52,17 +54,17 @@ export class GigaChadLogger {
   /**
    * 🔥 기가차드 에러 로그
    */
-  static error(component: string, message: string, error?: Error | any): void {
+  static error(component: string, message: string, error?: Error | LogMeta | unknown): void {
     const logger = GigaChadLogger.getInstance();
     const stack = error instanceof Error ? error.stack : undefined;
-    logger.log(LogLevel.ERROR, component, message, error, stack);
+    logger.log(LogLevel.ERROR, component, message, error as LogMeta, stack);
     console.error(`❌ [${new Date().toISOString()}] ${component}: ${message}`, error || '');
   }
 
   /**
    * 🔥 기가차드 경고 로그
    */
-  static warn(component: string, message: string, meta?: any): void {
+  static warn(component: string, message: string, meta?: LogMeta): void {
     const logger = GigaChadLogger.getInstance();
     logger.log(LogLevel.WARN, component, message, meta);
     console.warn(`⚠️ [${new Date().toISOString()}] ${component}: ${message}`, meta || '');
@@ -71,7 +73,7 @@ export class GigaChadLogger {
   /**
    * 🔥 기가차드 디버그 로그
    */
-  static debug(component: string, message: string, meta?: any): void {
+  static debug(component: string, message: string, meta?: LogMeta): void {
     if (!KEYBOARD_CONSTANTS.ENABLE_VERBOSE_LOGGING) return;
     
     const logger = GigaChadLogger.getInstance();
@@ -82,7 +84,7 @@ export class GigaChadLogger {
   /**
    * 내부 로그 저장
    */
-  private log(level: LogLevel, component: string, message: string, meta?: any, stack?: string): void {
+  private log(level: LogLevel, component: string, message: string, meta?: LogMeta, stack?: string): void {
     if (level < this.logLevel) return;
 
     const entry: LogEntry = {

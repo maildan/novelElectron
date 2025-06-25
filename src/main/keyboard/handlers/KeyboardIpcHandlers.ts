@@ -8,7 +8,21 @@ import { SUCCESS_MESSAGES } from '../constants';
 import { GigaChadLogger } from '../logger';
 
 export interface IpcHandler {
-  [channel: string]: (...args: any[]) => any;
+  [channel: string]: (...args: unknown[]) => unknown;
+}
+
+// 🔥 키보드 엔진 인터페이스 - any 박살내기
+interface KeyboardEngine {
+  startMonitoring(): unknown;
+  stopMonitoring(): unknown;
+  toggleMonitoring(): unknown;
+  getMonitoringStatus(): unknown;
+  getSessionData(): unknown;
+  getMetrics(): unknown;
+  cleanup(): unknown;
+  updateConfig(config: Record<string, unknown>): unknown;
+  getConfig(): unknown;
+  getPermissionStatus(): unknown;
 }
 
 /**
@@ -34,7 +48,7 @@ export class KeyboardIpcHandlers {
   /**
    * 기본 키보드 IPC 핸들러들 생성
    */
-  public createDefaultHandlers(keyboardEngine: any): IpcHandler {
+  public createDefaultHandlers(keyboardEngine: KeyboardEngine): IpcHandler {
     return {
       // 모니터링 제어
       'keyboard-engine:start-monitoring': () => keyboardEngine.startMonitoring(),
@@ -43,11 +57,11 @@ export class KeyboardIpcHandlers {
 
       // 상태 조회
       'keyboard-engine:get-status': () => keyboardEngine.getMonitoringStatus(),
-      'keyboard-engine:get-session-stats': () => keyboardEngine.getSessionStats(),
+      'keyboard-engine:get-session-stats': () => keyboardEngine.getSessionData(),
       'keyboard-engine:get-permissions': () => keyboardEngine.getPermissionStatus(),
 
       // 설정 관리
-      'keyboard-engine:update-config': (_event: any, config: any) => keyboardEngine.updateConfig(config),
+      'keyboard-engine:update-config': (config: Record<string, unknown>) => keyboardEngine.updateConfig(config),
       'keyboard-engine:get-config': () => keyboardEngine.getConfig(),
 
       // 권한 관리
@@ -71,7 +85,7 @@ export class KeyboardIpcHandlers {
   /**
    * 특정 채널의 핸들러 등록
    */
-  public registerHandler(channel: string, handler: (...args: any[]) => any): void {
+  public registerHandler(channel: string, handler: (...args: unknown[]) => unknown): void {
     ipcMain.handle(channel, handler);
     this.registeredChannels.push(channel);
     

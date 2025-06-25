@@ -10,6 +10,20 @@ import { GigaChadLogger } from '../keyboard/logger';
 
 const logger = GigaChadLogger.getInstance();
 
+// 🔥 Prisma 세션 타입 정의 - any 박살내기
+interface PrismaTypingSession {
+  id: string;
+  windowTitle?: string | null;
+  appName?: string | null;
+  totalKeys: number;
+  duration: number;
+  startTime: Date;
+  wpm: number;
+  accuracy: number;
+  totalChars: number;
+  endTime?: Date | null;
+}
+
 export class DashboardIpcHandlers {
   private static instance: DashboardIpcHandlers;
   private mainWindow: BrowserWindow | null = null;
@@ -58,7 +72,7 @@ export class DashboardIpcHandlers {
         
         await registerKeyboardListener();
         return { success: true, message: '모니터링 시작됨' };
-      } catch (error: any) {
+      } catch (error: unknown) {
         GigaChadLogger.error('모니터링 시작 오류', error instanceof Error ? error.message : String(error));
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
@@ -68,7 +82,7 @@ export class DashboardIpcHandlers {
       try {
         await stopKeyboardListener();
         return { success: true, message: '모니터링 중지됨' };
-      } catch (error: any) {
+      } catch (error: unknown) {
         GigaChadLogger.error('모니터링 중지 오류', error instanceof Error ? error.message : String(error));
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
@@ -98,7 +112,7 @@ export class DashboardIpcHandlers {
 
         return {
           success: true,
-          data: sessions.map((session: any) => ({
+          data: sessions.map((session: PrismaTypingSession) => ({
             id: session.id,
             content: session.windowTitle || session.appName,
             keyCount: session.totalKeys,

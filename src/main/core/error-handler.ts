@@ -6,7 +6,7 @@
 import { app, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import { ErrorMetadata } from '../../shared/types';
+import { ErrorMetadata } from '@shared/types';
 
 export class ErrorHandler {
   private static initialized = false;
@@ -54,7 +54,7 @@ export class ErrorHandler {
   /**
    * Handle and log errors
    */
-  static handleError(context: string, error: Error | unknown, metadata?: ErrorMetadata): void {
+  static handleError(context: string, error: Error | unknown, additionalData?: Record<string, unknown>): void {
     const timestamp = new Date().toISOString();
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';
@@ -64,7 +64,7 @@ export class ErrorHandler {
       context,
       message: errorMessage,
       stack: errorStack,
-      metadata,
+      additionalData,
       pid: process.pid,
       platform: process.platform,
       version: app.getVersion()

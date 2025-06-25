@@ -1,5 +1,7 @@
 // 공유 타입 정의 - Main/Preload/Renderer 모든 프로세스에서 사용
 
+import React from 'react';
+
 // 키보드 이벤트 (DOM KeyboardEvent와 충돌 방지를 위해 커스텀 네이밍)
 export interface LoopKeyboardEvent {
   keycode: number
@@ -91,45 +93,10 @@ export interface IpcResponse<T = unknown> {
 export type JamoPair = [normal: string, shift?: string];
 
 export interface TypingStats {
-  sessionId: string;
-  startTime: number;
-  endTime?: number;
-  duration: number; // milliseconds
-  
-  // 기본 통계
-  totalKeys: number;
-  charactersTyped: number;
-  wordsTyped: number;
-  
-  // 속도 통계
-  wpm: number; // Words Per Minute
-  cpm: number; // Characters Per Minute
-  kps: number; // Keys Per Second
-  
-  // 정확도 통계
-  accuracy: number; // 정확도 (%)
-  errorCount: number;
-  backspaceCount: number;
-  
-  // 리듬 통계
-  averageKeyInterval: number; // 평균 키 간격 (ms)
-  keyIntervalVariance: number; // 키 간격 분산
-  burstTypingSegments: number; // 빠른 타이핑 구간 수
-  pauseCount: number; // 일시정지 횟수 (500ms 이상)
-  
-  // 앱별 통계
-  appName: string;
-  windowTitle?: string;
-  
-  // 언어별 통계
-  language: string;
-  hangulCompositions?: number; // 한글 조합 횟수
-  
-  // 시간대별 분포
-  hourlyDistribution: number[]; // 24시간 분포
-  
-  // 호환성을 위한 필드들
-  totalTime?: number;     // duration과 동일
+  wpm: number;           // Words Per Minute
+  accuracy: number;      // 정확도 (0-100)
+  totalKeys: number;     // 총 키 입력 수
+  totalTime: number;     // 총 시간 (밀리초)
 }
 
 export interface AppInfo {
@@ -182,65 +149,6 @@ export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',
 } as const;
-
-// 🔥 기가차드 추가: 데이터베이스 타입들
-export interface TypingSession {
-  id: string;
-  userId?: string;
-  startTime: Date;
-  endTime?: Date;
-  duration: number;
-  keyCount: number;
-  wpm: number;
-  accuracy: number;
-  errorCount: number;
-  language: string;
-  appName: string;
-  windowTitle?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  content?: string;
-  timestamp?: Date;
-}
-
-// #DEBUG: 세션 필터 타입 정의
-export interface SessionFilter {
-  startDate?: string;
-  endDate?: string;
-  appName?: string;
-  minWpm?: number;
-  minAccuracy?: number;
-  limit?: number;
-  offset?: number;
-}
-
-export interface AnalyticsData {
-  sessionId: string;
-  totalKeys: number;
-  avgWpm: number;
-  peakWpm: number;
-  accuracy: number;
-  errorRate: number;
-  commonErrors: string[];
-  improvementSuggestions: string[];
-  dailyStats?: DailyStats[];
-  weeklyTrend?: WeeklyTrend[];
-}
-
-export interface DailyStats {
-  date: string;
-  totalKeys: number;
-  wpm: number;
-  accuracy: number;
-  duration: number;
-}
-
-export interface WeeklyTrend {
-  week: string;
-  avgWpm: number;
-  totalSessions: number;
-  totalDuration: number;
-}
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
 
@@ -339,85 +247,40 @@ export interface HangulState {
 }
 
 export interface PermissionStatus {
-  accessibility: boolean | null;
-  inputMonitoring: boolean | null;
-  screenRecording: boolean | null;
-  fullDiskAccess?: boolean | null;
+  accessibility: boolean;
+  screenRecording: boolean;
+  inputMonitoring?: boolean;
+  all: boolean;
 }
 
 // IPC 핸들러 함수 타입
-export type IpcHandlerFunction<T = any, R = any> = (
+export type IpcHandlerFunction<T = unknown, R = unknown> = (
   event: Electron.IpcMainInvokeEvent,
   ...args: T[]
 ) => Promise<R> | R;
 
 export interface TypedIpcHandler {
-  [channel: string]: IpcHandlerFunction<any, any>;
+  [channel: string]: IpcHandlerFunction<unknown, unknown>;
 }
 
-import { ComponentType } from 'react';
+// 🔥 기가차드 추가 타입 정의 시작
 
-// 통계 및 차트 데이터 타입
-export interface StatisticsData {
-  id?: string;
-  value: number | string;
-  label: string;
-  unit?: string;
-  icon?: ComponentType<{ className?: string }>;
-  color?: string;
-  change?: string;
-  percentage?: number;
+// 에러 메타데이터 타입
+export interface ErrorMetadata {
+  code: string;
+  message: string;
+  stack?: string;
+  timestamp: number;
+  context?: Record<string, unknown>;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  source: string;
+  userId?: string;
+  sessionId?: string;
+  // 추가 속성들을 허용 (promise, exitCode 등)
+  [key: string]: unknown;
 }
 
-export interface WeeklyChartData {
-  day: string;
-  sessions: number;
-  wpm: number;
-  accuracy: number;
-  value?: number;
-  label?: string;
-}
-
-export interface ProjectData {
-  name: string;
-  sessions: number;
-  time: number;
-  wpm: number;
-  value?: number;
-  label?: string;
-  color?: string;
-}
-
-export interface ActivityPattern {
-  hour: number;
-  activity: number;
-  sessions: number;
-  time?: string;
-  percentage?: number;
-  color?: string;
-}
-
-export interface Goal {
-  id: string;
-  title: string;
-  target: number;
-  current: number;
-  type: 'wpm' | 'accuracy' | 'time' | 'sessions';
-  deadline?: string;
-  goal?: string;
-  achieved?: boolean;
-}
-
-export interface Genre {
-  name: string;
-  count: number;
-  averageWpm: number;
-  genre?: string;
-  color?: string;
-  percentage?: number;
-}
-
-// 데이터베이스 세션 데이터 타입
+// 데이터베이스 세션 타입
 export interface DatabaseSession {
   id: string;
   startTime: Date;
@@ -427,29 +290,86 @@ export interface DatabaseSession {
   totalWords: number;
   totalChars: number;
   wpm: number;
-  cpm?: number;
+  cpm: number;
   accuracy: number;
   appName: string;
   windowTitle?: string;
-  platform: string;
+  language: string;
+  keyEvents?: Array<{
+    id: string;
+    timestamp: Date;
+    keyCode: number;
+    keyChar?: string;
+    eventType: string;
+  }>;
 }
 
-// 에러 핸들링 타입
-export interface ErrorContext {
-  component?: string;
-  function?: string;
-  userId?: string;
-  sessionId?: string;
-  timestamp: number;
+// 타이핑 세션 타입 (UI에서 사용)
+export interface TypingSession {
+  id: string;
+  content: string;
+  keyCount: number;
+  typingTime: number;
+  wpm: number;
+  accuracy: number;
+  timestamp: string;
+  totalChars: number;
+  language: string;
+  appName: string;
+  status: 'active' | 'completed' | 'paused';
 }
 
-export interface ErrorMetadata {
-  stack?: string;
-  userAgent?: string;
-  url?: string;
-  promise?: unknown;
-  exitCode?: number;
-  additionalInfo?: Record<string, unknown>;
+// 통계 데이터 타입
+export interface StatisticsData {
+  label: string;
+  value: number | string;
+  unit?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  color?: string;
+  change?: string;
+  percentage?: number;
+}
+
+// 주간 차트 데이터 타입
+export interface WeeklyChartData {
+  label: string;
+  value?: number;
+  sessions?: number;
+  words?: number;
+  color?: string;
+}
+
+// 프로젝트 데이터 타입 (UI에서 사용)
+export interface ProjectData {
+  label: string;
+  value?: number;
+  color: string;
+}
+
+// 활동 패턴 타입
+export interface ActivityPattern {
+  time: string;
+  percentage: number;
+  color: string;
+  sessions?: number;
+  words?: number;
+}
+
+// 목표 타입
+export interface Goal {
+  goal: string;
+  current: number;
+  target: number;
+  achieved: boolean;
+  unit: string;
+}
+
+// 장르 타입
+export interface Genre {
+  genre: string; // 장르명
+  count: number; // 개수
+  percentage: number;
+  color: string;
 }
 
 // 디버그 정보 타입
@@ -458,56 +378,12 @@ export interface DebugInfo {
   arch: string;
   nodeVersion: string;
   electronVersion?: string;
-  engineStatus: AppStatus;
-  permissionStatus: PermissionStatus;
-  sessionStats: TypingStats | null;
-  realtimeStats: RealtimeStats;
-  hangulState: HangulComposerState;
-  timestamp?: number;
-  // 선택적 필드들
-  sessionId?: string;
-  isActive?: boolean;
-  startTime?: number;
-  currentApp?: AppInfo;
-  stats?: SessionStats;
-  config?: KeyboardConfig;
-  queueSize?: number;
-  permissions?: PermissionStatus;
-  memory?: Record<string, unknown>;
-  performance?: Record<string, unknown>;
-  version?: string;
+  engineStatus: unknown;
+  permissionStatus: unknown;
+  sessionStats: unknown;
+  realtimeStats: unknown;
+  hangulState: unknown;
+  timestamp: number;
 }
 
-// Realtime 통계 인터페이스
-export interface RealtimeStats {
-  currentWPM: number;
-  currentCPM: number;
-  recentKeyInterval: number;
-  consecutiveKeys: number;
-  lastBurstStart?: number;
-  isInBurst: boolean;
-  recentAccuracy: number;
-}
-
-// 한글 조합기 상태 인터페이스
-export interface HangulComposerState {
-  cho: string;          // 초성
-  jung: string;         // 중성
-  jong: string;         // 종성
-  result: string;       // 조합 결과
-  isComposing: boolean; // 조합 중인지 여부
-  buffer: string;       // 조합 버퍼
-}
-
-// 유틸리티 함수 타입
-export interface ClassNameValue {
-  [key: string]: unknown;
-}
-
-// BenchmarkMetrics 타입 정의
-export interface BenchmarkMetrics {
-  duration: number;
-  memoryBefore: number;
-  memoryAfter: number;
-  memorySaved: number;
-}
+// 🔥 기가차드 추가 타입 정의 종료 - 중복 제거 완료

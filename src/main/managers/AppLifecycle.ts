@@ -17,8 +17,8 @@ export interface AppState {
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
-  unifiedKeyboardHandler?: any; // 통합 키보드 핸들러
-  errorManager?: any; // 에러 매니저
+  unifiedKeyboardHandler?: unknown; // 통합 키보드 핸들러
+  errorManager?: unknown; // 에러 매니저
 }
 
 export class AppLifecycle {

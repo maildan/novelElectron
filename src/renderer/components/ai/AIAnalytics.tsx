@@ -12,23 +12,21 @@ import {
   Send
 } from 'lucide-react';
 
-// #DEBUG: AI 관련 타입 정의
+// #DEBUG: AI 기능 관련 타입 정의
 interface AIFeature {
   title: string;
-  value?: number;
   description: string;
-  count?: string; // 사용 횟수 표시
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
-  color?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  count: string;
 }
 
 interface ChatMessage {
   id: string;
-  type: 'user' | 'ai';
-  content: string;
-  message?: string; // 호환성을 위한 메시지 필드
-  timestamp: Date;
-  metadata?: Record<string, unknown>;
+  message: string;
+  timestamp: string;
+  sender: 'user' | 'ai';
+  type?: 'question' | 'answer' | 'suggestion';
 }
 
 export function AIAnalytics({ logs, loading }: CommonComponentProps) {
@@ -121,10 +119,8 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         // TODO: 실제 AI 채팅 히스토리 API 구현
         setChatHistory([
           {
-            id: 'initial-1',
             type: 'ai',
-            content: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?',
-            timestamp: new Date()
+            message: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?'
           }
         ]);
       } else {
@@ -162,19 +158,15 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // 임시 응답 추가
-      const newChatHistory: ChatMessage[] = [
+      const newChatHistory = [
         ...chatHistory,
         {
-          id: `user-${Date.now()}`,
           type: 'user',
-          content: aiPrompt,
-          timestamp: new Date()
+          message: aiPrompt
         },
         {
-          id: `ai-${Date.now()}`,
           type: 'ai', 
-          content: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!',
-          timestamp: new Date()
+          message: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!'
         }
       ];
       
@@ -196,8 +188,8 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
           return (
             <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-start space-x-4">
-                <div className={`p-3 rounded-lg ${getFeatureColor(feature.color || 'gray')}`}>
-                  {feature.icon && <feature.icon size={24} />}
+                <div className={`p-3 rounded-lg ${getFeatureColor(feature.color)}`}>
+                  <IconComponent size={24} />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
@@ -253,7 +245,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
                       ? 'bg-blue-500 text-white' 
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap">{chat.content}</p>
+                    <p className="text-sm whitespace-pre-wrap">{chat.message}</p>
                   </div>
                 </div>
               ))}

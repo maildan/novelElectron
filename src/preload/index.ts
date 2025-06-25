@@ -1,10 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { LoopKeyboardEvent, TypingSession, SessionFilter, AnalyticsData } from '../shared/types';
 
 // 🔥 기가차드 심플 글로벌 폴리필
-// #DEBUG: globalThis 타입 확장을 위한 안전한 접근
-if (typeof (globalThis as Record<string, unknown>).global === 'undefined') {
-  (globalThis as Record<string, unknown>).global = globalThis;
+if (typeof (globalThis as any).global === 'undefined') {
+  (globalThis as any).global = globalThis;
 }
 
 /**
@@ -15,8 +13,8 @@ if (typeof (globalThis as Record<string, unknown>).global === 'undefined') {
 // API 인터페이스 정의
 export interface ElectronAPI {
   // 직접 IPC 호출
-  invoke: <T = unknown>(channel: string, ...args: unknown[]) => Promise<T>;
-  on: (channel: string, callback: (...args: unknown[]) => void) => void;
+  invoke: (channel: string, ...args: any[]) => Promise<any>;
+  on: (channel: string, callback: Function) => void;
   removeAllListeners: (channel: string) => void;
 
   // 앱 정보
@@ -30,20 +28,20 @@ export interface ElectronAPI {
     startMonitoring(): Promise<{ success: boolean; message?: string; error?: string }>;
     stopMonitoring(): Promise<{ success: boolean; message?: string; error?: string }>;
     getMonitoringStatus(): Promise<{ isActive: boolean; message?: string }>;
-    onKeyEvent(callback: (event: LoopKeyboardEvent) => void): void;
-    removeKeyEventListener(callback: (event: LoopKeyboardEvent) => void): void;
+    onKeyEvent(callback: (event: any) => void): void;
+    removeKeyEventListener(callback: (event: any) => void): void;
   };
 
-  // 데이터베이스 (실제 DB 연동)
+  // 데이터베이스 (추후 구현)
   database: {
-    getSessions(filter?: SessionFilter): Promise<TypingSession[]>;
-    getAnalytics(sessionId: string): Promise<AnalyticsData | null>;
+    getSessions(filter?: any): Promise<any[]>;
+    getAnalytics(sessionId: string): Promise<any>;
   };
 
   // 설정 (추후 구현)
   settings: {
-    get(key: string): Promise<unknown>;
-    set(key: string, value: unknown): Promise<boolean>;
+    get(key: string): Promise<any>;
+    set(key: string, value: any): Promise<boolean>;
   };
 
   // 윈도우 제어
@@ -59,7 +57,7 @@ export interface ElectronAPI {
 const electronAPI: ElectronAPI = {
   // 직접 IPC 호출
   invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
-  on: (channel, callback) => ipcRenderer.on(channel, (...args) => callback(...args)),
+  on: (channel, callback) => ipcRenderer.on(channel, callback as any),
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
 
   app: {
@@ -71,19 +69,11 @@ const electronAPI: ElectronAPI = {
     startMonitoring: () => ipcRenderer.invoke('keyboard:start-monitoring'),
     stopMonitoring: () => ipcRenderer.invoke('keyboard:stop-monitoring'),
     getMonitoringStatus: () => ipcRenderer.invoke('keyboard:get-status'),
-    onKeyEvent: (callback: (event: LoopKeyboardEvent) => void) => {
-      // #DEBUG: 메모리 누수 방지를 위한 콜백 래핑 개선
-      const wrappedCallback = (_: unknown, data: LoopKeyboardEvent) => callback(data);
-      ipcRenderer.on('keyboard:key-event', wrappedCallback);
-      
-      // 정리 함수 반환하여 메모리 누수 방지
-      return () => {
-        ipcRenderer.removeListener('keyboard:key-event', wrappedCallback);
-      };
+    onKeyEvent: (callback) => {
+      ipcRenderer.on('keyboard:key-event', (_, data) => callback(data));
     },
-    removeKeyEventListener: () => {
-      // 🔥 기가차드 메모리 관리: 모든 키보드 이벤트 리스너 정리
-      ipcRenderer.removeAllListeners('keyboard:key-event');
+    removeKeyEventListener: (callback) => {
+      ipcRenderer.removeListener('keyboard:key-event', callback);
     }
   },
 

@@ -111,7 +111,7 @@ export class IpcManager {
   /**
    * 메시지 브로드캐스트 (모든 윈도우에)
    */
-  broadcast(channel: string, data: any): void {
+  broadcast(channel: string, data: unknown): void {
     const { BrowserWindow } = require('electron');
     const windows = BrowserWindow.getAllWindows();
     

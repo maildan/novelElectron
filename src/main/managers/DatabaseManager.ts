@@ -6,16 +6,23 @@
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import { app } from 'electron';
-import { DatabaseSession } from '../../shared/types';
+import { DatabaseSession } from '@shared/types';
+import { logger, log } from '@shared/logger';
+import { trackPerformance, BenchmarkMetrics } from '@shared/common';
 
 export class DatabaseManager {
   private static instance: DatabaseManager;
   private prisma: PrismaClient | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // #DEBUG: 데이터베이스 매니저 생성자
+    log.debug('DatabaseManager', '🏗️ DatabaseManager 인스턴스 생성');
+  }
 
   static getInstance(): DatabaseManager {
     if (!DatabaseManager.instance) {
+      // #DEBUG: 싱글톤 인스턴스 생성
+      log.debug('DatabaseManager', '새로운 DatabaseManager 인스턴스 생성');
       DatabaseManager.instance = new DatabaseManager();
     }
     return DatabaseManager.instance;
@@ -25,10 +32,13 @@ export class DatabaseManager {
    * 데이터베이스 초기화
    */
   async initialize(): Promise<void> {
-    console.log('🗄️ 기가차드 데이터베이스 매니저: 초기화 시작...');
+    // #DEBUG: 데이터베이스 매니저 초기화 시작
+    log.gigachad('DatabaseManager', '🗄️ 기가차드 데이터베이스 매니저: 초기화 시작...');
 
     try {
       // Prisma 클라이언트 생성
+      // #DEBUG: Prisma 클라이언트 생성
+      log.debug('DatabaseManager', 'Prisma 클라이언트 생성 중...');
       this.prisma = new PrismaClient({
         datasources: {
           db: {
@@ -39,15 +49,20 @@ export class DatabaseManager {
       });
 
       // 데이터베이스 연결 테스트
+      // #DEBUG: 데이터베이스 연결 시도
+      log.debug('DatabaseManager', '데이터베이스 연결 테스트 중...');
       await this.prisma.$connect();
-      console.log('✅ 데이터베이스 연결 성공');
+      log.success('DatabaseManager', '✅ 데이터베이스 연결 성공');
 
       // 마이그레이션 실행 (필요한 경우)
+      // #DEBUG: 마이그레이션 실행
+      log.debug('DatabaseManager', '마이그레이션 실행 중...');
       await this.runMigrations();
 
-      console.log('✅ 데이터베이스 매니저 초기화 완료');
+      log.gigachad('DatabaseManager', '✅ 데이터베이스 매니저 초기화 완료');
     } catch (error) {
-      console.error('❌ 데이터베이스 매니저 초기화 실패:', error);
+      // #DEBUG: 초기화 실패
+      log.error('DatabaseManager', '❌ 데이터베이스 매니저 초기화 실패', error);
       throw error;
     }
   }
@@ -89,9 +104,12 @@ export class DatabaseManager {
     windowTitle?: string;
     platform: string;
   }) {
+    // #DEBUG: 타이핑 세션 생성 시작
+    log.debug('DatabaseManager', '타이핑 세션 생성 중...', data);
+    
     const prisma = this.getPrisma();
     
-    return await prisma.typingSession.create({
+    const result = await prisma.typingSession.create({
       data: {
         userId: data.userId,
         appName: data.appName,
@@ -102,6 +120,10 @@ export class DatabaseManager {
         totalChars: 0
       }
     });
+
+    // #DEBUG: 타이핑 세션 생성 완료
+    log.success('DatabaseManager', '타이핑 세션 생성 완료', { sessionId: result.id });
+    return result;
   }
 
   /**

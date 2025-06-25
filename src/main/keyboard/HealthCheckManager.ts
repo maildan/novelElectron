@@ -38,7 +38,7 @@ export interface HealthAlert {
   component: string;
   message: string;
   timestamp: number;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 /**

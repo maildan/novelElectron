@@ -117,7 +117,7 @@ export class StaticServer {
 
   private handleApiRequest(apiPath: string, res: http.ServerResponse): void {
     // 🔥 기가차드 API 응답들
-    const apiResponses: { [key: string]: any } = {
+    const apiResponses: { [key: string]: Record<string, unknown> } = {
       '/api/health': { 
         status: 'ok', 
         timestamp: Date.now(),

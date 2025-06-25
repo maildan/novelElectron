@@ -3,18 +3,35 @@
  * Global 변수 문제를 완전히 해결하는 마지막 수단
  */
 
-// 🚀 Step 1: 즉시 실행으로 global 정의
-if (typeof globalThis !== 'undefined' && typeof (globalThis as any).global === 'undefined') {
-  (globalThis as any).global = globalThis;
+// � 타입 정의 - any 박살내기
+interface GlobalExtended {
+  global?: typeof globalThis;
+}
+
+interface WindowExtended {
+  global?: typeof globalThis;
+  process?: {
+    env: Record<string, string>;
+    browser: boolean;
+    version: string;
+    versions: Record<string, string>;
+    platform: string;
+  };
+  Buffer?: Record<string, unknown>;
+}
+
+// �🚀 Step 1: 즉시 실행으로 global 정의
+if (typeof globalThis !== 'undefined' && typeof (globalThis as GlobalExtended).global === 'undefined') {
+  (globalThis as GlobalExtended).global = globalThis;
 }
 
 if (typeof window !== 'undefined') {
   // 🚀 Step 2: window에도 global 정의
-  (window as any).global = globalThis;
+  (window as WindowExtended).global = globalThis;
   
   // 🚀 Step 3: 추가 폴리필
-  if (typeof (window as any).process === 'undefined') {
-    (window as any).process = {
+  if (typeof (window as WindowExtended).process === 'undefined') {
+    (window as WindowExtended).process = {
       env: {},
       browser: true,
       version: '',
@@ -23,8 +40,8 @@ if (typeof window !== 'undefined') {
     };
   }
   
-  if (typeof (window as any).Buffer === 'undefined') {
-    (window as any).Buffer = {};
+  if (typeof (window as WindowExtended).Buffer === 'undefined') {
+    (window as WindowExtended).Buffer = {};
   }
 }
 

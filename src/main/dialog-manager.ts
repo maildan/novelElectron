@@ -43,8 +43,8 @@ export class DialogManager {
       
       const result = await dialog.showMessageBox(window || {
         // 🔥 기가차드식 해결법: window가 없으면 빈 옵션
-      } as any, {
-        type: type as any,
+      } as Electron.BrowserWindow, {
+        type: type as Electron.MessageBoxOptions['type'],
         title,
         message,
         buttons,
@@ -75,7 +75,7 @@ export class DialogManager {
       
       const result = await dialog.showOpenDialog(window || {
         // 🔥 기가차드식 해결법: window가 없으면 빈 옵션
-      } as any, {
+      } as Electron.BrowserWindow, {
         title: options.title || '파일 선택',
         filters: options.filters || [
           { name: 'All Files', extensions: ['*'] }
@@ -103,7 +103,7 @@ export class DialogManager {
       
       const result = await dialog.showSaveDialog(window || {
         // 🔥 기가차드식 해결법: window가 없으면 빈 옵션
-      } as any, {
+      } as Electron.BrowserWindow, {
         title: options.title || '파일 저장',
         defaultPath: options.defaultPath,
         filters: options.filters || [
