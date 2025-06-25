@@ -1,13 +1,18 @@
-import { Logger } from "@shared/logger";
-const log = Logger;
 'use client';
 
+import logger from '../../shared/logger';
+
 import { useState, useEffect } from 'react';
-import { CommonComponentProps } from '@shared/types';
-import { 
-  debugEntry, debugExit, withDebug, transformSessionToFile, 
-  formatTime, initGigaChadDebug 
-} from '@shared/common';
+import { formatTime, safeAsync } from '../../shared/utils';
+import { Log, TypingStats } from '../../shared/types';
+
+// 컴포넌트 Props 타입
+interface CommonComponentProps {
+  logs: Log[];
+  loading: boolean;
+  onTypingComplete?: (stats: TypingStats) => void;
+}
+
 import { 
   Play, 
   Pause, 
@@ -49,20 +54,14 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
     return () => clearInterval(interval);
   }, [isMonitoring]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   // 🔥 실제 데이터 상태 관리 - 더미 데이터 박멸
   const [recentFiles, setRecentFiles] = useState<RecentFile[]>([]);
   const [activeProjects, setActiveProjects] = useState<ActiveProject[]>([]);
 
   // 🔥 실제 파일 & 프로젝트 데이터 로드
   useEffect(() => {
-    const loadDashboardData = withDebug(async () => {
-      debugEntry('loadDashboardData');
+    const loadDashboardData = async () => {
+      logger.info('Dashboard', 'loadDashboardData 시작');
       try {
         if (typeof window !== 'undefined' && window.electronAPI) {
           const sessionsData = await window.electronAPI.database.getSessions();
@@ -104,15 +103,14 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           setActiveProjects(projectsData);
         }
       } catch (error) {
-        log.error("Console", '대시보드 데이터 로딩 실패:', error);
+        logger.error("Console", `대시보드 데이터 로딩 실패: ${error}`);
         setRecentFiles([]);
         setActiveProjects([]);
       }
-      debugExit('loadDashboardData');
-    }, 'loadDashboardData');
+      logger.info('Dashboard', 'loadDashboardData 완료');
+    };
 
     loadDashboardData();
-    initGigaChadDebug(); // 디버그 도구 초기화
   }, []);
 
   return (  

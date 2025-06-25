@@ -4,7 +4,7 @@ const log = Logger;/**
  */
 
 import { keyboardEngine } from '../keyboard';
-import type { KeyboardConfig } from '@shared/types';
+import type { KeyboardConfig } from '../../shared/types';
 
 /**
  * 키보드 리스너 등록

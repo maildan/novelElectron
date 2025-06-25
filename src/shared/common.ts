@@ -119,7 +119,7 @@ export function debugExit(functionName: string, result?: unknown): void {
 }
 
 /**
- * 🔥 기가차드 디버그 래퍼 함수
+ * 🔥 기가차드 디버그 래퍼 함수 (async 지원)
  */
 export function withDebug<T extends (...args: unknown[]) => unknown>(
   fn: T, 
@@ -130,6 +130,19 @@ export function withDebug<T extends (...args: unknown[]) => unknown>(
     debugEntry(functionName, ...args);
     try {
       const result = fn(...args);
+      // Promise인 경우 처리
+      if (result instanceof Promise) {
+        return result
+          .then((resolvedResult) => {
+            debugExit(functionName, resolvedResult);
+            return resolvedResult;
+          })
+          .catch((error) => {
+            log.error('Debug', `❌ ${functionName} Promise 실행 중 오류`, error as LogMeta);
+            throw error;
+          });
+      }
+      // 일반 함수인 경우
       debugExit(functionName, result);
       return result;
     } catch (error) {
@@ -505,7 +518,12 @@ export async function runGigaChadBenchmarks(): Promise<{
     { name: 'getMemoryUsage', fn: () => getMemoryUsage() }
   ];
 
-  const results = [];
+  const results: Array<{
+    functionName: string;
+    operationsPerSecond: number;
+    memoryUsage: number;
+    executionTime: number;
+  }> = [];
   for (const bench of benchmarks) {
     const { metrics } = await gigaBenchmark(bench.name, bench.fn);
     results.push({

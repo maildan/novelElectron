@@ -1,8 +1,9 @@
-import { Logger } from "@shared/logger";
-const log = Logger;'use client';
+'use client';
+
+import logger from '../shared/logger';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Log, TypingStats, IpcResponse, SessionStats } from '@shared/types';
+import { Log, TypingStats, IpcResponse, SessionStats } from '../shared/types';
 
 interface UseLoopDataReturn {
   // 로그 관련
@@ -77,12 +78,12 @@ export function useLoopData(): UseLoopDataReturn {
           
           setLogs(convertedLogs);
         } catch (ipcError) {
-          log.error("Console", 'IPC 데이터 로딩 실패:', ipcError);
+          logger.error("Console", `IPC 데이터 로딩 실패: ${ipcError}`);
           setError('데이터베이스 연결에 실패했습니다');
           setLogs([]); // 에러 시 빈 배열
         }
       } else {
-        log.warn("Console", 'ElectronAPI를 찾을 수 없습니다');
+        logger.warn("Console", 'ElectronAPI를 찾을 수 없습니다');
         setError('Electron API를 사용할 수 없습니다');
         setLogs([]);
       }
@@ -90,7 +91,7 @@ export function useLoopData(): UseLoopDataReturn {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '로그 로딩에 실패했습니다';
       setError(errorMessage);
-      log.error("Console", 'loadLogs 에러:', err);
+      logger.error("Console", `loadLogs 에러: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -162,7 +163,7 @@ export function useLoopData(): UseLoopDataReturn {
             });
           }
         } catch (ipcError) {
-          log.warn("Console", '타이핑 통계 로딩 실패:', ipcError);
+          logger.warn("Console", `타이핑 통계 로딩 실패: ${ipcError}`);
           setTypingStats({
             wpm: 0,
             accuracy: 0,

@@ -11,6 +11,7 @@ import { Button } from '@components/ui/Button';
 import { Badge } from '@components/ui/Badge';
 import { Progress } from '@components/ui/Progress';
 import { Activity, TrendingUp, Clock, Target, Zap, X } from 'lucide-react';
+import { formatTime, getWpmColor, getAccuracyColor } from '../../shared/utils';
 
 interface TypingStats {
   wpm: number;
@@ -44,24 +45,6 @@ export function TypingPanel({
 
     return () => clearInterval(interval);
   }, [isOpen]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getWpmColor = (wpm: number) => {
-    if (wpm >= targetWpm) return 'text-green-600';
-    if (wpm >= targetWpm * 0.8) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 95) return 'text-green-600';
-    if (accuracy >= 90) return 'text-yellow-600';
-    return 'text-red-600';
-  };
 
   if (!isOpen) return null;
 
