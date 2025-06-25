@@ -9,63 +9,50 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-
-  // 🔥 CSP 보안 헤더 추가 (Electron 환경 최적화)
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: ws://localhost:* http://localhost:*; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:;"
-          }
-        ]
-      }
-    ];
-  },
   
-  // 🔥 핫리로드 지옥 방지! - 기가차드 업그레이드
-  webpack: (config, { dev }) => {
+  // 🔥 무한 컴파일 루프 완전 박살! - 기가차드 궁극기
+  webpack: (config, { dev, isServer }) => {
     if (dev) {
-      // 파일 변경 감지 최적화
+      // 파일 변경 감지 억제 - 폴링 완전 비활성화
       config.watchOptions = {
-        ...config.watchOptions,
-        poll: 5000, // 5초마다 폴링 (더 느리게 해서 CPU 절약)
-        aggregateTimeout: 2000, // 2초 지연 (무한 리컴파일 방지)
+        poll: false,
+        aggregateTimeout: 2000,
         ignored: [
-          /node_modules/,
-          /\.git/,
-          /dist/,
-          /out/,
-          /\.next/,
-          /\.vscode/,
-          /logs/,
-          /\.log$/,
-          /\.tsbuildinfo$/,
-          /prisma/,
-          /userData/,
-          /backup/,
-          /scripts/,
-          /docs/,
-          /\.md$/,
-          /\.json$/
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/dist/**',
+          '**/out/**',
+          '**/.next/**',
+          '**/.vscode/**',
+          '**/logs/**',
+          '**/*.log',
+          '**/*.tsbuildinfo',
+          '**/prisma/**',
+          '**/userData/**',
+          '**/backup/**',
+          '**/scripts/**',
+          '**/.DS_Store',
+          '**/docs/**',
+          '**/*.md'
         ]
       };
       
-      // 파일 시스템 감시 최적화
-      config.snapshot = {
-        ...config.snapshot,
-        managedPaths: [/^(.+?[\\/]node_modules[\\/])/],
-        immutablePaths: [/^(.+?[\\/]node_modules[\\/])/]
-      };
+      // HMR 최적화 - 불필요한 최적화 비활성화
+      if (!isServer) {
+        config.optimization = {
+          ...config.optimization,
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
+          splitChunks: false,
+        };
+      }
       
-      // 🔥 메모리 및 CPU 사용량 최적화
+      // 🔥 로깅 레벨 억제
       config.infrastructureLogging = { level: 'error' };
       config.stats = 'errors-warnings';
     }
 
-    // Add webpack aliases - paths relative to project root, not src/renderer
+    // Add webpack aliases - paths relative to project root
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': path.resolve(__dirname, 'src'),
@@ -90,7 +77,7 @@ const nextConfig = {
     return config;
   },
   
-  // 🔥 실험적 기능으로 성능 향상
+  // 🔥 실험적 기능 최소화
   experimental: {
     turbo: {
       resolveAlias: {

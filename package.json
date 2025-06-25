@@ -5,7 +5,7 @@
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "concurrently \"pnpm run dev:next\" \"pnpm run dev:electron\"",
-    "dev:next": "next dev src/renderer -p 5500",
+    "dev:next": "next dev src/renderer -p 5500 --turbo",
     "dev:electron": "pnpm run build:main && electron dist/main/index.js",
     "start": "electron dist/main/index.js",
     "build": "tsc -p tsconfig.main.json && next build src/renderer",
