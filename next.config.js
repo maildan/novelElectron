@@ -2,7 +2,7 @@ const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Next.js config for Electron renderer
+  // 🔥 기가차드 Next.js + Electron 최적화 설정
   output: 'export',
   distDir: 'out',
   trailingSlash: true,
@@ -10,7 +10,43 @@ const nextConfig = {
     unoptimized: true
   },
   
-  webpack: (config) => {
+  // 🔥 핫리로드 지옥 방지! - 기가차드 업그레이드
+  webpack: (config, { dev }) => {
+    if (dev) {
+      // 파일 변경 감지 최적화
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: 3000, // 3초마다 폴링 (더 느리게 해서 CPU 절약)
+        aggregateTimeout: 1500, // 1.5초 지연 (무한 리컴파일 방지)
+        ignored: [
+          /node_modules/,
+          /\.git/,
+          /dist/,
+          /out/,
+          /\.next/,
+          /\.vscode/,
+          /logs/,
+          /\.log$/,
+          /\.tsbuildinfo$/,
+          /prisma/,
+          /userData/,
+          /backup/,
+          /scripts/
+        ]
+      };
+      
+      // 파일 시스템 감시 최적화
+      config.snapshot = {
+        ...config.snapshot,
+        managedPaths: [/^(.+?[\\/]node_modules[\\/])/],
+        immutablePaths: [/^(.+?[\\/]node_modules[\\/])/]
+      };
+      
+      // 🔥 메모리 및 CPU 사용량 최적화
+      config.infrastructureLogging = { level: 'error' };
+      config.stats = 'errors-warnings';
+    }
+
     // Add webpack aliases - paths relative to project root, not src/renderer
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -34,6 +70,16 @@ const nextConfig = {
     };
     
     return config;
+  },
+  
+  // 🔥 실험적 기능으로 성능 향상
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        'global': 'globalThis',
+        'process': 'process/browser'
+      }
+    }
   }
 };
 

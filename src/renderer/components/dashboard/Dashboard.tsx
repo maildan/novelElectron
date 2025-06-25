@@ -73,11 +73,11 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             path: `/sessions/${session.id}`,
             type: 'document',
             project: session.content?.substring(0, 20) + "..." || "타이핑 세션",
-            time: new Date(session.timestamp).toLocaleTimeString(),
-            status: (session.wpm >= 60 ? 'completed' : 
-                    session.wpm >= 40 ? 'active' : 
-                    session.wpm >= 20 ? 'draft' : 'archived') as const,
-            lastModified: new Date(session.timestamp),
+            time: session.timestamp ? new Date(session.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString(),
+            status: session.wpm >= 60 ? 'completed' as const : 
+                   session.wpm >= 40 ? 'active' as const : 
+                   session.wpm >= 20 ? 'draft' as const : 'archived' as const,
+            lastModified: session.timestamp ? new Date(session.timestamp) : new Date(),
           }));
 
           // 활성 프로젝트를 세션 통계로 변환

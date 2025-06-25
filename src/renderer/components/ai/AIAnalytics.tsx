@@ -5,21 +5,8 @@ import { CommonComponentProps } from '@shared/types';
 import { 
   Lightbulb,
   PenTool,
-  B      const newChatHistory: ChatMessage[] = [
-        ...chatHistory,
-        { 
-          id: `user-${Date.now()}`,
-          type: 'user', 
-          content: aiPrompt,
-          timestamp: new Date()
-        },
-        { 
-          id: `ai-${Date.now()}`,
-          type: 'ai', 
-          content: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!',
-          timestamp: new Date()
-        }
-      ]; Users,
+  BarChart3,
+  Users,
   MessageSquare,
   Bot,
   Send
@@ -28,10 +15,10 @@ import {
 // #DEBUG: AI 관련 타입 정의
 interface AIFeature {
   title: string;
-  value: number;
+  value?: number;
   description: string;
   count?: string; // 사용 횟수 표시
-  icon?: React.ComponentType;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   color?: string;
 }
 
@@ -175,15 +162,19 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // 임시 응답 추가
-      const newChatHistory = [
+      const newChatHistory: ChatMessage[] = [
         ...chatHistory,
         {
+          id: `user-${Date.now()}`,
           type: 'user',
-          message: aiPrompt
+          content: aiPrompt,
+          timestamp: new Date()
         },
         {
+          id: `ai-${Date.now()}`,
           type: 'ai', 
-          message: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!'
+          content: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!',
+          timestamp: new Date()
         }
       ];
       
@@ -205,8 +196,8 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
           return (
             <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-start space-x-4">
-                <div className={`p-3 rounded-lg ${getFeatureColor(feature.color)}`}>
-                  <IconComponent size={24} />
+                <div className={`p-3 rounded-lg ${getFeatureColor(feature.color || 'gray')}`}>
+                  {feature.icon && <feature.icon size={24} />}
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>

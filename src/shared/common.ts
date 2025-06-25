@@ -144,7 +144,7 @@ export function formatTime(seconds: number): string {
 export function initGigaChadDebug(): void {
   // #DEBUG: 글로벌 디버그 도구 초기화
   if (typeof window !== 'undefined') {
-    window.__GIGACHAD_DEBUG__ = {
+    (window as any).__GIGACHAD_DEBUG__ = {
       benchmark,
       memoryUsage: getMemoryUsage,
       logPerformance: (operation: string) => {

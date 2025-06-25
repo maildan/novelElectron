@@ -81,7 +81,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
         {/* 주요 지표 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
-              <div key={index} className="bg-white border border-slate-200 rounded-lg p-6">
+            <div key={index} className="bg-white border border-slate-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -111,8 +111,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
                   {stat.label} <span className="text-slate-500">({stat.unit})</span>
                 </div>
               </div>
-            );
-          })}
+            ))}
         </div>
 
         {/* 차트 영역 */}
@@ -151,7 +150,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
             </h3>
             <div className="h-48 flex items-end justify-between gap-2">
               {projectData.map((item, index) => {
-                const height = (item.value / 100) * 150;
+                const height = ((item.value || 0) / 100) * 150;
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center gap-2">
                     <div className="w-full bg-slate-100 rounded-t-md relative overflow-hidden">

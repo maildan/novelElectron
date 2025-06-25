@@ -91,10 +91,45 @@ export interface IpcResponse<T = unknown> {
 export type JamoPair = [normal: string, shift?: string];
 
 export interface TypingStats {
-  wpm: number;           // Words Per Minute
-  accuracy: number;      // 정확도 (0-100)
-  totalKeys: number;     // 총 키 입력 수
-  totalTime: number;     // 총 시간 (밀리초)
+  sessionId: string;
+  startTime: number;
+  endTime?: number;
+  duration: number; // milliseconds
+  
+  // 기본 통계
+  totalKeys: number;
+  charactersTyped: number;
+  wordsTyped: number;
+  
+  // 속도 통계
+  wpm: number; // Words Per Minute
+  cpm: number; // Characters Per Minute
+  kps: number; // Keys Per Second
+  
+  // 정확도 통계
+  accuracy: number; // 정확도 (%)
+  errorCount: number;
+  backspaceCount: number;
+  
+  // 리듬 통계
+  averageKeyInterval: number; // 평균 키 간격 (ms)
+  keyIntervalVariance: number; // 키 간격 분산
+  burstTypingSegments: number; // 빠른 타이핑 구간 수
+  pauseCount: number; // 일시정지 횟수 (500ms 이상)
+  
+  // 앱별 통계
+  appName: string;
+  windowTitle?: string;
+  
+  // 언어별 통계
+  language: string;
+  hangulCompositions?: number; // 한글 조합 횟수
+  
+  // 시간대별 분포
+  hourlyDistribution: number[]; // 24시간 분포
+  
+  // 호환성을 위한 필드들
+  totalTime?: number;     // duration과 동일
 }
 
 export interface AppInfo {
@@ -304,9 +339,10 @@ export interface HangulState {
 }
 
 export interface PermissionStatus {
-  accessibility: boolean;
-  inputMonitoring: boolean;
-  screenRecording: boolean;
+  accessibility: boolean | null;
+  inputMonitoring: boolean | null;
+  screenRecording: boolean | null;
+  fullDiskAccess?: boolean | null;
 }
 
 // IPC 핸들러 함수 타입
@@ -327,7 +363,7 @@ export interface StatisticsData {
   value: number | string;
   label: string;
   unit?: string;
-  icon?: ComponentType;
+  icon?: ComponentType<{ className?: string }>;
   color?: string;
   change?: string;
   percentage?: number;
@@ -422,11 +458,12 @@ export interface DebugInfo {
   arch: string;
   nodeVersion: string;
   electronVersion?: string;
-  engineStatus: Record<string, unknown>;
-  permissionStatus: Record<string, unknown>;
-  sessionStats: Record<string, unknown> | null;
-  realtimeStats: Record<string, unknown>;
-  hangulState: Record<string, unknown>;
+  engineStatus: AppStatus;
+  permissionStatus: PermissionStatus;
+  sessionStats: TypingStats | null;
+  realtimeStats: RealtimeStats;
+  hangulState: HangulComposerState;
+  timestamp?: number;
   // 선택적 필드들
   sessionId?: string;
   isActive?: boolean;
@@ -441,13 +478,36 @@ export interface DebugInfo {
   version?: string;
 }
 
-export interface PermissionStatus {
-  accessibility: boolean;
-  inputMonitoring: boolean;
-  screenRecording: boolean;
+// Realtime 통계 인터페이스
+export interface RealtimeStats {
+  currentWPM: number;
+  currentCPM: number;
+  recentKeyInterval: number;
+  consecutiveKeys: number;
+  lastBurstStart?: number;
+  isInBurst: boolean;
+  recentAccuracy: number;
+}
+
+// 한글 조합기 상태 인터페이스
+export interface HangulComposerState {
+  cho: string;          // 초성
+  jung: string;         // 중성
+  jong: string;         // 종성
+  result: string;       // 조합 결과
+  isComposing: boolean; // 조합 중인지 여부
+  buffer: string;       // 조합 버퍼
 }
 
 // 유틸리티 함수 타입
 export interface ClassNameValue {
   [key: string]: unknown;
+}
+
+// BenchmarkMetrics 타입 정의
+export interface BenchmarkMetrics {
+  duration: number;
+  memoryBefore: number;
+  memoryAfter: number;
+  memorySaved: number;
 }

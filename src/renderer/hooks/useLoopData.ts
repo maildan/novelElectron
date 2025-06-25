@@ -130,34 +130,98 @@ export function useLoopData(): UseLoopDataReturn {
             const accuracy = totalKeys > 0 ? Math.min(95, Math.max(70, 100 - (totalKeys - totalChars) / totalKeys * 100)) : 0;
             
             setTypingStats({
-              wpm: wpm,
-              accuracy: Number(accuracy.toFixed(1)),
+              sessionId: 'current-session',
+              startTime: Date.now(),
+              duration: totalTime,
               totalKeys: totalKeys,
+              charactersTyped: totalChars,
+              wordsTyped: Math.floor(totalChars / 5),
+              wpm: wpm,
+              cpm: totalChars * (60000 / totalTime),
+              kps: totalKeys / (totalTime / 1000),
+              accuracy: Number(accuracy.toFixed(1)),
+              errorCount: Math.max(0, totalKeys - totalChars),
+              backspaceCount: 0,
+              averageKeyInterval: totalTime / Math.max(1, totalKeys),
+              keyIntervalVariance: 0,
+              burstTypingSegments: 0,
+              pauseCount: 0,
+              appName: 'Loop',
+              language: 'ko-KR',
+              hourlyDistribution: new Array(24).fill(0),
               totalTime: totalTime
             });
           } else {
             // 세션이 없으면 기본값
             setTypingStats({
-              wpm: 0,
-              accuracy: 0,
+              sessionId: 'empty-session',
+              startTime: Date.now(),
+              duration: 0,
               totalKeys: 0,
+              charactersTyped: 0,
+              wordsTyped: 0,
+              wpm: 0,
+              cpm: 0,
+              kps: 0,
+              accuracy: 0,
+              errorCount: 0,
+              backspaceCount: 0,
+              averageKeyInterval: 0,
+              keyIntervalVariance: 0,
+              burstTypingSegments: 0,
+              pauseCount: 0,
+              appName: 'Loop',
+              language: 'ko-KR',
+              hourlyDistribution: new Array(24).fill(0),
               totalTime: 0
             });
           }
         } catch (ipcError) {
           console.warn('타이핑 통계 로딩 실패:', ipcError);
           setTypingStats({
-            wpm: 0,
-            accuracy: 0,
+            sessionId: 'error-session',
+            startTime: Date.now(),
+            duration: 0,
             totalKeys: 0,
+            charactersTyped: 0,
+            wordsTyped: 0,
+            wpm: 0,
+            cpm: 0,
+            kps: 0,
+            accuracy: 0,
+            errorCount: 0,
+            backspaceCount: 0,
+            averageKeyInterval: 0,
+            keyIntervalVariance: 0,
+            burstTypingSegments: 0,
+            pauseCount: 0,
+            appName: 'Loop',
+            language: 'ko-KR',
+            hourlyDistribution: new Array(24).fill(0),
             totalTime: 0
           });
         }
       } else {
         setTypingStats({
-          wpm: 0,
-          accuracy: 0,
+          sessionId: 'no-api-session',
+          startTime: Date.now(),
+          duration: 0,
           totalKeys: 0,
+          charactersTyped: 0,
+          wordsTyped: 0,
+          wpm: 0,
+          cpm: 0,
+          kps: 0,
+          accuracy: 0,
+          errorCount: 0,
+          backspaceCount: 0,
+          averageKeyInterval: 0,
+          keyIntervalVariance: 0,
+          burstTypingSegments: 0,
+          pauseCount: 0,
+          appName: 'Loop',
+          language: 'ko-KR',
+          hourlyDistribution: new Array(24).fill(0),
           totalTime: 0
         });
       }
