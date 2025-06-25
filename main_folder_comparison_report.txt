@@ -1,0 +1,179 @@
+# 🔥 기가차드 Main 폴더 비교 분석 리포트
+
+## 📊 파일 개수 비교
+- **현재 loop**: 37개 TypeScript 파일
+- **loop_6**: 61개 TypeScript 파일
+- **차이**: 24개 파일 누락 (39% 부족)
+
+## 🔍 상세 파일 비교
+
+### 현재 Loop Main 폴더 (37개)
+```
+/Users/user/loop/loop/src/main/analytics/KeyStrokeAnalyzer.ts
+/Users/user/loop/loop/src/main/analytics/SessionAnalyzer.ts
+/Users/user/loop/loop/src/main/analytics/TypingSpeedCalculator.ts
+/Users/user/loop/loop/src/main/config/app-config.ts
+/Users/user/loop/loop/src/main/core/app-cleanup.ts
+/Users/user/loop/loop/src/main/core/window.ts
+/Users/user/loop/loop/src/main/database/migrations.ts
+/Users/user/loop/loop/src/main/handlers-manager.ts
+/Users/user/loop/loop/src/main/handlers/IpcHandlers.ts
+/Users/user/loop/loop/src/main/index.ts
+/Users/user/loop/loop/src/main/keyboard/KeyboardEngine.ts
+/Users/user/loop/loop/src/main/keyboard/PermissionManager.ts
+/Users/user/loop/loop/src/main/keyboard/UnifiedHandler.ts
+/Users/user/loop/loop/src/main/keyboard/index.ts
+/Users/user/loop/loop/src/main/managers/AppLifecycle.ts
+/Users/user/loop/loop/src/main/managers/DatabaseManager.ts
+/Users/user/loop/loop/src/main/managers/ErrorManager.ts
+/Users/user/loop/loop/src/main/managers/IpcManager.ts
+/Users/user/loop/loop/src/main/managers/KeyboardManager.ts
+/Users/user/loop/loop/src/main/managers/MenuManager.ts
+/Users/user/loop/loop/src/main/managers/PlatformManager.ts
+/Users/user/loop/loop/src/main/managers/SecurityManager.ts
+/Users/user/loop/loop/src/main/managers/SystemMonitor.ts
+/Users/user/loop/loop/src/main/managers/WindowManager.ts
+/Users/user/loop/loop/src/main/services/keyboardService.ts
+/Users/user/loop/loop/src/main/utils/appUtils.ts
+/Users/user/loop/loop/src/main/utils/constants.ts
+/Users/user/loop/loop/src/main/utils/environment.ts
+/Users/user/loop/loop/src/main/utils/logger.ts
+/Users/user/loop/loop/src/main/utils/pathUtils.ts
+/Users/user/loop/loop/src/main/utils/platform.ts
+/Users/user/loop/loop/src/main/utils/processUtils.ts
+/Users/user/loop/loop/src/main/utils/securityUtils.ts
+/Users/user/loop/loop/src/main/utils/stringUtils.ts
+/Users/user/loop/loop/src/main/utils/systemUtils.ts
+/Users/user/loop/loop/src/main/utils/timeUtils.ts
+/Users/user/loop/loop/src/main/utils/validationUtils.ts
+```
+
+### Loop_6 Main 폴더 (61개)
+```
+/Users/user/loop/loop_6/src/main/app-cleanup.ts
+/Users/user/loop/loop_6/src/main/app-config.ts
+/Users/user/loop/loop_6/src/main/app-initialization.ts
+/Users/user/loop/loop_6/src/main/app-lifecycle.ts
+/Users/user/loop/loop_6/src/main/auto-launch-manager.ts
+/Users/user/loop/loop_6/src/main/browser-detector.ts
+/Users/user/loop/loop_6/src/main/clipboard-watcher.ts
+/Users/user/loop/loop_6/src/main/config.ts
+/Users/user/loop/loop_6/src/main/constants.ts
+/Users/user/loop/loop_6/src/main/core/app-state.ts
+/Users/user/loop/loop_6/src/main/core/base-manager.ts
+/Users/user/loop/loop_6/src/main/core/event-emitter.ts
+/Users/user/loop/loop_6/src/main/crash-reporter.ts
+/Users/user/loop/loop_6/src/main/data-collector.ts
+/Users/user/loop/loop_6/src/main/data-sync.ts
+/Users/user/loop/loop_6/src/main/database.ts
+/Users/user/loop/loop_6/src/main/dialog-manager.ts
+/Users/user/loop/loop_6/src/main/error-handler.ts
+/Users/user/loop/loop_6/src/main/file-handler.ts
+/Users/user/loop/loop_6/src/main/gpuUtils.ts
+/Users/user/loop/loop_6/src/main/handlers-manager.ts
+/Users/user/loop/loop_6/src/main/index-simple.ts
+/Users/user/loop/loop_6/src/main/index.ts
+/Users/user/loop/loop_6/src/main/ipc-handlers.ts
+/Users/user/loop/loop_6/src/main/keyboard-advanced.ts
+/Users/user/loop/loop_6/src/main/keyboard.ts
+/Users/user/loop/loop_6/src/main/keyboardHandlers.ts
+/Users/user/loop/loop_6/src/main/main.ts              ⭐ 누락!
+/Users/user/loop/loop_6/src/main/memory-ipc.ts
+/Users/user/loop/loop_6/src/main/memory-manager.ts
+/Users/user/loop/loop_6/src/main/memory.ts
+/Users/user/loop/loop_6/src/main/menu-manager.ts
+/Users/user/loop/loop_6/src/main/menu.ts
+/Users/user/loop/loop_6/src/main/native-client.ts
+/Users/user/loop/loop_6/src/main/native-ipc.ts
+/Users/user/loop/loop_6/src/main/platform-manager.ts
+/Users/user/loop/loop_6/src/main/power-monitor.ts
+/Users/user/loop/loop_6/src/main/preload.ts
+/Users/user/loop/loop_6/src/main/protocols.ts
+/Users/user/loop/loop_6/src/main/safe-storage.ts
+/Users/user/loop/loop_6/src/main/screenshot.ts
+/Users/user/loop/loop_6/src/main/security-manager.ts
+/Users/user/loop/loop_6/src/main/settings-ipc-handlers.ts
+/Users/user/loop/loop_6/src/main/settings-manager.ts
+/Users/user/loop/loop_6/src/main/settingsIpcHandlers.ts
+/Users/user/loop/loop_6/src/main/shortcuts.ts
+/Users/user/loop/loop_6/src/main/static-server.ts    ⭐ 누락!
+/Users/user/loop/loop_6/src/main/stats-manager.ts
+/Users/user/loop/loop_6/src/main/stub-functions.ts
+/Users/user/loop/loop_6/src/main/system-info.ts
+/Users/user/loop/loop_6/src/main/system-monitor-ipc.ts
+/Users/user/loop/loop_6/src/main/system-monitor.ts
+/Users/user/loop/loop_6/src/main/systemInfoIpc.ts
+/Users/user/loop/loop_6/src/main/theme-manager.ts
+/Users/user/loop/loop_6/src/main/toast.ts
+/Users/user/loop/loop_6/src/main/tracking-handlers.ts
+/Users/user/loop/loop_6/src/main/tray.ts
+/Users/user/loop/loop_6/src/main/update-manager.ts
+/Users/user/loop/loop_6/src/main/utils.ts
+/Users/user/loop/loop_6/src/main/web-contents-handlers.ts
+/Users/user/loop/loop_6/src/main/window.ts
+/Users/user/loop/loop_6/src/main/windowHandlers.ts
+/Users/user/loop/loop_6/src/main/workers/data-processor.ts
+```
+
+## 🚨 중요한 누락 파일들
+
+### 1️⃣ 최우선 누락 파일 (즉시 필요)
+- **main.ts** - 메인 엔트리 포인트 ⭐⭐⭐
+- **static-server.ts** - 프로덕션 서버 ⭐⭐⭐
+- **ipc-handlers.ts** - IPC 통신 핵심 ⭐⭐⭐
+- **settings-manager.ts** - 앱 설정 관리 ⭐⭐
+- **tray.ts** - 시스템 트레이 ⭐⭐
+
+### 2️⃣ 중요 누락 파일
+- **auto-launch-manager.ts** - 자동 시작 관리
+- **clipboard-watcher.ts** - 클립보드 모니터링
+- **crash-reporter.ts** - 충돌 리포팅
+- **dialog-manager.ts** - 다이얼로그 관리
+- **shortcuts.ts** - 글로벌 단축키
+- **theme-manager.ts** - 테마 관리
+- **update-manager.ts** - 자동 업데이트
+- **toast.ts** - 토스트 알림
+
+### 3️⃣ 고급 기능 누락 파일
+- **memory-manager.ts** - 메모리 관리
+- **power-monitor.ts** - 전원 모니터링
+- **safe-storage.ts** - 안전한 저장소
+- **screenshot.ts** - 스크린샷 기능
+- **data-sync.ts** - 데이터 동기화
+- **web-contents-handlers.ts** - 웹 컨텐츠 핸들러
+
+## 💡 기가차드 해결 전략
+
+### Phase 1: 즉시 해결 (1-2시간)
+1. **main.ts** 생성 - 메인 엔트리 포인트
+2. **MenuManager 모듈화** - 700줄 → 여러 모듈로 분할
+3. **static-server.ts** 축약 버전 생성
+4. **global is not defined** 문제 완전 해결
+
+### Phase 2: 핵심 기능 추가 (2-3시간)
+1. **settings-manager.ts** - 앱 설정 시스템
+2. **shortcuts.ts** - 글로벌 단축키
+3. **tray.ts** - 시스템 트레이
+4. **dialog-manager.ts** - 다이얼로그 관리
+
+### Phase 3: 고급 기능 (나중에)
+1. **auto-launch-manager.ts**
+2. **update-manager.ts** 
+3. **crash-reporter.ts**
+4. **theme-manager.ts**
+
+## 🔥 기가차드 권장사항
+
+1. **즉시 main.ts 생성** - 이게 없어서 앱 실행에 문제가 있을 수 있음
+2. **MenuManager 모듈화** - 700줄은 너무 비대함
+3. **핵심 누락 파일 축약 버전으로 생성** - 기본 동작 보장
+4. **점진적 확장** - 모든 기능을 한번에 구현하지 말고 단계별로
+
+## 📝 다음 액션 플랜
+1. main.ts 생성 (즉시)
+2. MenuManager 모듈화 (30분)
+3. static-server.ts 축약 버전 (20분)
+4. global 문제 해결 (30분)
+5. 앱 테스트 및 검증 (20분)
+
+**총 예상 시간: 2시간**

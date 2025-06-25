@@ -1,0 +1,222 @@
+LOOP PROJECT - MAIN PROCESS COMPARISON REPORT
+============================================
+
+Generated: $(date)
+Comparison between loop/src/main and loop_6/src/main
+
+1. FILE COUNT SUMMARY
+=====================
+Current loop/src/main: ~30 files (mainly organized in folders)
+loop_6/src/main: ~60+ files (mostly flat structure with core/ subfolder)
+
+2. CURRENT LOOP STRUCTURE (ORGANIZED/MODULAR)
+============================================
+├── analytics/
+├── config/
+│   └── app-config.ts
+├── core/
+│   ├── app-cleanup.ts
+│   ├── security.ts
+│   ├── static-server.ts
+│   └── window.ts
+├── database/
+├── handlers/
+│   ├── index.ts
+│   └── dashboardIpcHandlers.ts
+├── handlers-manager.ts
+├── index.ts (MAIN ENTRY POINT)
+├── keyboard/
+│   ├── KeyboardEngine.ts
+│   ├── UnifiedHandler.ts
+│   ├── index.ts
+│   ├── StatsManager.ts
+│   ├── PermissionManager.ts
+│   └── HangulComposer.ts
+├── managers/
+│   ├── AppLifecycle.ts
+│   ├── DatabaseManager.ts
+│   ├── KeyboardManager.ts
+│   ├── MenuManager.ts (700+ lines - NEEDS MODULARIZATION)
+│   ├── PlatformManager.ts
+│   ├── SecurityManager.ts
+│   ├── ShortcutsManager.ts
+│   ├── SystemMonitor.ts
+│   └── WindowManager.ts
+├── services/
+│   ├── databaseService.ts
+│   └── keyboardService.ts
+└── utils/
+    ├── environment.ts
+    └── permissions.ts
+
+3. LOOP_6 STRUCTURE (MOSTLY FLAT)
+=================================
+Main level files (56+ files):
+- app-cleanup.ts
+- app-config.ts  
+- app-initialization.ts
+- app-lifecycle.ts
+- auto-launch-manager.ts
+- browser-detector.ts
+- clipboard-watcher.ts
+- config.ts
+- constants.ts
+- crash-reporter.ts
+- data-collector.ts
+- data-sync.ts
+- database.ts
+- dialog-manager.ts
+- error-handler.ts
+- file-handler.ts
+- gpuUtils.ts
+- handlers-manager.ts
+- index-simple.ts
+- index.ts
+- ipc-handlers.ts
+- keyboard-advanced.ts
+- keyboard.ts
+- keyboardHandlers.ts
+- main.ts ⭐ (MISSING IN CURRENT LOOP)
+- memory-ipc.ts
+- memory-manager.ts
+- memory.ts
+- menu-manager.ts
+- menu.ts
+- native-client.ts
+- native-ipc.ts
+- platform-manager.ts
+- power-monitor.ts
+- preload.ts
+- protocols.ts
+- safe-storage.ts
+- screenshot.ts
+- security-manager.ts
+- settings-ipc-handlers.ts
+- settings-manager.ts
+- settingsIpcHandlers.ts
+- shortcuts.ts
+- static-server.ts
+- stats-manager.ts
+- stub-functions.ts
+- system-info.ts
+- system-monitor-ipc.ts
+- system-monitor.ts ⭐ (EXISTS IN MANAGERS BUT DIFFERENT)
+- systemInfoIpc.ts
+- theme-manager.ts
+- toast.ts
+- tracking-handlers.ts
+- tray.ts
+- update-manager.ts
+- utils.ts
+- web-contents-handlers.ts
+- window.ts
+- windowHandlers.ts
+
+Plus core/ and workers/ subfolders.
+
+4. CRITICAL MISSING FILES IN CURRENT LOOP
+==========================================
+⭐ HIGH PRIORITY:
+- main.ts (Entry point alternative/backup)
+- constants.ts (App-wide constants)
+- error-handler.ts (Global error handling)
+- memory-manager.ts (Memory monitoring)
+- settings-manager.ts (Settings persistence)
+- theme-manager.ts (Theme management)
+- tray.ts (System tray functionality)
+- update-manager.ts (Auto-updates)
+- crash-reporter.ts (Crash reporting)
+- auto-launch-manager.ts (Startup management)
+
+🔶 MEDIUM PRIORITY:
+- browser-detector.ts
+- clipboard-watcher.ts
+- data-collector.ts
+- data-sync.ts
+- dialog-manager.ts
+- file-handler.ts
+- gpuUtils.ts
+- native-client.ts
+- native-ipc.ts
+- power-monitor.ts
+- protocols.ts
+- safe-storage.ts
+- screenshot.ts
+- system-info.ts
+- toast.ts
+- tracking-handlers.ts
+- web-contents-handlers.ts
+
+🔷 LOW PRIORITY (UTILITIES):
+- stub-functions.ts
+- utils.ts
+- workers/ (background processing)
+
+5. FILES THAT NEED MODULARIZATION
+==================================
+CURRENT LOOP - OVERSIZED FILES:
+- MenuManager.ts (~700 lines) → Split into:
+  - MenuManager.ts (core)
+  - menu-items.ts (menu definitions)
+  - menu-handlers.ts (menu actions)
+  - context-menu.ts (right-click menus)
+
+6. ARCHITECTURE DIFFERENCES
+============================
+CURRENT LOOP (GOOD):
+✓ Better folder organization (managers/, services/, core/, etc.)
+✓ Clear separation of concerns
+✓ Modern TypeScript patterns
+✓ Unified keyboard handling architecture
+
+LOOP_6 (COMPREHENSIVE):
+✓ More complete feature set
+✓ All essential Electron modules present
+✓ Extensive IPC handling
+✓ Memory management and monitoring
+✓ Error handling and crash reporting
+
+7. INTEGRATION STATUS
+=====================
+CURRENT LOOP STATUS:
+✓ Basic app lifecycle working
+✓ Database integration working  
+✓ Keyboard monitoring working
+✓ IPC handlers registered
+✗ Missing critical system modules
+✗ MenuManager needs splitting
+✗ No error/crash handling
+✗ No memory management
+✗ No settings persistence
+✗ No tray/system integration
+
+8. RECOMMENDED NEXT STEPS
+=========================
+PHASE 1 - CRITICAL MODULES:
+1. Create main.ts (entry point backup)
+2. Create constants.ts (centralized constants)
+3. Create error-handler.ts (global error handling)
+4. Modularize MenuManager.ts
+5. Create settings-manager.ts
+6. Create memory-manager.ts
+
+PHASE 2 - SYSTEM INTEGRATION:
+1. Create tray.ts (system tray)
+2. Create theme-manager.ts
+3. Create update-manager.ts
+4. Create crash-reporter.ts
+5. Create auto-launch-manager.ts
+
+PHASE 3 - ADVANCED FEATURES:
+1. Add remaining utility modules
+2. Implement workers/ background processing
+3. Add screenshot and file handling
+4. Complete IPC coverage
+
+9. CONCLUSION
+=============
+Current loop main process is well-organized but missing ~30+ essential files.
+Loop_6 has comprehensive coverage but poor organization.
+Goal: Combine loop's organization with loop_6's completeness.
+
+Estimated completion: 2-3 days for critical modules, 1 week for full parity.

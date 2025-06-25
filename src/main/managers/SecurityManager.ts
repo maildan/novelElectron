@@ -45,22 +45,38 @@ export class SecurityManager {
    */
   private setupContentSecurityPolicy(): void {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      // 🔥 개발/프로덕션 환경별 CSP 정책
+      const isDev = process.env.NODE_ENV === 'development';
+      
+      const cspPolicy = isDev 
+        ? [
+            // 개발 환경: HMR과 DevTools를 위한 설정
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5500 ws://localhost:5500 data: blob:;",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5500;",
+            "style-src 'self' 'unsafe-inline' http://localhost:5500;",
+            "connect-src 'self' http://localhost:5500 ws://localhost:5500;",
+            "img-src 'self' data: blob: http://localhost:5500;",
+            "font-src 'self' data:;"
+          ].join(' ')
+        : [
+            // 프로덕션 환경: 보안 강화
+            "default-src 'self';",
+            "script-src 'self';",
+            "style-src 'self' 'unsafe-inline';",
+            "connect-src 'self';",
+            "img-src 'self' data: blob:;",
+            "font-src 'self' data:;"
+          ].join(' ');
+
       callback({
         responseHeaders: {
           ...details.responseHeaders,
-          'Content-Security-Policy': [
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-            "style-src 'self' 'unsafe-inline'; " +
-            "img-src 'self' data: blob:; " +
-            "font-src 'self' data:; " +
-            "connect-src 'self' http://localhost:* ws://localhost:*;"
-          ]
+          'Content-Security-Policy': [cspPolicy]
         }
       });
     });
 
-    console.log('🛡️ CSP 정책 설정 완료');
+    console.log(`🛡️ CSP 정책 설정 완료 (${process.env.NODE_ENV === 'development' ? '개발' : '프로덕션'} 모드)`);
   }
 
   /**

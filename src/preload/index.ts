@@ -1,9 +1,19 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-// 🔥 기가차드 글로벌 폴리필 - 렌더러 프로세스용
-if (typeof global === 'undefined') {
-  (window as any).global = globalThis;
-}
+// 🔥 기가차드 글로벌 폴리필 - 렌더러 프로세스용 (강화 버전)
+(function setupGlobalPolyfill() {
+  if (typeof global === 'undefined') {
+    (window as any).global = globalThis;
+    (globalThis as any).global = globalThis;
+  }
+  
+  // 추가 안전장치
+  if (typeof (window as any).global === 'undefined') {
+    (window as any).global = globalThis;
+  }
+  
+  console.log('🔥 Preload: global 폴리필 설정 완료', { global: typeof global, globalThis: typeof globalThis });
+})();
 
 /**
  * Electron API를 안전하게 Renderer에 노출

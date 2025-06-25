@@ -122,7 +122,7 @@ export class AppLifecycle {
 
       // 4.7. 🔥 NEW: 메뉴 매니저 초기화 (간단 버전)
       this.appState.menuManager = MenuManager.getInstance();
-      this.appState.menuManager.setupDefaultMenu();
+      this.appState.menuManager.setupDefaultMenu(); // 🔥 수정: setupDefaultMenu 메서드 사용
       console.log('✅ 메뉴 매니저 초기화 완료');
 
       // 5. 🔥 기가차드 통합 키보드 시스템 초기화
@@ -316,6 +316,35 @@ export class AppLifecycle {
       // 윈도우가 없으면 새로 생성
       await this.initializeApp();
     }
+  }
+
+  /**
+   * Static initialization method for main.ts compatibility
+   */
+  static async initialize(): Promise<void> {
+    const lifecycle = AppLifecycle.getInstance();
+    await lifecycle.initializeApp();
+  }
+
+  /**
+   * Static window creation method for main.ts compatibility
+   */
+  static async createMainWindow(): Promise<void> {
+    const lifecycle = AppLifecycle.getInstance();
+    if (lifecycle.appState.windowManager) {
+      await lifecycle.appState.windowManager.createMainWindow();
+    } else {
+      // If not initialized yet, do full initialization
+      await lifecycle.initializeApp();
+    }
+  }
+
+  /**
+   * Static cleanup method for main.ts compatibility
+   */
+  static cleanup(): void {
+    const lifecycle = AppLifecycle.getInstance();
+    lifecycle.cleanupApp();
   }
 
   /**
