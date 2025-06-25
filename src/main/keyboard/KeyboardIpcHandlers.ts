@@ -6,7 +6,7 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { SUCCESS_MESSAGES } from './constants';
 import { GigaChadLogger } from './logger';
-import type { TypedIpcHandler, KeyboardEngine, KeyboardConfig } from '@shared/types';
+import type { TypedIpcHandler, KeyboardEngine, KeyboardConfig } from '../../shared/types';
 
 /**
  * 🔥 기가차드 키보드 IPC 핸들러

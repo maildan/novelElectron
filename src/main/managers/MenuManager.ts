@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 메뉴 매니저 - 모듈화 버전
  * Loop Typing Analytics - Menu Manager

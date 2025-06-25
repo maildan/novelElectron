@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;
 /**
  * 🔥 기가차드 윈도우 관리자
@@ -7,7 +7,7 @@ const log = Logger;
 
 import { BrowserWindow, screen, app, shell } from 'electron';
 import { join } from 'path';
-import { isDev } from '@main/utils/environment';
+import { isDev } from '../utils/environment';
 
 /**
  * 메인 윈도우 생성

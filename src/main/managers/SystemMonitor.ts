@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 시스템 모니터 - 간단 버전
  * Loop Typing Analytics - System Monitor

@@ -1,10 +1,10 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 키보드 서비스 - KeyboardEngine 인터페이스
  */
 
 import { keyboardEngine } from '../keyboard';
-import type { KeyboardConfig } from '@shared/types';
+import type { KeyboardConfig } from '../../shared/types';
 
 /**
  * 키보드 리스너 등록

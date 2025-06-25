@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 트레이 매니저
  * Loop Typing Analytics - Tray Manager

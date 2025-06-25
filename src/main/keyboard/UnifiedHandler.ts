@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 통합 키보드 핸들러
  * Unified Keyboard Handler integrating all keyboard modules
@@ -12,7 +12,7 @@ import type { PermissionCheckResult } from './PermissionManager';
 import { KeyboardStatsManager } from './StatsManager';
 import type { TypingStats, RealtimeStats } from './StatsManager';
 import { HangulComposer } from './HangulComposer';
-import type { SessionStats, LoopKeyboardEvent, DebugInfo, PermissionStatus } from '@shared/types';
+import type { SessionStats, LoopKeyboardEvent, DebugInfo, PermissionStatus } from '../../shared/types';
 
 export interface KeyboardSystemStatus {
   engine: {

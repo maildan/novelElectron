@@ -1,10 +1,10 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 - Dashboard 백엔드 연결
  */
 
 import { ipcMain, BrowserWindow } from 'electron';
-import { IPC_CHANNELS } from '@shared/types';
+import { IPC_CHANNELS } from '../../shared/types';
 import { getPrismaClient } from '../services/databaseService';
 import { registerKeyboardListener, stopKeyboardListener } from '../services/keyboardService';
 import { GigaChadLogger } from '../keyboard/logger';

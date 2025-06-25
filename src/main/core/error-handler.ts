@@ -6,8 +6,8 @@
 import { app, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import { ErrorMetadata } from '@shared/types';
-import { log } from '@shared/logger'; // 
+import { ErrorMetadata } from '../../shared/types';
+import { log } from '../../shared/logger'; // 
 
 export class ErrorHandler {
   private static initialized = false;

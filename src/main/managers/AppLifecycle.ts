@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 앱 라이프사이클 매니저
  * Loop Typing Analytics - Application Lifecycle Manager

@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 메인 프로세스 - 돌아가게 만들기
  * Main entry point for the Electron application

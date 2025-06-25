@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 핸들러 통합 관리자
  * Loop Typing Analytics - Handlers Manager

@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 IPC 핸들러 - 중앙집중식 IPC 관리
  * Loop Typing Analytics - IPC Handlers

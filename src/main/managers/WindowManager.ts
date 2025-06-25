@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 윈도우 매니저 - 완전히 모듈화된 싱글톤 패턴
  * Loop Typing Analytics - Advanced Window Manager

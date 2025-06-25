@@ -1,4 +1,4 @@
-import { Logger } from "@shared/logger";
+import { Logger } from "../../shared/logger";
 const log = Logger;/**
  * 🔥 기가차드 핸들러 매니저
  * Loop Typing Analytics - Handlers Manager
@@ -9,7 +9,7 @@ const log = Logger;/**
 import { ipcMain, BrowserWindow, IpcMainInvokeEvent } from 'electron';
 import { DatabaseManager } from './DatabaseManager';
 import { WindowManager } from './WindowManager';
-import type { IpcHandlerFunction } from '@shared/types';
+import type { IpcHandlerFunction } from '../../shared/types';
 
 export interface HandlerInfo {
   channel: string;
