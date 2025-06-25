@@ -7,7 +7,7 @@ const log = Logger;
 
 import { BrowserWindow, screen, app, shell } from 'electron';
 import { join } from 'path';
-import { isDev } from '../utils/environment';
+import { isDev } from '@main/utils/environment';
 
 /**
  * 메인 윈도우 생성

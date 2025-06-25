@@ -5,7 +5,7 @@ const log = Logger;/**
  */
 
 import { BrowserWindow, dialog, shell, app } from 'electron';
-import { APP_NAME } from '../constants';
+import { APP_NAME } from '@main/constants';
 
 /**
  * Menu action handler class

@@ -9,7 +9,7 @@ const log = Logger;/**
 import { ipcMain, BrowserWindow, IpcMainInvokeEvent } from 'electron';
 import { DatabaseManager } from './DatabaseManager';
 import { WindowManager } from './WindowManager';
-import type { IpcHandlerFunction } from '../../shared/types';
+import type { IpcHandlerFunction } from '@shared/types';
 
 export interface HandlerInfo {
   channel: string;

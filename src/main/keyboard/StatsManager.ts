@@ -5,7 +5,7 @@ const log = Logger;/**
  */
 
 import { EventEmitter } from 'events';
-import { LoopKeyboardEvent as KeyEvent } from '../../shared/types';
+import { LoopKeyboardEvent as KeyEvent } from '@shared/types';
 
 export interface TypingStats {
   sessionId: string;

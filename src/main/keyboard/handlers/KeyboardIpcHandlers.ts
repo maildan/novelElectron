@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
-import { SUCCESS_MESSAGES } from '../constants';
-import { GigaChadLogger } from '../logger';
+import { SUCCESS_MESSAGES } from '@keyboard/constants';
+import { GigaChadLogger } from '@keyboard/logger';
 
 export interface KeyboardEngine {
   startMonitoring(): unknown;

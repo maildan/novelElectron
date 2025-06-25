@@ -6,7 +6,7 @@
 import { EventEmitter } from 'events';
 import { KEYBOARD_CONSTANTS } from '../constants';
 import { GigaChadLogger } from '../logger';
-import type { KeyboardConfig } from '../../../shared/types';
+import type { KeyboardConfig } from '@shared/types';
 
 /**
  * 🔥 기가차드 키보드 설정 매니저

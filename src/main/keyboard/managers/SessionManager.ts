@@ -6,7 +6,7 @@
 import { EventEmitter } from 'events';
 import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants';
 import { GigaChadLogger } from '../logger';
-import { LoopKeyboardEvent as KeyEvent, SessionStats } from '../../../shared/types';
+import { LoopKeyboardEvent as KeyEvent, SessionStats } from '@shared/types';
 
 export interface SessionConfig {
   sessionTimeout: number; // minutes

@@ -1,7 +1,7 @@
 import { ipcMain, BrowserWindow, app } from 'electron';
 import { EventEmitter } from 'events';
 import { Logger } from './logger';
-import { trackPerformance, BenchmarkMetrics } from '../../shared/common';
+import { trackPerformance, BenchmarkMetrics } from '@shared/common';
 
 const logger = Logger;
 import { 
@@ -18,7 +18,7 @@ import type {
   SessionStats, 
   AppStatus,
   AppInfo 
-} from '../../shared/types';
+} from '@shared/types';
 
 // Module imports
 import { KeyboardEventProcessor } from './processors/KeyboardEventProcessor';
@@ -423,7 +423,7 @@ export default KeyboardEngine;
  * 타입 re-exports - 모든 공유 타입들을 중앙에서 관리
  */
 // 기본 키보드 이벤트 타입 (공유 타입 사용)
-export type { LoopKeyboardEvent as KeyEvent, SessionStats, KeyboardConfig } from '../../shared/types';
+export type { LoopKeyboardEvent as KeyEvent, SessionStats, KeyboardConfig } from '@shared/types';
 
 // 각 모듈에서 정의된 타입들
 export type { PermissionStatus } from './PermissionManager';

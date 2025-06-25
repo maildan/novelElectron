@@ -4,7 +4,7 @@ const log = Logger;/**
  */
 
 import { ipcMain, BrowserWindow } from 'electron';
-import { IPC_CHANNELS } from '../../shared/types';
+import { IPC_CHANNELS } from '@shared/types';
 import { getPrismaClient } from '../services/databaseService';
 import { registerKeyboardListener, stopKeyboardListener } from '../services/keyboardService';
 import { GigaChadLogger } from '../keyboard/logger';

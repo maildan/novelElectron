@@ -6,9 +6,9 @@
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import { app } from 'electron';
-import { DatabaseSession } from '../../shared/types';
+import { DatabaseSession } from '@shared/types';
 import { logger, log } from '../../shared/logger';
-import { trackPerformance, BenchmarkMetrics } from '../../shared/common';
+import { trackPerformance, BenchmarkMetrics } from '@shared/common';
 
 export class DatabaseManager {
   private static instance: DatabaseManager;

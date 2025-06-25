@@ -3,7 +3,7 @@
  * Loop Typing Analytics - Keyboard Manager
  */
 
-import { keyboardEngine } from '../keyboard/KeyboardEngine';
+import { keyboardEngine } from '@keyboard/KeyboardEngine';
 
 export class KeyboardManager {
   private static instance: KeyboardManager;
