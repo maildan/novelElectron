@@ -32,7 +32,10 @@ export const LOGS_PATH = path.join(USER_DATA_PATH, 'logs');
 export const CACHE_PATH = path.join(USER_DATA_PATH, 'cache');
 export const DATABASE_PATH = path.join(USER_DATA_PATH, 'app.db');
 export const SETTINGS_PATH = path.join(USER_DATA_PATH, 'settings.json');
-export const PRELOAD_PATH = path.join(__dirname, '..', 'preload', 'index.js');
+// Preload path - works in both dev and production
+export const PRELOAD_PATH = IS_PACKAGED 
+  ? path.join(process.resourcesPath, 'app.asar', 'dist', 'preload', 'index.js')
+  : path.join(__dirname, '..', 'preload', 'index.js');
 
 // ========================
 // WINDOW CONFIGURATION
@@ -43,7 +46,7 @@ export const WINDOW_CONFIG = {
     height: 800,
     minWidth: 800,
     minHeight: 600,
-    frame: !IS_MAC, // Frameless on macOS for native feel
+    frame: !IS_MAC, //macOS에서 프레임리스로 네이티브한 느낌을 제공합니다
     titleBarStyle: IS_MAC ? 'hiddenInset' as const : 'default' as const,
     transparent: false,
     resizable: true,
@@ -53,7 +56,7 @@ export const WINDOW_CONFIG = {
     fullscreenable: true,
     alwaysOnTop: false,
     center: true,
-    show: false, // Start hidden, show when ready
+    show: false, // 숨기기 시작하고 준비되면 표시
     focusable: true
   },
   SPLASH: {
@@ -73,13 +76,13 @@ export const WINDOW_CONFIG = {
 // KEYBOARD MONITORING
 // ========================
 export const KEYBOARD_CONFIG = {
-  POLLING_RATE: 16, // ~60fps for smooth monitoring
-  DEBOUNCE_DELAY: 50, // ms to debounce rapid key events
-  SESSION_TIMEOUT: 30000, // 30 seconds of inactivity
-  BATCH_SIZE: 100, // Number of events to batch before saving
-  MAX_BUFFER_SIZE: 1000, // Maximum events in memory buffer
-  CLEANUP_INTERVAL: 300000, // 5 minutes
-  PERMISSION_CHECK_INTERVAL: 10000 // 10 seconds
+  POLLING_RATE: 16, // 원활한 모니터링을 위한 최대 60개의 fps
+  DEBOUNCE_DELAY: 50, // ms 단위로 빠른 키 이벤트 디바운스
+  SESSION_TIMEOUT: 30000, // 30초 동안 비활성 상태
+  BATCH_SIZE: 100, // 저장하기 전에 배치할 이벤트 수
+  MAX_BUFFER_SIZE: 1000, // 메모리 버퍼의 최대 이벤트 수
+  CLEANUP_INTERVAL: 300000, // 5분
+  PERMISSION_CHECK_INTERVAL: 10000 // 10초
 } as const;
 
 // ========================

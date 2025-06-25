@@ -7,6 +7,7 @@ import { BrowserWindow, screen, app } from 'electron';
 import { join } from 'path';
 import { isDev } from '../utils/environment';
 import { GigaChadLogger } from '../../shared/logger';
+import { PRELOAD_PATH } from '../constants';
 
 export class WindowManager {
   private static instance: WindowManager;
@@ -55,7 +56,7 @@ export class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: join(__dirname, '../preload/index.js'),
+        preload: PRELOAD_PATH,
         webSecurity: true,
         allowRunningInsecureContent: false,
         experimentalFeatures: false

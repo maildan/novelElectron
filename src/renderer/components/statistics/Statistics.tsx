@@ -1,6 +1,8 @@
 'use client';
 
-import { CommonComponentProps } from '../../../shared/types';
+import { CommonComponentProps } from '@shared/types';
+import { StatisticsData, WeeklyChartData, ProjectData, ActivityPattern, Goal, Genre } from '@shared/types';
+import { useEffect, useState } from 'react';
 import { 
   Download,
   RefreshCw,
@@ -18,50 +20,41 @@ import {
 } from 'lucide-react';
 
 export function Statistics({ logs, loading }: CommonComponentProps) {
-  // TODO: Replace with actual data from IPC
-  const mockStats = [
-    { label: "오늘 작성", value: "1,234", unit: "단어", icon: PenTool, color: "blue", change: "+12%" },
-    { label: "이번 주", value: "8,567", unit: "단어", icon: Calendar, color: "green", change: "+8%" },
-    { label: "평균 속도", value: "68", unit: "WPM", icon: Zap, color: "purple", change: "+5%" },
-    { label: "총 프로젝트", value: "12", unit: "개", icon: FolderOpen, color: "orange", change: "+2" },
-  ];
+  // 🔥 실제 데이터 상태 관리
+  const [stats, setStats] = useState<StatisticsData[]>([]);
+  const [weeklyData, setWeeklyData] = useState<WeeklyChartData[]>([]);
+  const [projectData, setProjectData] = useState<ProjectData[]>([]);
+  const [activityPattern, setActivityPattern] = useState<ActivityPattern[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [genres, setGenres] = useState<Genre[]>([]);
 
-  const mockWeeklyData = [
-    { label: "월", value: 1200 },
-    { label: "화", value: 1800 },
-    { label: "수", value: 1400 },
-    { label: "목", value: 2200 },
-    { label: "금", value: 1900 },
-    { label: "토", value: 2800 },
-    { label: "일", value: 2100 },
-  ];
+  // 실제 데이터 로드
+  useEffect(() => {
+    const loadStats = async () => {
+      if (typeof window !== 'undefined' && window.electronAPI) {
+        try {
+          const sessions = await window.electronAPI.database.getSessions();
+          // TODO: 세션 데이터를 통계로 변환하는 로직 구현
+          setStats([
+            { label: "오늘 작성", value: "0", unit: "단어", icon: PenTool, color: "blue", change: "+0%" },
+            { label: "이번 주", value: "0", unit: "단어", icon: Calendar, color: "green", change: "+0%" },
+            { label: "평균 속도", value: "0", unit: "WPM", icon: Zap, color: "purple", change: "+0%" },
+            { label: "총 프로젝트", value: "0", unit: "개", icon: FolderOpen, color: "orange", change: "+0" },
+          ]);
+          
+          setWeeklyData([]);
+          setProjectData([]);
+          setActivityPattern([]);
+          setGoals([]);
+          setGenres([]);
+        } catch (error) {
+          console.error('통계 데이터 로딩 실패:', error);
+        }
+      }
+    };
 
-  const mockProjectData = [
-    { label: "시간의 강", value: 67, color: "bg-blue-600" },
-    { label: "일상의 철학", value: 30, color: "bg-slate-600" },
-    { label: "도시 이야기", value: 85, color: "bg-green-600" },
-    { label: "미래의 기억", value: 15, color: "bg-purple-600" },
-  ];
-
-  const mockActivityPattern = [
-    { time: "오전 9-12시", percentage: 35, color: "bg-blue-600" },
-    { time: "오후 1-5시", percentage: 45, color: "bg-green-600" },
-    { time: "오후 6-9시", percentage: 15, color: "bg-yellow-600" },
-    { time: "오후 9시 이후", percentage: 5, color: "bg-purple-600" },
-  ];
-
-  const mockGoals = [
-    { goal: "일일 1,000단어", current: 1234, target: 1000, achieved: true },
-    { goal: "주간 7,000단어", current: 8567, target: 7000, achieved: true },
-    { goal: "월간 30,000단어", current: 24500, target: 30000, achieved: false },
-  ];
-
-  const mockGenres = [
-    { genre: "SF", count: 4, percentage: 40, color: "bg-blue-600" },
-    { genre: "에세이", count: 3, percentage: 30, color: "bg-green-600" },
-    { genre: "단편", count: 2, percentage: 20, color: "bg-purple-600" },
-    { genre: "기타", count: 1, percentage: 10, color: "bg-slate-600" },
-  ];
+    loadStats();
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
@@ -87,9 +80,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* 주요 지표 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {mockStats.map((stat, index) => {
-            const IconComponent = stat.icon;
-            return (
+          {stats.map((stat, index) => (
               <div key={index} className="bg-white border border-slate-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-3">
                   <div
@@ -103,15 +94,17 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
                             : "bg-orange-100 text-orange-600"
                     }`}
                   >
-                    <IconComponent className="w-5 h-5" />
+                    {stat.icon && <stat.icon className="w-5 h-5" />}
                   </div>
-                  <div
-                    className={`text-xs font-medium px-2 py-1 rounded ${
-                      stat.change.startsWith("+") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {stat.change}
-                  </div>
+                  {stat.change && (
+                    <div
+                      className={`text-xs font-medium px-2 py-1 rounded ${
+                        stat.change.startsWith("+") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {stat.change}
+                    </div>
+                  )}
                 </div>
                 <div className="text-2xl font-bold text-slate-900 mb-1">{stat.value}</div>
                 <div className="text-sm text-slate-600">
@@ -130,9 +123,9 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
               주간 작성량
             </h3>
             <div className="h-48 flex items-end justify-between gap-2">
-              {mockWeeklyData.map((item, index) => {
-                const maxValue = Math.max(...mockWeeklyData.map(d => d.value));
-                const height = (item.value / maxValue) * 150;
+              {weeklyData.map((item, index) => {
+                const maxValue = Math.max(...weeklyData.map(d => d.value || d.sessions || 0));
+                const height = ((item.value || item.sessions || 0) / maxValue) * 150;
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center gap-2">
                     <div className="w-full bg-slate-100 rounded-t-md relative overflow-hidden">
@@ -157,7 +150,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
               프로젝트별 진행률
             </h3>
             <div className="h-48 flex items-end justify-between gap-2">
-              {mockProjectData.map((item, index) => {
+              {projectData.map((item, index) => {
                 const height = (item.value / 100) * 150;
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center gap-2">
@@ -186,7 +179,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
               활동 패턴
             </h3>
             <div className="space-y-3">
-              {mockActivityPattern.map((period, index) => (
+              {activityPattern.map((period, index) => (
                 <div key={index}>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="font-medium text-slate-900">{period.time}</span>
@@ -206,7 +199,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
               달성 목표
             </h3>
             <div className="space-y-4">
-              {mockGoals.map((goal, index) => (
+              {goals.map((goal, index) => (
                 <div key={index} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-900">{goal.goal}</span>
@@ -236,7 +229,7 @@ export function Statistics({ logs, loading }: CommonComponentProps) {
               장르별 분포
             </h3>
             <div className="space-y-3">
-              {mockGenres.map((genre, index) => (
+              {genres.map((genre, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${genre.color}`}></div>

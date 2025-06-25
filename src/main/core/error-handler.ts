@@ -6,6 +6,7 @@
 import { app, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import { ErrorMetadata } from '../../shared/types';
 
 export class ErrorHandler {
   private static initialized = false;
@@ -53,7 +54,7 @@ export class ErrorHandler {
   /**
    * Handle and log errors
    */
-  static handleError(context: string, error: any, metadata?: any): void {
+  static handleError(context: string, error: Error | unknown, metadata?: ErrorMetadata): void {
     const timestamp = new Date().toISOString();
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : '';
@@ -87,7 +88,7 @@ export class ErrorHandler {
   /**
    * Write error to log file
    */
-  private static writeToLogFile(logEntry: any): void {
+  private static writeToLogFile(logEntry: Record<string, unknown>): void {
     try {
       const logLine = JSON.stringify(logEntry) + '\n';
       fs.appendFileSync(this.logFile, logLine);
@@ -99,7 +100,7 @@ export class ErrorHandler {
   /**
    * Determine if error dialog should be shown
    */
-  private static shouldShowErrorDialog(context: string, error: any): boolean {
+  private static shouldShowErrorDialog(context: string, error: Error | unknown): boolean {
     const isDev = process.env.NODE_ENV === 'development';
     const isCritical = context.includes('Crash') || context.includes('Exception');
     

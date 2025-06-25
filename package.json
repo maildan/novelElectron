@@ -4,17 +4,17 @@
   "description": "Loop - 작가를 위한 타이핑 분석 도구",
   "main": "dist/main/index.js",
   "scripts": {
-    "dev": "concurrently \"pnpm dev:next\" \"pnpm dev:electron\"",
-    "dev:next": "next dev src/renderer -p 5500 --turbo",
-    "dev:electron": "pnpm build:main && electron dist/main/index.js",
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "dev:next": "next dev src/renderer -p 5500",
+    "dev:electron": "npm run build:main && electron dist/main/index.js",
     "start": "electron dist/main/index.js",
     "build": "tsc -p tsconfig.main.json && next build src/renderer",
     "build:main": "tsc -p tsconfig.main.json",
-    "build:renderer": "next build src/renderer --turbo",
+    "build:renderer": "next build src/renderer",
     "build:electron": "electron-builder",
     "rebuild": "electron-rebuild",
-    "rebuild:sqlite": "pnpm rebuild sqlite3 --build-from-source --runtime=electron --target=36.5.0 --dist-url=https://electronjs.org/headers",
-    "rebuild:uiohook": "pnpm rebuild uiohook-napi --build-from-source --runtime=electron --target=36.5.0",
+    "rebuild:sqlite": "npm rebuild sqlite3 --build-from-source --runtime=electron --target=36.5.0 --dist-url=https://electronjs.org/headers",
+    "rebuild:uiohook": "npm rebuild uiohook-napi --build-from-source --runtime=electron --target=36.5.0",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -23,8 +23,8 @@
     "format": "prettier --write src/**/*.{ts,tsx}",
     "test": "jest",
     "copilot:keepalive": "node scripts/copilot-keepalive.js",
-    "copilot:start": "concurrently \"pnpm dev\" \"pnpm copilot:keepalive\"",
-    "gigachad": "echo '🔥 기가차드 모드 활성화!' && pnpm copilot:start"
+    "copilot:start": "concurrently \"npm run dev\" \"npm run copilot:keepalive\"",
+    "gigachad": "echo '🔥 기가차드 모드 활성화!' && npm run copilot:start"
   },
   "keywords": [
     "typing",
@@ -62,16 +62,13 @@
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
-    "buffer": "^6.0.3",
     "electron": "^36.5.0",
     "get-windows": "^9.2.0",
     "lucide-react": "^0.522.0",
     "node-machine-id": "1.1.12",
     "prisma": "^6.10.1",
-    "process": "^0.11.10",
     "sqlite3": "^5.1.7",
-    "uiohook-napi": "1.5.4",
-    "util": "^0.12.5"
+    "uiohook-napi": "1.5.4"
   },
   "build": {
     "appId": "com.gigachad.loop",

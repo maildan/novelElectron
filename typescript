@@ -1,0 +1,22 @@
+Script started on Wed Jun 25 19:57:04 2025
+dThis project is configured to use pnpm because /Users/user/loop/loop/package.json has a "packageManager" field
+d [1m[7m%[27m[1m[0m                                                                                                                                    ]2;user@usersui-MacBookAir:~/loop/loop]1;~/loop/loop]7;file://usersui-MacBookAir.local/Users/user/loop/loop\[0m[27m[24m[J[01;32m➜  [36mloop[00m [K[?1h=[?2004h[0m[27m[24m[J[01;32m➜  [36mloop[00m [01;34mgit:([31mmain[34m) [33m✗[00m [Kccd scripts[?1l>[?2004l
+]2;cd scripts]1;cd[1m[7m%[27m[1m[0m                                                                                                                                    ]2;user@usersui-MacBookAir:~/loop/loop/scripts]1;../loop/scripts]7;file://usersui-MacBookAir.local/Users/user/loop/loop/scripts\[0m[27m[24m[J[01;32m➜  [36mscripts[00m [01;34mgit:([31mmain[34m) [33m✗[00m [K[?1h=[?2004hnnode [7mcopilot-keepalive.js[27m[20D[27mc[27mo[27mp[27mi[27ml[27mo[27mt[27m-[27mk[27me[27me[27mp[27ma[27ml[27mi[27mv[27me[27m.[27mj[27ms[?1l>[?2004l
+]2;node copilot-keepalive.js]1;node[2025-06-25T10:57:16.804Z] 🔥 기가차드 Copilot Keep-Alive 시작
+[2025-06-25T10:57:16.820Z] 세션 파일 업데이트: Keep-Alive #77
+[2025-06-25T10:57:16.821Z] ✅ Keep-Alive 신호 전송 완료 (4개 파일)
+[2025-06-25T11:00:16.827Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:03:16.833Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:05:16.824Z] 세션 파일 업데이트: Keep-Alive #78
+[2025-06-25T11:05:16.828Z] ✅ Keep-Alive 신호 전송 완료 (4개 파일)
+[2025-06-25T11:06:16.840Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:09:16.839Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:12:16.846Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:13:16.831Z] 세션 파일 업데이트: Keep-Alive #79
+[2025-06-25T11:13:16.837Z] ✅ Keep-Alive 신호 전송 완료 (4개 파일)
+[2025-06-25T11:15:16.850Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:18:16.855Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:21:16.840Z] 세션 파일 업데이트: Keep-Alive #80
+[2025-06-25T11:21:16.844Z] ✅ Keep-Alive 신호 전송 완료 (4개 파일)
+[2025-06-25T11:21:16.858Z] ⚡ 빠른 pulse 신호 전송
+[2025-06-25T11:24:16.851Z] ⚡ 빠른 pulse 신호 전송

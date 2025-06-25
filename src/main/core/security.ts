@@ -25,11 +25,18 @@ export const setSecurityHeaders = (webContents: Electron.WebContents) => {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: http://localhost:* ws://localhost:*; " +
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:*; " +
+          // #DEBUG: 기가차드 보안 강화 - unsafe-eval 제거
+          "default-src 'self' data: blob: http://localhost:* ws://localhost:*; " +
+          "script-src 'self' 'unsafe-inline' http://localhost:*; " + // unsafe-eval 제거
           "style-src 'self' 'unsafe-inline' http://localhost:*; " +
           "img-src 'self' data: blob: http://localhost:*; " +
-          "connect-src 'self' ws: wss: http://localhost:* ws://localhost:*;"
+          "connect-src 'self' ws: wss: http://localhost:* ws://localhost:*; " +
+          "font-src 'self' data:; " +
+          "media-src 'self' data: blob:; " +
+          "worker-src 'self' blob:; " +
+          "frame-src 'none'; " +
+          "object-src 'none'; " +
+          "base-uri 'self';"
         ]
       }
     });

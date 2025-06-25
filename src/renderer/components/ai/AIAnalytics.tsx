@@ -5,18 +5,50 @@ import { CommonComponentProps } from '@shared/types';
 import { 
   Lightbulb,
   PenTool,
-  BarChart3,
-  Users,
+  B      const newChatHistory: ChatMessage[] = [
+        ...chatHistory,
+        { 
+          id: `user-${Date.now()}`,
+          type: 'user', 
+          content: aiPrompt,
+          timestamp: new Date()
+        },
+        { 
+          id: `ai-${Date.now()}`,
+          type: 'ai', 
+          content: '죄송합니다. AI 기능은 현재 개발 중입니다. 곧 사용하실 수 있습니다!',
+          timestamp: new Date()
+        }
+      ]; Users,
   MessageSquare,
   Bot,
   Send
 } from 'lucide-react';
 
+// #DEBUG: AI 관련 타입 정의
+interface AIFeature {
+  title: string;
+  value: number;
+  description: string;
+  count?: string; // 사용 횟수 표시
+  icon?: React.ComponentType;
+  color?: string;
+}
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  message?: string; // 호환성을 위한 메시지 필드
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
 export function AIAnalytics({ logs, loading }: CommonComponentProps) {
   const [aiPrompt, setAiPrompt] = useState("");
-  const [aiFeatures, setAiFeatures] = useState<any[]>([]);
+  const [aiFeatures, setAiFeatures] = useState<AIFeature[]>([]);
   const [quickQuestions, setQuickQuestions] = useState<string[]>([]);
-  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
 
   const loadAIFeatures = useCallback(async () => {
@@ -102,8 +134,10 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
         // TODO: 실제 AI 채팅 히스토리 API 구현
         setChatHistory([
           {
+            id: 'initial-1',
             type: 'ai',
-            message: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?'
+            content: '안녕하세요! Loop AI입니다. 창작 활동에 어떤 도움이 필요하신가요?',
+            timestamp: new Date()
           }
         ]);
       } else {
@@ -228,7 +262,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
                       ? 'bg-blue-500 text-white' 
                       : 'bg-gray-100 text-gray-800'
                   }`}>
-                    <p className="text-sm whitespace-pre-wrap">{chat.message}</p>
+                    <p className="text-sm whitespace-pre-wrap">{chat.content}</p>
                   </div>
                 </div>
               ))}

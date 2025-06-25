@@ -115,12 +115,46 @@ export class HandlersManager {
     // 세션 통계 조회
     ipcMain.handle('database:get-sessions', async () => {
       try {
-        const dbManager = DatabaseManager.getInstance();
-        // TODO: getRecentSessions 메서드 구현 필요
-        return [];
+        debugLog('🗄️ database:get-sessions 핸들러 호출됨');
+        
+        // 실제 DB에서 세션 목록 조회
+        const dashboardData = await DatabaseManager.getInstance().getDashboardData();
+        const sessions = dashboardData.recentSessions.map(session => ({
+          id: session.id,
+          content: session.appName || 'Unknown App',
+          keyCount: session.totalKeys || 0,
+          typingTime: session.duration || 0,
+          timestamp: session.startTime.toISOString(),
+          wpm: session.wpm || 0,
+          accuracy: session.accuracy || 0,
+          totalChars: session.totalChars || 0
+        }));
+        
+        debugLog('✅ database:get-sessions 반환 데이터:', sessions.length + '개');
+        return sessions;
       } catch (error) {
         errorLog('세션 조회 실패:', error);
         return [];
+      }
+    });
+
+    // 분석 데이터 조회 추가
+    ipcMain.handle('database:get-analytics', async (_, sessionId: string) => {
+      try {
+        debugLog('📊 database:get-analytics 핸들러 호출됨, sessionId:', sessionId);
+        
+        // 실제 DB에서 세션 분석 데이터 조회
+        const analytics = await DatabaseManager.getInstance().getSessionAnalytics(sessionId);
+        if (!analytics) {
+          debugLog('⚠️ 세션 분석 데이터를 찾을 수 없음:', sessionId);
+          return null;
+        }
+        
+        debugLog('✅ database:get-analytics 반환 완료');
+        return analytics;
+      } catch (error) {
+        errorLog('분석 데이터 조회 실패:', error);
+        return null;
       }
     });
 

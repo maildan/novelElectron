@@ -84,13 +84,13 @@ export function initializeAppConfig(): AppConfig {
   };
 
   // 환경 정보 로깅
-  console.log(`📱 App: ${appConfig.name} v${appConfig.version}`);
-  console.log(`🔧 Environment: ${isDev ? 'Development' : isProd ? 'Production' : 'Test'}`);
-  console.log(`💻 Platform: ${appConfig.platform} (${appConfig.arch})`);
-  console.log(`📁 User Data: ${appConfig.userDataPath}`);
-  console.log(`📁 App Path: ${appConfig.appPath}`);
-  console.log(`📁 Logs Path: ${appConfig.logsPath}`);
-  console.log(`💾 DB Path: ${appConfig.dbPath}`);
+  console.log(`📱 앱: ${appConfig.name} v${appConfig.version}`);
+  console.log(`🔧 환경: ${isDev ? 'Development' : isProd ? 'Production' : 'Test'}`);
+  console.log(`💻 플랫폼: ${appConfig.platform} (${appConfig.arch})`);
+  console.log(`📁 사용자 데이터: ${appConfig.userDataPath}`);
+  console.log(`📁 앱 경로: ${appConfig.appPath}`);
+  console.log(`📁 로그 경로: ${appConfig.logsPath}`);
+  console.log(`💾 DB 경로: ${appConfig.dbPath}`);
 
   return appConfig;
 }

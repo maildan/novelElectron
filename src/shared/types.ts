@@ -148,6 +148,65 @@ export const IPC_CHANNELS = {
   SETTINGS_SET: 'settings:set',
 } as const;
 
+// 🔥 기가차드 추가: 데이터베이스 타입들
+export interface TypingSession {
+  id: string;
+  userId?: string;
+  startTime: Date;
+  endTime?: Date;
+  duration: number;
+  keyCount: number;
+  wpm: number;
+  accuracy: number;
+  errorCount: number;
+  language: string;
+  appName: string;
+  windowTitle?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  content?: string;
+  timestamp?: Date;
+}
+
+// #DEBUG: 세션 필터 타입 정의
+export interface SessionFilter {
+  startDate?: string;
+  endDate?: string;
+  appName?: string;
+  minWpm?: number;
+  minAccuracy?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AnalyticsData {
+  sessionId: string;
+  totalKeys: number;
+  avgWpm: number;
+  peakWpm: number;
+  accuracy: number;
+  errorRate: number;
+  commonErrors: string[];
+  improvementSuggestions: string[];
+  dailyStats?: DailyStats[];
+  weeklyTrend?: WeeklyTrend[];
+}
+
+export interface DailyStats {
+  date: string;
+  totalKeys: number;
+  wpm: number;
+  accuracy: number;
+  duration: number;
+}
+
+export interface WeeklyTrend {
+  week: string;
+  avgWpm: number;
+  totalSessions: number;
+  totalDuration: number;
+}
+
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];
 
 // UI Component Types for Gigachad Componentization
@@ -246,8 +305,8 @@ export interface HangulState {
 
 export interface PermissionStatus {
   accessibility: boolean;
+  inputMonitoring: boolean;
   screenRecording: boolean;
-  all: boolean;
 }
 
 // IPC 핸들러 함수 타입
@@ -258,4 +317,137 @@ export type IpcHandlerFunction<T = any, R = any> = (
 
 export interface TypedIpcHandler {
   [channel: string]: IpcHandlerFunction<any, any>;
+}
+
+import { ComponentType } from 'react';
+
+// 통계 및 차트 데이터 타입
+export interface StatisticsData {
+  id?: string;
+  value: number | string;
+  label: string;
+  unit?: string;
+  icon?: ComponentType;
+  color?: string;
+  change?: string;
+  percentage?: number;
+}
+
+export interface WeeklyChartData {
+  day: string;
+  sessions: number;
+  wpm: number;
+  accuracy: number;
+  value?: number;
+  label?: string;
+}
+
+export interface ProjectData {
+  name: string;
+  sessions: number;
+  time: number;
+  wpm: number;
+  value?: number;
+  label?: string;
+  color?: string;
+}
+
+export interface ActivityPattern {
+  hour: number;
+  activity: number;
+  sessions: number;
+  time?: string;
+  percentage?: number;
+  color?: string;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  target: number;
+  current: number;
+  type: 'wpm' | 'accuracy' | 'time' | 'sessions';
+  deadline?: string;
+  goal?: string;
+  achieved?: boolean;
+}
+
+export interface Genre {
+  name: string;
+  count: number;
+  averageWpm: number;
+  genre?: string;
+  color?: string;
+  percentage?: number;
+}
+
+// 데이터베이스 세션 데이터 타입
+export interface DatabaseSession {
+  id: string;
+  startTime: Date;
+  endTime?: Date;
+  duration: number;
+  totalKeys: number;
+  totalWords: number;
+  totalChars: number;
+  wpm: number;
+  cpm?: number;
+  accuracy: number;
+  appName: string;
+  windowTitle?: string;
+  platform: string;
+}
+
+// 에러 핸들링 타입
+export interface ErrorContext {
+  component?: string;
+  function?: string;
+  userId?: string;
+  sessionId?: string;
+  timestamp: number;
+}
+
+export interface ErrorMetadata {
+  stack?: string;
+  userAgent?: string;
+  url?: string;
+  promise?: unknown;
+  exitCode?: number;
+  additionalInfo?: Record<string, unknown>;
+}
+
+// 디버그 정보 타입
+export interface DebugInfo {
+  platform: string;
+  arch: string;
+  nodeVersion: string;
+  electronVersion?: string;
+  engineStatus: Record<string, unknown>;
+  permissionStatus: Record<string, unknown>;
+  sessionStats: Record<string, unknown> | null;
+  realtimeStats: Record<string, unknown>;
+  hangulState: Record<string, unknown>;
+  // 선택적 필드들
+  sessionId?: string;
+  isActive?: boolean;
+  startTime?: number;
+  currentApp?: AppInfo;
+  stats?: SessionStats;
+  config?: KeyboardConfig;
+  queueSize?: number;
+  permissions?: PermissionStatus;
+  memory?: Record<string, unknown>;
+  performance?: Record<string, unknown>;
+  version?: string;
+}
+
+export interface PermissionStatus {
+  accessibility: boolean;
+  inputMonitoring: boolean;
+  screenRecording: boolean;
+}
+
+// 유틸리티 함수 타입
+export interface ClassNameValue {
+  [key: string]: unknown;
 }

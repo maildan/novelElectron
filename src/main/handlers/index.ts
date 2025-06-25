@@ -4,6 +4,7 @@
  */
 
 import { ipcMain } from 'electron';
+import type { SessionFilter, TypingSession } from '../../shared/types';
 import { dashboardIpcHandlers } from './dashboardIpcHandlers';
 
 /**
@@ -18,6 +19,9 @@ export function setupIpcHandlers(): void {
 
     // 기본 앱 핸들러 등록
     registerAppHandlers();
+
+    // #DEBUG: Database 핸들러 등록 추가 (누락되어 있었음)
+    registerDatabaseHandlers();
 
     // 키보드 핸들러 등록
     registerKeyboardHandlers();
@@ -47,13 +51,13 @@ function registerAppHandlers(): void {
     return app.getVersion();
   });
 
-  // 플랫폼 정보 조회
+  // 플랫폼 정보 조회 - #DEBUG: React 직렌더링 방지위해 string만 반환
   ipcMain.handle('app:getPlatform', () => {
-    return {
-      platform: process.platform,
-      arch: process.arch,
-      version: process.version
-    };
+    // #DEBUG: 기존 객체 반환으로 React 객체 직렌더링 에러 발생
+    // return { platform: process.platform, arch: process.arch, version: process.version };
+    
+    // 🔥 기가차드 수정: React에서 문자열로 직렌더링 가능하게 수정
+    return process.platform;
   });
 
   // 앱 종료
@@ -63,6 +67,66 @@ function registerAppHandlers(): void {
   });
 
   console.log('✅ 기본 앱 IPC 핸들러 등록 완료');
+}
+
+/**
+ * 데이터베이스 IPC 핸들러 등록
+ */
+function registerDatabaseHandlers(): void {
+  // #DEBUG: database 핸들러 등록 시작
+  console.log('🗄️ Database IPC 핸들러 등록 시작...');
+  
+  // 세션 데이터 조회
+  ipcMain.handle('database:get-sessions', async (_, filter?: SessionFilter) => {
+    try {
+      // #DEBUG: database:get-sessions 핸들러 진입
+      console.log('🗄️ database:get-sessions 핸들러 호출됨, filter:', filter);
+      
+      // 🔥 실제 데이터베이스에서 세션 데이터 조회
+      const { getPrismaClient } = await import('../services/databaseService');
+      const prisma = getPrismaClient();
+      
+      // Prisma를 통한 실제 데이터 조회 (임시로 빈 배열, 스키마 정의 후 구현)
+      const sessions: TypingSession[] = []; // TODO: prisma.session.findMany() 구현
+      console.log('✅ database:get-sessions 실제 데이터:', sessions.length + '개');
+      return sessions;
+    } catch (error) {
+      console.error('❌ database:get-sessions 오류:', error);
+      return [];
+    }
+  });
+
+  // 분석 데이터 조회
+  ipcMain.handle('database:get-analytics', async (_, sessionId: string) => {
+    try {
+      // #DEBUG: database:get-analytics 핸들러 진입
+      console.log('📊 database:get-analytics 핸들러 호출됨, sessionId:', sessionId);
+      
+      // 🔥 실제 데이터베이스에서 분석 데이터 조회
+      const { getPrismaClient } = await import('../services/databaseService');
+      const prisma = getPrismaClient();
+      
+      // 실제 분석 데이터 조회 (임시로 기본값, 스키마 정의 후 구현)
+      const analytics = {
+        sessionId,
+        totalKeys: 0,
+        avgWpm: 0,
+        peakWpm: 0,
+        accuracy: 0,
+        errorRate: 0,
+        commonErrors: [],
+        improvementSuggestions: []
+      }; // TODO: prisma.analytics.findUnique() 구현
+      
+      console.log('✅ database:get-analytics 실제 데이터 반환');
+      return analytics;
+    } catch (error) {
+      console.error('❌ database:get-analytics 오류:', error);
+      return null;
+    }
+  });
+
+  console.log('✅ Database IPC 핸들러 등록 완료');
 }
 
 /**

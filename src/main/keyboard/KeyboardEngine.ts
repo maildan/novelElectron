@@ -308,7 +308,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 현재 앱 정보 반환
    */
-  public getCurrentApp(): any {
+  public getCurrentApp(): AppInfo | null {
     return this.appDetector?.getLastAppInfo() || null;
   }
 
@@ -330,7 +330,7 @@ export class KeyboardEngine extends EventEmitter {
   /**
    * 헬스체크 상태 반환
    */
-  public getHealthStatus(): any {
+  public getHealthStatus(): Record<string, unknown> {
     return {
       isHealthy: true,
       lastCheck: Date.now(),
