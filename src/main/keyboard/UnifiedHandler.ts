@@ -230,7 +230,7 @@ export class UnifiedKeyboardHandler {
 
       // ===== 추가 기능 =====
       'keyboard:export-session-data': () => this.exportSessionData(),
-      'keyboard:import-session-data': (_event: any, data: string) => this.importSessionData(data),
+      'keyboard:import-session-data': (_event: Electron.IpcMainInvokeEvent, data: string) => this.importSessionData(data),
       'keyboard:get-typing-heatmap': () => this.getTypingHeatmap(),
       'keyboard:get-performance-metrics': () => this.getPerformanceMetrics()
     };
@@ -275,7 +275,7 @@ export class UnifiedKeyboardHandler {
   private async testKeyboardConnection(): Promise<{
     success: boolean;
     message: string;
-    details: any;
+    details: Record<string, unknown>;
   }> {
     try {
       const status = await this.getSystemStatus();
@@ -379,7 +379,7 @@ export class UnifiedKeyboardHandler {
   /**
    * 타이핑 히트맵 데이터
    */
-  private getTypingHeatmap(): any {
+  private getTypingHeatmap(): Record<string, unknown> | null {
     const session = this.statsManager.getCurrentSession();
     if (!session) return null;
 
@@ -392,7 +392,7 @@ export class UnifiedKeyboardHandler {
   /**
    * 성능 메트릭 조회
    */
-  private getPerformanceMetrics(): any {
+  private getPerformanceMetrics(): Record<string, unknown> {
     const engineStatus = keyboardEngine.getStatus();
     const realtimeStats = this.statsManager.getRealtimeStats();
 
@@ -422,7 +422,7 @@ export class UnifiedKeyboardHandler {
   /**
    * 설정 가져오기
    */
-  private getConfig(): any {
+  private getConfig(): Record<string, unknown> {
     // ConfigManager에서 설정 가져오기 (KeyboardEngine을 통해)
     return {}; // 임시 반환값
   }
@@ -430,7 +430,7 @@ export class UnifiedKeyboardHandler {
   /**
    * 권한 상태 가져오기
    */
-  private getPermissionStatus(): any {
+  private getPermissionStatus(): Record<string, unknown> {
     return {}; // 임시 반환값
   }
 
@@ -465,14 +465,14 @@ export class UnifiedKeyboardHandler {
   /**
    * 실시간 통계 가져오기
    */
-  private getRealtimeStats(): any {
+  private getRealtimeStats(): Record<string, unknown> {
     return this.statsManager.getRealtimeStats();
   }
 
   /**
    * 한글 분해
    */
-  private decomposeHangul(char: string): any {
+  private decomposeHangul(char: string): Record<string, unknown> {
     return HangulComposer.decomposeHangul(char);
   }
 
@@ -500,7 +500,7 @@ export class UnifiedKeyboardHandler {
   /**
    * 렌더러로 데이터 전송
    */
-  private sendToRenderer(channel: string, data: any): void {
+  private sendToRenderer(channel: string, data: unknown): void {
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send(channel, data);
     }

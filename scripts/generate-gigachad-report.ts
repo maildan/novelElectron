@@ -31,14 +31,14 @@ async function generateFinalReport() {
       report.markdownTable
     );
     
-    console.log('✅ 기가차드 최종 리포트 생성 완료!');
-    console.log('📊 파일 생성:');
-    console.log('  - gigachad-performance-schema.json');
-    console.log('  - gigachad-diff-patch.json');
-    console.log('  - GIGACHAD_FINAL_REPORT.md');
-    
+    debugLog('✅ 기가차드 최종 리포트 생성 완료!');
+    debugLog('📊 파일 생성:');
+    debugLog('  - gigachad-performance-schema.json');
+    debugLog('  - gigachad-diff-patch.json');
+    debugLog('  - GIGACHAD_FINAL_REPORT.md');
+
   } catch (error) {
-    console.error('❌ 리포트 생성 실패:', error);
+    debugLog('❌ 리포트 생성 실패:', error);
   }
 }
 
