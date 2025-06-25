@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ActiveTab, NavItem } from '../../../shared/types';
+import { ActiveTab, NavItem } from '@shared/types';
 import { AppHeader } from './AppHeader';
 import { 
   Home, 

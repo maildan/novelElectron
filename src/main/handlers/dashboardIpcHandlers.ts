@@ -4,8 +4,11 @@
 
 import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '@shared/types';
-import { getPrismaClient } from '../services/databaseService';
-import { registerKeyboardListener, stopKeyboardListener } from '../services/keyboardService';
+import { getPrismaClient } from '@main/services/databaseService';
+import { registerKeyboardListener, stopKeyboardListener } from '@main/services/keyboardService';
+import { GigaChadLogger } from '@main/keyboard/logger';
+
+const logger = GigaChadLogger.getInstance();
 
 export class DashboardIpcHandlers {
   private static instance: DashboardIpcHandlers;
@@ -37,12 +40,12 @@ export class DashboardIpcHandlers {
             email: 'user@loop.app',
           }
         });
-        console.log('🔥 기본 사용자 생성됨:', user.id);
+        GigaChadLogger.info('DashboardIPC', '🔥 기본 사용자 생성됨: ' + user.id);
       }
       
       return user.id;
     } catch (error) {
-      console.error('기본 사용자 확인/생성 오류:', error);
+      GigaChadLogger.error('DashboardIPC', '기본 사용자 확인/생성 오류', error);
       throw error;
     }
   }
@@ -53,20 +56,20 @@ export class DashboardIpcHandlers {
       try {
         if (!this.mainWindow) throw new Error('Main window not available');
         
-        const success = await registerKeyboardListener(this.mainWindow);
-        return { success, message: success ? '모니터링 시작됨' : '모니터링 시작 실패' };
-      } catch (error) {
-        console.error('모니터링 시작 오류:', error);
+        await registerKeyboardListener();
+        return { success: true, message: '모니터링 시작됨' };
+      } catch (error: any) {
+        GigaChadLogger.error('모니터링 시작 오류', error instanceof Error ? error.message : String(error));
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
 
     ipcMain.handle('dashboard:stop-monitoring', async () => {
       try {
-        const success = stopKeyboardListener();
-        return { success, message: success ? '모니터링 중지됨' : '모니터링 중지 실패' };
-      } catch (error) {
-        console.error('모니터링 중지 오류:', error);
+        await stopKeyboardListener();
+        return { success: true, message: '모니터링 중지됨' };
+      } catch (error: any) {
+        GigaChadLogger.error('모니터링 중지 오류', error instanceof Error ? error.message : String(error));
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -107,7 +110,7 @@ export class DashboardIpcHandlers {
           }))
         };
       } catch (error) {
-        console.error('최근 로그 조회 오류:', error);
+        GigaChadLogger.error('DashboardIPC', '최근 로그 조회 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -179,7 +182,7 @@ export class DashboardIpcHandlers {
           }
         };
       } catch (error) {
-        console.error('통계 조회 오류:', error);
+        GigaChadLogger.error('DashboardIPC', '통계 조회 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -223,7 +226,7 @@ export class DashboardIpcHandlers {
           }
         };
       } catch (error) {
-        console.error('타이핑 로그 저장 오류:', error);
+        GigaChadLogger.error('DashboardIPC', '타이핑 로그 저장 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });

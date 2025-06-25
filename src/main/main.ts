@@ -7,7 +7,7 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { AppLifecycle } from './managers/AppLifecycle';
 // import { ErrorHandler } from './core/error-handler'; // 🔥 일단 주석처리, 나중에 만들자
-import { AppConfig } from './config/app-config';
+import { initializeAppConfig, isDevMode } from './config/app-config';
 
 /**
  * 🔥 기가차드식 에러 핸들링 - 간단하게!
@@ -21,10 +21,10 @@ process.on('unhandledRejection', (reason) => {
 });
 
 /**
- * App-wide configuration
+ * 앱 설정 초기화
  */
-const isDev = process.env.NODE_ENV === 'development';
-const isPackaged = app.isPackaged;
+const appConfig = initializeAppConfig();
+const isDev = isDevMode();
 
 /**
  * Security: Prevent new window creation from external sources
@@ -38,9 +38,9 @@ app.on('web-contents-created', (event, contents) => {
 /**
  * Handle app activation (macOS)
  */
-app.on('activate', () => {
+app.on('activate', async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    AppLifecycle.createMainWindow();
+    await AppLifecycle.getInstance().handleAppActivation();
   }
 });
 
@@ -58,7 +58,7 @@ app.on('window-all-closed', () => {
  */
 app.whenReady().then(async () => {
   try {
-    await AppLifecycle.initialize();
+    await AppLifecycle.getInstance().initializeApp();
     console.log('✅ 🔥 기가차드 앱 초기화 완료!');
   } catch (error) {
     console.error('❌ 🔥 기가차드 앱 초기화 실패:', error);
@@ -69,12 +69,20 @@ app.whenReady().then(async () => {
 /**
  * Handle before quit
  */
-app.on('before-quit', (event) => {
+app.on('before-quit', async (event) => {
   console.log('🔄 Application shutting down...');
-  AppLifecycle.cleanup();
+  event.preventDefault();
+  
+  try {
+    await AppLifecycle.getInstance().cleanupApp();
+    app.exit(0);
+  } catch (error) {
+    console.error('❌ 정리 중 오류:', error);
+    app.exit(1);
+  }
 });
 
 /**
  * Export for potential use in other modules
  */
-export { app, isDev, isPackaged };
+export { app, isDev };

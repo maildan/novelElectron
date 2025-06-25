@@ -6,9 +6,11 @@
  */
 
 import { ipcMain } from 'electron';
-import { IpcManager } from './managers/IpcManager';
-import { DatabaseManager } from './managers/DatabaseManager';
-import { KeyboardManager } from './managers/KeyboardManager';
+import { IpcManager } from '@main/managers/IpcManager';
+import { DatabaseManager } from '@main/managers/DatabaseManager';
+import { KeyboardManager } from '@main/managers/KeyboardManager';
+// 🔥 NEW: Dashboard 핸들러 추가
+import { DashboardIpcHandlers } from '@main/handlers/dashboardIpcHandlers';
 
 // 간단한 디버그 로깅
 function debugLog(message: string, ...args: unknown[]): void {
@@ -63,6 +65,9 @@ export class HandlersManager {
 
       // 1. 데이터베이스 핸들러
       await this.initializeDatabaseHandlers();
+
+      // 🔥 NEW: Dashboard 핸들러 초기화
+      await this.initializeDashboardHandlers();
 
       // 2. 키보드 핸들러는 UnifiedKeyboardHandler에서 처리하므로 제외
       // (중복 등록 방지)
@@ -219,6 +224,40 @@ export class HandlersManager {
 
     handlersState.registeredHandlers.add('system');
     debugLog('✅ 시스템 핸들러 등록 완료');
+  }
+
+  /**
+   * 대시보드 관련 핸들러 초기화
+   */
+  private async initializeDashboardHandlers(): Promise<void> {
+    debugLog('📊 대시보드 핸들러 초기화 중...');
+
+    try {
+      // 🔥 기가차드 Dashboard IPC 핸들러 등록
+      const dashboardHandler = DashboardIpcHandlers.getInstance();
+      dashboardHandler.registerHandlers();
+      debugLog('✅ Dashboard IPC 핸들러 등록 완료');
+    } catch (error) {
+      errorLog('❌ Dashboard IPC 핸들러 등록 실패:', error);
+    }
+
+    // 추가 대시보드 데이터 조회 (기본)
+    ipcMain.handle('dashboard:get-data', async () => {
+      try {
+        // TODO: 실제 대시보드 데이터 조회 로직 구현
+        return {
+          totalSessions: 100,
+          activeUsers: 75,
+          errorRate: 0.02
+        };
+      } catch (error) {
+        errorLog('대시보드 데이터 조회 실패:', error);
+        return null;
+      }
+    });
+
+    handlersState.registeredHandlers.add('dashboard');
+    debugLog('✅ 대시보드 핸들러 등록 완료');
   }
 
   /**

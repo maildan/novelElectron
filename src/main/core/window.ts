@@ -5,7 +5,7 @@
 
 import { BrowserWindow, screen } from 'electron';
 import { join } from 'path';
-import { isDev } from '../utils/environment';
+import { isDev } from '@main/utils/environment';
 
 /**
  * 메인 윈도우 생성
@@ -23,8 +23,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     height: Math.min(900, screenHeight * 0.9),
     minWidth: 800,
     minHeight: 600,
-    show: false, // 준비될 때까지 숨김
-    center: true, // 중앙 배치
+    show: false, // 준비되면 보이기
     
     // 웹 보안 설정
     webPreferences: {
@@ -36,9 +35,8 @@ export async function createMainWindow(): Promise<BrowserWindow> {
       experimentalFeatures: false
     },
 
-    // UI 설정 - OS 네이티브 타이틀바 사용
-    titleBarStyle: 'default',
-    frame: true,
+    // UI 설정
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     icon: join(__dirname, '../../public/icon.png')
   };
 
@@ -54,22 +52,16 @@ export async function createMainWindow(): Promise<BrowserWindow> {
   try {
     await mainWindow.loadURL(startUrl);
     
-    // 준비되면 추가 설정
+    // 준비되면 윈도우 표시
     mainWindow.once('ready-to-show', () => {
-      console.log('🌐 웹 콘텐츠 로드 완료');
-      
-      // 윈도우 표시
       mainWindow.show();
-      mainWindow.focus();
-      console.log('✅ 콘텐츠 로드 성공');
       
       // 개발 환경에서 DevTools 자동 열기
       if (isDev) {
         mainWindow.webContents.openDevTools();
-        console.log('🔥 개발 환경: DevTools 자동 열림!');
       }
       
-      console.log('✅ 기가차드 메인 윈도우 생성 완료!');
+      console.log('✅ 메인 윈도우 표시 완료');
     });
 
   } catch (error) {

@@ -1,16 +1,6 @@
 /**
  * 🔥 기가차드 앱 라이프사이클 매니저
- * Loo    this.appState = {
-      isInitialized: false,
-      windowManager: null,
-      keyboardManager: null,
-      unifiedKeyboardHandler: null,
-      databaseManager: null,
-      securityManager: null,
-      ipcManager: null,
-      handlersManager: null,
-      errorManager: null
-    };nalytics - Application Lifecycle Manager
+ * Loop Typing Analytics - Application Lifecycle Manager
  */
 
 import { app, BrowserWindow } from 'electron';
@@ -19,30 +9,16 @@ import { KeyboardManager } from './KeyboardManager';
 import { DatabaseManager } from './DatabaseManager';
 import { SecurityManager } from './SecurityManager';
 import { IpcManager } from './IpcManager';
-import { ErrorManager } from './ErrorManager';
-import { HandlersManager } from '../handlers-manager';
-import { PlatformManager } from './PlatformManager';
-import { SystemMonitor } from './SystemMonitor';
-import { MenuManager } from './MenuManager';
-import { ShortcutsManager } from './ShortcutsManager';
-// 🔥 NEW: 기가차드 키보드 시스템
-import { UnifiedKeyboardHandler } from '../keyboard/UnifiedHandler';
-import { keyboardEngine } from '../keyboard/KeyboardEngine';
 
 export interface AppState {
   isInitialized: boolean;
   windowManager: WindowManager | null;
-  keyboardManager: KeyboardManager | null; // Legacy - 호환성 위해 유지
-  unifiedKeyboardHandler: UnifiedKeyboardHandler | null; // 🔥 NEW: 통합 키보드 핸들러
+  keyboardManager: KeyboardManager | null;
   databaseManager: DatabaseManager | null;
   securityManager: SecurityManager | null;
   ipcManager: IpcManager | null;
-  handlersManager: HandlersManager | null; // 🔥 NEW: 핸들러 매니저
-  menuManager: MenuManager | null; // 🔥 NEW: 메뉴 매니저
-  shortcutsManager: ShortcutsManager | null; // 🔥 NEW: 단축키 매니저
-  platformManager: PlatformManager | null; // 🔥 NEW: 플랫폼 매니저
-  systemMonitor: SystemMonitor | null; // 🔥 NEW: 시스템 모니터
-  errorManager: ErrorManager | null;
+  unifiedKeyboardHandler?: any; // 통합 키보드 핸들러
+  errorManager?: any; // 에러 매니저
 }
 
 export class AppLifecycle {
@@ -54,16 +30,9 @@ export class AppLifecycle {
       isInitialized: false,
       windowManager: null,
       keyboardManager: null,
-      unifiedKeyboardHandler: null, // 🔥 NEW
       databaseManager: null,
       securityManager: null,
-      ipcManager: null,
-      handlersManager: null, // 🔥 NEW
-      menuManager: null, // 🔥 NEW
-      shortcutsManager: null, // 🔥 NEW
-      platformManager: null, // 🔥 NEW
-      systemMonitor: null, // 🔥 NEW
-      errorManager: null
+      ipcManager: null
     };
   }
 
@@ -81,11 +50,6 @@ export class AppLifecycle {
     console.log('🔥 기가차드 앱 라이프사이클: 초기화 시작...');
 
     try {
-      // 0. 에러 매니저 초기화 (가장 먼저)
-      this.appState.errorManager = ErrorManager.getInstance();
-      this.appState.errorManager.initialize();
-      console.log('✅ 에러 매니저 초기화 완료');
-
       // 1. 보안 매니저 초기화
       this.appState.securityManager = SecurityManager.getInstance();
       await this.appState.securityManager.initialize();
@@ -101,43 +65,17 @@ export class AppLifecycle {
       this.appState.ipcManager.initialize();
       console.log('✅ IPC 매니저 초기화 완료');
 
-      // 3.5. 🔥 NEW: 핸들러 매니저 초기화
-      this.appState.handlersManager = HandlersManager.getInstance();
-      await this.appState.handlersManager.initializeAllHandlers();
-      console.log('🔥 핸들러 매니저 초기화 완료');
-
       // 4. 윈도우 매니저 초기화
       this.appState.windowManager = WindowManager.getInstance();
       await this.appState.windowManager.createMainWindow();
       console.log('✅ 윈도우 매니저 초기화 완료');
 
-      // 4.5. 🔥 NEW: 플랫폼 매니저 초기화
-      this.appState.platformManager = PlatformManager.getInstance();
-      console.log('✅ 플랫폼 매니저 초기화 완료');
-
-      // 4.6. 🔥 NEW: 시스템 모니터 초기화
-      this.appState.systemMonitor = SystemMonitor.getInstance();
-      this.appState.systemMonitor.startMonitoring();
-      console.log('✅ 시스템 모니터 초기화 완료');
-
-      // 4.7. 🔥 NEW: 메뉴 매니저 초기화 (간단 버전)
-      this.appState.menuManager = MenuManager.getInstance();
-      this.appState.menuManager.setupDefaultMenu(); // 🔥 수정: setupDefaultMenu 메서드 사용
-      console.log('✅ 메뉴 매니저 초기화 완료');
-
-      // 5. 🔥 기가차드 통합 키보드 시스템 초기화
-      this.appState.unifiedKeyboardHandler = UnifiedKeyboardHandler.getInstance();
+      // 5. 키보드 매니저 초기화
+      this.appState.keyboardManager = KeyboardManager.getInstance();
       const mainWindow = this.appState.windowManager.getMainWindow();
       if (mainWindow) {
-        await this.appState.unifiedKeyboardHandler.initialize(mainWindow);
-        console.log('🔥 기가차드 통합 키보드 시스템 초기화 완료');
-      }
-
-      // 6. 레거시 키보드 매니저 (호환성용)
-      this.appState.keyboardManager = KeyboardManager.getInstance();
-      if (mainWindow) {
-        this.appState.keyboardManager.initialize(mainWindow);
-        console.log('✅ 레거시 키보드 매니저 초기화 완료 (호환성용)');
+        await this.appState.keyboardManager.initialize(); // 인자 없이 호출
+        console.log('✅ 키보드 매니저 초기화 완료');
       }
 
       this.appState.isInitialized = true;
@@ -155,46 +93,11 @@ export class AppLifecycle {
     console.log('🧹 기가차드 앱 라이프사이클: 정리 시작...');
 
     try {
-      // 🔥 NEW: 글로벌 단축키 매니저 정리 (가장 먼저)
-      if (this.appState.shortcutsManager) {
-        this.appState.shortcutsManager.cleanup();
-        this.appState.shortcutsManager = null;
-        console.log('🔥 글로벌 단축키 매니저 정리 완료');
-      }
-
-      // 🔥 통합 키보드 시스템 정리
-      if (this.appState.unifiedKeyboardHandler) {
-        await this.appState.unifiedKeyboardHandler.cleanup();
-        this.appState.unifiedKeyboardHandler = null;
-        console.log('🔥 통합 키보드 시스템 정리 완료');
-      }
-
-      // 레거시 키보드 매니저 정리
+      // 키보드 매니저 정리
       if (this.appState.keyboardManager) {
         this.appState.keyboardManager.cleanup();
         this.appState.keyboardManager = null;
-        console.log('✅ 레거시 키보드 매니저 정리 완료');
-      }
-
-      // 🔥 NEW: 시스템 모니터 정리
-      if (this.appState.systemMonitor) {
-        this.appState.systemMonitor.cleanup();
-        this.appState.systemMonitor = null;
-        console.log('✅ 시스템 모니터 정리 완료');
-      }
-
-      // 🔥 NEW: 플랫폼 매니저 정리
-      if (this.appState.platformManager) {
-        this.appState.platformManager.cleanup();
-        this.appState.platformManager = null;
-        console.log('✅ 플랫폼 매니저 정리 완료');
-      }
-
-      // 🔥 NEW: 메뉴 매니저 정리
-      if (this.appState.menuManager) {
-        this.appState.menuManager.cleanup();
-        this.appState.menuManager = null;
-        console.log('🔥 메뉴 매니저 정리 완료');
+        console.log('✅ 키보드 매니저 정리 완료');
       }
 
       // 윈도우 매니저 정리
@@ -211,13 +114,6 @@ export class AppLifecycle {
         console.log('✅ IPC 매니저 정리 완료');
       }
 
-      // 🔥 NEW: 핸들러 매니저 정리
-      if (this.appState.handlersManager) {
-        this.appState.handlersManager.cleanup();
-        this.appState.handlersManager = null;
-        console.log('🔥 핸들러 매니저 정리 완료');
-      }
-
       // 데이터베이스 매니저 정리
       if (this.appState.databaseManager) {
         await this.appState.databaseManager.cleanup();
@@ -230,13 +126,6 @@ export class AppLifecycle {
         this.appState.securityManager.cleanup();
         this.appState.securityManager = null;
         console.log('✅ 보안 매니저 정리 완료');
-      }
-
-      // 에러 매니저 정리
-      if (this.appState.errorManager) {
-        this.appState.errorManager.cleanup();
-        this.appState.errorManager = null;
-        console.log('✅ 에러 매니저 정리 완료');
       }
 
       this.appState.isInitialized = false;
@@ -262,13 +151,6 @@ export class AppLifecycle {
 
   getKeyboardManager(): KeyboardManager | null {
     return this.appState.keyboardManager;
-  }
-
-  /**
-   * 🔥 기가차드 통합 키보드 핸들러 가져오기
-   */
-  getUnifiedKeyboardHandler(): UnifiedKeyboardHandler | null {
-    return this.appState.unifiedKeyboardHandler;
   }
 
   getDatabaseManager(): DatabaseManager | null {
@@ -316,35 +198,6 @@ export class AppLifecycle {
       // 윈도우가 없으면 새로 생성
       await this.initializeApp();
     }
-  }
-
-  /**
-   * Static initialization method for main.ts compatibility
-   */
-  static async initialize(): Promise<void> {
-    const lifecycle = AppLifecycle.getInstance();
-    await lifecycle.initializeApp();
-  }
-
-  /**
-   * Static window creation method for main.ts compatibility
-   */
-  static async createMainWindow(): Promise<void> {
-    const lifecycle = AppLifecycle.getInstance();
-    if (lifecycle.appState.windowManager) {
-      await lifecycle.appState.windowManager.createMainWindow();
-    } else {
-      // If not initialized yet, do full initialization
-      await lifecycle.initializeApp();
-    }
-  }
-
-  /**
-   * Static cleanup method for main.ts compatibility
-   */
-  static cleanup(): void {
-    const lifecycle = AppLifecycle.getInstance();
-    lifecycle.cleanupApp();
   }
 
   /**

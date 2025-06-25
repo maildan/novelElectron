@@ -3,9 +3,8 @@
  * Loop Typing Analytics - Global Styles
  */
 
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
 
 /* CSS Variables */
 @import './styles/variables.css';

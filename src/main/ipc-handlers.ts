@@ -152,10 +152,7 @@ export class IpcHandlers {
     ipcMain.handle('initialize-keyboard-manager', async (event) => {
       try {
         const keyboardManager = KeyboardManager.getInstance();
-        const window = BrowserWindow.fromWebContents(event.sender);
-        if (window) {
-          keyboardManager.initialize(window);
-        }
+        await keyboardManager.initialize(); // window 인자 제거
         return true;
       } catch (error) {
         console.error('키보드 매니저 초기화 실패:', error);

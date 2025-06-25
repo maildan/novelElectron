@@ -3,7 +3,7 @@
  * Loop Typing Analytics - Global Type Definitions
  */
 
-import { ElectronAPI } from '../../preload/index';
+import { ElectronAPI } from '@/preload';
 
 declare global {
   interface Window {

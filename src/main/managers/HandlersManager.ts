@@ -6,8 +6,8 @@
  */
 
 import { ipcMain, BrowserWindow, IpcMainInvokeEvent } from 'electron';
-import { DatabaseManager } from '../managers/DatabaseManager';
-import { WindowManager } from '../managers/WindowManager';
+import { DatabaseManager } from '@main/managers/DatabaseManager';
+import { WindowManager } from '@main/managers/WindowManager';
 
 export interface HandlerInfo {
   channel: string;

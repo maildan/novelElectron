@@ -5,7 +5,7 @@
 
 import { BrowserWindow, screen, app } from 'electron';
 import { join } from 'path';
-import { isDev } from '../utils/environment';
+import { isDev } from '@main/utils/environment';
 
 export class WindowManager {
   private static instance: WindowManager;
@@ -53,19 +53,10 @@ export class WindowManager {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: (() => {
-          const preloadPath = join(__dirname, '../../preload/index.js');
-          console.log('🔧 Preload 경로 디버그:', preloadPath);
-          console.log('🔧 __dirname:', __dirname);
-          console.log('🔧 Preload 파일 존재:', require('fs').existsSync(preloadPath));
-          return preloadPath;
-        })(), // 🔥 수정: 올바른 preload 경로 (__dirname이 dist/main/managers이므로 ../../preload)
+        preload: join(__dirname, '../preload/index.js'),
         webSecurity: true,
         allowRunningInsecureContent: false,
-        experimentalFeatures: false,
-        
-        // 🛡️ 보안 강화 설정
-        sandbox: false // preload 스크립트를 위해 false로 설정
+        experimentalFeatures: false
       },
 
       // UI 설정

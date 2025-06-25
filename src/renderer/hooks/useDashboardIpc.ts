@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { ElectronAPI } from '../../preload';
+import type { ElectronAPI } from '@/preload';
 
 export interface IpcResponse<T = any> {
   success: boolean;

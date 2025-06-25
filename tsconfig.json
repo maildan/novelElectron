@@ -23,7 +23,20 @@
       "@/*": ["src/*"],
       "@main/*": ["src/main/*"],
       "@renderer/*": ["src/renderer/*"],
-      "@shared/*": ["src/shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@preload/*": ["src/preload/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"],
+      "@keyboard/*": ["src/main/keyboard/*"],
+      "@managers/*": ["src/main/managers/*"],
+      "@handlers/*": ["src/main/handlers/*"],
+      "@core/*": ["src/main/core/*"],
+      "@config/*": ["src/main/config/*"],
+      "@services/*": ["src/main/services/*"],
+      "@components/*": ["src/renderer/components/*"],
+      "@hooks/*": ["src/renderer/hooks/*"],
+      "@styles/*": ["src/renderer/styles/*"],
+      "@lib/*": ["src/renderer/lib/*"]
     },
     "types": ["node", "electron"]
   },

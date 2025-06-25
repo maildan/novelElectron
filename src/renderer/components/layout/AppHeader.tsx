@@ -1,11 +1,12 @@
 /**
- * 🔥 기가차드 앱 헤더 컴포넌트
+ * 🔥 기가차드 앱 헤더 컴포넌트 - Hydration Safe!
  * Loop Typing Analytics - App Header with Window Controls
  */
 
 'use client';
 
 import { Minus, Square, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface AppHeaderProps {
   title?: string;
@@ -17,6 +18,19 @@ export function AppHeader({
   showWindowControls = true 
 }: AppHeaderProps) {
   
+  const [isMounted, setIsMounted] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // 브라우저에서만 플랫폼 확인
+    const shouldShowControls = showWindowControls && 
+      typeof window !== 'undefined' && 
+      typeof process !== 'undefined' && 
+      process.platform !== 'darwin';
+    setShowControls(shouldShowControls);
+  }, [showWindowControls]);
+
   const handleMinimize = () => {
     if (typeof window !== 'undefined' && window.electronAPI) {
       window.electronAPI.window.minimize();
@@ -49,8 +63,8 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* 윈도우 컨트롤 버튼들 (macOS에서는 숨김) */}
-      {showWindowControls && process.platform !== 'darwin' && (
+      {/* 윈도우 컨트롤 버튼들 - 완전히 클라이언트에서만 렌더링 */}
+      {isMounted && showControls && (
         <div className="window-controls">
           <button 
             className="window-control-btn minimize"

@@ -1,17 +1,25 @@
 // 공유 타입 정의 - Main/Preload/Renderer 모든 프로세스에서 사용
-// 🔥 IPC 통신용 간단한 타입들 (내부 분석용이 아닌 프로세스 간 전송용)
 
 // 키보드 이벤트 (DOM KeyboardEvent와 충돌 방지를 위해 커스텀 네이밍)
 export interface LoopKeyboardEvent {
   keycode: number
+  key: string
   type: 'keydown' | 'keyup'
   timestamp: number
+  char?: string
+  appName?: string
+  windowTitle?: string
+  modifiers?: {
+    shift?: boolean;
+    ctrl?: boolean;
+    alt?: boolean;
+    meta?: boolean;
+  };
 }
 
 // 한글 자모 쌍 타입 정의
 export type JamoPair = [normal: string, shift?: string];
 
-// IPC용 간단한 타이핑 통계 (UI 표시용)
 export interface TypingStats {
   wpm: number;           // Words Per Minute
   accuracy: number;      // 정확도 (0-100)
@@ -62,18 +70,6 @@ export const IPC_CHANNELS = {
   DB_SAVE_SESSION: 'db:save-session',
   DB_GET_SESSIONS: 'db:get-sessions',
   DB_GET_STATS: 'db:get-stats',
-  
-  // 프로젝트 관련
-  PROJECT_GET_ALL: 'project:get-all',
-  PROJECT_GET_ACTIVE: 'project:get-active',
-  PROJECT_CREATE: 'project:create',
-  PROJECT_UPDATE: 'project:update',
-  PROJECT_DELETE: 'project:delete',
-  
-  // 파일 관련
-  FILE_GET_RECENT: 'file:get-recent',
-  FILE_GET_BY_PROJECT: 'file:get-by-project',
-  FILE_TRACK: 'file:track',
   
   // 설정 관련
   SETTINGS_GET: 'settings:get',
@@ -141,25 +137,30 @@ export interface AppSettings {
   keyboardLayout: string;
 }
 
-// 프로젝트 및 파일 관련 타입
+// 프로젝트 관련 타입들
 export interface ProjectData {
   id: string;
-  title: string;
-  progress: number;
-  status: string;
-  deadline: string;
+  name?: string;         // optional로 변경
+  title?: string;        // title 속성 추가
   description?: string;
+  progress?: number;     // 진행률 (0-100)
+  status?: string;       // 상태 (진행중, 완료 등)
+  deadline?: string;     // 마감일
   createdAt: Date;
   updatedAt: Date;
+  totalSessions?: number;
+  totalTypingTime?: number;
+  averageWpm?: number;
 }
 
 export interface RecentFile {
   id: string;
   name: string;
-  project: string;
-  time: string;
-  status: string;
-  path?: string;
-  size?: number;
+  path: string;
+  type: string;
+  project?: string;      // 프로젝트명
+  time?: string;         // 상대적 시간 (예: "2분 전")
+  status?: string;       // 파일 상태 (예: "수정됨")
   lastModified: Date;
+  size?: number;
 }

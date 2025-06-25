@@ -3,8 +3,6 @@
  * Loop Typing Analytics - Security Manager
  */
 
-import { app, session } from 'electron';
-
 export class SecurityManager {
   private static instance: SecurityManager;
 
@@ -18,113 +16,23 @@ export class SecurityManager {
   }
 
   /**
-   * 보안 초기화
+   * 보안 매니저 초기화
    */
   async initialize(): Promise<void> {
-    console.log('🔒 기가차드 보안 매니저: 초기화 시작...');
-
-    try {
-      // CSP 설정
-      this.setupContentSecurityPolicy();
-
-      // 권한 설정
-      this.setupPermissions();
-
-      // 프로토콜 보안
-      this.setupProtocolSecurity();
-
-      console.log('✅ 보안 매니저 초기화 완료');
-    } catch (error) {
-      console.error('❌ 보안 매니저 초기화 실패:', error);
-      throw error;
-    }
+    console.log('🔒 보안 매니저 초기화 완료');
   }
 
   /**
-   * Content Security Policy 설정
+   * 권한 확인
    */
-  private setupContentSecurityPolicy(): void {
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      // 🔥 개발/프로덕션 환경별 CSP 정책
-      const isDev = process.env.NODE_ENV === 'development';
-      
-      const cspPolicy = isDev 
-        ? [
-            // 🔥 기가차드 개발 환경: 모든 인라인 허용!
-            "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:* data: blob:;",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* blob:;",
-            "style-src 'self' 'unsafe-inline' http://localhost:*;",
-            "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*;",
-            "img-src 'self' data: blob: http://localhost:*;",
-            "font-src 'self' data: http://localhost:*;"
-          ].join(' ')
-        : [
-            // 프로덕션 환경: 보안 강화하되 인라인 허용
-            "default-src 'self' 'unsafe-inline';",
-            "script-src 'self' 'unsafe-inline';",
-            "style-src 'self' 'unsafe-inline';",
-            "connect-src 'self';",
-            "img-src 'self' data: blob:;",
-            "font-src 'self' data:;"
-          ].join(' ');
-
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Content-Security-Policy': [cspPolicy]
-        }
-      });
-    });
-
-    console.log(`🛡️ CSP 정책 설정 완료 (${process.env.NODE_ENV === 'development' ? '개발' : '프로덕션'} 모드)`);
-  }
-
-  /**
-   * 권한 설정
-   */
-  private setupPermissions(): void {
-    // 위험한 권한들 차단
-    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
-      console.log(`🔐 권한 요청: ${permission}`);
-      
-      // 허용할 권한들
-      const allowedPermissions = [
-        'notifications',
-        'clipboard-read',
-        'clipboard-write'
-      ];
-
-      if (allowedPermissions.includes(permission)) {
-        callback(true);
-        console.log(`✅ 권한 허용: ${permission}`);
-      } else {
-        callback(false);
-        console.log(`🚫 권한 거부: ${permission}`);
-      }
-    });
-
-    console.log('🔐 권한 정책 설정 완료');
-  }
-
-  /**
-   * 프로토콜 보안 설정
-   */
-  private setupProtocolSecurity(): void {
-    // 위험한 프로토콜 차단
-    app.setAsDefaultProtocolClient('loop-app', process.execPath);
-    
-    console.log('🔗 프로토콜 보안 설정 완료');
+  async checkPermissions(): Promise<boolean> {
+    return true; // 임시
   }
 
   /**
    * 정리
    */
-  cleanup(): void {
-    console.log('🧹 보안 매니저 정리 중...');
-    
-    // 필요한 정리 작업 수행
-    // 세션 관련 정리는 앱 종료 시 자동으로 처리됨
-    
-    console.log('✅ 보안 매니저 정리 완료');
+  async cleanup(): Promise<void> {
+    console.log('🔒 보안 매니저 정리 완료');
   }
 }

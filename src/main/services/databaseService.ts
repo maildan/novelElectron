@@ -5,6 +5,7 @@
 import { PrismaClient } from '@prisma/client'
 import path from 'path'
 import { app } from 'electron'
+import { GigaChadLogger } from '@main/keyboard/logger'
 
 let prisma: PrismaClient | null = null
 
@@ -21,7 +22,7 @@ export async function initializeDatabase(): Promise<PrismaClient> {
     const userDataPath = app.getPath('userData')
     const dbPath = path.join(userDataPath, 'loop.db')
 
-    console.log(`📊 데이터베이스 경로: ${dbPath}`)
+    GigaChadLogger.info('DatabaseService', `📊 데이터베이스 경로: ${dbPath}`);
 
     // Prisma 클라이언트 초기화
     prisma = new PrismaClient({
@@ -34,7 +35,7 @@ export async function initializeDatabase(): Promise<PrismaClient> {
 
     // 데이터베이스 연결 테스트
     await prisma.$connect()
-    console.log('✅ 데이터베이스 연결 성공')
+    GigaChadLogger.info('DatabaseService', '✅ 데이터베이스 연결 성공');
 
     // 필요시 마이그레이션 실행
     // await prisma.$executeRaw`PRAGMA foreign_keys = ON;`
@@ -42,7 +43,7 @@ export async function initializeDatabase(): Promise<PrismaClient> {
     return prisma
 
   } catch (error) {
-    console.error('❌ 데이터베이스 초기화 실패:', error)
+    GigaChadLogger.error('DatabaseService', '❌ 데이터베이스 초기화 실패', error);
     throw error
   }
 }
@@ -54,7 +55,7 @@ export async function closeDatabaseConnection(): Promise<void> {
   if (prisma) {
     await prisma.$disconnect()
     prisma = null
-    console.log('🔄 데이터베이스 연결 종료')
+    GigaChadLogger.info('DatabaseService', '🔄 데이터베이스 연결 종료');
   }
 }
 

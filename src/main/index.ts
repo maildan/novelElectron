@@ -1,79 +1,116 @@
 /**
  * 🔥 기가차드 Electron 메인 프로세스 진입점
  * Loop Typing Analytics - Main Process Entry Point
- * 
- * 통합 키보드 시스템 및 모듈식 아키텍처 적용
  */
 
 import { app, BrowserWindow } from 'electron';
 import { isDev } from './utils/environment';
-import { AppLifecycle } from './managers/AppLifecycle';
-import { initializeAppConfig } from './config/app-config';
+import { createMainWindow } from './core/window';
+import { initializeSecurity, setSecurityHeaders, disableDevTools } from './core/security';
+import { setupIpcHandlers } from './handlers';
+import { initializeDatabase } from './services/databaseService';
+import { registerKeyboardListener, stopKeyboardListener } from './services/keyboardService';
 
 // 전역 상태
-let appLifecycle: AppLifecycle | null = null;
+let mainWindow: BrowserWindow | null = null;
 
 /**
- * 메인 실행 함수
+ * 기가차드 앱 초기화
  */
+async function initializeApp(): Promise<void> {
+  console.log('🔥 기가차드 Loop 앱 초기화 시작...');
+
+  try {
+    // 1. 보안 설정
+    initializeSecurity();
+    console.log('✅ 보안 설정 완료');
+
+    // 2. 데이터베이스 초기화
+    await initializeDatabase();
+    console.log('✅ 데이터베이스 초기화 완료');
+
+    // 3. IPC 핸들러 등록
+    setupIpcHandlers();
+    console.log('✅ IPC 핸들러 등록 완료');
+
+    // 4. 메인 윈도우 생성
+    mainWindow = await createMainWindow();
+    console.log('✅ 메인 윈도우 생성 완료');
+
+    // 5. 키보드 리스너 등록
+    if (mainWindow) {
+      await registerKeyboardListener();
+      console.log('✅ 키보드 리스너 등록 완료');
+    }
+
+    console.log('🚀 기가차드 Loop 앱 초기화 완료!');
+  } catch (error) {
+    console.error('❌ 앱 초기화 실패:', error);
+    app.quit();
+  }
+}
+
+/**
+ * 앱 정리
+ */
+async function cleanupApp(): Promise<void> {
+  console.log('🧹 기가차드 앱 정리 시작...');
+  
+  try {
+    // 키보드 리스너 정리
+    stopKeyboardListener();
+    console.log('✅ 키보드 리스너 정리 완료');
+
+    console.log('✅ 앱 정리 완료');
+  } catch (error) {
+    console.error('❌ 앱 정리 실패:', error);
+  }
+}
+
+// 메인 실행 함수
 async function main() {
-  console.log('🚀 Loop Typing Analytics 시작');
   console.log('🔧 Environment:', isDev ? 'Development' : 'Production');
   console.log('💻 Platform:', process.platform);
-  console.log('🏗️ Architecture:', process.arch);
-  console.log('📱 App: Loop v0.1.0 - 기가차드 에디션');
-
-  // 앱 설정 초기화
-  const config = initializeAppConfig();
-  console.log('⚙️ 앱 설정 로드 완료');
-
-  // AppLifecycle 인스턴스 생성
-  appLifecycle = AppLifecycle.getInstance();
+  console.log('📱 App: Loop v0.1.0');
 
   // Electron 앱 이벤트 핸들러
   await app.whenReady();
-  console.log('🎯 Electron 앱 준비 완료');
-  
-  await appLifecycle.initializeApp();
-  console.log('🔥 기가차드 앱 시스템 초기화 완료');
+  await initializeApp();
 
-  // 앱 라이프사이클 이벤트 처리
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-      console.log('🪟 모든 윈도우 닫힘 - 종료');
       app.quit();
     }
   });
 
   app.on('activate', async () => {
-    console.log('🔄 앱 활성화');
-    await appLifecycle?.handleAppActivation();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      mainWindow = await createMainWindow();
+    }
   });
 
-  app.on('before-quit', async () => {
-    console.log('🛑 앱 종료 전 정리');
-    await appLifecycle?.cleanupApp();
-  });
+  app.on('before-quit', cleanupApp);
 
   // 단일 인스턴스 보장
   const gotTheLock = app.requestSingleInstanceLock();
 
   if (!gotTheLock) {
-    console.log('💡 이미 실행 중인 인스턴스가 있어 종료');
     app.quit();
   } else {
-    app.on('second-instance', async () => {
-      console.log('👥 두 번째 인스턴스 시도 감지');
-      await appLifecycle?.handleSecondInstance();
+    app.on('second-instance', () => {
+      // 두 번째 인스턴스가 시작되면 기존 윈도우를 포커스
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      }
     });
   }
 }
 
 // 프로그램 시작
 main().catch(error => {
-  console.error('❌ Loop 앱 시작 실패:', error);
-  console.error('📋 에러 스택:', error.stack);
+  console.error('❌ 앱 시작 실패:', error);
   process.exit(1);
 });
 
-export { appLifecycle };
+export { mainWindow };

@@ -4,7 +4,7 @@
  */
 
 import { BrowserWindow } from 'electron';
-import type { AppState } from '../managers/AppLifecycle';
+import type { AppState } from '@main/managers/AppLifecycle';
 
 /**
  * 애플리케이션 정리
@@ -22,7 +22,7 @@ export async function cleanupApplication(appState: AppState): Promise<void> {
     // 레거시 키보드 매니저 정리
     if (appState.keyboardManager) {
       console.log('⌨️ 키보드 매니저 정리 중...');
-      appState.keyboardManager.cleanup();
+      await appState.keyboardManager.cleanup();
     }
 
     // 데이터베이스 매니저 정리
@@ -46,13 +46,13 @@ export async function cleanupApplication(appState: AppState): Promise<void> {
     // 윈도우 매니저 정리
     if (appState.windowManager) {
       console.log('🪟 윈도우 매니저 정리 중...');
-      appState.windowManager.cleanup();
+      await appState.windowManager.cleanup();
     }
 
     // 에러 매니저 정리
     if (appState.errorManager) {
       console.log('⚠️ 에러 매니저 정리 중...');
-      appState.errorManager.cleanup();
+      await appState.errorManager.cleanup();
     }
 
     // 모든 윈도우 강제 종료
@@ -70,12 +70,6 @@ export async function cleanupApplication(appState: AppState): Promise<void> {
     if (appState.ipcManager) {
       console.log('📡 IPC 핸들러 정리 중...');
       await appState.ipcManager.cleanup();
-    }
-
-    // 에러 매니저 정리
-    if (appState.errorManager) {
-      console.log('🚨 에러 매니저 정리 중...');
-      await appState.errorManager.cleanup();
     }
 
     console.log('✅ 애플리케이션 정리 완료');
