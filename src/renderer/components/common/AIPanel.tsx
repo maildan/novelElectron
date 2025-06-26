@@ -38,7 +38,7 @@ export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose, className }) 
   return (
     <div
       className={cn(
-        'fixed top-4 right-4 w-80 z-50 max-h-[80vh] overflow-hidden',
+        'fixed top-4 right-4 w-80 z-[65] max-h-[80vh] overflow-hidden',
         'glass-effect shadow-lg animate-elastic-in',
         className
       )}

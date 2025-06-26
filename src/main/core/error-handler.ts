@@ -53,7 +53,7 @@ export class ErrorHandler {
   }
 
   /**
-   * Handle and log errors
+   * 오류 처리 및 기록
    */
   static handleError(context: string, error: Error | unknown, additionalData?: Record<string, unknown>): void {
     const timestamp = new Date().toISOString();
@@ -71,13 +71,13 @@ export class ErrorHandler {
       version: app.getVersion()
     };
 
-    // Log to console
+    // log 로 디버깅
     log.error("Console", `❌ [${context}] ${errorMessage}`);
     if (errorStack) {
       log.error("Console", errorStack);
     }
 
-    // Log to file
+    // log 로 추가 데이터
     this.writeToLogFile(logEntry);
 
     // Show error dialog in development or for critical errors
@@ -87,14 +87,14 @@ export class ErrorHandler {
   }
 
   /**
-   * Write error to log file
+   * 로그 파일에 쓰기 오류감지
    */
   private static writeToLogFile(logEntry: Record<string, unknown>): void {
     try {
       const logLine = JSON.stringify(logEntry) + '\n';
       fs.appendFileSync(this.logFile, logLine);
     } catch (writeError) {
-      log.error("Console", 'Failed to write to error log:', writeError);
+      log.error("Console", '오류 로그 쓰기 실패:', writeError);
     }
   }
 
@@ -118,7 +118,7 @@ export class ErrorHandler {
         `An error occurred: ${message}\n\nCheck the error log for more details.`
       );
     } catch (dialogError) {
-      log.error("Console", 'Failed to show error dialog:', dialogError);
+      log.error("Console", '오류 다이로그 표시 실패:', dialogError);
     }
   }
 
@@ -138,7 +138,7 @@ export class ErrorHandler {
         fs.unlinkSync(this.logFile);
       }
     } catch (error) {
-      log.error("Console", 'Failed to clear error log:', error);
+      log.error("Console", '오류 로그 지우기 실패:', error);
     }
   }
 }

@@ -64,7 +64,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       {isVisible && (
         <div
           className={cn(
-            'absolute z-50 px-3 py-2 text-sm text-white bg-slate-900 rounded-lg shadow-lg',
+            'absolute z-[70] px-3 py-2 text-sm text-white bg-slate-900 rounded-lg shadow-lg',
             'animate-in fade-in-0 zoom-in-95 duration-200',
             'max-w-xs whitespace-nowrap',
             positionClasses[position],

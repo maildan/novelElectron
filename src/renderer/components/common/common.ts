@@ -36,6 +36,20 @@ export interface CommonComponentProps {
 
 // #DEBUG: 공통 스타일 진입점
 export const COMMON_STYLES = {
+  // 🔥 Z-Index 체계 (GigaChad 표준)
+  zIndex: {
+    modal: 'z-[100]',     // 최상위 모달/알림
+    tooltip: 'z-[90]',    // 툴팁
+    dropdown: 'z-[80]',   // 드롭다운 메뉴
+    floatingPanel: 'z-[70]', // 플로팅 패널 (AI, Typing)
+    overlay: 'z-[60]',    // 오버레이
+    header: 'z-[50]',     // 헤더
+    sidebar: 'z-[40]',    // 사이드바
+    backdrop: 'z-[30]',   // 백드롭
+    mobileMenu: 'z-[20]', // 모바일 메뉴
+    card: 'z-[10]'        // 카드
+  },
+
   // Card 관련 중복 패턴들
   card: {
     base: 'bg-white border border-slate-200 rounded-lg p-6',
@@ -45,7 +59,7 @@ export const COMMON_STYLES = {
       green: 'bg-green-50 border border-green-200 hover:border-green-300',
       slate: 'bg-slate-50 border border-slate-200 hover:border-slate-300',
       purple: 'bg-purple-50 border border-purple-200 hover:border-purple-300',
-      panel: 'bg-white shadow-xl border border-slate-200 z-50',
+      panel: 'bg-white shadow-xl border border-slate-200 z-[70]',
       stats: 'bg-blue-50 rounded-lg p-3',
       settings: 'bg-white border border-slate-200 rounded-lg p-6'
     }

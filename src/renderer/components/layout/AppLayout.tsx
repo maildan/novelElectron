@@ -41,7 +41,7 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Fixed App Header */}
-      <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="fixed top-0 left-0 right-0 z-[50]">
         <AppHeader 
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
           showMonitoring={true}
@@ -51,14 +51,14 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
       {/* Mobile sidebar backdrop - 헤더 아래에 위치 */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-35 lg:hidden"
+          className="fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-[30] lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar with proper z-index */}
       <div className={`
-        fixed top-14 bottom-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 
+        fixed top-14 bottom-0 left-0 z-[40] w-64 bg-white dark:bg-gray-800 
         border-r border-gray-200 dark:border-gray-700 
         transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -110,7 +110,7 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
       {/* Main content with proper margins */}
       <div className="pt-14 lg:pl-64">
         {/* Mobile menu button - z-index 수정 */}
-        <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-20">
+        <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-[20]">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
