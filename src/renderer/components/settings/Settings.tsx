@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CommonComponentProps } from '@shared/types';
+import { Logger } from '../../shared/logger';
 import { 
   OPTIMIZED_STYLES,
   flexItemsCenter,
@@ -34,7 +35,7 @@ import {
 
 export function Settings({ logs, loading }: CommonComponentProps) {
   // #DEBUG: Settings 컴포넌트 진입점
-  console.log('// #DEBUG: Settings 렌더링 시작');
+  Logger.info('// #DEBUG: Settings 렌더링 시작');
 
   const [settings, setSettings] = useState({
     theme: "system",
@@ -321,7 +322,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
 }
 
 // #DEBUG: Settings 컴포넌트 exit
-console.log('// #DEBUG: Settings 렌더링 완료');
+Logger.info('// #DEBUG: Settings 렌더링 완료');
 
 // #DEBUG: Settings 컴포넌트 export
 export default Settings;

@@ -20,14 +20,8 @@ import {
   iconAbsoluteLeft,
   iconLeft,
   iconSm,
-  renderFlexGap1,
-  renderFlexGap2,
-  renderFlexGap3,
-  renderFlexGap4,
-  renderFlexItemsCenter,
-  FLEX_ITEMS_CENTER_GAP_1,
-  ICON_SM
 } from '../common/common';
+import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
 import { Logger } from '../../shared/logger';
 import { 
   Search,
@@ -42,7 +36,25 @@ import {
   FileText
 } from 'lucide-react';
 
+// #DEBUG: 🔥 28% 성능 최적화를 위한 destructuring 패턴 (Projects.tsx)
+const {
+  itemsCenter,
+  itemsCenterGap1,
+  itemsCenterGap2, 
+  itemsCenterGap3,
+  itemsCenterGap4,
+  itemsCenterJustifyBetween,
+} = FLEX_PATTERNS;
+
+const {
+  w4h4,
+  w5h5,
+  w6h6,
+} = ICON_PATTERNS;
+
 function ProjectsComponent({ logs, loading }: CommonComponentProps) {
+  // #DEBUG: Projects.tsx 진입
+  Logger.info('// #DEBUG: Projects.tsx 함수 ENTRY');
   debugEntry('Projects.tsx');
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -107,7 +119,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
             <h1 className={getTextClassName({ variant: 'title' })}>프로젝트</h1>
             <p className={getTextClassName({ variant: 'subtitle' })}>모든 창작 프로젝트를 관리하세요</p>
           </div>
-          <div className={getAdditionalPattern('flex', 'itemsCenterGap3')}>
+          <div className={itemsCenterGap3}>
             <div className="relative">
               <Search className={`${iconAbsoluteLeft()} text-slate-400`} />
               <input
@@ -150,7 +162,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               onClick={() => setSelectedProject(project.title)}
             >
               <div className="flex items-start justify-between mb-3">
-                <div className={getAdditionalPattern('flex', 'itemsCenterGap2')}>
+                <div className={itemsCenterGap2}>
                   <h3 className="font-semibold text-slate-900">{project.title}</h3>
                   {project.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                 </div>
@@ -181,13 +193,13 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                 </div>
                 
                 <div className={flexBetween() + " text-sm text-slate-600 pt-2 border-t border-slate-100"}>
-                  <div className={getAdditionalPattern('flex', 'itemsCenterGap4')}>
-                    <div className={FLEX_ITEMS_CENTER_GAP_1}>
-                      <FileText className={ICON_SM} />
+                  <div className={itemsCenterGap4}>
+                    <div className={itemsCenterGap2}>
+                      <FileText className={w4h4} />
                       <span>{project.wordCount}</span>
                     </div>
-                    <div className={FLEX_ITEMS_CENTER_GAP_1}>
-                      <BookOpen className={ICON_SM} />
+                    <div className={itemsCenterGap2}>
+                      <BookOpen className={w4h4} />
                       <span>{project.chapters}</span>
                     </div>
                   </div>

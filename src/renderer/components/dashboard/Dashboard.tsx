@@ -75,7 +75,7 @@ interface ActiveProject {
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
   // #DEBUG: Dashboard 컴포넌트 진입점
-  console.log('// #DEBUG: Dashboard 렌더링 시작');
+  Logger.info('// #DEBUG: Dashboard 렌더링 시작');
   
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
@@ -356,7 +356,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 }
 
 // #DEBUG: Dashboard 컴포넌트 exit
-console.log('// #DEBUG: Dashboard 렌더링 완료');
+Logger.info('// #DEBUG: Dashboard 렌더링 완료');
 
 // #DEBUG: Dashboard 컴포넌트 export
 export default Dashboard;
