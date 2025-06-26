@@ -7,7 +7,7 @@ const log = Logger;/**
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { AppLifecycle } from './managers/AppLifecycle';
-// import { ErrorHandler } from './core/error-handler'; // 🔥 일단 주석처리, 나중에 만들자
+import { ErrorHandler } from './core/error-handler'; // 🔥 일단 주석처리, 나중에 만들자
 import { initializeAppConfig, isDevMode } from './config/app-config';
 
 /**

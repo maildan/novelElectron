@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { CommonComponentProps } from '@shared/types';
 import { Play, Pause, RotateCcw } from 'lucide-react';
+import { getCardClassName, getButtonClassName } from '../common/common';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {
   className?: string;
@@ -110,14 +111,14 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
   const { wpm, duration } = getStats();
 
   return (
-    <div className={`bg-white border border-slate-200 rounded-lg p-6 ${className}`}>
+    <div className={getCardClassName({ variant: 'settings', className })}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900">타이핑 연습</h3>
         <div className="flex items-center gap-2">
           {!isTyping ? (
             <button
               onClick={startTyping}
-              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+              className={getButtonClassName({ variant: 'primary' })}
             >
               <Play className="w-4 h-4" />
               시작
@@ -125,7 +126,7 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
           ) : (
             <button
               onClick={stopTyping}
-              className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+              className={getButtonClassName({ variant: 'danger' })}
             >
               <Pause className="w-4 h-4" />
               완료
@@ -133,7 +134,7 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
           )}
           <button
             onClick={resetTyping}
-            className="flex items-center gap-2 px-3 py-1.5 bg-slate-500 text-white rounded-md hover:bg-slate-600 transition-colors text-sm"
+            className={getButtonClassName({ variant: 'secondary' })}
           >
             <RotateCcw className="w-4 h-4" />
             리셋

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CommonComponentProps } from '@shared/types';
+import { getCardClassName } from '../common/common';
 import { 
   Settings as SettingsIcon,
   Edit3,
@@ -63,7 +64,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* 일반 설정 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <SettingsIcon className="w-4 h-4 text-slate-600" />
               일반 설정
@@ -119,7 +120,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
           </div>
 
           {/* 편집기 설정 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Edit3 className="w-4 h-4 text-slate-600" />
               편집기 설정
@@ -194,7 +195,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
           </div>
 
           {/* 동기화 설정 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Cloud className="w-4 h-4 text-slate-600" />
               동기화 설정
@@ -243,7 +244,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
           </div>
 
           {/* AI 설정 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Bot className="w-4 h-4 text-slate-600" />
               AI 설정
@@ -289,7 +290,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
           </div>
 
           {/* 시스템 정보 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Info className="w-4 h-4 text-slate-600" />
               시스템 정보

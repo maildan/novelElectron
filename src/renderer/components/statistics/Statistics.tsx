@@ -125,7 +125,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
 
         {/* 차트 영역 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-600" />
               주간 작성량
@@ -152,7 +152,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-green-600" />
               프로젝트별 진행률
@@ -181,7 +181,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
 
         {/* 상세 통계 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Activity className="w-4 h-4 text-red-600" />
               활동 패턴
@@ -201,7 +201,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Award className="w-4 h-4 text-yellow-600" />
               달성 목표
@@ -231,7 +231,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Bookmark className="w-4 h-4 text-indigo-600" />
               장르별 분포

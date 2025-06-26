@@ -307,7 +307,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
         {/* 메인 그리드 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <div className="flex items-center gap-2 mb-4">
               <Target className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold text-slate-900">활성 프로젝트</h3>
@@ -337,7 +337,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-6">
+          <div className={getCardClassName({ variant: 'settings' })}>
             <div className="flex items-center gap-2 mb-4">
               <Clock className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-slate-900">최근 파일</h3>

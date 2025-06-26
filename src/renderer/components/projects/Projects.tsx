@@ -6,6 +6,12 @@ import {
   COMMON_STYLES, 
   getCardClassName, 
   getButtonClassName,
+  getTextClassName,
+  flexCenter,
+  flexBetween,
+  headerCard,
+  inputBase,
+  getAdditionalPattern,
   debugEntry, 
   debugExit, 
   measurePerformance
@@ -83,11 +89,11 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
-      <div className="bg-white border-b border-slate-200 p-6">
+      <div className={headerCard()}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">프로젝트</h1>
-            <p className="text-slate-600 mt-1">모든 창작 프로젝트를 관리하세요</p>
+            <h1 className={getTextClassName({ variant: 'title' })}>프로젝트</h1>
+            <p className={getTextClassName({ variant: 'subtitle' })}>모든 창작 프로젝트를 관리하세요</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -97,7 +103,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                 placeholder="프로젝트 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={inputBase() + " pl-10 w-64"}
               />
             </div>
             <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">

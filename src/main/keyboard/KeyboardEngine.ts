@@ -25,7 +25,7 @@ import { KeyboardEventProcessor } from './processors/KeyboardEventProcessor';
 import { SessionManager } from './managers/SessionManager';
 import { KeyboardConfigManager } from './managers/KeyboardConfigManager';
 import { AppDetector } from './detectors/AppDetector';
-import { KeyboardIpcHandlers } from './handlers/KeyboardIpcHandlers';
+import { KeyboardIpcHandlers } from './KeyboardIpcHandlers';
 import { HangulComposer } from './HangulComposer';
 import { HealthCheckManager } from './HealthCheckManager';
 import { KeyboardPermissionManager } from './PermissionManager';

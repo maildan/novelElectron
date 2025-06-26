@@ -291,5 +291,99 @@ export const benchmark = (fn: () => void, name: string, iterations: number = 100
   return opsPerSecond;
 };
 
+// #DEBUG: 추가 중복 패턴 모듈화 (빈도 높은 것들)
+export const ADDITIONAL_COMMON_PATTERNS = {
+  // 가장 많이 중복되는 flex 패턴들 (78개 발견)
+  flex: {
+    itemsCenter: 'flex items-center',
+    itemsCenterGap2: 'flex items-center gap-2',
+    itemsCenterGap3: 'flex items-center gap-3',
+    itemsCenterGap4: 'flex items-center gap-4',
+    itemsCenterJustifyBetween: 'flex items-center justify-between',
+    itemsCenterJustifyCenter: 'flex items-center justify-center'
+  },
+
+  // 중복되는 rounded 패턴들 (89개 발견)
+  rounded: {
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    full: 'rounded-full',
+    button: 'rounded-md',
+    card: 'rounded-lg'
+  },
+
+  // 중복되는 border 패턴들 (89개 발견)
+  border: {
+    base: 'border border-slate-300',
+    card: 'border border-slate-200',
+    focus: 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+    bottom: 'border-b border-slate-200'
+  },
+
+  // 중복되는 bg 패턴들 (89개 발견)
+  bg: {
+    white: 'bg-white',
+    slate50: 'bg-slate-50',
+    slate100: 'bg-slate-100',
+    blue600: 'bg-blue-600',
+    blue50: 'bg-blue-50',
+    green600: 'bg-green-600',
+    purple600: 'bg-purple-600'
+  },
+
+  // 중복되는 padding 패턴들
+  padding: {
+    p3: 'p-3',
+    p4: 'p-4',
+    p6: 'p-6',
+    px3py2: 'px-3 py-2',
+    px4py2: 'px-4 py-2'
+  },
+
+  // 중복되는 icon container 패턴들
+  iconContainer: {
+    small: 'w-10 h-10 rounded-lg flex items-center justify-center',
+    medium: 'w-12 h-12 rounded-lg flex items-center justify-center'
+  },
+
+  // 중복되는 transition 패턴들
+  transition: {
+    colors: 'transition-colors',
+    all: 'transition-all duration-300',
+    hover: 'hover:bg-slate-100 transition-colors'
+  }
+} as const;
+
+// #DEBUG: 자주 사용되는 조합 패턴들
+export const COMBO_PATTERNS = {
+  headerSection: `${ADDITIONAL_COMMON_PATTERNS.bg.white} ${ADDITIONAL_COMMON_PATTERNS.border.bottom} ${ADDITIONAL_COMMON_PATTERNS.padding.p6}`,
+  flexHeader: `${ADDITIONAL_COMMON_PATTERNS.flex.itemsCenterGap3}`,
+  cardPattern: `${ADDITIONAL_COMMON_PATTERNS.bg.white} ${ADDITIONAL_COMMON_PATTERNS.border.card} ${ADDITIONAL_COMMON_PATTERNS.rounded.lg} ${ADDITIONAL_COMMON_PATTERNS.padding.p6}`,
+  buttonPrimary: `${ADDITIONAL_COMMON_PATTERNS.bg.blue600} text-white ${ADDITIONAL_COMMON_PATTERNS.rounded.md} ${ADDITIONAL_COMMON_PATTERNS.padding.px4py2} ${ADDITIONAL_COMMON_PATTERNS.transition.colors}`,
+  inputField: `${ADDITIONAL_COMMON_PATTERNS.border.base} ${ADDITIONAL_COMMON_PATTERNS.rounded.md} ${ADDITIONAL_COMMON_PATTERNS.padding.px3py2} ${ADDITIONAL_COMMON_PATTERNS.border.focus}`
+} as const;
+
+// #DEBUG: 패턴 유틸리티 함수들 추가
+export const getAdditionalPattern = (category: keyof typeof ADDITIONAL_COMMON_PATTERNS, pattern: string): string => {
+  // #DEBUG: 추가 패턴 접근 진입
+  const categoryPatterns = ADDITIONAL_COMMON_PATTERNS[category] as Record<string, string>;
+  return categoryPatterns[pattern] || '';
+};
+
+export const getComboPattern = (pattern: keyof typeof COMBO_PATTERNS): string => {
+  // #DEBUG: 조합 패턴 접근 진입
+  return COMBO_PATTERNS[pattern];
+};
+
+// #DEBUG: 단축 유틸리티 함수들
+export const flexCenter = (): string => ADDITIONAL_COMMON_PATTERNS.flex.itemsCenterJustifyCenter;
+export const flexBetween = (): string => ADDITIONAL_COMMON_PATTERNS.flex.itemsCenterJustifyBetween;
+export const iconBox = (size: 'small' | 'medium' = 'small'): string => ADDITIONAL_COMMON_PATTERNS.iconContainer[size];
+export const headerCard = (): string => COMBO_PATTERNS.headerSection;
+export const baseCard = (): string => COMBO_PATTERNS.cardPattern;
+export const primaryButton = (): string => COMBO_PATTERNS.buttonPrimary;
+export const inputBase = (): string => COMBO_PATTERNS.inputField;
+
 // 🔥 GigaChad Export 정리
 export default COMMON_STYLES;
