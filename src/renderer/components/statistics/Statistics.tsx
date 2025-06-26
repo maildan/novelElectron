@@ -29,6 +29,7 @@ import {
   Bookmark
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { IconBox } from '../common/IconBox';
 
 // 🔥 28% 성능 최적화: destructuring 기반 스타일 시스템
 const {
@@ -157,9 +158,12 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             {stats.map((stat, index) => (
               <div key={index} className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
                 <div className={`${itemsCenterJustifyBetween} mb-3`}>
-                  <div className={iconBox[stat.color as keyof typeof iconBox]}>
-                    {stat.icon && <stat.icon className={w5h5} />}
-                  </div>
+                  {stat.icon && (
+                    <IconBox 
+                      icon={stat.icon} 
+                      color={stat.color as 'blue' | 'green' | 'purple' | 'orange'} 
+                    />
+                  )}
                   {stat.change && (
                     <div className={stat.change.startsWith("+") ? changeBadge.positive : changeBadge.negative}>
                       {stat.change}

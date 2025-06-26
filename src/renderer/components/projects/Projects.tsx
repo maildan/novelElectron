@@ -9,19 +9,24 @@ import {
   getTextClassName,
   getLayoutClassName,
   flexCenter,
-  flexBetween,
   headerCard,
   iconBox,
   inputBase,
   getAdditionalPattern,
   debugEntry, 
   debugExit, 
-  measurePerformance,
-  iconAbsoluteLeft,
-  iconLeft,
-  iconSm,
+  measurePerformance
 } from '../common/common';
-import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
+import { 
+  FLEX_PATTERNS, 
+  ICON_PATTERNS,
+  flexBetween,
+  iconSm
+} from '../common/optimized-styles';
+import { 
+  iconAbsoluteLeft,
+  iconLeft
+} from '../common/common';
 import { Logger } from '../../shared/logger';
 import { 
   Search,
@@ -131,7 +136,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               />
             </div>
             <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
-              <Filter className={iconSm()} />
+              <Filter className={iconSm} />
             </button>
             <button className={getButtonClassName({ variant: 'primary' })}>
               <Plus className={iconLeft()} />
@@ -164,17 +169,17 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               <div className="flex items-start justify-between mb-3">
                 <div className={itemsCenterGap2}>
                   <h3 className="font-semibold text-slate-900">{project.title}</h3>
-                  {project.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
+                  {project.starred && <Star className={`${iconSm} text-yellow-500 fill-current`} />}
                 </div>
                 <button className={getButtonClassName({ variant: 'icon' })}>
-                  <MoreHorizontal className={`${iconSm()} text-slate-400`} />
+                  <MoreHorizontal className={`${iconSm} text-slate-400`} />
                 </button>
               </div>
               
               <p className="text-sm text-slate-600 mb-4 line-clamp-2">{project.description}</p>
               
               <div className="space-y-3">
-                <div className={flexBetween() + " text-sm"}>
+                <div className={flexBetween + " text-sm"}>
                   <span className="text-slate-600">진행률</span>
                   <span className="font-medium">{project.progress}%</span>
                 </div>
@@ -185,14 +190,14 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                   />
                 </div>
                 
-                <div className={flexBetween()}>
+                <div className={flexBetween}>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                     {project.status}
                   </span>
                   <span className="text-xs text-slate-500">{project.lastModified}</span>
                 </div>
                 
-                <div className={flexBetween() + " text-sm text-slate-600 pt-2 border-t border-slate-100"}>
+                <div className={flexBetween + " text-sm text-slate-600 pt-2 border-t border-slate-100"}>
                   <div className={itemsCenterGap4}>
                     <div className={itemsCenterGap2}>
                       <FileText className={w4h4} />

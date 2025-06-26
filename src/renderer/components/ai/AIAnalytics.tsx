@@ -49,6 +49,9 @@ const CHAT_STYLES = {
 const { container: chatContainer, bubble: chatBubbleStyle } = CHAT_STYLES;
 
 export function AIAnalytics({ logs, loading }: CommonComponentProps) {
+  // #DEBUG: AIAnalytics 컴포넌트 진입점
+  logger.info('// #DEBUG: AIAnalytics 렌더링 시작');
+  
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiFeatures, setAiFeatures] = useState<AIFeature[]>([]);
   const [quickQuestions, setQuickQuestions] = useState<string[]>([]);
@@ -207,6 +210,9 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
     }
   };
 
+  // #DEBUG: AIAnalytics 렌더링 완료  
+  logger.info('// #DEBUG: AIAnalytics 렌더링 완료');
+
   return (
     <div className="space-y-6 p-6">
       {/* AI 기능 카드 */}
@@ -215,7 +221,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
           const IconComponent = feature.icon;
           return (
             <div key={index} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start gap-4">
                 <div className={`p-3 rounded-lg ${getFeatureColor(feature.color)}`}>
                   <IconComponent className="w-6 h-6" />
                 </div>
@@ -279,7 +285,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
 
         {/* 입력 영역 */}
         <div className="p-4 border-t border-gray-100">
-          <div className="flex space-x-3">
+          <div className="flex gap-3">
             <input
               type="text"
               value={aiPrompt}

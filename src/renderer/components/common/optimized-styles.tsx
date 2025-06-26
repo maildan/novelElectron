@@ -23,8 +23,8 @@ export const FLEX_PATTERNS = {
   itemsCenterGap4: 'flex items-center gap-4',
   itemsCenterJustifyBetween: 'flex items-center justify-between',
   itemsCenterJustifyCenter: 'flex items-center justify-center',
-  itemsCenterSpace2: 'flex items-center space-x-2',
-  itemsCenterSpace4: 'flex items-center space-x-4',
+  itemsCenterSpace2: 'flex items-center gap-2',
+  itemsCenterSpace4: 'flex items-center gap-4',
 } as const;
 
 export const ICON_PATTERNS = {
@@ -123,6 +123,43 @@ export const ZERO_COST_CARD_STYLES = {
   panel: 'bg-white shadow-xl border border-slate-200 z-[70] rounded-lg p-4',
 } as const;
 
+// ==================== 🔥 기가차드 Button Helper 함수 ====================
+
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'purple' | 'icon' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+}
+
+/**
+ * 🔥 기가차드 Button ClassName 생성기
+ * 중복된 버튼 스타일 로직을 한곳에 모음
+ */
+export function getButtonClassName({ variant = 'primary', size = 'md', disabled = false }: ButtonProps = {}): string {
+  // Base classes
+  const baseClasses = 'inline-flex items-center gap-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  
+  // Variant classes
+  const variantClasses = {
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-500',
+    success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    purple: 'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
+    icon: 'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-slate-500',
+    ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-500',
+  };
+  
+  // Size classes
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm rounded',
+    md: 'px-4 py-2 text-sm rounded-md',
+    lg: 'px-6 py-3 text-base rounded-lg',
+  };
+  
+  return `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]}${disabled ? ' opacity-50 cursor-not-allowed' : ''}`;
+}
+
 export const ZERO_COST_BUTTON_STYLES = {
   // Primary variants (가장 자주 사용)
   primary: 'px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md font-medium transition-colors',
@@ -163,9 +200,9 @@ export const ZERO_COST_FLEX_PATTERNS = {
   gap2: 'flex items-center gap-2',  // 14개 중복!
   gap3: 'flex items-center gap-3',
   gap4: 'flex items-center gap-4',
-  gapSpaceX2: 'flex items-center space-x-2',
-  gapSpaceX3: 'flex items-center space-x-3',
-  gapSpaceX4: 'flex items-center space-x-4',
+  gapSpaceX2: 'flex items-center gap-2',
+  gapSpaceX3: 'flex items-center gap-3',
+  gapSpaceX4: 'flex items-center gap-4',
   column: 'flex flex-col',
   columnGap2: 'flex flex-col items-center gap-2',
   responsive: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',

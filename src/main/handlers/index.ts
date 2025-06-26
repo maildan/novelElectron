@@ -63,72 +63,12 @@ function registerAppHandlers(): void {
 }
 
 /**
- * 키보드 IPC 핸들러 등록
+ * 키보드 IPC 핸들러는 UnifiedHandler에서 처리됨 - 중복 제거
  */
 function registerKeyboardHandlers(): void {
-  // 키보드 모니터링 시작
-  ipcMain.handle('keyboard:start-monitoring', async () => {
-    try {
-      const { registerKeyboardListener } = require('../services/keyboardService');
-      const { mainWindow } = require('../index');
-      
-      if (!mainWindow) {
-        throw new Error('메인 윈도우를 찾을 수 없습니다');
-      }
-      
-      const success = registerKeyboardListener(mainWindow);
-      return {
-        success,
-        message: success ? '키보드 모니터링이 시작되었습니다' : '키보드 모니터링 시작에 실패했습니다'
-      };
-    } catch (error) {
-      log.error("Console", '키보드 모니터링 시작 오류:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
-      };
-    }
-  });
-
-  // 키보드 모니터링 중지
-  ipcMain.handle('keyboard:stop-monitoring', async () => {
-    try {
-      const { stopKeyboardListener } = require('../services/keyboardService');
-      
-      const success = stopKeyboardListener();
-      return {
-        success,
-        message: success ? '키보드 모니터링이 중지되었습니다' : '키보드 모니터링 중지에 실패했습니다'
-      };
-    } catch (error) {
-      log.error("Console", '키보드 모니터링 중지 오류:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : '알 수 없는 오류'
-      };
-    }
-  });
-
-  // 키보드 모니터링 상태 확인
-  ipcMain.handle('keyboard:get-status', async () => {
-    try {
-      const { getMonitoringStatus } = require('../services/keyboardService');
-      
-      const status = getMonitoringStatus();
-      return {
-        isActive: status.isActive,
-        message: status.isActive ? '모니터링 중' : '정지됨'
-      };
-    } catch (error) {
-      log.error("Console", '키보드 모니터링 상태 확인 오류:', error);
-      return {
-        isActive: false,
-        message: '상태 확인 실패'
-      };
-    }
-  });
-
-  log.info("Console", '✅ 키보드 IPC 핸들러 등록 완료');
+  // UnifiedKeyboardHandler에서 모든 키보드 관련 IPC 핸들러를 처리하므로
+  // 이곳에서는 중복 핸들러를 등록하지 않음
+  log.info("Console", '🔌 키보드 핸들러는 UnifiedHandler에서 관리됨');
 }
 
 /**

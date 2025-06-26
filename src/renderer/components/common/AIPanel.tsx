@@ -7,7 +7,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Input } from '@render
 import { cn } from '@renderer/lib/utils';
 import { Sparkles, X, Send } from 'lucide-react';
 import { flexBetween } from './common';
-import { FLEX_PATTERNS, ICON_PATTERNS } from './optimized-styles';
+import { FLEX_PATTERNS, ICON_PATTERNS, iconWithText } from './optimized-styles';
 
 export interface AIPanelProps {
   isOpen: boolean;
@@ -106,7 +106,7 @@ export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose, className }) 
               </>
             ) : (
               <>
-                <Send className="w-4 h-4 mr-2" />
+                <Send className={iconWithText} />
                 질문하기
               </>
             )}

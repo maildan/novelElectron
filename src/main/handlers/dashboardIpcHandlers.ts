@@ -66,28 +66,9 @@ export class DashboardIpcHandlers {
   }
 
   public registerHandlers(): void {
-    // 키보드 모니터링 시작/중지
-    ipcMain.handle('dashboard:start-monitoring', async () => {
-      try {
-        if (!this.mainWindow) throw new Error('Main window not available');
-        
-        await registerKeyboardListener();
-        return { success: true, message: '모니터링 시작됨' };
-      } catch (error: unknown) {
-        GigaChadLogger.error('모니터링 시작 오류', error instanceof Error ? error.message : String(error));
-        return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
-      }
-    });
-
-    ipcMain.handle('dashboard:stop-monitoring', async () => {
-      try {
-        await stopKeyboardListener();
-        return { success: true, message: '모니터링 중지됨' };
-      } catch (error: unknown) {
-        GigaChadLogger.error('모니터링 중지 오류', error instanceof Error ? error.message : String(error));
-        return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
-      }
-    });
+    // 키보드 모니터링 시작/중지는 UnifiedHandler에서 처리됨 - 중복 제거
+    // 'dashboard:start-monitoring', 'dashboard:stop-monitoring' 핸들러 제거
+    GigaChadLogger.info('DashboardIPC', '🔌 키보드 모니터링 핸들러는 UnifiedHandler에서 관리됨');
 
     // 최근 로그 데이터 가져오기
     ipcMain.handle('dashboard:get-recent-logs', async (_, limit = 10) => {

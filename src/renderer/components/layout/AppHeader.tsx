@@ -9,8 +9,15 @@ import logger from '../../shared/logger';
 
 import { useEffect, useState } from 'react';
 import { ActivityIcon, MenuIcon } from 'lucide-react';
-import { flexBetween } from '../common/common';
-import { FLEX_PATTERNS, statusDot } from '../common/optimized-styles';
+import { 
+  FLEX_PATTERNS, 
+  statusDot,
+  headerBase,
+  TEXT_BLUE_200,
+  TEXT_TITLE_LARGE,
+  getButtonClassName,
+  flexBetween
+} from '../common/optimized-styles';
 
 interface AppHeaderProps {
   onMenuToggle?: () => void;
@@ -130,13 +137,13 @@ export function AppHeader({
   }
 
   return (
-    <header className={`h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 ${flexBetween()} px-6 border-b border-slate-700 shadow-lg backdrop-blur-sm`}>
+    <header className={headerBase}>
       {/* 왼쪽: 메뉴 + 로고 + 타이틀 */}
       <div className={FLEX_PATTERNS.itemsCenterSpace4}>
         {/* 햄버거 메뉴 버튼 */}
         <button
           onClick={onMenuToggle}
-          className="p-2 rounded-lg hover:bg-white/10 transition-colors duration-200 text-white/80 hover:text-white"
+          className={getButtonClassName({ variant: 'icon', size: 'md' })}
           aria-label="메뉴 토글"
         >
           <MenuIcon size={20} />
@@ -149,16 +156,16 @@ export function AppHeader({
         
         {/* 앱 타이틀과 버전 정보 */}
         <div className="flex flex-col">
-          <h1 className="text-white font-bold text-xl">Loop Typing Analytics</h1>
+          <h1 className={TEXT_TITLE_LARGE}>Loop Typing Analytics</h1>
           {versionInfo && (
-            <span className="text-blue-200 text-xs font-medium">
+            <span className={TEXT_BLUE_200}>
               v{versionInfo.app} • {versionInfo.platform}
             </span>
           )}
         </div>
       </div>
 
-      {/* 오른쪽: 모니터링 상태 + 버튼 */}
+      {/* 오른쪽: 모니터링 상태만 표시 (버튼은 Dashboard에서 관리) */}
       {showMonitoring && (
         <div className={FLEX_PATTERNS.itemsCenterSpace4}>
           {/* 모니터링 상태 표시 */}
@@ -166,22 +173,6 @@ export function AppHeader({
             <div className={isMonitoring ? statusDot.active : statusDot.inactive} />
             <span className="text-white/90 text-sm font-medium">{monitoringStatus}</span>
           </div>
-
-          {/* 모니터링 토글 버튼 */}
-          <button
-            onClick={handleMonitoringToggle}
-            className={`
-              flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 shadow-md
-              ${isMonitoring 
-                ? 'bg-red-500 hover:bg-red-600 text-white' 
-                : 'bg-green-500 hover:bg-green-600 text-white'
-              }
-            `}
-            aria-label={isMonitoring ? '모니터링 중지' : '모니터링 시작'}
-          >
-            <ActivityIcon size={16} />
-            <span>{isMonitoring ? '중지' : '시작'}</span>
-          </button>
         </div>
       )}
     </header>

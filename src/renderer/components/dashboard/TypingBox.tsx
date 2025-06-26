@@ -2,22 +2,16 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { CommonComponentProps } from '@shared/types';
-import { flexBetween } from '../common/common';
 import { Play, Pause, RotateCcw } from 'lucide-react';
-import { getCardClassName, getButtonClassName } from '../common/common';
+import { PlayPauseToggle } from '../common/PlayPauseToggle';
 import { 
   FLEX_PATTERNS, 
   ICON_PATTERNS,
-  TEXT_CENTER,
-  TEXT_STAT_VALUE_BLUE,
-  TEXT_STAT_VALUE_GREEN,
-  TEXT_STAT_VALUE_PURPLE,
-  TEXT_STAT_VALUE_ORANGE,
-  TEXT_STAT_LABEL,
-  TEXT_STAT_LABEL_GREEN,
-  TEXT_STAT_LABEL_PURPLE,
-  TEXT_STAT_LABEL_ORANGE,
+  TEXT_PATTERNS,
+  flexBetween,
+  getButtonClassName
 } from '../common/optimized-styles';
+import { getCardClassName } from '../common/common';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {
   className?: string;
@@ -126,26 +120,16 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
 
   return (
     <div className={getCardClassName({ variant: 'settings', className })}>
-      <div className={`${flexBetween()} mb-4`}>
+      <div className={`${flexBetween} mb-4`}>
         <h3 className="font-semibold text-slate-900">타이핑 연습</h3>
         <div className={FLEX_PATTERNS.itemsCenterGap2}>
-          {!isTyping ? (
-            <button
-              onClick={startTyping}
-              className={getButtonClassName({ variant: 'primary' })}
-            >
-              <Play className={ICON_PATTERNS.w4h4} />
-              시작
-            </button>
-          ) : (
-            <button
-              onClick={stopTyping}
-              className={getButtonClassName({ variant: 'danger' })}
-            >
-              <Pause className={ICON_PATTERNS.w4h4} />
-              완료
-            </button>
-          )}
+          <PlayPauseToggle
+            isActive={isTyping}
+            onStart={startTyping}
+            onStop={stopTyping}
+            startText="시작"
+            stopText="완료"
+          />
           <button
             onClick={resetTyping}
             className={getButtonClassName({ variant: 'secondary' })}
@@ -159,21 +143,21 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
       {/* 통계 표시 */}
       {isTyping && (
         <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
-          <div className={TEXT_CENTER}>
-            <div className={TEXT_STAT_VALUE_BLUE}>{keyCount}</div>
-            <div className={TEXT_STAT_LABEL}>키 입력</div>
+          <div className={TEXT_PATTERNS.center}>
+            <div className={TEXT_PATTERNS.statValueBlue}>{keyCount}</div>
+            <div className={TEXT_PATTERNS.statLabel}>키 입력</div>
           </div>
-          <div className={TEXT_CENTER}>
-            <div className={TEXT_STAT_VALUE_GREEN}>{duration}</div>
-            <div className={TEXT_STAT_LABEL_GREEN}>초</div>
+          <div className={TEXT_PATTERNS.center}>
+            <div className={TEXT_PATTERNS.statValueGreen}>{duration}</div>
+            <div className={TEXT_PATTERNS.statLabelGreen}>초</div>
           </div>
-          <div className={TEXT_CENTER}>
-            <div className={TEXT_STAT_VALUE_PURPLE}>{wpm}</div>
-            <div className={TEXT_STAT_LABEL_PURPLE}>타/분</div>
+          <div className={TEXT_PATTERNS.center}>
+            <div className={TEXT_PATTERNS.statValuePurple}>{wpm}</div>
+            <div className={TEXT_PATTERNS.statLabelPurple}>타/분</div>
           </div>
-          <div className={TEXT_CENTER}>
-            <div className={TEXT_STAT_VALUE_ORANGE}>{content.length}</div>
-            <div className={TEXT_STAT_LABEL_ORANGE}>글자</div>
+          <div className={TEXT_PATTERNS.center}>
+            <div className={TEXT_PATTERNS.statValueOrange}>{content.length}</div>
+            <div className={TEXT_PATTERNS.statLabelOrange}>글자</div>
           </div>
         </div>
       )}

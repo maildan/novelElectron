@@ -6,6 +6,9 @@ import { CommonComponentProps } from '../common/common';
 import { Logger } from '../../shared/logger';
 import { 
   OPTIMIZED_STYLES,
+  FLEX_PATTERNS,
+  ICON_PATTERNS,
+  TEXT_PATTERNS,
   flexItemsCenter,
   flexBetween,
   flexGap2,
@@ -48,6 +51,7 @@ import {
   TEXT_SYNC_PENDING,
 } from '../common/optimized-styles';
 import { AIPanel } from '../common/AIPanel';
+import { PlayPauseToggle } from '../common/PlayPauseToggle';
 import { 
   Play, 
   Pause, 
@@ -199,22 +203,13 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               Loop AI
             </button>
 
-            <button
-              onClick={() => setIsMonitoring(!isMonitoring)}
-              className={isMonitoring ? monitorButton.stop : monitorButton.start}
-            >
-              {isMonitoring ? (
-                <>
-                  <Pause className={iconWithText} />
-                  중지
-                </>
-              ) : (
-                <>
-                  <Play className={iconWithText} />
-                  시작
-                </>
-              )}
-            </button>
+            <PlayPauseToggle
+              isActive={isMonitoring}
+              onStart={() => setIsMonitoring(true)}
+              onStop={() => setIsMonitoring(false)}
+              startText="시작"
+              stopText="중지"
+            />
 
             <button className={btnIcon}>
               <MoreHorizontal className={iconSm} />
@@ -296,7 +291,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className={`${cardBase} cursor-pointer transition-colors hover:border-purple-300 hover:bg-purple-50`}>
               <div className={`${flexItemsCenter} gap-2 mb-2`}>
                 <FileText className="w-5 h-5 text-purple-600" />
-                <Clock className="w-4 h-4 text-purple-600" />
+                <Clock className={iconSm} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">최근 파일</h3>
@@ -351,7 +346,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                   key={index}
                   className={fileItemBase}
                 >
-                  <FileText className="w-4 h-4 text-slate-600 mr-3 flex-shrink-0" />
+                  <FileText className={`${iconSm} text-slate-600 mr-3 flex-shrink-0`} />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-slate-900 text-sm truncate">{file.name}</div>
                     <div className="text-xs text-slate-500">{file.project}</div>

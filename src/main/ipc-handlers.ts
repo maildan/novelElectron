@@ -146,55 +146,13 @@ export class IpcHandlers {
   }
 
   /**
-   * 키보드 관련 IPC 핸들러
+   * 키보드 관련 IPC 핸들러는 UnifiedHandler에서 처리됨
+   * 중복 제거로 인해 비활성화
    */
   private setupKeyboardHandlers(): void {
-    // 키보드 매니저 초기화
-    ipcMain.handle('initialize-keyboard-manager', async (event) => {
-      try {
-        const keyboardManager = KeyboardManager.getInstance();
-        await keyboardManager.initialize(); // window 인자 제거
-        return true;
-      } catch (error) {
-        log.error("Console", '키보드 매니저 초기화 실패:', error);
-        throw error;
-      }
-    });
-
-    // 현재 세션 정보 조회
-    ipcMain.handle('get-current-session', async () => {
-      try {
-        const keyboardManager = KeyboardManager.getInstance();
-        return keyboardManager.getCurrentSession();
-      } catch (error) {
-        log.error("Console", '현재 세션 정보 조회 실패:', error);
-        throw error;
-      }
-    });
-
-    // 세션 정보 조회 (getCurrentSession이 public인지 확인 필요)
-    ipcMain.handle('get-session-stats', async () => {
-      try {
-        const keyboardManager = KeyboardManager.getInstance();
-        // 임시로 간단한 상태 반환
-        return { active: true, message: 'Keyboard manager is running' };
-      } catch (error) {
-        log.error("Console", '세션 정보 조회 실패:', error);
-        throw error;
-      }
-    });
-
-    // 키보드 매니저 정리
-    ipcMain.handle('cleanup-keyboard-manager', async () => {
-      try {
-        const keyboardManager = KeyboardManager.getInstance();
-        await keyboardManager.cleanup();
-        return true;
-      } catch (error) {
-        log.error("Console", '키보드 매니저 정리 실패:', error);
-        throw error;
-      }
-    });
+    // UnifiedKeyboardHandler에서 모든 키보드 관련 IPC 핸들러를 처리하므로
+    // 이곳에서는 중복 핸들러를 등록하지 않음
+    log.info("Console", '🔌 키보드 핸들러는 UnifiedHandler에서 관리됨');
   }
 
   /**

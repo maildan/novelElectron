@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ActiveTab, NavItem } from '@shared/types';
 import { AppHeader } from './AppHeader';
-import { flexBetween } from '../common/common';
+import { flexBetween } from '../common/optimized-styles';
 import { 
   Home, 
   BarChart3, 
@@ -84,7 +84,7 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className={`${flexBetween()} p-6 border-b border-gray-200 dark:border-gray-700`}>
+        <div className={`${flexBetween} p-6 border-b border-gray-200 dark:border-gray-700`}>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Navigation
           </h1>
@@ -132,7 +132,7 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
       <div className="pt-14 lg:pl-64">
         {/* Mobile menu button - z-index 수정 */}
         <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-[20]">
-          <div className={flexBetween()}>
+          <div className={flexBetween}>
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
