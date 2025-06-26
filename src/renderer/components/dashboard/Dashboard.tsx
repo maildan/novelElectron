@@ -51,7 +51,6 @@ import {
   TEXT_SYNC_PENDING,
 } from '../common/optimized-styles';
 import { AIPanel } from '../common/AIPanel';
-import { PlayPauseToggle } from '../common/PlayPauseToggle';
 import { 
   Play, 
   Pause, 
@@ -179,14 +178,14 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
   }, []);
 
   return (  
-    <div className={pageContainer}>
+    <div className={contentArea}>
       {/* AI 패널 - 별도 컴포넌트 사용 */}
       <AIPanel 
         isOpen={aiPanelOpen} 
         onClose={() => setAiPanelOpen(false)}
       />
 
-      {/* 헤더 */}
+      {/* 헤더 - 버튼들은 AppHeader로 이동됨 */}
       <div className={headerBase}>
         <div className={responsiveHeaderFlex}>
           <div>
@@ -194,25 +193,14 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <p className={textSubtitle}>오늘의 창작을 시작하세요</p>
           </div>
 
+          {/* 오른쪽 영역 - AI 패널 토글만 남김 */}
           <div className={flexGap3}>
             <button
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
               className={aiPanelOpen ? aiButton.open : aiButton.closed}
             >
               <Sparkles className={iconWithText} />
-              Loop AI
-            </button>
-
-            <PlayPauseToggle
-              isActive={isMonitoring}
-              onStart={() => setIsMonitoring(true)}
-              onStop={() => setIsMonitoring(false)}
-              startText="시작"
-              stopText="중지"
-            />
-
-            <button className={btnIcon}>
-              <MoreHorizontal className={iconSm} />
+              AI 패널 {aiPanelOpen ? '닫기' : '열기'}
             </button>
           </div>
         </div>

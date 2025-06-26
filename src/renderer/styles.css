@@ -9,6 +9,24 @@
 
 @import "tailwindcss";
 
+/* ===== 🔥 기가차드 폰트 시스템 - 렌더링 문제 해결 ===== */
+* {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji' !important;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 숫자 렌더링 특별 처리 */
+.text-2xl, .font-bold, [class*="stat"] {
+  font-feature-settings: "tnum", "lnum";
+  font-variant-numeric: tabular-nums;
+}
+
 /* ===== CSS 변수 - 단일 소스 ===== */
 :root {
   /* 🔥 기가차드 테마 변수 */

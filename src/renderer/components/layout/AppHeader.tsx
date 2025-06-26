@@ -128,9 +128,58 @@ export function AppHeader({
 
   if (!isMounted) {
     return (
-      <header className="h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center border-b border-slate-700 shadow-lg">
-        <div className="text-white font-semibold text-lg">
-          Loop Typing Analytics
+      <header className={headerBase}>
+        {/* 왼쪽: 메뉴 + 로고 + 타이틀 */}
+        <div className={FLEX_PATTERNS.itemsCenterSpace4}>
+          {/* 햄버거 메뉴 버튼 */}
+          <button
+            onClick={onMenuToggle}
+            className={getButtonClassName({ variant: 'icon', size: 'md' })}
+            aria-label="메뉴 토글"
+          >
+            <MenuIcon size={20} />
+          </button>
+          
+          {/* 앱 로고 */}
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-lg">L</span>
+          </div>
+          
+          {/* 앱 타이틀 (기본) */}
+          <div className="flex flex-col">
+            <h1 className={TEXT_TITLE_LARGE}>Loop</h1>
+            <span className={TEXT_BLUE_200}>로딩 중...</span>
+          </div>
+        </div>
+
+        {/* 오른쪽: 기본 버튼들 표시 */}
+        <div className={FLEX_PATTERNS.itemsCenterSpace4}>
+          {/* Loop AI 버튼 - 로딩 중에도 표시 */}
+          <button
+            className={getButtonClassName({ variant: 'primary', size: 'sm' })}
+            onClick={() => {
+              logger.info('Loop AI 버튼 클릭됨 (로딩 중)');
+            }}
+          >
+            <ActivityIcon size={16} className="mr-2" />
+            Loop AI
+          </button>
+
+          {/* 모니터링 기본 상태 */}
+          {showMonitoring && (
+            <div className={FLEX_PATTERNS.itemsCenterSpace2}>
+              <button
+                className={getButtonClassName({ variant: 'secondary', size: 'sm' })}
+                disabled
+              >
+                준비 중
+              </button>
+              <div className={FLEX_PATTERNS.itemsCenterSpace2}>
+                <div className={statusDot.inactive} />
+                <span className="text-white/90 text-sm font-medium">준비 중</span>
+              </div>
+            </div>
+          )}
         </div>
       </header>
     );
@@ -165,16 +214,42 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* 오른쪽: 모니터링 상태만 표시 (버튼은 Dashboard에서 관리) */}
-      {showMonitoring && (
-        <div className={FLEX_PATTERNS.itemsCenterSpace4}>
-          {/* 모니터링 상태 표시 */}
+      {/* 오른쪽: Loop AI + 모니터링 버튼들 */}
+      <div className={FLEX_PATTERNS.itemsCenterSpace4}>
+        {/* Loop AI 버튼 - 항상 표시 */}
+        <button
+          className={getButtonClassName({ variant: 'primary', size: 'sm' })}
+          onClick={() => {
+            logger.info('Loop AI 버튼 클릭됨');
+            // TODO: Loop AI 기능 연결
+          }}
+        >
+          <ActivityIcon size={16} className="mr-2" />
+          Loop AI
+        </button>
+
+        {/* 모니터링 버튼 + 상태 */}
+        {showMonitoring && (
           <div className={FLEX_PATTERNS.itemsCenterSpace2}>
-            <div className={isMonitoring ? statusDot.active : statusDot.inactive} />
-            <span className="text-white/90 text-sm font-medium">{monitoringStatus}</span>
+            {/* 모니터링 토글 버튼 */}
+            <button
+              onClick={handleMonitoringToggle}
+              className={getButtonClassName({ 
+                variant: isMonitoring ? 'success' : 'secondary', 
+                size: 'sm' 
+              })}
+            >
+              {isMonitoring ? '정지' : '시작'}
+            </button>
+            
+            {/* 모니터링 상태 표시 */}
+            <div className={FLEX_PATTERNS.itemsCenterSpace2}>
+              <div className={isMonitoring ? statusDot.active : statusDot.inactive} />
+              <span className="text-white/90 text-sm font-medium">{monitoringStatus}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }

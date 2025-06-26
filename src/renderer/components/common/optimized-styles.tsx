@@ -12,10 +12,10 @@ export const Z_INDEX = {
   tooltip: 90,     // 툴팁
   dropdown: 80,    // 드롭다운
   overlay: 70,     // 오버레이
-  header: 60,      // 헤더
-  sidebar: 50,     // 사이드바  
-  backdrop: 40,    // 백드롭
-  sticky: 30,      // 스티키 메뉴
+  header: 50,      // 헤더 (낮춤!)
+  sidebar: 40,     // 사이드바 (낮춤!)
+  backdrop: 30,    // 백드롭 (낮춤!)
+  sticky: 20,      // 스티키 메뉴
   card: 10         // 카드
 } as const;
 
@@ -140,23 +140,23 @@ export const BUTTON_STYLES = {
 
 // ==================== 🔥 LAYOUT 시스템 ====================
 export const LAYOUT_STYLES = {
-  // 🚨 AppHeader 고정 스타일
-  headerFixed: `fixed top-0 left-0 right-0 z-[${Z_INDEX.header}]`,
+  // 🚨 AppHeader 고정 스타일 - Z-Index 50으로 정정, 높이 56px로 정확히
+  headerFixed: `fixed top-0 left-0 right-0 z-50 h-14`,
   
-  // 🚨 사이드바 완전 함수 (조건부 로직 제거!)
-  sidebar: (isOpen: boolean) => `fixed top-14 bottom-0 left-0 z-[${Z_INDEX.sidebar}] w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`,
+  // 🚨 사이드바 완전 함수 (조건부 로직 제거!) - 헤더 높이 정확히 맞춤
+  sidebar: (isOpen: boolean) => `fixed top-14 bottom-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`,
   
-  // 🚨 모바일 백드롭
-  backdrop: `fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-[${Z_INDEX.backdrop}] lg:hidden`,
+  // 🚨 모바일 백드롭 - 헤더 높이 정확히 맞춤
+  backdrop: `fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-30 lg:hidden`,
   
   // 🚨 네비게이션 버튼 스타일 (조건부 className 제거)
   navButtonBase: 'w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200',
   navButtonActive: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
   navButtonInactive: 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700',
   
-  // 🚨 메인 컨텐츠 영역
-  mainContent: 'pt-14 lg:pl-64',
-  mobileMenu: `lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-[${Z_INDEX.sticky}]`,
+  // 🚨 메인 컨텐츠 영역 - 헤더와 사이드바 정확한 오프셋 + 패딩 추가
+  mainContent: 'pt-14 lg:pl-64 min-h-screen relative z-10',
+  mobileMenu: `lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-20`,
   
   // 🚨 기본 페이지 레이아웃
   pageContainer: 'min-h-screen bg-gray-50 dark:bg-gray-900',
@@ -266,7 +266,7 @@ export const textTitle = TEXT_PATTERNS.title;
 export const textSubtitle = TEXT_PATTERNS.subtitle;
 
 // 🔥 레이아웃 별칭
-export const headerBase = 'bg-white border-b border-gray-200 px-6 py-4';
+export const headerBase = 'h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 border-b border-slate-700 shadow-lg px-6 flex items-center justify-between';
 export const pageContainer = LAYOUT_STYLES.pageContainer;
 export const contentArea = 'p-6';
 export const responsiveHeaderFlex = FLEX_PATTERNS.responsive;
