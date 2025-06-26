@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { CommonComponentProps } from '@shared/types';
+import { flexBetween } from '../common/common';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { getCardClassName, getButtonClassName } from '../common/common';
+import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {
   className?: string;
@@ -112,15 +114,15 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
 
   return (
     <div className={getCardClassName({ variant: 'settings', className })}>
-      <div className="flex items-center justify-between mb-4">
+      <div className={`${flexBetween()} mb-4`}>
         <h3 className="font-semibold text-slate-900">타이핑 연습</h3>
-        <div className="flex items-center gap-2">
+        <div className={FLEX_PATTERNS.itemsCenterGap2}>
           {!isTyping ? (
             <button
               onClick={startTyping}
               className={getButtonClassName({ variant: 'primary' })}
             >
-              <Play className="w-4 h-4" />
+              <Play className={ICON_PATTERNS.w4h4} />
               시작
             </button>
           ) : (
@@ -128,7 +130,7 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
               onClick={stopTyping}
               className={getButtonClassName({ variant: 'danger' })}
             >
-              <Pause className="w-4 h-4" />
+              <Pause className={ICON_PATTERNS.w4h4} />
               완료
             </button>
           )}
@@ -136,7 +138,7 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
             onClick={resetTyping}
             className={getButtonClassName({ variant: 'secondary' })}
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className={ICON_PATTERNS.w4h4} />
             리셋
           </button>
         </div>

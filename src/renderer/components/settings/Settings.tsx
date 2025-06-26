@@ -4,6 +4,13 @@ import { useState } from 'react';
 import { CommonComponentProps } from '@shared/types';
 import { getCardClassName, flexBetween, getAdditionalPattern } from '../common/common';
 import { 
+  FLEX_PATTERNS,
+  ICON_PATTERNS,
+  TEXT_PATTERNS,
+  ZERO_COST_CARD_STYLES,
+  ZERO_COST_BUTTON_STYLES
+} from '../common/optimized-styles';
+import { 
   Settings as SettingsIcon,
   Edit3,
   Cloud,
@@ -65,8 +72,8 @@ export function Settings({ logs, loading }: CommonComponentProps) {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* 일반 설정 */}
           <div className={getCardClassName({ variant: 'settings' })}>
-            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <SettingsIcon className="w-4 h-4 text-slate-600" />
+            <h3 className={TEXT_PATTERNS.sectionHeaderFlex}>
+              <SettingsIcon className={ICON_PATTERNS.w4h4Text} />
               일반 설정
             </h3>
             <div className="space-y-4">
@@ -75,7 +82,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">테마</div>
                   <div className="text-sm text-slate-600">앱의 외관을 선택하세요</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   {themeOptions.map((theme) => {
                     const IconComponent = theme.icon;
                     return (
@@ -88,7 +95,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                         }`}
                         onClick={() => setSettings({ ...settings, theme: theme.value })}
                       >
-                        <IconComponent className="w-4 h-4" />
+                        <IconComponent className={ICON_PATTERNS.w4h4} />
                       </button>
                     );
                   })}
@@ -121,8 +128,8 @@ export function Settings({ logs, loading }: CommonComponentProps) {
 
           {/* 편집기 설정 */}
           <div className={getCardClassName({ variant: 'settings' })}>
-            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Edit3 className="w-4 h-4 text-slate-600" />
+            <h3 className={TEXT_PATTERNS.sectionHeaderFlex}>
+              <Edit3 className={ICON_PATTERNS.w4h4Text} />
               편집기 설정
             </h3>
             <div className="space-y-4">
@@ -153,7 +160,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">글꼴 크기</div>
                   <div className="text-sm text-slate-600">편집기의 글꼴 크기를 조정합니다</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   <button
                     className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium"
                     onClick={() => setSettings({ ...settings, fontSize: Math.max(10, settings.fontSize - 1) })}
@@ -175,7 +182,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">줄 간격</div>
                   <div className="text-sm text-slate-600">텍스트의 줄 간격을 조정합니다</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   <button
                     className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium"
                     onClick={() => setSettings({ ...settings, lineHeight: Math.max(1.0, settings.lineHeight - 0.1) })}
@@ -196,8 +203,8 @@ export function Settings({ logs, loading }: CommonComponentProps) {
 
           {/* 동기화 설정 */}
           <div className={getCardClassName({ variant: 'settings' })}>
-            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Cloud className="w-4 h-4 text-slate-600" />
+            <h3 className={TEXT_PATTERNS.sectionHeaderFlex}>
+              <Cloud className={ICON_PATTERNS.w4h4Text} />
               동기화 설정
             </h3>
             <div className="space-y-4">
@@ -206,9 +213,9 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">Google Docs 동기화</div>
                   <div className="text-sm text-slate-600">Google Docs와 자동으로 동기화합니다</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   <div className="flex items-center gap-1 text-sm text-green-600">
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className={ICON_PATTERNS.w4h4} />
                     <span>연결됨</span>
                   </div>
                   <button className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium">
@@ -222,9 +229,9 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">Loop 클라우드</div>
                   <div className="text-sm text-slate-600">Loop 클라우드에 백업합니다</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   <div className="flex items-center gap-1 text-sm text-green-600">
-                    <CheckCircle className="w-4 h-4" />
+                    <CheckCircle className={ICON_PATTERNS.w4h4} />
                     <span>활성</span>
                   </div>
                   <button className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium">
@@ -267,7 +274,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                   <div className="font-medium text-slate-900">창의성 수준</div>
                   <div className="text-sm text-slate-600">AI 응답의 창의성을 조정합니다</div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={FLEX_PATTERNS.itemsCenterGap2}>
                   <span className="text-sm text-slate-600">보수적</span>
                   <input type="range" min="0" max="100" defaultValue="70" className="w-24" />
                   <span className="text-sm text-slate-600">창의적</span>
@@ -329,7 +336,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-slate-600">네트워크 상태</span>
-                  <div className="flex items-center gap-1">
+                  <div className={FLEX_PATTERNS.itemsCenterGap1}>
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm font-medium text-slate-900">온라인</span>
                   </div>
@@ -341,19 +348,19 @@ export function Settings({ logs, loading }: CommonComponentProps) {
           {/* 액션 버튼들 */}
           <div className="flex flex-col sm:flex-row gap-4">
             <button className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md font-medium transition-colors">
-              <Download className="w-4 h-4 mr-2 inline" />
+              <Download className={ICON_PATTERNS.w4h4Mr2} />
               설정 내보내기
             </button>
             <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md font-medium transition-colors">
-              <Upload className="w-4 h-4 mr-2 inline" />
+              <Upload className={ICON_PATTERNS.w4h4Mr2} />
               설정 가져오기
             </button>
             <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md font-medium transition-colors">
-              <RefreshCw className="w-4 h-4 mr-2 inline" />
+              <RefreshCw className={ICON_PATTERNS.w4h4Mr2} />
               기본값으로 재설정
             </button>
             <button className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-md font-medium transition-colors">
-              <HelpCircle className="w-4 h-4 mr-2 inline" />
+              <HelpCircle className={ICON_PATTERNS.w4h4Mr2} />
               도움말
             </button>
           </div>

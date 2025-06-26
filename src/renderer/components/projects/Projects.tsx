@@ -16,7 +16,17 @@ import {
   getAdditionalPattern,
   debugEntry, 
   debugExit, 
-  measurePerformance
+  measurePerformance,
+  iconAbsoluteLeft,
+  iconLeft,
+  iconSm,
+  renderFlexGap1,
+  renderFlexGap2,
+  renderFlexGap3,
+  renderFlexGap4,
+  renderFlexItemsCenter,
+  FLEX_ITEMS_CENTER_GAP_1,
+  ICON_SM
 } from '../common/common';
 import { Logger } from '../../shared/logger';
 import { 
@@ -99,7 +109,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
           </div>
           <div className={getAdditionalPattern('flex', 'itemsCenterGap3')}>
             <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Search className={`${iconAbsoluteLeft()} text-slate-400`} />
               <input
                 type="text"
                 placeholder="프로젝트 검색..."
@@ -109,10 +119,10 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               />
             </div>
             <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
-              <Filter className="w-4 h-4" />
+              <Filter className={iconSm()} />
             </button>
             <button className={getButtonClassName({ variant: 'primary' })}>
-              <Plus className="w-4 h-4 mr-2 inline" />
+              <Plus className={iconLeft()} />
               새 프로젝트
             </button>
           </div>
@@ -145,7 +155,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                   {project.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                 </div>
                 <button className={getButtonClassName({ variant: 'icon' })}>
-                  <MoreHorizontal className="w-4 h-4 text-slate-400" />
+                  <MoreHorizontal className={`${iconSm()} text-slate-400`} />
                 </button>
               </div>
               
@@ -172,12 +182,12 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                 
                 <div className={flexBetween() + " text-sm text-slate-600 pt-2 border-t border-slate-100"}>
                   <div className={getAdditionalPattern('flex', 'itemsCenterGap4')}>
-                    <div className="flex items-center gap-1">
-                      <FileText className="w-4 h-4" />
+                    <div className={FLEX_ITEMS_CENTER_GAP_1}>
+                      <FileText className={ICON_SM} />
                       <span>{project.wordCount}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-4 h-4" />
+                    <div className={FLEX_ITEMS_CENTER_GAP_1}>
+                      <BookOpen className={ICON_SM} />
                       <span>{project.chapters}</span>
                     </div>
                   </div>

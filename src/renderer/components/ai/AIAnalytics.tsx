@@ -1,6 +1,7 @@
 'use client';
 
 import logger from '../../shared/logger';
+import { OPTIMIZED_STYLES } from '../common/common';
 
 import { useState, useEffect, useCallback } from 'react';
 import { CommonComponentProps } from '@shared/types';
@@ -193,7 +194,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
   return (
     <div className="space-y-6 p-6">
       {/* AI 기능 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={OPTIMIZED_STYLES.gridCols1Md2}>
         {aiFeatures.map((feature, index) => {
           const IconComponent = feature.icon;
           return (
@@ -216,9 +217,9 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
       {/* AI 채팅 인터페이스 */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+          <div className={OPTIMIZED_STYLES.flexSpaceX3}>
+            <div className={OPTIMIZED_STYLES.iconContainerWhite20}>
+              <Bot className={OPTIMIZED_STYLES.iconMd + ' text-white'} />
             </div>
             <h2 className="text-xl font-semibold text-white">AI 창작 도우미</h2>
           </div>
@@ -226,7 +227,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
 
         {/* 빠른 질문 버튼 */}
         <div className="p-4 border-b border-gray-100">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">빠른 질문</h3>
+          <h3 className={OPTIMIZED_STYLES.textSmMediumGray700 + ' mb-3'}>빠른 질문</h3>
           <div className="flex flex-wrap gap-2">
             {quickQuestions.map((suggestion, index) => (
               <button
@@ -279,7 +280,7 @@ export function AIAnalytics({ logs, loading }: CommonComponentProps) {
             <button
               onClick={handleAISubmit}
               disabled={loadingAI || !aiPrompt.trim()}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={OPTIMIZED_STYLES.buttonBlue}
             >
               {loadingAI ? (
                 <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />

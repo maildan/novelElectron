@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import { Button, Card, CardHeader, CardTitle, CardContent, Input } from '@renderer/components/ui';
 import { cn } from '@renderer/lib/utils';
 import { Sparkles, X, Send } from 'lucide-react';
+import { flexBetween } from './common';
+import { FLEX_PATTERNS, ICON_PATTERNS } from './optimized-styles';
 
 export interface AIPanelProps {
   isOpen: boolean;
@@ -47,8 +49,8 @@ export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose, className }) 
     >
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className={flexBetween()}>
+          <div className={FLEX_PATTERNS.itemsCenterGap2}>
             <Sparkles className="w-5 h-5 animate-pulse" />
             <h3 className="font-semibold text-lg">Loop AI 도우미</h3>
           </div>
@@ -58,7 +60,7 @@ export const AIPanel: React.FC<AIPanelProps> = ({ isOpen, onClose, className }) 
             onClick={onClose}
             className="text-white hover:bg-white/20 h-8 w-8"
           >
-            <X className="w-4 h-4" />
+            <X className={ICON_PATTERNS.w4h4} />
           </Button>
         </div>
       </div>

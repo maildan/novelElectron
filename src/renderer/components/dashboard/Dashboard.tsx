@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { Log, TypingStats } from '../../shared/types';
 import { CommonComponentProps } from '../common/common';
 import { Logger } from '../../shared/logger';
+import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
 import { 
   COMMON_STYLES, 
+  OPTIMIZED_STYLES,
   getCardClassName, 
   getButtonClassName,
   debugEntry, 
@@ -13,8 +15,18 @@ import {
   flexBetween,
   measurePerformance,
   measureMemory,
-  getAdditionalPattern
+  getAdditionalPattern,
+  FLEX_ITEMS_CENTER_GAP_2,
+  ICON_SM
 } from '../common/common';
+import {
+  FLEX_GAP2 as FLEX_GAP2_ZERO,
+  ICON_SM as ICON_SM_ZERO,
+  ICON_MD as ICON_MD_ZERO,
+  TEXT_SECTION_HEADER,
+  CARD_BLUE_HOVER,
+  BTN_PRIMARY
+} from '../common/optimized-styles';
 import { AIPanel } from '../common/AIPanel';
 import { 
   Play, 
@@ -153,13 +165,13 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
       {/* 헤더 */}
       <div className="bg-white border-b border-slate-200 p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className={OPTIMIZED_STYLES.responsiveHeaderFlex}>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">대시보드</h1>
             <p className="text-slate-600 mt-1">오늘의 창작을 시작하세요</p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className={OPTIMIZED_STYLES.flexGap3}>
             <button
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
               className={getButtonClassName({ 
@@ -167,7 +179,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                 className: aiPanelOpen ? 'bg-purple-700 hover:bg-purple-800' : 'bg-purple-600 hover:bg-purple-700'
               })}
             >
-              <Sparkles className="w-4 h-4 mr-2 inline" />
+              <Sparkles className={ICON_PATTERNS.w4h4Mr2} />
               Loop AI
             </button>
 
@@ -179,19 +191,19 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             >
               {isMonitoring ? (
                 <>
-                  <Pause className="w-4 h-4 mr-2 inline" />
+                  <Pause className={ICON_PATTERNS.w4h4Mr2} />
                   중지
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 mr-2 inline" />
+                  <Play className={ICON_PATTERNS.w4h4Mr2} />
                   시작
                 </>
               )}
             </button>
 
             <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
-              <MoreHorizontal className="w-4 h-4" />
+              <MoreHorizontal className={ICON_PATTERNS.w4h4} />
             </button>
           </div>
         </div>
@@ -203,7 +215,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
         {isMonitoring && (
           <div className="bg-blue-600 text-white p-6 rounded-lg shadow-lg">
             <div className={`${flexBetween()} mb-4`}>
-              <div className="flex items-center gap-2">
+              <div className={FLEX_ITEMS_CENTER_GAP_2}>
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <h2 className="text-lg font-semibold">실시간 모니터링</h2>
               </div>
@@ -246,7 +258,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className={getCardClassName({ variant: 'green', className: COMMON_STYLES.layout.cardGrid })}>
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <Globe className="w-4 h-4 text-green-600" />
+                <Globe className={`${ICON_SM_ZERO} text-green-600`} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">Google Docs</h3>
@@ -258,7 +270,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className={getCardClassName({ variant: 'slate', className: COMMON_STYLES.layout.cardGrid })}>
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-5 h-5 text-slate-600" />
-                <Cloud className="w-4 h-4 text-slate-600" />
+                <Cloud className={`${ICON_SM_ZERO} text-slate-600`} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">Loop 클라우드</h3>

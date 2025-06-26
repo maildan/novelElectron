@@ -9,6 +9,8 @@ import logger from '../../shared/logger';
 
 import { useEffect, useState } from 'react';
 import { ActivityIcon, MenuIcon } from 'lucide-react';
+import { flexBetween } from '../common/common';
+import { FLEX_PATTERNS } from '../common/optimized-styles';
 
 interface AppHeaderProps {
   onMenuToggle?: () => void;
@@ -128,9 +130,9 @@ export function AppHeader({
   }
 
   return (
-    <header className="h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-between px-6 border-b border-slate-700 shadow-lg backdrop-blur-sm">
+    <header className={`h-14 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 ${flexBetween()} px-6 border-b border-slate-700 shadow-lg backdrop-blur-sm`}>
       {/* 왼쪽: 메뉴 + 로고 + 타이틀 */}
-      <div className="flex items-center space-x-4">
+      <div className={FLEX_PATTERNS.itemsCenterSpace4}>
         {/* 햄버거 메뉴 버튼 */}
         <button
           onClick={onMenuToggle}
@@ -158,9 +160,9 @@ export function AppHeader({
 
       {/* 오른쪽: 모니터링 상태 + 버튼 */}
       {showMonitoring && (
-        <div className="flex items-center space-x-4">
+        <div className={FLEX_PATTERNS.itemsCenterSpace4}>
           {/* 모니터링 상태 표시 */}
-          <div className="flex items-center space-x-2">
+          <div className={FLEX_PATTERNS.itemsCenterSpace2}>
             <div className={`w-3 h-3 rounded-full ${isMonitoring ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
             <span className="text-white/90 text-sm font-medium">{monitoringStatus}</span>
           </div>

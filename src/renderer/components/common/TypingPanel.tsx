@@ -8,10 +8,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@renderer/components/ui/Card';
 import { Button } from '@renderer/components/ui/Button';
+import { flexBetween, iconSm, iconMd } from './common';
 import { Badge } from '@renderer/components/ui/Badge';
 import { Progress } from '@renderer/components/ui/Progress';
 import { Activity, TrendingUp, Clock, Target, Zap, X } from 'lucide-react';
 import { formatTime, getWpmColor, getAccuracyColor } from '../../shared/utils';
+import { FLEX_PATTERNS, ICON_PATTERNS } from './optimized-styles';
 
 interface TypingStats {
   wpm: number;
@@ -52,9 +54,9 @@ export function TypingPanel({
     <div className="fixed top-20 right-4 w-80 z-[60] animate-in slide-in-from-right-4">
       <Card className="glass-card">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-400" />
+        <div className={`${flexBetween()} p-4 border-b border-white/10`}>
+          <div className={FLEX_PATTERNS.itemsCenterGap2}>
+            <Activity className={`${iconMd()} text-blue-400`} />
             <h3 className="font-semibold text-white">실시간 분석</h3>
           </div>
           <Button
@@ -63,16 +65,16 @@ export function TypingPanel({
             onClick={onClose}
             className="text-white/60 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
           >
-            <X className="w-4 h-4" />
+            <X className={iconSm()} />
           </Button>
         </div>
 
         {/* Stats Grid */}
         <div className="p-4 space-y-4">
           {/* WPM */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-yellow-400" />
+          <div className={flexBetween()}>
+            <div className={FLEX_PATTERNS.itemsCenterGap2}>
+              <Zap className={`${iconSm()} text-yellow-400`} />
               <span className="text-sm text-white/80">WPM</span>
             </div>
             <div className="text-right">
@@ -90,9 +92,9 @@ export function TypingPanel({
           />
 
           {/* Accuracy */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-green-400" />
+          <div className={flexBetween()}>
+            <div className={FLEX_PATTERNS.itemsCenterGap2}>
+              <Target className={`${iconSm()} text-green-400`} />
               <span className="text-sm text-white/80">정확도</span>
             </div>
             <div className={`text-xl font-bold ${getAccuracyColor(currentStats.accuracy)}`}>
@@ -101,9 +103,9 @@ export function TypingPanel({
           </div>
 
           {/* Session Time */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-400" />
+          <div className={flexBetween()}>
+            <div className={FLEX_PATTERNS.itemsCenterGap2}>
+              <Clock className={`${iconSm()} text-blue-400`} />
               <span className="text-sm text-white/80">세션 시간</span>
             </div>
             <div className="text-lg font-mono text-white">
@@ -112,9 +114,9 @@ export function TypingPanel({
           </div>
 
           {/* Keystrokes */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-400" />
+          <div className={flexBetween()}>
+            <div className={FLEX_PATTERNS.itemsCenterGap2}>
+              <TrendingUp className={`${iconSm()} text-purple-400`} />
               <span className="text-sm text-white/80">키 입력</span>
             </div>
             <div className="text-lg font-bold text-white">

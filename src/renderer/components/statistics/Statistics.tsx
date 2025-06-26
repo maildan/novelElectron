@@ -28,6 +28,8 @@ import {
   Clock,
   Bookmark
 } from 'lucide-react';
+import { Badge } from '../ui/Badge';
+import { FLEX_PATTERNS, ICON_PATTERNS, TEXT_PATTERNS } from '../common/optimized-styles';
 
 function StatisticsComponent({ logs, loading }: CommonComponentProps) {
   debugEntry('Statistics.tsx');
@@ -75,13 +77,13 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             <h1 className="text-2xl font-bold text-slate-900">통계</h1>
             <p className="text-slate-600 mt-1">창작 활동을 분석하고 개선하세요</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className={FLEX_PATTERNS.itemsCenterGap3}>
             <button className={getButtonClassName({ variant: 'secondary' })}>
-              <Download className="w-4 h-4 mr-2 inline" />
+              <Download className={ICON_PATTERNS.w4h4Mr2} />
               내보내기
             </button>
             <button className={getButtonClassName({ variant: 'secondary' })}>
-              <RefreshCw className="w-4 h-4 mr-2 inline" />
+              <RefreshCw className={ICON_PATTERNS.w4h4Mr2} />
               새로고침
             </button>
           </div>
@@ -211,7 +213,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             <div className="space-y-4">
               {goals.map((goal, index) => (
                 <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className={flexBetween()}>
                     <span className="text-sm font-medium text-slate-900">{goal.goal}</span>
                     {goal.achieved ? (
                       <CheckCircle className="w-4 h-4 text-green-600" />
@@ -240,8 +242,8 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
             </h3>
             <div className="space-y-3">
               {genres.map((genre, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div key={index} className={flexBetween()}>
+                  <div className={FLEX_PATTERNS.itemsCenterGap3}>
                     <div className={`w-3 h-3 rounded-full ${genre.color}`}></div>
                     <span className="text-sm font-medium text-slate-900">{genre.genre}</span>
                   </div>

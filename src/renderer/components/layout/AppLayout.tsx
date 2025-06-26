@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ActiveTab, NavItem } from '@shared/types';
 import { AppHeader } from './AppHeader';
+import { flexBetween } from '../common/common';
 import { 
   Home, 
   BarChart3, 
@@ -37,6 +38,26 @@ const iconMap = {
 
 export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // 🔥 기가차드 반응형 감지
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024); // lg 브레이크포인트
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  // 🔥 데스크톱에서는 자동으로 사이드바 열기
+  useEffect(() => {
+    if (isDesktop) {
+      setSidebarOpen(false); // 데스크톱에서는 상태 무관하게 항상 보임
+    }
+  }, [isDesktop]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -48,7 +69,7 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         />
       </div>
       
-      {/* Mobile sidebar backdrop - 헤더 아래에 위치 */}
+      {/* Mobile sidebar backdrop - 모바일에서만 표시 */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-[30] lg:hidden"
@@ -56,14 +77,14 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         />
       )}
 
-      {/* Sidebar with proper z-index */}
+      {/* Sidebar - 기가차드 반응형 수정 */}
       <div className={`
         fixed top-14 bottom-0 left-0 z-[40] w-64 bg-white dark:bg-gray-800 
         border-r border-gray-200 dark:border-gray-700 
         transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className={`${flexBetween()} p-6 border-b border-gray-200 dark:border-gray-700`}>
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Navigation
           </h1>
@@ -107,11 +128,11 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
         </nav>
       </div>
 
-      {/* Main content with proper margins */}
+      {/* Main content with consistent padding */}
       <div className="pt-14 lg:pl-64">
         {/* Mobile menu button - z-index 수정 */}
         <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-[20]">
-          <div className="flex items-center justify-between">
+          <div className={flexBetween()}>
             <button
               onClick={() => setSidebarOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
