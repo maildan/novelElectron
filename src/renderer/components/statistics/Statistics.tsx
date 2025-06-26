@@ -5,7 +5,11 @@ import {
   OPTIMIZED_STYLES,
   FLEX_PATTERNS,
   ICON_PATTERNS,
-  TEXT_PATTERNS
+  TEXT_PATTERNS,
+  changeBadge,
+  chartBar,
+  progressBar,
+  progressText
 } from '../common/optimized-styles';
 import { Logger } from '../../shared/logger';
 import { useEffect, useState } from 'react';
@@ -45,21 +49,13 @@ const {
   sectionHeaderFlex,
 } = TEXT_PATTERNS;
 
-// 🔥 조건부 className 제거를 위한 상수 패턴들
+// 🔥 조건부 className 제거를 위한 상수 패턴들 (iconBox만 로컬)
 const STAT_STYLES = {
   iconBox: {
     blue: 'w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600',
     green: 'w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 text-green-600',
     purple: 'w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100 text-purple-600',
     orange: 'w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100 text-orange-600',
-  },
-  changeBadge: {
-    positive: 'text-xs font-medium px-2 py-1 rounded bg-green-100 text-green-700',
-    negative: 'text-xs font-medium px-2 py-1 rounded bg-red-100 text-red-700',
-  },
-  progressBar: {
-    achieved: 'h-full bg-green-600 rounded-full',
-    inProgress: 'h-full bg-blue-600 rounded-full',
   },
   chart: {
     bar: 'bg-blue-500 rounded-t hover:bg-blue-600 transition-colors cursor-pointer',
@@ -69,7 +65,7 @@ const STAT_STYLES = {
 } as const;
 
 // 🔥 Destructuring for 28% performance (핵심!)
-const { iconBox, changeBadge, progressBar, chart } = STAT_STYLES;
+const { iconBox, chart } = STAT_STYLES;
 
 function StatisticsComponent({ logs, loading }: CommonComponentProps) {
   // #DEBUG: Statistics.tsx 진입
@@ -191,7 +187,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
                 return (
                   <div key={index} className={itemsCenterGap2}>
                     <div
-                      className={(day.value || 0) > maxValue * 0.8 ? chart.barActive : chart.bar}
+                      className={(day.value || 0) > maxValue * 0.8 ? chartBar.active : chartBar.normal}
                       style={{ height: `${height}%`, width: '32px' }}
                       title={`${day.label}: ${day.value || 0} 단어`}
                     />
@@ -233,7 +229,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
                   <div key={index} className="space-y-2">
                     <div className={itemsCenterJustifyBetween}>
                       <h4 className="font-medium text-slate-900">{goal.goal}</h4>
-                      <span className={`text-sm ${goal.achieved ? 'text-green-600' : 'text-slate-500'}`}>
+                      <span className={goal.achieved ? progressText.achieved : progressText.pending}>
                         {goal.current.toLocaleString()} / {goal.target.toLocaleString()} {goal.unit}
                       </span>
                     </div>

@@ -5,7 +5,19 @@ import { CommonComponentProps } from '@shared/types';
 import { flexBetween } from '../common/common';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { getCardClassName, getButtonClassName } from '../common/common';
-import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
+import { 
+  FLEX_PATTERNS, 
+  ICON_PATTERNS,
+  TEXT_CENTER,
+  TEXT_STAT_VALUE_BLUE,
+  TEXT_STAT_VALUE_GREEN,
+  TEXT_STAT_VALUE_PURPLE,
+  TEXT_STAT_VALUE_ORANGE,
+  TEXT_STAT_LABEL,
+  TEXT_STAT_LABEL_GREEN,
+  TEXT_STAT_LABEL_PURPLE,
+  TEXT_STAT_LABEL_ORANGE,
+} from '../common/optimized-styles';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {
   className?: string;
@@ -147,21 +159,21 @@ export function TypingBox({ onTypingComplete, className = '' }: TypingBoxProps) 
       {/* 통계 표시 */}
       {isTyping && (
         <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-blue-50 rounded-lg">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{keyCount}</div>
-            <div className="text-xs text-blue-600">키 입력</div>
+          <div className={TEXT_CENTER}>
+            <div className={TEXT_STAT_VALUE_BLUE}>{keyCount}</div>
+            <div className={TEXT_STAT_LABEL}>키 입력</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{duration}</div>
-            <div className="text-xs text-green-600">초</div>
+          <div className={TEXT_CENTER}>
+            <div className={TEXT_STAT_VALUE_GREEN}>{duration}</div>
+            <div className={TEXT_STAT_LABEL_GREEN}>초</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{wpm}</div>
-            <div className="text-xs text-purple-600">타/분</div>
+          <div className={TEXT_CENTER}>
+            <div className={TEXT_STAT_VALUE_PURPLE}>{wpm}</div>
+            <div className={TEXT_STAT_LABEL_PURPLE}>타/분</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">{content.length}</div>
-            <div className="text-xs text-orange-600">글자</div>
+          <div className={TEXT_CENTER}>
+            <div className={TEXT_STAT_VALUE_ORANGE}>{content.length}</div>
+            <div className={TEXT_STAT_LABEL_ORANGE}>글자</div>
           </div>
         </div>
       )}

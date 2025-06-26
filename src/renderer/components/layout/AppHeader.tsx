@@ -10,7 +10,7 @@ import logger from '../../shared/logger';
 import { useEffect, useState } from 'react';
 import { ActivityIcon, MenuIcon } from 'lucide-react';
 import { flexBetween } from '../common/common';
-import { FLEX_PATTERNS } from '../common/optimized-styles';
+import { FLEX_PATTERNS, statusDot } from '../common/optimized-styles';
 
 interface AppHeaderProps {
   onMenuToggle?: () => void;
@@ -163,7 +163,7 @@ export function AppHeader({
         <div className={FLEX_PATTERNS.itemsCenterSpace4}>
           {/* 모니터링 상태 표시 */}
           <div className={FLEX_PATTERNS.itemsCenterSpace2}>
-            <div className={`w-3 h-3 rounded-full ${isMonitoring ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+            <div className={isMonitoring ? statusDot.active : statusDot.inactive} />
             <span className="text-white/90 text-sm font-medium">{monitoringStatus}</span>
           </div>
 

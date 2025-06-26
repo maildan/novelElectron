@@ -18,6 +18,8 @@ import {
   cardSettings,
   cardMonitoring,
   cardQuickStart,
+  aiButton,
+  monitorButton,
   btnPrimary,
   btnDanger,
   btnPurple,
@@ -31,6 +33,19 @@ import {
   fileItemBase,
   projectItemBase,
   statusIndicator,
+  // 🔥 새로운 TEXT 패턴들
+  TEXT_TITLE_LARGE,
+  TEXT_STAT_VALUE,
+  TEXT_BLUE_200,
+  TEXT_SUBTITLE,
+  TEXT_CENTER,
+  TEXT_PROGRESS,
+  TEXT_DEADLINE,
+  TEXT_STAT_LABEL_MUTED,
+  TEXT_STAT_LABEL_DARK,
+  TEXT_SYNC_SUCCESS,
+  TEXT_SYNC_INFO,
+  TEXT_SYNC_PENDING,
 } from '../common/optimized-styles';
 import { AIPanel } from '../common/AIPanel';
 import { 
@@ -178,7 +193,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           <div className={flexGap3}>
             <button
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
-              className={`${btnPurple} ${aiPanelOpen ? 'bg-purple-700 hover:bg-purple-800' : ''}`}
+              className={aiPanelOpen ? aiButton.open : aiButton.closed}
             >
               <Sparkles className={iconWithText} />
               Loop AI
@@ -186,7 +201,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
             <button
               onClick={() => setIsMonitoring(!isMonitoring)}
-              className={isMonitoring ? btnDanger : btnPrimary}
+              className={isMonitoring ? monitorButton.stop : monitorButton.start}
             >
               {isMonitoring ? (
                 <>
@@ -216,24 +231,24 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className={`${flexBetween} mb-4`}>
               <div className={flexGap2}>
                 <div className={statusIndicator}></div>
-                <h2 className="text-lg font-semibold">실시간 모니터링</h2>
+                <h2 className={TEXT_TITLE_LARGE}>실시간 모니터링</h2>
               </div>
               <div className="font-mono text-lg">{Math.floor(monitoringData.time / 60)}:{(monitoringData.time % 60).toString().padStart(2, '0')}</div>
             </div>
             <div className={gridCol3}>
               <div>
-                <div className="text-2xl font-bold">{monitoringData.wpm}</div>
-                <div className="text-blue-200 text-sm">분당 단어</div>
+                <div className={TEXT_STAT_VALUE}>{monitoringData.wpm}</div>
+                <div className={TEXT_BLUE_200}>분당 단어</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{monitoringData.words}</div>
-                <div className="text-blue-200 text-sm">총 단어</div>
+                <div className={TEXT_STAT_VALUE}>{monitoringData.words}</div>
+                <div className={TEXT_BLUE_200}>총 단어</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">
+                <div className={TEXT_STAT_VALUE}>
                   {monitoringData.time > 0 ? Math.round(monitoringData.words / (monitoringData.time / 60)) : 0}
                 </div>
-                <div className="text-blue-200 text-sm">평균 속도</div>
+                <div className={TEXT_BLUE_200}>평균 속도</div>
               </div>
             </div>
           </div>
@@ -241,15 +256,15 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
         {/* 빠른 시작 */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">빠른 시작</h2>
+          <h2 className={TEXT_TITLE_LARGE}>빠른 시작</h2>
 
           <div className={`${cardBase} ${cardQuickStart}`}>
-            <div className="text-center">
+            <div className={TEXT_CENTER}>
               <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Plus className="w-6 h-6" />
               </div>
               <h3 className="font-semibold text-slate-900 mb-1">새 프로젝트 시작</h3>
-              <p className="text-sm text-slate-600">새로운 창작을 시작하세요</p>
+              <p className={TEXT_SUBTITLE}>새로운 창작을 시작하세요</p>
             </div>
           </div>
 

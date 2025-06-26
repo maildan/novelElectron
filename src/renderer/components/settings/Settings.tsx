@@ -16,6 +16,12 @@ import {
   headerBase,
   pageContainer,
   contentArea,
+  // 🔥 TEXT 최적화 패턴들
+  TEXT_DESCRIPTION,
+  TEXT_DESCRIPTION_GREEN,
+  TEXT_DATA_VALUE,
+  TEXT_DATA_UNIT,
+  TEXT_DATA_DESCRIPTION,
 } from '../common/optimized-styles';
 import { 
   Settings as SettingsIcon,
@@ -90,7 +96,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">테마</div>
-                  <div className="text-sm text-slate-600">앱의 외관을 선택하세요</div>
+                  <div className={TEXT_DESCRIPTION}>앱의 외관을 선택하세요</div>
                 </div>
                 <div className={flexGap2}>
                   {themeOptions.map((theme) => {
@@ -114,7 +120,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">알림</div>
-                  <div className="text-sm text-slate-600">앱 알림을 받을지 설정하세요</div>
+                  <div className={TEXT_DESCRIPTION}>앱 알림을 받을지 설정하세요</div>
                 </div>
                 <ToggleSwitch
                   checked={settings.notifications}
@@ -124,7 +130,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">자동 저장</div>
-                  <div className="text-sm text-slate-600">작업 내용을 자동으로 저장합니다</div>
+                  <div className={TEXT_DESCRIPTION}>작업 내용을 자동으로 저장합니다</div>
                 </div>
                 <ToggleSwitch
                   checked={settings.autoSave}
@@ -144,7 +150,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">맞춤법 검사</div>
-                  <div className="text-sm text-slate-600">실시간으로 맞춤법을 검사합니다</div>
+                  <div className={TEXT_DESCRIPTION}>실시간으로 맞춤법을 검사합니다</div>
                 </div>
                 <ToggleSwitch
                   checked={settings.spellCheck}
@@ -154,7 +160,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">자동 줄바꿈</div>
-                  <div className="text-sm text-slate-600">긴 줄을 자동으로 줄바꿈합니다</div>
+                  <div className={TEXT_DESCRIPTION}>긴 줄을 자동으로 줄바꿈합니다</div>
                 </div>
                 <ToggleSwitch
                   checked={settings.wordWrap}
@@ -164,7 +170,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className={flexBetween}>
                 <div>
                   <div className="font-medium text-slate-900">글자 크기</div>
-                  <div className="text-sm text-slate-600">편집기의 글자 크기를 조정합니다</div>
+                  <div className={TEXT_DESCRIPTION}>편집기의 글자 크기를 조정합니다</div>
                 </div>
                 <div className={flexGap2}>
                   <button 
@@ -282,17 +288,17 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-slate-50 rounded-lg p-4">
                   <div className={`${flexItemsCenter} gap-1 mb-2`}>
-                    <span className="text-2xl font-bold text-slate-900">1,247</span>
-                    <span className="text-sm text-slate-600 ml-1">sessions</span>
+                    <span className={TEXT_DATA_VALUE}>1,247</span>
+                    <span className={TEXT_DATA_UNIT}>sessions</span>
                   </div>
-                  <p className="text-xs text-slate-500">총 타이핑 세션</p>
+                  <p className={TEXT_DATA_DESCRIPTION}>총 타이핑 세션</p>
                 </div>
                 <div className="bg-slate-50 rounded-lg p-4">
                   <div className={`${flexItemsCenter} gap-1 mb-2`}>
-                    <span className="text-2xl font-bold text-slate-900">24.3</span>
-                    <span className="text-sm text-slate-600 ml-1">MB</span>
+                    <span className={TEXT_DATA_VALUE}>24.3</span>
+                    <span className={TEXT_DATA_UNIT}>MB</span>
                   </div>
-                  <p className="text-xs text-slate-500">사용된 저장 공간</p>
+                  <p className={TEXT_DATA_DESCRIPTION}>사용된 저장 공간</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">

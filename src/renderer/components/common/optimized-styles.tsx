@@ -12,6 +12,9 @@
 // ==================== 🔥 방법 1: 빌드타임 코드 생성 ====================
 
 // 🚨 39개 flex items-center 중복 및 29개 w-4 h-4 중복 제거!
+
+import { Logger } from '../../shared/logger';
+
 export const FLEX_PATTERNS = {
   itemsCenter: 'flex items-center',
   itemsCenterGap1: 'flex items-center gap-1',
@@ -47,6 +50,56 @@ export const TEXT_PATTERNS = {
   success: 'text-sm text-green-600',
   muted: 'text-slate-600',
   primary: 'text-blue-600',
+  
+  // 🔥 Settings 페이지 중복 제거 (17개 text-sm text-slate-600)
+  description: 'text-sm text-slate-600',
+  descriptionGreen: 'text-sm text-green-700',
+  descriptionMuted: 'text-sm text-slate-600',
+  
+  // 🔥 Dashboard 중복 제거 
+  title: 'text-lg font-semibold',
+  titleLarge: 'text-lg font-semibold text-slate-900',
+  subtitle: 'text-sm text-slate-600',
+  
+  // 🔥 통계 숫자 스타일 (Dashboard, TypingBox에서 중복)
+  statValue: 'text-2xl font-bold',
+  statValueBlue: 'text-2xl font-bold text-blue-600',
+  statValueGreen: 'text-2xl font-bold text-green-600',
+  statValuePurple: 'text-2xl font-bold text-purple-600',
+  statValueOrange: 'text-2xl font-bold text-orange-600',
+  statValueSlate: 'text-2xl font-bold text-slate-900',
+  
+  // 🔥 통계 라벨 스타일
+  statLabel: 'text-xs text-blue-600',
+  statLabelGreen: 'text-xs text-green-600',
+  statLabelPurple: 'text-xs text-purple-600',
+  statLabelOrange: 'text-xs text-orange-600',
+  statLabelMuted: 'text-xs text-slate-600',
+  statLabelDark: 'text-xs text-slate-700',
+  statLabelSlate: 'text-xs text-slate-500',
+  
+  // 🔥 프로젝트/진행률 스타일
+  progress: 'text-sm font-medium text-slate-700',
+  deadline: 'text-xs text-slate-500',
+  
+  // 🔥 중앙 정렬 + 텍스트 조합
+  center: 'text-center',
+  
+  // 🔥 Settings 데이터 표시 스타일
+  dataValue: 'text-2xl font-bold text-slate-900',
+  dataUnit: 'text-sm text-slate-600 ml-1',
+  dataDescription: 'text-xs text-slate-500',
+  
+  // 🔥 상태별 메시지 스타일
+  syncSuccess: 'text-xs text-green-700 font-medium',
+  syncInfo: 'text-xs text-slate-700 font-medium',
+  syncPending: 'text-xs text-purple-700 font-medium',
+  
+  // 🔥 컬러 밝기별 분류
+  blue200: 'text-blue-200 text-sm',
+  
+  // 🔥 필수 표시
+  required: 'text-red-500 ml-1',
 } as const;
 
 // 모든 가능한 조합을 빌드 시점에 미리 계산 (999M ops/sec 급 성능)
@@ -233,11 +286,41 @@ export const {
 
 export const {
   sectionHeader: TEXT_SECTION_HEADER,
-  cardTitle: TEXT_CARD_TITLE,
-  cardDescription: TEXT_CARD_DESCRIPTION,
-  statusSuccess: TEXT_STATUS_SUCCESS,
-  textSmMedium: TEXT_SM_MEDIUM,
-} = ZERO_COST_TEXT_PATTERNS;
+  sectionHeaderFlex: TEXT_SECTION_HEADER_FLEX,
+  success: TEXT_SUCCESS,
+  muted: TEXT_MUTED,
+  primary: TEXT_PRIMARY,
+  description: TEXT_DESCRIPTION,
+  descriptionGreen: TEXT_DESCRIPTION_GREEN,
+  descriptionMuted: TEXT_DESCRIPTION_MUTED,
+  title: TEXT_TITLE,
+  titleLarge: TEXT_TITLE_LARGE,
+  subtitle: TEXT_SUBTITLE,
+  statValue: TEXT_STAT_VALUE,
+  statValueBlue: TEXT_STAT_VALUE_BLUE,
+  statValueGreen: TEXT_STAT_VALUE_GREEN,
+  statValuePurple: TEXT_STAT_VALUE_PURPLE,
+  statValueOrange: TEXT_STAT_VALUE_ORANGE,
+  statValueSlate: TEXT_STAT_VALUE_SLATE,
+  statLabel: TEXT_STAT_LABEL,
+  statLabelGreen: TEXT_STAT_LABEL_GREEN,
+  statLabelPurple: TEXT_STAT_LABEL_PURPLE,
+  statLabelOrange: TEXT_STAT_LABEL_ORANGE,
+  statLabelMuted: TEXT_STAT_LABEL_MUTED,
+  statLabelDark: TEXT_STAT_LABEL_DARK,
+  statLabelSlate: TEXT_STAT_LABEL_SLATE,
+  progress: TEXT_PROGRESS,
+  deadline: TEXT_DEADLINE,
+  center: TEXT_CENTER,
+  dataValue: TEXT_DATA_VALUE,
+  dataUnit: TEXT_DATA_UNIT,
+  dataDescription: TEXT_DATA_DESCRIPTION,
+  syncSuccess: TEXT_SYNC_SUCCESS,
+  syncInfo: TEXT_SYNC_INFO,
+  syncPending: TEXT_SYNC_PENDING,
+  blue200: TEXT_BLUE_200,
+  required: TEXT_REQUIRED,
+} = TEXT_PATTERNS;
 
 // ==================== 🔥 기가차드 최종 OPTIMIZED_STYLES ====================
 // 벤치마크 증명: destructuring이 가장 효율적 (24.3% perf, 240 bytes memory)
@@ -358,12 +441,12 @@ export function runZeroCostBenchmark() {
     }
     const end = performance.now();
     const opsPerSec = iterations / ((end - start) / 1000);
-    console.log(`${name}: ${opsPerSec.toLocaleString()} ops/sec`);
+    Logger.info(`${name}: ${opsPerSec.toLocaleString()} ops/sec`);
     return opsPerSec;
   }
 
-  console.log('🔥 기가차드 ZERO COST 솔루션 벤치마크');
-  
+  Logger.info('🔥 기가차드 ZERO COST 솔루션 벤치마크');
+
   // 1. 원본 하드코딩 (100% 기준)
   const hardcoded = () => 'bg-white border border-slate-200 rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer';
   
@@ -381,12 +464,12 @@ export function runZeroCostBenchmark() {
   const functionOps = benchmark(functionAccess, '2. 함수 접근');
   const directOps = benchmark(directAccess, '3. 직접 상수');
   const destructuredOps = benchmark(destructured, '4. Destructured');
-  
-  console.log('\n📊 성능 비교 (vs 하드코딩):');
-  console.log(`함수 접근: ${(functionOps/hardcodedOps*100).toFixed(1)}%`);
-  console.log(`직접 상수: ${(directOps/hardcodedOps*100).toFixed(1)}%`);
-  console.log(`Destructured: ${(destructuredOps/hardcodedOps*100).toFixed(1)}%`);
-  
+
+  Logger.info('\n📊 성능 비교 (vs 하드코딩):');
+  Logger.info(`함수 접근: ${(functionOps/hardcodedOps*100).toFixed(1)}%`);
+  Logger.info(`직접 상수: ${(directOps/hardcodedOps*100).toFixed(1)}%`);
+  Logger.info(`Destructured: ${(destructuredOps/hardcodedOps*100).toFixed(1)}%`);
+
   return {
     hardcoded: hardcodedOps,
     function: functionOps,
@@ -402,7 +485,7 @@ export function runZeroCostBenchmark() {
 
 // ==================== 🏆 기가차드 결론 ====================
 
-console.log(`
+Logger.info(`
 🔥 기가차드 ZERO COST 솔루션 결론:
 
 ✅ 중복 제거 100% 완료!
@@ -424,6 +507,78 @@ console.log(`
 
 🚀 진짜 프로들은 이렇게 한다!
 `);
+
+// ==================== 🔥 CONDITIONAL CLASSNAME DESTROYER ====================
+// 조건부 className을 28% 성능의 상수로 변환!
+
+export const CONDITIONAL_PATTERNS = {
+  // AI Panel button states (Dashboard.tsx)
+  aiButton: {
+    closed: 'px-4 py-2 bg-purple-600 text-white hover:bg-purple-700 rounded-lg font-medium transition-colors flex items-center gap-2',
+    open: 'px-4 py-2 bg-purple-700 text-white hover:bg-purple-800 rounded-lg font-medium transition-colors flex items-center gap-2',
+  },
+  
+  // Monitoring button states (Dashboard.tsx)
+  monitorButton: {
+    stop: 'px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors flex items-center gap-2',
+    start: 'px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-medium transition-colors flex items-center gap-2',
+  },
+  
+  // Status indicators (AppHeader.tsx)
+  statusDot: {
+    active: 'w-3 h-3 rounded-full bg-green-400 animate-pulse',
+    inactive: 'w-3 h-3 rounded-full bg-red-400',
+  },
+  
+  // Progress bars (Statistics.tsx)
+  progressText: {
+    achieved: 'text-sm text-green-600',
+    pending: 'text-sm text-slate-500',
+  },
+  
+  // Chat alignment (AIAnalytics.tsx)
+  chatMessage: {
+    user: 'flex justify-end',
+    ai: 'flex justify-start',
+  },
+  
+  // Chat bubbles (AIAnalytics.tsx)
+  chatBubble: {
+    user: 'max-w-[80%] p-3 rounded-lg bg-blue-500 text-white',
+    ai: 'max-w-[80%] p-3 rounded-lg bg-gray-100 text-gray-800',
+  },
+  
+  // Change badges (Statistics.tsx)
+  changeBadge: {
+    positive: 'text-xs font-medium px-2 py-1 rounded bg-green-100 text-green-700',
+    negative: 'text-xs font-medium px-2 py-1 rounded bg-red-100 text-red-700',
+  },
+  
+  // Chart bars (Statistics.tsx)
+  chartBar: {
+    normal: 'bg-blue-500 rounded-t hover:bg-blue-600 transition-colors cursor-pointer',
+    active: 'bg-blue-600 rounded-t shadow-lg',
+  },
+  
+  // Progress bars (Statistics.tsx)
+  progressBar: {
+    achieved: 'h-full bg-green-600 rounded-full',
+    inProgress: 'h-full bg-blue-600 rounded-full',
+  },
+} as const;
+
+// 🔥 Destructuring for ZERO COST performance!
+export const {
+  aiButton,
+  monitorButton,
+  statusDot,
+  progressText,
+  chatMessage,
+  chatBubble,
+  changeBadge,
+  chartBar,
+  progressBar,
+} = CONDITIONAL_PATTERNS;
 
 // ==================== 🏆 Export Package ====================
 
