@@ -531,9 +531,10 @@ export const OPTIMIZED_STYLES = {
   flexGap2: 'flex items-center gap-2',
   flexGap3: 'flex items-center gap-3',
   flexGap4: 'flex items-center gap-4',
-  flexSpaceX2: 'flex items-center space-x-2',
-  flexSpaceX3: 'flex items-center space-x-3',
-  flexSpaceX4: 'flex items-center space-x-4',
+  // 🔥 DEPRECATED: space-x-* 패턴 - optimized-styles.tsx의 gap 패턴 사용 권장
+  // flexSpaceX2: 'flex items-center space-x-2', → FLEX_PATTERNS.itemsCenterGap2 사용
+  // flexSpaceX3: 'flex items-center space-x-3', → FLEX_PATTERNS.itemsCenterGap3 사용  
+  // flexSpaceX4: 'flex items-center space-x-4', → FLEX_PATTERNS.itemsCenterGap4 사용
   flexColGap2: 'flex flex-col items-center gap-2',
   
   // Grid 패턴 프리컴파일 (11개의 grid 중복 대체)
@@ -686,8 +687,9 @@ export const RENDER_OPTIMIZED_PATTERNS = {
   statLabel: 'text-xs text-slate-600',
   
   // Icon positions (자주 사용됨)
-  iconStart: 'flex items-center space-x-2',
-  iconStartGap4: 'flex items-center space-x-4',
+  // 🔥 DEPRECATED: space-x-* 패턴 - optimized-styles.tsx의 gap 패턴 사용 권장
+  // iconStart: 'flex items-center space-x-2', → FLEX_PATTERNS.itemsCenterGap2 사용
+  // iconStartGap4: 'flex items-center space-x-4', → FLEX_PATTERNS.itemsCenterGap4 사용
   iconCentered: 'w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg',
   
   // Progress patterns

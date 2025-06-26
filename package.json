@@ -22,9 +22,11 @@
     "lint": "eslint src/**/*.{ts,tsx}",
     "format": "prettier --write src/**/*.{ts,tsx}",
     "test": "jest",
+    "test:benchmark": "node scripts/gigachad-benchmark.js",
     "copilot:keepalive": "node scripts/copilot-keepalive.js",
     "copilot:start": "concurrently \"pnpm run dev\" \"pnpm run copilot:keepalive\"",
-    "gigachad": "echo '🔥 기가차드 모드 활성화!' && pnpm run copilot:start"
+    "gigachad": "echo '🔥 기가차드 모드 활성화!' && pnpm run copilot:start",
+    "gigachad:benchmark": "echo '🔥 기가차드 성능 벤치마킹!' && pnpm run test:benchmark"
   },
   "keywords": [
     "typing",

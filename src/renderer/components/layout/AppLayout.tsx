@@ -1,9 +1,15 @@
+/**
+ * 🔥 AppLayout.tsx 전용 최종 버전 - 기가차드 30분 해결
+ * 모든 조건부 className 제거, 프리컴파일된 스타일만 사용
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { ActiveTab, NavItem } from '@shared/types';
 import { AppHeader } from './AppHeader';
-import { flexBetween } from '../common/optimized-styles';
+import { LAYOUT_STYLES, FLEX_PATTERNS, ICON_SIZES } from '../common/optimized-styles';
+import { Logger } from '../../shared/logger';
 import { 
   Home, 
   BarChart3, 
@@ -37,32 +43,43 @@ const iconMap = {
 };
 
 export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) {
+  Logger.debug(`AppLayout ENTRY: ${activeTab}`);
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
 
   // 🔥 기가차드 반응형 감지
   useEffect(() => {
+    Logger.debug('AppLayout screen size check started');
+    
     const checkScreenSize = () => {
-      setIsDesktop(window.innerWidth >= 1024); // lg 브레이크포인트
+      const newIsDesktop = window.innerWidth >= 1024;
+      setIsDesktop(newIsDesktop);
+      Logger.debug(`AppLayout screen size changed: ${window.innerWidth}px, desktop: ${newIsDesktop}`);
     };
 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     
-    return () => window.removeEventListener('resize', checkScreenSize);
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+      Logger.debug('AppLayout cleanup resize listener');
+    };
   }, []);
 
-  // 🔥 데스크톱에서는 자동으로 사이드바 열기
+  // 🔥 데스크톱에서는 사이드바 상태 무관 (CSS lg:translate-x-0으로 처리)
   useEffect(() => {
     if (isDesktop) {
-      setSidebarOpen(false); // 데스크톱에서는 상태 무관하게 항상 보임
+      Logger.debug('AppLayout desktop mode: sidebar handled by CSS');
     }
   }, [isDesktop]);
 
+  Logger.debug('AppLayout EXIT: layout rendered');
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className={LAYOUT_STYLES.pageContainer}>
       {/* Fixed App Header */}
-      <div className="fixed top-0 left-0 right-0 z-[50]">
+      <div className={LAYOUT_STYLES.headerFixed}>
         <AppHeader 
           onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
           showMonitoring={true}
@@ -72,32 +89,29 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
       {/* Mobile sidebar backdrop - 모바일에서만 표시 */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 top-14 bg-gray-900/50 backdrop-blur-sm z-[30] lg:hidden"
+          className={LAYOUT_STYLES.backdrop}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - 기가차드 반응형 수정 */}
-      <div className={`
-        fixed top-14 bottom-0 left-0 z-[40] w-64 bg-white dark:bg-gray-800 
-        border-r border-gray-200 dark:border-gray-700 
-        transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className={`${flexBetween} p-6 border-b border-gray-200 dark:border-gray-700`}>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Navigation
-          </h1>
-          <button 
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <X className="w-5 h-5" />
-          </button>
+      {/* Sidebar - 기가차드 조건부 로직 완전 제거 */}
+      <div className={LAYOUT_STYLES.sidebar(sidebarOpen)}>
+        <div className={LAYOUT_STYLES.sidebarHeader}>
+          <div className={FLEX_PATTERNS.between}>
+            <h1 className={LAYOUT_STYLES.sidebarHeaderTitle}>
+              Navigation
+            </h1>
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className={LAYOUT_STYLES.sidebarCloseBtn}
+            >
+              <X className={ICON_SIZES.md} />
+            </button>
+          </div>
         </div>
 
-        <nav className="mt-6 px-3">
-          <ul className="space-y-2">
+        <nav className={LAYOUT_STYLES.sidebarNav}>
+          <ul className={LAYOUT_STYLES.sidebarNavList}>
             {navItems.map((item) => {
               const Icon = iconMap[item.icon as keyof typeof iconMap];
               const isActive = activeTab === item.id;
@@ -109,16 +123,11 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
                       onTabChange(item.id);
                       setSidebarOpen(false);
                     }}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg
-                      transition-colors duration-200
-                      ${isActive 
-                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' 
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                      }
-                    `}
+                    className={`${LAYOUT_STYLES.navButtonBase} ${
+                      isActive ? LAYOUT_STYLES.navButtonActive : LAYOUT_STYLES.navButtonInactive
+                    }`}
                   >
-                    <Icon className="w-5 h-5 mr-3" />
+                    <Icon className={`${ICON_SIZES.md} mr-3`} />
                     {item.label}
                   </button>
                 </li>
@@ -129,24 +138,24 @@ export function AppLayout({ activeTab, onTabChange, children }: AppLayoutProps) 
       </div>
 
       {/* Main content with consistent padding */}
-      <div className="pt-14 lg:pl-64">
-        {/* Mobile menu button - z-index 수정 */}
-        <div className="lg:hidden sticky top-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 z-[20]">
-          <div className={flexBetween}>
+      <div className={LAYOUT_STYLES.mainContent}>
+        {/* Mobile menu button */}
+        <div className={LAYOUT_STYLES.mobileMenu}>
+          <div className={FLEX_PATTERNS.between}>
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+              className={LAYOUT_STYLES.mobileMenuBtn}
             >
-              <Menu className="w-5 h-5" />
+              <Menu className={ICON_SIZES.md} />
             </button>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className={LAYOUT_STYLES.mobileMenuTitle}>
               {navItems.find(item => item.id === activeTab)?.label || '대시보드'}
             </h2>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="p-6">
+        <main className={LAYOUT_STYLES.pageContent}>
           {children}
         </main>
       </div>

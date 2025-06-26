@@ -11,7 +11,7 @@ import {
   flexBetween,
   getButtonClassName
 } from '../common/optimized-styles';
-import { getCardClassName } from '../common/common';
+import { getCardClassName } from '../common/optimized-styles';
 
 interface TypingBoxProps extends Pick<CommonComponentProps, 'onTypingComplete'> {
   className?: string;
