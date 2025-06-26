@@ -428,8 +428,8 @@ export const STATUS_STYLES = {
   negative: 'px-2 py-1 text-xs rounded-full bg-red-100 text-red-800',
   
   // Progress bar 상태들 (chartBar)
-  active: 'bg-blue-500 rounded-t-sm h-3',
-  normal: 'bg-gray-300 rounded-t-sm h-3',
+  active: 'bg-blue-600 rounded-t hover:bg-blue-700 transition-colors cursor-pointer',
+  normal: 'bg-blue-500 rounded-t hover:bg-blue-600 transition-colors cursor-pointer',
   
   // Goal 상태들 (progressText, progressBar)
   achieved: 'text-sm text-green-600',

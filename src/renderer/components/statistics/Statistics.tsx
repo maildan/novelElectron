@@ -85,39 +85,139 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
         try {
           const sessions = await window.electronAPI.database.getSessions();
           
+          // 🔥 실제 데이터 계산 로직
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const thisWeek = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
+          
+          // 세션 데이터를 실제로 분석 (타입 안전하게)
+          const todaySessions = sessions.filter(s => {
+            if (!s.createdAt) return false;
+            const sessionDate = new Date(s.createdAt);
+            return sessionDate >= today;
+          });
+          const weekSessions = sessions.filter(s => {
+            if (!s.createdAt) return false;
+            const sessionDate = new Date(s.createdAt);
+            return sessionDate >= thisWeek;
+          });
+          
+          // 실제 계산된 값들
+          const todayWords = todaySessions.reduce((sum, s) => sum + (s.totalChars || s.charactersTyped || 0), 0);
+          const weekWords = weekSessions.reduce((sum, s) => sum + (s.totalChars || s.charactersTyped || 0), 0);
+          const totalTime = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+          const avgWPM = totalTime > 0 ? Math.round((weekWords / 5) / (totalTime / 60000)) : 0;
+          
+          // 실제 통계 설정
           setStats([
-            { label: "오늘 작성", value: "0", unit: "단어", icon: PenTool, color: "blue", change: "+0%" },
-            { label: "이번 주", value: "0", unit: "단어", icon: Calendar, color: "green", change: "+0%" },
-            { label: "평균 속도", value: "0", unit: "WPM", icon: Zap, color: "purple", change: "+0%" },
-            { label: "총 프로젝트", value: "0", unit: "개", icon: FolderOpen, color: "orange", change: "+0%" },
+            { 
+              label: "오늘 작성", 
+              value: todayWords.toString(), 
+              unit: "단어", 
+              icon: PenTool, 
+              color: "blue", 
+              change: todaySessions.length > 0 ? `+${todaySessions.length}세션` : "0%" 
+            },
+            { 
+              label: "이번 주", 
+              value: weekWords.toString(), 
+              unit: "단어", 
+              icon: Calendar, 
+              color: "green", 
+              change: weekSessions.length > 0 ? `+${weekSessions.length}세션` : "0%" 
+            },
+            { 
+              label: "평균 속도", 
+              value: avgWPM.toString(), 
+              unit: "WPM", 
+              icon: Zap, 
+              color: "purple", 
+              change: avgWPM > 30 ? "+빠름" : avgWPM > 0 ? "보통" : "0%" 
+            },
+            { 
+              label: "총 세션", 
+              value: sessions.length.toString(), 
+              unit: "개", 
+              icon: FolderOpen, 
+              color: "orange", 
+              change: sessions.length > 10 ? "+활발" : sessions.length > 0 ? "+시작" : "0%" 
+            },
           ]);
           
-          setWeeklyData([
-            { label: "월", value: 850, words: 850, sessions: 3 },
-            { label: "화", value: 1200, words: 1200, sessions: 4 },
-            { label: "수", value: 750, words: 750, sessions: 2 },
-            { label: "목", value: 1500, words: 1500, sessions: 5 },
-            { label: "금", value: 980, words: 980, sessions: 3 },
-            { label: "토", value: 600, words: 600, sessions: 2 },
-            { label: "일", value: 400, words: 400, sessions: 1 }
+          // 주간 데이터 실제 계산
+          const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+          const weeklyDataCalculated = weekDays.map((day, index) => {
+            const dayDate = new Date(thisWeek.getTime() + (index * 24 * 60 * 60 * 1000));
+            const dayEnd = new Date(dayDate.getTime() + (24 * 60 * 60 * 1000));
+                         const daySessions = sessions.filter(s => {
+               if (!s.createdAt) return false;
+               const sessionDate = new Date(s.createdAt as string | Date);
+               return sessionDate >= dayDate && sessionDate < dayEnd;
+             });
+            const dayWords = daySessions.reduce((sum, s) => sum + (s.totalChars || s.charactersTyped || 0), 0);
+            
+            return {
+              label: day,
+              value: dayWords,
+              words: dayWords,
+              sessions: daySessions.length
+            };
+          });
+          
+          setWeeklyData(weeklyDataCalculated);
+          
+          // 프로젝트 데이터 (앱별 분석)
+          const appStats = sessions.reduce((acc, session) => {
+            const app = session.windowTitle || '알 수 없음';
+            if (!acc[app]) {
+              acc[app] = { words: 0, sessions: 0 };
+            }
+            acc[app].words += session.totalChars || session.charactersTyped || 0;
+            acc[app].sessions += 1;
+            return acc;
+          }, {} as Record<string, { words: number; sessions: number }>);
+          
+          const projectDataCalculated = Object.entries(appStats)
+            .sort(([,a], [,b]) => b.words - a.words)
+            .slice(0, 3)
+            .map(([app, stats], index) => ({
+              label: app,
+              value: stats.words,
+              color: ['blue', 'green', 'purple'][index] as 'blue' | 'green' | 'purple'
+            }));
+          
+          setProjectData(projectDataCalculated.length > 0 ? projectDataCalculated : [
+            { label: "데이터 없음", value: 0, color: "blue" }
           ]);
           
-          setProjectData([
-            { label: "소설 프로젝트", value: 15000, color: "blue" },
-            { label: "블로그 포스트", value: 3500, color: "green" },
-            { label: "기술 문서", value: 8000, color: "purple" }
-          ]);
-          
+          // 목표 달성률 (실제 데이터 기반)
           setGoals([
-            { goal: "일일 목표", target: 1000, current: 850, achieved: false, unit: "단어" },
-            { goal: "주간 목표", target: 7000, current: 6200, achieved: false, unit: "단어" },
-            { goal: "월간 목표", target: 30000, current: 32000, achieved: true, unit: "단어" }
+            { 
+              goal: "일일 목표", 
+              target: 1000, 
+              current: todayWords, 
+              achieved: todayWords >= 1000, 
+              unit: "단어" 
+            },
+            { 
+              goal: "주간 목표", 
+              target: 7000, 
+              current: weekWords, 
+              achieved: weekWords >= 7000, 
+              unit: "단어" 
+            },
+            { 
+              goal: "월간 목표", 
+              target: 30000, 
+              current: sessions.reduce((sum, s) => sum + (s.totalChars || s.charactersTyped || 0), 0), 
+              achieved: sessions.reduce((sum, s) => sum + (s.totalChars || s.charactersTyped || 0), 0) >= 30000, 
+              unit: "단어" 
+            }
           ]);
           
+          // 장르 분석 (간단 추정)
           setGenres([
-            { genre: "소설", count: 45, percentage: 60, color: "blue" },
-            { genre: "에세이", count: 20, percentage: 27, color: "green" },
-            { genre: "기술", count: 10, percentage: 13, color: "purple" }
+            { genre: "일반 타이핑", count: sessions.length, percentage: 100, color: "blue" }
           ]);
           
         } catch (error) {

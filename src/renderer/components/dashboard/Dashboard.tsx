@@ -220,6 +220,63 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
       {/* 메인 콘텐츠 */}
       <div className={contentArea}>
+        {/* 🔥 상단 통계 카드 추가 - 기가차드! */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                +{logs.length > 0 ? logs.length : 0}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 mb-1">{logs.reduce((sum, log) => sum + (log.totalChars || log.content.length), 0)}</div>
+            <div className="text-sm text-slate-600">오늘 작성 <span className="text-slate-500">(글자)</span></div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 text-green-600">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                +{Math.round(logs.reduce((sum, log) => sum + log.typingTime, 0) / 60)}분
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 mb-1">{logs.reduce((sum, log) => sum + (log.totalChars || log.content.length), 0)}</div>
+            <div className="text-sm text-slate-600">이번 주 <span className="text-slate-500">(글자)</span></div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100 text-purple-600">
+                <Target className="w-5 h-5" />
+              </div>
+              <div className="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                {logs.length > 0 ? 'ACTIVE' : 'READY'}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 mb-1">
+              {logs.length > 0 ? Math.round(logs.reduce((sum, log) => sum + (log.totalChars || log.content.length), 0) / (logs.reduce((sum, log) => sum + log.typingTime, 0) / 60) * 5) : 0}
+            </div>
+            <div className="text-sm text-slate-600">평균 속도 <span className="text-slate-500">(WPM)</span></div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100 text-orange-600">
+                <CheckCircle className="w-5 h-5" />
+              </div>
+              <div className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">
+                +{activeProjects.length}
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-slate-900 mb-1">{logs.length}</div>
+            <div className="text-sm text-slate-600">총 세션 <span className="text-slate-500">(개)</span></div>
+          </div>
+        </div>
+
         {/* 모니터링 패널 */}
         {isMonitoring && (
           <div className={cardMonitoring}>
@@ -270,9 +327,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                 <Globe className={`${iconSm} text-green-600`} />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-1">Google Docs</h3>
-                <p className="text-sm text-slate-600 mb-2">문서 동기화</p>
-                <div className="text-xs text-green-700 font-medium">마지막 동기화: 2분 전</div>
+                <h3 className="font-semibold text-slate-900 mb-1">키보드 모니터링</h3>
+                <p className="text-sm text-slate-600 mb-2">실시간 타이핑 분석</p>
+                <div className="text-xs text-green-700 font-medium">{isMonitoring ? '모니터링 중' : '대기 중'}</div>
               </div>
             </div>
 
@@ -282,9 +339,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                 <Cloud className={`${iconSm} text-slate-600`} />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-1">Loop 클라우드</h3>
-                <p className="text-sm text-slate-600 mb-2">백업 동기화</p>
-                <div className="text-xs text-slate-700 font-medium">마지막 백업: 5분 전</div>
+                <h3 className="font-semibold text-slate-900 mb-1">세션 기록</h3>
+                <p className="text-sm text-slate-600 mb-2">타이핑 데이터</p>
+                <div className="text-xs text-slate-700 font-medium">{logs.length}개 세션 저장됨</div>
               </div>
             </div>
 
@@ -294,9 +351,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                 <Clock className={iconSm} />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-1">최근 파일</h3>
-                <p className="text-sm text-slate-600 mb-2">작업 이어가기</p>
-                <div className="text-xs text-purple-700 font-medium">3개 파일 대기 중</div>
+                <h3 className="font-semibold text-slate-900 mb-1">분석 리포트</h3>
+                <p className="text-sm text-slate-600 mb-2">AI 분석 결과</p>
+                <div className="text-xs text-purple-700 font-medium">{activeProjects.length}개 분석 완료</div>
               </div>
             </div>
           </div>

@@ -1,5 +1,204 @@
 {
-  // CSS 검증 완전 비활성화 - 기가차드 스타일
+  // 🔥 기가차드 Cursor 성능 최적화 설정
+  
+  // =================== AI/Copilot 최적화 ===================
+  "cursor.ai.enableCodeActions": true,
+  "cursor.ai.enableInlineSuggestions": true,
+  "cursor.ai.maxTokens": 4096,
+  "cursor.ai.temperature": 0.1,
+  "cursor.ai.timeout": 10000,
+  "cursor.ai.enableTabCompletion": true,
+  "cursor.ai.enableMultiLineCompletion": true,
+  
+  // IntelliSense 최적화
+  "typescript.suggest.enabled": true,
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": false,
+  "typescript.suggest.includeCompletionsForImportStatements": false,
+  "typescript.suggest.includeCompletionsWithSnippetText": false,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.suggest.autoImports": false,
+  "typescript.updateImportsOnFileMove.enabled": "never",
+  "typescript.preferences.quoteStyle": "single",
+  
+  // =================== 파일 시스템 최적화 ===================
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/out/**": true,
+    "**/.turbo/**": true,
+    "**/.cache/**": true,
+    "**/.vscode/**": true,
+    "**/logs/**": true,
+    "**/*.log": true,
+    "**/coverage/**": true,
+    "**/.nyc_output/**": true,
+    "**/tmp/**": true,
+    "**/temp/**": true
+  },
+  
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/out": true,
+    "**/.turbo": true,
+    "**/.cache": true,
+    "**/logs": true,
+    "**/*.log": true,
+    "**/coverage": true,
+    "**/.nyc_output": true,
+    "**/tmp": true,
+    "**/temp": true
+  },
+  
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/out": true,
+    "**/.turbo": true,
+    "**/.cache": true,
+    "**/logs": true,
+    "**/*.log": true,
+    "**/coverage": true,
+    "**/.nyc_output": true
+  },
+  
+  // =================== 편집기 성능 최적화 ===================
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.quickSuggestionsDelay": 100,
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.tabCompletion": "on",
+  "editor.suggest.insertMode": "replace",
+  "editor.suggest.localityBonus": true,
+  "editor.suggest.shareSuggestSelections": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.suggest.showKeywords": false,
+  "editor.suggest.showSnippets": false,
+  "editor.parameterHints.enabled": false,
+  "editor.lightbulb.enabled": false,
+  "editor.codeLens": false,
+  "editor.hover.enabled": false,
+  "editor.wordBasedSuggestions": "off",
+  "editor.occurrencesHighlight": false,
+  "editor.selectionHighlight": false,
+  "editor.wordWrap": "off",
+  "editor.minimap.enabled": false,
+  "editor.folding": false,
+  "editor.foldingHighlight": false,
+  "editor.showFoldingControls": "never",
+  
+  // =================== 언어별 최적화 ===================
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll.eslint": "never"
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll.eslint": "never"
+    }
+  },
+  
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "never",
+      "source.fixAll.eslint": "never"
+    }
+  },
+  
+  "[css]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "never"
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  
+  // =================== ESLint 최적화 ===================
+  "eslint.enable": true,
+  "eslint.run": "onSave",
+  "eslint.autoFixOnSave": false,
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": ["./"],
+  
+  // =================== Prettier 최적화 ===================
+  "prettier.enable": true,
+  "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false,
+  
+  // =================== Git 최적화 ===================
+  "git.enabled": true,
+  "git.autorefresh": false,
+  "git.autofetch": false,
+  "git.decorations.enabled": false,
+  "git.showProgress": false,
+  "scm.diffDecorations": "none",
+  
+  // =================== 확장 프로그램 최적화 ===================
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+  "extensions.ignoreRecommendations": true,
+  
+  // =================== 터미널 최적화 ===================
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/bin/zsh",
+      "args": ["-l"]
+    }
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.enableMultiLinePasteWarning": false,
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "terminal.integrated.shellIntegration.enabled": false,
+  
+  // =================== 디버깅 최적화 ===================
+  "debug.console.fontSize": 12,
+  "debug.console.lineHeight": 16,
+  "debug.openDebug": "neverOpen",
+  "debug.showInStatusBar": "never",
+  
+  // =================== 작업 영역 최적화 ===================
+  "workbench.startupEditor": "none",
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "workbench.tips.enabled": false,
+  "workbench.tree.indent": 10,
+  "workbench.tree.renderIndentGuides": "none",
+  "workbench.activityBar.visible": false,
+  "workbench.statusBar.visible": false,
+  "workbench.editor.showTabs": false,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  
+  // =================== 원본 CSS 검증 비활성화 ===================
   "css.validate": false,
   "scss.validate": false,
   "less.validate": false,
@@ -23,22 +222,15 @@
   "css.lint.important": "ignore",
   "css.lint.float": "ignore",
   "css.lint.idSelector": "ignore",
-  "typescript.preferences.includePackageJsonAutoImports": "off",
-  "typescript.suggest.autoImports": false,
-
   
-  // Tailwind CSS 설정
-  "css.customData": [".vscode/css_custom_data.json"],
-  "files.associations": {
-    "*.css": "tailwindcss",
-    "globals.css": "tailwindcss"
-  },
+  // =================== Tailwind CSS 최적화 ===================
   "tailwindCSS.includeLanguages": {
     "css": "css",
     "typescript": "typescript",
-    "javascript": "javascript"
+    "javascript": "javascript",
+    "typescriptreact": "typescriptreact"
   },
-  "tailwindCSS.validate": true,
+  "tailwindCSS.validate": false,
   "tailwindCSS.lint.cssConflict": "ignore",
   "tailwindCSS.lint.invalidApply": "ignore",
   "tailwindCSS.lint.invalidConfigPath": "ignore",
@@ -46,22 +238,29 @@
   "tailwindCSS.lint.invalidTailwindDirective": "ignore",
   "tailwindCSS.lint.invalidVariant": "ignore",
   "tailwindCSS.lint.recommendedVariantOrder": "ignore",
+  "tailwindCSS.experimental.classRegex": [
+    ["STYLES\\s*=\\s*{([^}]*)", "'([^']*)'"],
+    ["className\\s*=\\s*{([^}]*)", "'([^']*)'"]
+  ],
   
-  "emmet.includeLanguages": {
-    "tailwindcss": "css"
-  },
-  "[css]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll": "never"
-    }
-  },
-  
-  // 문제 탐지기 강력 비활성화
+  // =================== 문제 탐지 강력 비활성화 ===================
   "problems.decorations.enabled": false,
-
-  // 파일 확장자별 처리
-  "files.exclude": {
-    "**/.DS_Store": true,
-    "**/node_modules": true
-  }
+  "problems.showCurrentInStatus": false,
+  
+  // =================== 자동 저장 최적화 ===================
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  
+  // =================== 기가차드 전용 최적화 ===================
+  "emmet.includeLanguages": {
+    "tailwindcss": "css",
+    "typescript": "typescript",
+    "typescriptreact": "typescriptreact"
+  },
+  
+  // 🔥 Cursor 전용 성능 부스터
+  "cursor.cpp.disabledLanguages": ["plaintext", "markdown", "scminput"],
+  "cursor.general.enableCodeActions": true,
+  "cursor.general.enableInlineDiff": false,
+  "cursor.general.enableCommandPalette": true
 }
