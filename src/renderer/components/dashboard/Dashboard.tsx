@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { formatTime, safeAsync } from '../../shared/utils';
-import { Log, TypingStats } from '@shared/types';
-import logger from '../../shared/logger';
-import { commonStyles, combineStyles } from '../../shared/styles';
-import { useAsync, useToggle } from '../../shared/hooks';
+import { Log, TypingStats } from '../../shared/types';
+import { CommonComponentProps } from '../common/common';
+import { Logger } from '../../shared/logger';
+import { 
+  COMMON_STYLES, 
+  getCardClassName, 
+  getButtonClassName,
+  debugEntry, 
+  debugExit, 
+  measurePerformance,
+  measureMemory
+} from '../common/common';
 import { 
   Play, 
   Pause, 
@@ -19,16 +26,6 @@ import {
   Target,
   MoreHorizontal 
 } from '../../shared/icons';
-
-// #DEBUG: 공통 모듈 import
-import { 
-  CommonComponentProps,
-  COMMON_STYLES,
-  getCardClassName,
-  getButtonClassName,
-  PerformanceTimer,
-  measureMemory
-} from '../common/common';
 
 // #DEBUG: 타입 정의를 inline으로 임시 정의
 interface MonitoringData {
@@ -58,7 +55,7 @@ interface ActiveProject {
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
   // #DEBUG: Dashboard 컴포넌트 진입점
-  const timer = new PerformanceTimer('Dashboard 렌더링');
+  debugEntry('Dashboard 렌더링');
   measureMemory('Dashboard 시작');
 
   const [isMonitoring, setIsMonitoring] = useState(false);
@@ -91,7 +88,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
   // 🔥 실제 파일 & 프로젝트 데이터 로드
   useEffect(() => {
     const loadDashboardData = async () => {
-      logger.debug('Dashboard: loadDashboardData 시작');
+      Logger.debug('DASHBOARD', 'loadDashboardData 시작');
       try {
         if (typeof window !== 'undefined' && window.electronAPI) {
           const sessionsData = await window.electronAPI.database.getSessions();
@@ -133,11 +130,11 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           setActiveProjects(projectsData);
         }
       } catch (error) {
-        logger.error(`대시보드 데이터 로딩 실패: ${error}`);
+        Logger.error('DASHBOARD', `대시보드 데이터 로딩 실패: ${error}`);
         setRecentFiles([]);
         setActiveProjects([]);
       }
-      logger.info('loadDashboardData 완료');
+      Logger.info('DASHBOARD', 'loadDashboardData 완료');
     };
 
     loadDashboardData();
@@ -234,7 +231,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <h2 className="text-lg font-semibold">실시간 모니터링</h2>
               </div>
-              <div className="font-mono text-lg">{formatTime(monitoringData.time)}</div>
+              <div className="font-mono text-lg">{Math.floor(monitoringData.time / 60)}:{(monitoringData.time % 60).toString().padStart(2, '0')}</div>
             </div>
             <div className="grid grid-cols-3 gap-6 text-center">
               <div>
@@ -369,12 +366,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
       </div>
     </div>
   );
-
-  // #DEBUG: Dashboard 컴포넌트 종료점
-  timer.end();
-  measureMemory('Dashboard 완료');
 }
 
-// #DEBUG: 성능 최적화된 Dashboard 컴포넌트 export
 // #DEBUG: Dashboard 컴포넌트 export
 export default Dashboard;

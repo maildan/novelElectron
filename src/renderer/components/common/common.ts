@@ -277,5 +277,5 @@ export const benchmark = (fn: () => void, name: string, iterations: number = 100
   return opsPerSecond;
 };
 
-// Export all for easy importing
+// 🔥 GigaChad Export 정리
 export default COMMON_STYLES;
