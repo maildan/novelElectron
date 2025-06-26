@@ -5,8 +5,10 @@
 
 import { EventEmitter } from 'events';
 import { KEYBOARD_CONSTANTS } from '../constants';
-import { GigaChadLogger } from '../logger';
-import type { KeyboardConfig } from '@shared/types';
+import { Logger } from '../../../shared/logger';
+import type { KeyboardConfig } from '../../../shared/types';
+
+const logger = Logger;
 
 /**
  * 🔥 기가차드 키보드 설정 매니저
@@ -22,7 +24,7 @@ export class KeyboardConfigManager extends EventEmitter {
       this.updateConfig(initialConfig);
     }
     
-    GigaChadLogger.info('KeyboardConfigManager', '🔥 키보드 설정 매니저 생성됨');
+    logger.info('KeyboardConfigManager', '초기화 완료');
   }
 
   /**
@@ -35,13 +37,13 @@ export class KeyboardConfigManager extends EventEmitter {
       enableIme: true,
       enableGlobalShortcuts: true,
       enableAppDetection: true,
-      autoSaveInterval: 5000, // 5초
+      autoSaveInterval: 5,
       debugMode: false,
       autoStartMonitoring: false,
-      sessionTimeout: KEYBOARD_CONSTANTS.SESSION_TIMEOUT_MS / (60 * 1000), // 30분
-      enableBatchProcessing: true,
-      batchSize: KEYBOARD_CONSTANTS.BATCH_PROCESS_SIZE,
-      debounceDelay: KEYBOARD_CONSTANTS.DEBOUNCE_DELAY_MS,
+      sessionTimeout: 30,
+      enableBatchProcessing: false,
+      batchSize: 100,
+      debounceDelay: 10,
       enableHealthCheck: true
     };
   }
@@ -50,48 +52,15 @@ export class KeyboardConfigManager extends EventEmitter {
    * 설정 업데이트
    */
   public updateConfig(newConfig: Partial<KeyboardConfig>): void {
-    const oldConfig = { ...this.config };
     this.config = { ...this.config, ...newConfig };
-    
-    // 검증
-    this.validateConfig();
-    
-    GigaChadLogger.info('KeyboardConfigManager', '⚙️ 키보드 설정 업데이트', {
-      old: oldConfig,
-      new: this.config
-    });
-    
-    this.emit('config-updated', this.config, oldConfig);
-  }
-
-  /**
-   * 설정 검증
-   */
-  private validateConfig(): void {
-    // 세션 타임아웃 검증
-    if (this.config.sessionTimeout && (this.config.sessionTimeout < 1 || this.config.sessionTimeout > 480)) { // 1분~8시간
-      GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 세션 타임아웃이 범위를 벗어났습니다. 기본값으로 설정됩니다.');
-      this.config.sessionTimeout = 30;
-    }
-    
-    // 배치 크기 검증
-    if (this.config.batchSize && (this.config.batchSize < 1 || this.config.batchSize > 1000)) {
-      GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 배치 크기가 범위를 벗어났습니다. 기본값으로 설정됩니다.');
-      this.config.batchSize = KEYBOARD_CONSTANTS.BATCH_PROCESS_SIZE;
-    }
-    
-    // 디바운스 딜레이 검증
-    if (this.config.debounceDelay && (this.config.debounceDelay < 10 || this.config.debounceDelay > 1000)) {
-      GigaChadLogger.warn('KeyboardConfigManager', '⚠️ 디바운스 딜레이가 범위를 벗어났습니다. 기본값으로 설정됩니다.');
-      this.config.debounceDelay = KEYBOARD_CONSTANTS.DEBOUNCE_DELAY_MS;
-    }
+    logger.info('KeyboardConfigManager', '설정 업데이트', this.config);
   }
 
   /**
    * 현재 설정 가져오기
    */
   public getConfig(): KeyboardConfig {
-    return { ...this.config };
+    return this.config;
   }
 
   /**
@@ -105,18 +74,15 @@ export class KeyboardConfigManager extends EventEmitter {
    * 설정 리셋
    */
   public resetConfig(): void {
-    const oldConfig = { ...this.config };
     this.config = this.getDefaultConfig();
-    
-    GigaChadLogger.info('KeyboardConfigManager', '🔄 키보드 설정 리셋됨');
-    this.emit('config-reset', this.config, oldConfig);
+    logger.info('KeyboardConfigManager', '설정 리셋');
   }
 
   /**
    * 설정을 JSON으로 내보내기
    */
   public exportConfig(): string {
-    return JSON.stringify(this.config, null, 2);
+    return JSON.stringify(this.config);
   }
 
   /**
@@ -124,12 +90,11 @@ export class KeyboardConfigManager extends EventEmitter {
    */
   public importConfig(configJson: string): void {
     try {
-      const importedConfig = JSON.parse(configJson);
-      this.updateConfig(importedConfig);
-      GigaChadLogger.info('KeyboardConfigManager', '📥 설정 가져오기 완료');
-    } catch (error) {
-      GigaChadLogger.error('KeyboardConfigManager', '설정 가져오기 실패', error);
-      throw new Error('잘못된 설정 JSON 형식입니다.');
+      const parsed = JSON.parse(configJson);
+      this.updateConfig(parsed);
+      logger.info('KeyboardConfigManager', '설정 임포트 성공');
+    } catch (e) {
+      logger.error('KeyboardConfigManager', '설정 임포트 실패', e);
     }
   }
 
@@ -137,42 +102,48 @@ export class KeyboardConfigManager extends EventEmitter {
    * 언어 설정 변경
    */
   public setLanguage(language: KeyboardConfig['language']): void {
-    this.updateConfig({ language });
+    this.config.language = language;
+    logger.info('KeyboardConfigManager', '언어 변경', language);
   }
 
   /**
    * IME 활성화/비활성화
    */
   public setIMEEnabled(enabled: boolean): void {
-    this.updateConfig({ enableIme: enabled });
+    this.config.enableIme = enabled;
+    logger.info('KeyboardConfigManager', 'IME 사용여부 변경', enabled);
   }
 
   /**
    * 글로벌 단축키 활성화/비활성화
    */
   public setGlobalShortcutsEnabled(enabled: boolean): void {
-    this.updateConfig({ enableGlobalShortcuts: enabled });
+    this.config.enableGlobalShortcuts = enabled;
+    logger.info('KeyboardConfigManager', '글로벌 단축키 사용여부 변경', enabled);
   }
 
   /**
    * 앱 감지 활성화/비활성화
    */
   public setAppDetectionEnabled(enabled: boolean): void {
-    this.updateConfig({ enableAppDetection: enabled });
+    this.config.enableAppDetection = enabled;
+    logger.info('KeyboardConfigManager', '앱 감지 사용여부 변경', enabled);
   }
 
   /**
    * 배치 처리 활성화/비활성화
    */
   public setBatchProcessingEnabled(enabled: boolean): void {
-    this.updateConfig({ enableBatchProcessing: enabled });
+    this.config.enableBatchProcessing = enabled;
+    logger.info('KeyboardConfigManager', '배치 처리 사용여부 변경', enabled);
   }
 
   /**
    * 세션 타임아웃 설정
    */
   public setSessionTimeout(minutes: number): void {
-    this.updateConfig({ sessionTimeout: minutes });
+    this.config.sessionTimeout = minutes;
+    logger.info('KeyboardConfigManager', '세션 타임아웃 변경', minutes);
   }
 
   /**
@@ -180,13 +151,5 @@ export class KeyboardConfigManager extends EventEmitter {
    */
   public hasConfigChanged(otherConfig: KeyboardConfig): boolean {
     return JSON.stringify(this.config) !== JSON.stringify(otherConfig);
-  }
-
-  /**
-   * 정리
-   */
-  public cleanup(): void {
-    this.removeAllListeners();
-    GigaChadLogger.info('KeyboardConfigManager', '🧹 키보드 설정 매니저 정리 완료');
   }
 }

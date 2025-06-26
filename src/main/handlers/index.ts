@@ -1,5 +1,5 @@
 import { Logger } from "../../shared/logger";
-const log = Logger;/**
+/**
  * 🔥 기가차드 IPC 핸들러 관리자
  * Loop Typing Analytics - IPC Handlers Manager
  */
@@ -11,7 +11,7 @@ import { dashboardIpcHandlers } from './dashboardIpcHandlers';
  * 모든 IPC 핸들러 설정
  */
 export function setupIpcHandlers(): void {
-  log.info("Console", '🔌 기가차드 IPC 핸들러 등록 시작...');
+  Logger.info("Console", '🔌 기가차드 IPC 핸들러 등록 시작...');
 
   try {
     // Dashboard IPC 핸들러 등록
@@ -23,9 +23,9 @@ export function setupIpcHandlers(): void {
     // 키보드 핸들러 등록
     registerKeyboardHandlers();
 
-    log.info("Console", '✅ 모든 IPC 핸들러 등록 완료');
+    Logger.info("Console", '✅ 모든 IPC 핸들러 등록 완료');
   } catch (error) {
-    log.error("Console", '❌ IPC 핸들러 등록 실패:', error);
+    Logger.error("Console", '❌ IPC 핸들러 등록 실패:', error);
     throw error;
   }
 }
@@ -35,7 +35,7 @@ export function setupIpcHandlers(): void {
  */
 function registerDashboardHandlers(): void {
   dashboardIpcHandlers.registerHandlers();
-  log.info("Console", '✅ Dashboard IPC 핸들러 등록 완료');
+  Logger.info("Console", '✅ Dashboard IPC 핸들러 등록 완료');
 }
 
 /**
@@ -59,7 +59,7 @@ function registerAppHandlers(): void {
     app.quit();
   });
 
-  log.info("Console", '✅ 기본 앱 IPC 핸들러 등록 완료');
+  Logger.info("Console", '✅ 기본 앱 IPC 핸들러 등록 완료');
 }
 
 /**
@@ -68,19 +68,19 @@ function registerAppHandlers(): void {
 function registerKeyboardHandlers(): void {
   // UnifiedKeyboardHandler에서 모든 키보드 관련 IPC 핸들러를 처리하므로
   // 이곳에서는 중복 핸들러를 등록하지 않음
-  log.info("Console", '🔌 키보드 핸들러는 UnifiedHandler에서 관리됨');
+  Logger.info("Console", '🔌 키보드 핸들러는 UnifiedHandler에서 관리됨');
 }
 
 /**
  * 모든 IPC 핸들러 정리
  */
 export function cleanupIpcHandlers(): void {
-  log.info("Console", '🧹 IPC 핸들러 정리 시작...');
+  Logger.info("Console", '🧹 IPC 핸들러 정리 시작...');
   
   try {
     ipcMain.removeAllListeners();
-    log.info("Console", '✅ 모든 IPC 핸들러 정리 완료');
+    Logger.info("Console", '✅ 모든 IPC 핸들러 정리 완료');
   } catch (error) {
-    log.error("Console", '❌ IPC 핸들러 정리 실패:', error);
+    Logger.error("Console", '❌ IPC 핸들러 정리 실패:', error);
   }
 }

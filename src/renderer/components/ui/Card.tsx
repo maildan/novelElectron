@@ -1,146 +1,110 @@
-import React from 'react';
-import { cn } from '@renderer/lib/utils';
+'use client';
 
-export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'elevated' | 'glass' | 'neumorphism' | 'gradient' | 'minimal';
-  hover?: boolean;
-  children: React.ReactNode;
-}
+import React, { ReactNode, ReactElement } from 'react';
+import { Logger } from '../../shared/logger';
+import * as React from "react"
 
-const cardVariants = {
-  default: 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm',
-  elevated: 'bg-white dark:bg-slate-900 shadow-depth-2 border-0',
-  glass: 'glass-effect backdrop-blur-lg',
-  neumorphism: 'neumorphism border-0',
-  gradient: 'bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 border border-slate-200/50 dark:border-slate-700/50',
-  minimal: 'bg-transparent border border-slate-200 dark:border-slate-800'
+import { cn } from "@/lib/utils"
+
+const CARD_STYLES = {
+  base: 'rounded-lg bg-white dark:bg-slate-800 shadow p-6',
 };
 
-export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', hover = true, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'rounded-xl p-6 transition-all duration-300',
-          cardVariants[variant],
-          hover && 'hover:shadow-lg hover:-translate-y-1 hover:scale-[1.02]',
-          'group relative overflow-hidden',
-          className
-        )}
-        {...props}
-      >
-        {/* Background pattern for glass effect */}
-        {variant === 'glass' && (
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-        )}
-        
-        {/* Content */}
-        <div className="relative z-10">
-          {children}
-        </div>
-      </div>
-    );
-  }
-);
-
-Card.displayName = 'Card';
-
-export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+export interface CardProps {
+  children: ReactNode;
+  className?: string;
 }
 
-export const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex flex-col space-y-1.5 pb-4', className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
+export const Card: React.FC<CardProps> = ({ children, className = '' }): ReactElement => {
+  React.useEffect(() => {
+    Logger.info('Card', '카드 렌더링 완료');
+    return () => {
+      Logger.info('Card', '카드 언마운트');
+    };
+  }, []);
 
-CardHeader.displayName = 'CardHeader';
+  return (
+    <section className={[CARD_STYLES.base, className].join(' ')} aria-label="카드">
+      {children}
+    </section>
+  );
+};
 
-export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  children: React.ReactNode;
+// TODO: Loop 프로젝트 strict 타입/스타일/로깅/접근성/IPC 규칙에 맞게 리팩터링 필요
+
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-export const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <h3
-        ref={ref}
-        className={cn(
-          'text-lg font-semibold leading-none tracking-tight text-slate-900 dark:text-slate-100',
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </h3>
-    );
-  }
-);
-
-CardTitle.displayName = 'CardTitle';
-
-export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
-  children: React.ReactNode;
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn("leading-none font-semibold", className)}
+      {...props}
+    />
+  )
 }
 
-export const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <p
-        ref={ref}
-        className={cn('text-sm text-slate-600 dark:text-slate-400', className)}
-        {...props}
-      >
-        {children}
-      </p>
-    );
-  }
-);
-
-CardDescription.displayName = 'CardDescription';
-
-export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  )
 }
 
-export const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div ref={ref} className={cn('py-4', className)} {...props}>
-        {children}
-      </div>
-    );
-  }
-);
-
-CardContent.displayName = 'CardContent';
-
-export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-export const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex items-center pt-4 border-t border-slate-200 dark:border-slate-800', className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-);
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-6", className)}
+      {...props}
+    />
+  )
+}
 
-CardFooter.displayName = 'CardFooter';
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+}
+
+// TODO: Loop 프로젝트 strict 타입/스타일/로깅/접근성/IPC 규칙에 맞게 리팩터링 필요 

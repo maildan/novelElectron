@@ -1,5 +1,5 @@
 import { Logger } from "../../shared/logger";
-const log = Logger;/**
+/**
  * 🔥 기가차드 IPC 핸들러 - Dashboard 백엔드 연결
  */
 
@@ -7,9 +7,8 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '@shared/types';
 import { getPrismaClient } from '../services/databaseService';
 import { registerKeyboardListener, stopKeyboardListener } from '../services/keyboardService';
-import { GigaChadLogger } from '../keyboard/logger';
 
-const logger = GigaChadLogger.getInstance();
+Logger.info('DashboardIPC', '🔥 기가차드 IPC 핸들러 시작');
 
 // 🔥 Prisma 세션 타입 정의 - any 박살내기
 interface PrismaTypingSession {
@@ -55,12 +54,12 @@ export class DashboardIpcHandlers {
             email: 'user@loop.app',
           }
         });
-        GigaChadLogger.info('DashboardIPC', '🔥 기본 사용자 생성됨: ' + user.id);
+        Logger.info('DashboardIPC', '🔥 기본 사용자 생성됨: ' + user.id);
       }
       
       return user.id;
     } catch (error) {
-      GigaChadLogger.error('DashboardIPC', '기본 사용자 확인/생성 오류', error);
+      Logger.error('DashboardIPC', '기본 사용자 확인/생성 오류', error);
       throw error;
     }
   }
@@ -68,7 +67,7 @@ export class DashboardIpcHandlers {
   public registerHandlers(): void {
     // 키보드 모니터링 시작/중지는 UnifiedHandler에서 처리됨 - 중복 제거
     // 'dashboard:start-monitoring', 'dashboard:stop-monitoring' 핸들러 제거
-    GigaChadLogger.info('DashboardIPC', '🔌 키보드 모니터링 핸들러는 UnifiedHandler에서 관리됨');
+    Logger.info('DashboardIPC', '🔌 키보드 모니터링 핸들러는 UnifiedHandler에서 관리됨');
 
     // 최근 로그 데이터 가져오기
     ipcMain.handle('dashboard:get-recent-logs', async (_, limit = 10) => {
@@ -106,7 +105,7 @@ export class DashboardIpcHandlers {
           }))
         };
       } catch (error) {
-        GigaChadLogger.error('DashboardIPC', '최근 로그 조회 오류', error);
+        Logger.error('DashboardIPC', '최근 로그 조회 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -178,7 +177,7 @@ export class DashboardIpcHandlers {
           }
         };
       } catch (error) {
-        GigaChadLogger.error('DashboardIPC', '통계 조회 오류', error);
+        Logger.error('DashboardIPC', '통계 조회 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -222,7 +221,7 @@ export class DashboardIpcHandlers {
           }
         };
       } catch (error) {
-        GigaChadLogger.error('DashboardIPC', '타이핑 로그 저장 오류', error);
+        Logger.error('DashboardIPC', '타이핑 로그 저장 오류', error);
         return { success: false, message: error instanceof Error ? error.message : '알 수 없는 오류' };
       }
     });
@@ -262,10 +261,10 @@ export class DashboardIpcHandlers {
           content: `${session.appName || 'Unknown'} - ${session.totalKeys} keys`,
         }));
 
-        log.info('DashboardIPC', `데이터베이스에서 ${convertedSessions.length}개 세션 반환`);
+        Logger.info('DashboardIPC', `데이터베이스에서 ${convertedSessions.length}개 세션 반환`);
         return convertedSessions;
       } catch (error: unknown) {
-        log.error('DashboardIPC', '세션 데이터 조회 오류', error as unknown);
+        Logger.error('DashboardIPC', '세션 데이터 조회 오류', error as unknown);
         return [];
       }
     });
@@ -338,10 +337,10 @@ export class DashboardIpcHandlers {
           }))
         };
 
-        log.info('DashboardIPC', `분석 데이터 반환: ${totalSessions} 세션`);
+        Logger.info('DashboardIPC', `분석 데이터 반환: ${totalSessions} 세션`);
         return analytics;
       } catch (error: unknown) {
-        log.error('DashboardIPC', '분석 데이터 조회 오류', error as unknown);
+        Logger.error('DashboardIPC', '분석 데이터 조회 오류', error as unknown);
         return {
           overview: { totalSessions: 0, avgWpm: 0, avgAccuracy: 0, totalKeys: 0 },
           recentActivity: [],
@@ -350,7 +349,7 @@ export class DashboardIpcHandlers {
       }
     });
 
-    log.info("Console", '🔥 Dashboard IPC 핸들러 등록 완료!');
+    Logger.info("Console", '🔥 Dashboard IPC 핸들러 등록 완료!');
   }
 
   public cleanup(): void {
@@ -368,7 +367,7 @@ export class DashboardIpcHandlers {
       ipcMain.removeAllListeners(channel);
     });
 
-    log.info("Console", '🛑 Dashboard IPC 핸들러 정리 완료');
+    Logger.info("Console", '🛑 Dashboard IPC 핸들러 정리 완료');
   }
 }
 

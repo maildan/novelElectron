@@ -6,7 +6,7 @@
 import { EventEmitter } from 'events';
 import { execSync } from 'child_process';
 import { KEYBOARD_CONSTANTS } from '../constants';
-import { GigaChadLogger } from '../logger';
+import { Logger } from '../../../shared/logger';
 
 export interface AppInfo {
   appName: string;
@@ -26,7 +26,7 @@ export class AppDetector extends EventEmitter {
 
   constructor() {
     super();
-    GigaChadLogger.info('AppDetector', '🔥 앱 감지기 생성됨');
+    Logger.info('AppDetector', '🔥 앱 감지기 생성됨');
   }
 
   /**
@@ -40,7 +40,7 @@ export class AppDetector extends EventEmitter {
       this.checkActiveApp();
     }, KEYBOARD_CONSTANTS.PERMISSION_CHECK_INTERVAL);
 
-    GigaChadLogger.info('AppDetector', '🔍 앱 감지 시작됨');
+    Logger.info('AppDetector', '🔍 앱 감지 시작됨');
   }
 
   /**
@@ -55,7 +55,7 @@ export class AppDetector extends EventEmitter {
       this.activeAppCheckTimer = null;
     }
 
-    GigaChadLogger.info('AppDetector', '🛑 앱 감지 중지됨');
+    Logger.info('AppDetector', '🛑 앱 감지 중지됨');
   }
 
   /**
@@ -76,7 +76,7 @@ export class AppDetector extends EventEmitter {
           return { appName: 'Unknown Platform' };
       }
     } catch (error) {
-      GigaChadLogger.error('AppDetector', '앱 정보 가져오기 실패', error);
+      Logger.error('AppDetector', '앱 정보 가져오기 실패', error);
       return { appName: 'Unknown App' };
     }
   }
@@ -91,11 +91,11 @@ export class AppDetector extends EventEmitter {
         this.lastActiveApp = appInfo.appName;
         this.lastWindowTitle = appInfo.windowTitle || '';
         
-        GigaChadLogger.debug('AppDetector', `📱 앱 변경 감지: ${appInfo.appName} - ${appInfo.windowTitle}`);
+        Logger.debug('AppDetector', `📱 앱 변경 감지: ${appInfo.appName} - ${appInfo.windowTitle}`);
         this.emit('app-changed', appInfo);
       }
     }).catch(error => {
-      GigaChadLogger.error('AppDetector', '활성 앱 체크 실패', error);
+      Logger.error('AppDetector', '활성 앱 체크 실패', error);
     });
   }
 
@@ -128,7 +128,7 @@ export class AppDetector extends EventEmitter {
         windowTitle: windowTitle || undefined
       };
     } catch (error) {
-      GigaChadLogger.warn('AppDetector', 'macOS 앱 정보 가져오기 실패', error);
+      Logger.warn('AppDetector', 'macOS 앱 정보 가져오기 실패', error);
       return { appName: 'macOS App' };
     }
   }
@@ -162,7 +162,7 @@ export class AppDetector extends EventEmitter {
         windowTitle: windowTitle || undefined
       };
     } catch (error) {
-      GigaChadLogger.warn('AppDetector', 'Windows 앱 정보 가져오기 실패', error);
+      Logger.warn('AppDetector', 'Windows 앱 정보 가져오기 실패', error);
       return { appName: 'Windows App' };
     }
   }
@@ -199,7 +199,7 @@ export class AppDetector extends EventEmitter {
         processId: parseInt(pid)
       };
     } catch (error) {
-      GigaChadLogger.warn('AppDetector', 'Linux 앱 정보 가져오기 실패', error);
+      Logger.warn('AppDetector', 'Linux 앱 정보 가져오기 실패', error);
       return { appName: 'Linux App' };
     }
   }
@@ -227,6 +227,6 @@ export class AppDetector extends EventEmitter {
   public cleanup(): void {
     this.stopDetection();
     this.removeAllListeners();
-    GigaChadLogger.info('AppDetector', '🧹 앱 감지기 정리 완료');
+    Logger.info('AppDetector', '🧹 앱 감지기 정리 완료');
   }
 }

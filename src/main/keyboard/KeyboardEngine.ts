@@ -1,26 +1,16 @@
 import { ipcMain, BrowserWindow, app } from 'electron';
 import { EventEmitter } from 'events';
-import { Logger } from './logger';
-import { trackPerformance, BenchmarkMetrics } from '@shared/common';
+import { Logger } from '../../shared/logger';
+import { gigaBenchmark, debugEntry, debugExit } from '@shared/common';
 
 const logger = Logger;
 import { 
-  KEYBOARD_CONSTANTS, 
-  ERROR_MESSAGES, 
-  SUCCESS_MESSAGES,
-  INFO_MESSAGES 
-} from './constants';
+  KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES, INFO_MESSAGES, WARN_MESSAGES,
+  APP_NAME, APP_VERSION, APP_AUTHOR, APP_DESCRIPTION, IS_DEV, IS_PROD, IS_PACKAGED, IS_MAC, IS_WINDOWS, IS_LINUX, USER_DATA_PATH, LOGS_PATH, CACHE_PATH, DATABASE_PATH, SETTINGS_PATH, PRELOAD_PATH, WINDOW_CONFIG, KEYBOARD_CONFIG, DATABASE_CONFIG, IPC_CHANNELS, ERROR_TYPES, LOG_LEVELS, PERFORMANCE, FEATURES, URLS, SECURITY,
+  PlatformType, ErrorMessageKey, SuccessMessageKey, InfoMessageKey, WarnMessageKey,
+} from '../../shared/common';
 
-// 공유 타입 임포트
-import type { 
-  LoopKeyboardEvent, 
-  KeyboardConfig, 
-  SessionStats, 
-  AppStatus,
-  AppInfo 
-} from '@shared/types';
-
-// Module imports
+// 명시적 클래스 import (상대경로)
 import { KeyboardEventProcessor } from './processors/KeyboardEventProcessor';
 import { SessionManager } from './managers/SessionManager';
 import { KeyboardConfigManager } from './managers/KeyboardConfigManager';
@@ -31,6 +21,7 @@ import { HealthCheckManager } from './HealthCheckManager';
 import { KeyboardPermissionManager } from './PermissionManager';
 import { KeyboardStatsManager } from './StatsManager';
 import { UnifiedKeyboardHandler } from './UnifiedHandler';
+import type { AppStatus, LoopKeyboardEvent, KeyboardConfig, SessionStats } from '../../shared/types';
 
 /**
  * 기가차드 표준 KeyboardEngine
@@ -55,8 +46,11 @@ export class KeyboardEngine extends EventEmitter {
 
   private constructor() {
     super(); // EventEmitter 상속을 위한 super() 호출
+    // #DEBUG
+    debugEntry('KeyboardEngine.constructor');
     logger.info('KeyboardEngine', '🔥 기가차드 KeyboardEngine 초기화 시작...');
     this.initializeModules();
+    debugExit('KeyboardEngine.constructor');
   }
 
   /**
@@ -109,31 +103,29 @@ export class KeyboardEngine extends EventEmitter {
    * KeyboardEngine 초기화
    */
   public async initialize(): Promise<void> {
+    // #DEBUG
+    debugEntry('KeyboardEngine.initialize');
     if (this.isInitialized) {
       logger.warn('KeyboardEngine', '이미 초기화됨');
+      debugExit('KeyboardEngine.initialize');
       return;
     }
-
     try {
       logger.info('KeyboardEngine', '초기화 시작...');
-
-      // 권한 확인
-      const permissionResult = await this.permissionManager.checkPermissions();
-      if (!permissionResult.hasAllPermissions) {
-        logger.warn('KeyboardEngine', '필요한 권한이 없습니다', permissionResult.missingPermissions);
-      }
-
-      // IPC 핸들러 등록
-      // this.ipcHandlers.registerHandlers(ipcMain);
-      
-      // 이벤트 리스너 등록
-      this.registerEventListeners();
-
-      this.isInitialized = true;
-      logger.info('KeyboardEngine', '✅ 초기화 완료');
-
+      // 벤치마크 래핑
+      await gigaBenchmark('KeyboardEngine.initialize', async () => {
+        const permissionResult = await this.permissionManager.checkPermissions();
+        if (!permissionResult.hasAllPermissions) {
+          logger.warn('KeyboardEngine', '필요한 권한이 없습니다', permissionResult.missingPermissions);
+        }
+        this.registerEventListeners();
+        this.isInitialized = true;
+        logger.info('KeyboardEngine', '✅ 초기화 완료');
+      });
+      debugExit('KeyboardEngine.initialize');
     } catch (error) {
       logger.error('KeyboardEngine', '초기화 실패:', error);
+      debugExit('KeyboardEngine.initialize', error);
       throw error;
     }
   }
@@ -142,36 +134,33 @@ export class KeyboardEngine extends EventEmitter {
    * 키보드 리스닝 시작
    */
   public async startListening(): Promise<void> {
+    // #DEBUG
+    debugEntry('KeyboardEngine.startListening');
     if (!this.isInitialized) {
+      debugExit('KeyboardEngine.startListening', 'not initialized');
       throw new Error('KeyboardEngine이 초기화되지 않았습니다');
     }
-
     if (this.isListening) {
       logger.warn('KeyboardEngine', '이미 리스닝 중');
+      debugExit('KeyboardEngine.startListening', 'already listening');
       return;
     }
-
     try {
       logger.info('KeyboardEngine', '키보드 리스닝 시작...');
-
-      // 권한 재확인
-      const permissionResult = await this.permissionManager.checkPermissions();
-      if (!permissionResult.hasAllPermissions) {
-        throw new Error('권한이 필요합니다');
-      }
-
-      // 세션 시작
-      this.sessionManager.startNewSession();
-
-      this.isListening = true;
-      
-      // 상태 알림
-      this.notifyStatusChange('listening', true);
-      
-      logger.info('KeyboardEngine', '✅ 키보드 리스닝 시작됨');
-
+      await gigaBenchmark('KeyboardEngine.startListening', async () => {
+        const permissionResult = await this.permissionManager.checkPermissions();
+        if (!permissionResult.hasAllPermissions) {
+          throw new Error('권한이 필요합니다');
+        }
+        this.sessionManager.startNewSession();
+        this.isListening = true;
+        this.notifyStatusChange('listening', true);
+        logger.info('KeyboardEngine', '✅ 키보드 리스닝 시작됨');
+      });
+      debugExit('KeyboardEngine.startListening');
     } catch (error) {
       logger.error('KeyboardEngine', '리스닝 시작 실패:', error);
+      debugExit('KeyboardEngine.startListening', error);
       throw error;
     }
   }
@@ -180,26 +169,25 @@ export class KeyboardEngine extends EventEmitter {
    * 키보드 리스닝 중지
    */
   public async stopListening(): Promise<void> {
+    // #DEBUG
+    debugEntry('KeyboardEngine.stopListening');
     if (!this.isListening) {
       logger.warn('KeyboardEngine', '현재 리스닝 중이 아님');
+      debugExit('KeyboardEngine.stopListening', 'not listening');
       return;
     }
-
     try {
       logger.info('KeyboardEngine', '키보드 리스닝 중지...');
-
-      // 세션 종료
-      this.sessionManager.endCurrentSession();
-
-      this.isListening = false;
-      
-      // 상태 알림
-      this.notifyStatusChange('listening', false);
-      
-      logger.info('KeyboardEngine', '✅ 키보드 리스닝 중지됨');
-
+      await gigaBenchmark('KeyboardEngine.stopListening', async () => {
+        this.sessionManager.endCurrentSession();
+        this.isListening = false;
+        this.notifyStatusChange('listening', false);
+        logger.info('KeyboardEngine', '✅ 키보드 리스닝 중지됨');
+      });
+      debugExit('KeyboardEngine.stopListening');
     } catch (error) {
       logger.error('KeyboardEngine', '리스닝 중지 실패:', error);
+      debugExit('KeyboardEngine.stopListening', error);
       throw error;
     }
   }
@@ -351,27 +339,26 @@ export class KeyboardEngine extends EventEmitter {
    * 리소스 정리 및 종료
    */
   public async cleanup(): Promise<void> {
+    // #DEBUG
+    debugEntry('KeyboardEngine.cleanup');
     if (!this.isInitialized) {
+      debugExit('KeyboardEngine.cleanup', 'not initialized');
       return;
     }
-
     try {
       logger.info('KeyboardEngine', '정리 시작...');
-
-      // 리스닝 중지
-      if (this.isListening) {
-        await this.stopListening();
-      }
-
-      // 세션 정리
-      this.sessionManager?.endCurrentSession();
-
-      this.isInitialized = false;
-      
-      logger.info('KeyboardEngine', '✅ 정리 완료');
-
+      await gigaBenchmark('KeyboardEngine.cleanup', async () => {
+        if (this.isListening) {
+          await this.stopListening();
+        }
+        this.sessionManager?.endCurrentSession();
+        this.isInitialized = false;
+        logger.info('KeyboardEngine', '✅ 정리 완료');
+      });
+      debugExit('KeyboardEngine.cleanup');
     } catch (error) {
       logger.error('KeyboardEngine', '정리 중 에러:', error);
+      debugExit('KeyboardEngine.cleanup', error);
     }
   }
 
@@ -379,17 +366,17 @@ export class KeyboardEngine extends EventEmitter {
    * 인스턴스 재시작
    */
   public async restart(): Promise<void> {
+    // #DEBUG
+    debugEntry('KeyboardEngine.restart');
     logger.info('KeyboardEngine', '재시작 중...');
-    
     await this.cleanup();
     this.initializeModules();
     await this.initialize();
-    
     if (this.isListening) {
       await this.startListening();
     }
-    
     logger.info('KeyboardEngine', '✅ 재시작 완료');
+    debugExit('KeyboardEngine.restart');
   }
 }
 

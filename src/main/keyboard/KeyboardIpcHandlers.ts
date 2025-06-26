@@ -5,7 +5,7 @@
 
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { SUCCESS_MESSAGES } from './constants';
-import { GigaChadLogger } from './logger';
+import { Logger } from '../../shared/logger';
 import type { TypedIpcHandler, KeyboardEngine, KeyboardConfig } from '@shared/types';
 
 /**
@@ -25,7 +25,7 @@ export class KeyboardIpcHandlers {
       this.registeredChannels.push(channel);
     }
 
-    GigaChadLogger.info('KeyboardIpcHandlers', SUCCESS_MESSAGES.HANDLERS_REGISTERED);
+    Logger.info('KeyboardIpcHandlers', SUCCESS_MESSAGES.HANDLERS_REGISTERED);
   }
 
   /**
@@ -77,7 +77,7 @@ export class KeyboardIpcHandlers {
     ipcMain.handle(channel, handler);
     this.registeredChannels.push(channel);
     
-    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 등록: ${channel}`);
+    Logger.debug('KeyboardIpcHandlers', `IPC 핸들러 등록: ${channel}`);
   }
 
   /**
@@ -88,7 +88,7 @@ export class KeyboardIpcHandlers {
       ipcMain.removeHandler(channel);
     }
 
-    GigaChadLogger.info('KeyboardIpcHandlers', '🔌 키보드 엔진 IPC 핸들러 해제 완료');
+    Logger.info('KeyboardIpcHandlers', '🔌 키보드 엔진 IPC 핸들러 해제 완료');
     this.registeredChannels.length = 0;
   }
 
@@ -103,7 +103,7 @@ export class KeyboardIpcHandlers {
       this.registeredChannels.splice(index, 1);
     }
 
-    GigaChadLogger.debug('KeyboardIpcHandlers', `IPC 핸들러 해제: ${channel}`);
+    Logger.debug('KeyboardIpcHandlers', `IPC 핸들러 해제: ${channel}`);
   }
 
   /**

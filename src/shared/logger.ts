@@ -219,6 +219,30 @@ export class GigaChadLogger {
     // TODO: 7일 이상 된 로그 파일 정리 로직 구현
     this.info('Logger', '로그 정리 작업은 추후 구현 예정');
   }
+
+  /**
+   * 타이머 시작 (성능 측정)
+   */
+  public startTimer(component: string, label: string): string {
+    const timerId = `${component}-${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    (global as any).__GIGACHAD_TIMERS = (global as any).__GIGACHAD_TIMERS || {};
+    (global as any).__GIGACHAD_TIMERS[timerId] = Date.now();
+    this.debug(component, `⏱️ 타이머 시작: ${label}`);
+    return timerId;
+  }
+
+  /**
+   * 타이머 종료 (성능 측정)
+   */
+  public endTimer(timerId: string): number {
+    const timers = (global as any).__GIGACHAD_TIMERS || {};
+    const start = timers[timerId];
+    if (!start) return -1;
+    const duration = Date.now() - start;
+    delete timers[timerId];
+    this.debug('Logger', `⏱️ 타이머 종료: ${timerId} (${duration}ms)`);
+    return duration;
+  }
 }
 
 // 싱글톤 인스턴스 내보내기

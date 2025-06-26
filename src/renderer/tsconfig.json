@@ -12,7 +12,7 @@
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
-    "esModuleInterop": true,
+    "esModuleIntero p": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -22,28 +22,27 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["../../src/*"],
-      "@main/*": ["../../src/main/*"],
-      "@renderer/*": ["../../src/renderer/*"],
-      "@shared/*": ["../../src/shared/*"],
-      "@preload/*": ["../../src/preload/*"],
-      "@types/*": ["../../src/types/*"],
-      "@utils/*": ["../../src/utils/*"],
-      "@components/*": ["./components/*"],
-      "@hooks/*": ["./hooks/*"],
-      "@styles/*": ["./styles/*"],
-      "@lib/*": ["./lib/*"]
+
+
+      
+      "@/*": ["./*"],
+      "@components/*": ["components/*"],
+      "@common/*": ["components/common/*"],
+      "@layout/*": ["components/layout/*"],
+      "@ui/*": ["components/ui/*"],
+      "@types/*": ["types/*"],
+      "@utils/*": ["utils/*"],
+      "@constants/*": ["constants/*"],
+      "@styles/*": ["styles/*"]
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
     "next-env.d.ts",
     "out/types/**/*.ts",
-    ".next/types/**/*.ts"
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

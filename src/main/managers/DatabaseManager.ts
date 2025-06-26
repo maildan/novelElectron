@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import { app } from 'electron';
 import { DatabaseSession } from '@shared/types';
-import { logger, log } from '../../shared/logger';
+import { Logger } from '../../shared/logger';
 import { trackPerformance, BenchmarkMetrics } from '@shared/common';
 
 export class DatabaseManager {
@@ -16,13 +16,13 @@ export class DatabaseManager {
 
   private constructor() {
     // #DEBUG: 데이터베이스 매니저 생성자
-    log.debug('DatabaseManager', '🏗️ DatabaseManager 인스턴스 생성');
+    Logger.debug('DatabaseManager', '🏗️ DatabaseManager 인스턴스 생성');
   }
 
   static getInstance(): DatabaseManager {
     if (!DatabaseManager.instance) {
       // #DEBUG: 싱글톤 인스턴스 생성
-      log.debug('DatabaseManager', '새로운 DatabaseManager 인스턴스 생성');
+      Logger.debug('DatabaseManager', '새로운 DatabaseManager 인스턴스 생성');
       DatabaseManager.instance = new DatabaseManager();
     }
     return DatabaseManager.instance;
@@ -33,12 +33,12 @@ export class DatabaseManager {
    */
   async initialize(): Promise<void> {
     // #DEBUG: 데이터베이스 매니저 초기화 시작
-    log.gigachad('DatabaseManager', '🗄️ 기가차드 데이터베이스 매니저: 초기화 시작...');
+    Logger.gigachad('DatabaseManager', '🗄️ 기가차드 데이터베이스 매니저: 초기화 시작...');
 
     try {
       // Prisma 클라이언트 생성
       // #DEBUG: Prisma 클라이언트 생성
-      log.debug('DatabaseManager', 'Prisma 클라이언트 생성 중...');
+      Logger.debug('DatabaseManager', 'Prisma 클라이언트 생성 중...');
       this.prisma = new PrismaClient({
         datasources: {
           db: {
@@ -50,19 +50,19 @@ export class DatabaseManager {
 
       // 데이터베이스 연결 테스트
       // #DEBUG: 데이터베이스 연결 시도
-      log.debug('DatabaseManager', '데이터베이스 연결 테스트 중...');
+      Logger.debug('DatabaseManager', '데이터베이스 연결 테스트 중...');
       await this.prisma.$connect();
-      log.success('DatabaseManager', '✅ 데이터베이스 연결 성공');
+      Logger.success('DatabaseManager', '✅ 데이터베이스 연결 성공');
 
       // 마이그레이션 실행 (필요한 경우)
       // #DEBUG: 마이그레이션 실행
-      log.debug('DatabaseManager', '마이그레이션 실행 중...');
+      Logger.debug('DatabaseManager', '마이그레이션 실행 중...');
       await this.runMigrations();
 
-      log.gigachad('DatabaseManager', '✅ 데이터베이스 매니저 초기화 완료');
+      Logger.gigachad('DatabaseManager', '✅ 데이터베이스 매니저 초기화 완료');
     } catch (error) {
       // #DEBUG: 초기화 실패
-      log.error('DatabaseManager', '❌ 데이터베이스 매니저 초기화 실패', error);
+      Logger.error('DatabaseManager', '❌ 데이터베이스 매니저 초기화 실패', error);
       throw error;
     }
   }
@@ -74,13 +74,13 @@ export class DatabaseManager {
     try {
       // 개발 환경에서는 push 사용 (자동 스키마 동기화)
       if (process.env.NODE_ENV === 'development') {
-        log.info("Console", '🔄 개발 환경: 스키마 동기화 중...');
+        Logger.info("Console", '🔄 개발 환경: 스키마 동기화 중...');
         // prisma db push 로직은 CLI에서 실행하므로 여기서는 생략
       }
       
-      log.info("Console", '✅ 데이터베이스 마이그레이션 완료');
+      Logger.info("Console", '✅ 데이터베이스 마이그레이션 완료');
     } catch (error) {
-      log.error("Console", '❌ 데이터베이스 마이그레이션 실패:', error);
+      Logger.error("Console", '❌ 데이터베이스 마이그레이션 실패:', error);
       // 마이그레이션 실패는 치명적이지 않을 수 있음
     }
   }
@@ -105,7 +105,7 @@ export class DatabaseManager {
     platform: string;
   }) {
     // #DEBUG: 타이핑 세션 생성 시작
-    log.debug('DatabaseManager', '타이핑 세션 생성 중...', data);
+    Logger.debug('DatabaseManager', '타이핑 세션 생성 중...', data);
     
     const prisma = this.getPrisma();
     
@@ -122,7 +122,7 @@ export class DatabaseManager {
     });
 
     // #DEBUG: 타이핑 세션 생성 완료
-    log.success('DatabaseManager', '타이핑 세션 생성 완료', { sessionId: result.id });
+    Logger.success('DatabaseManager', '타이핑 세션 생성 완료', { sessionId: result.id });
     return result;
   }
 
@@ -313,18 +313,18 @@ export class DatabaseManager {
    * 정리
    */
   async cleanup(): Promise<void> {
-    log.info("Console", '🧹 데이터베이스 매니저 정리 중...');
+    Logger.info("Console", '🧹 데이터베이스 매니저 정리 중...');
 
     try {
       if (this.prisma) {
         await this.prisma.$disconnect();
         this.prisma = null;
-        log.info("Console", '✅ 데이터베이스 연결 해제 완료');
+        Logger.info("Console", '✅ 데이터베이스 연결 해제 완료');
       }
 
-      log.info("Console", '✅ 데이터베이스 매니저 정리 완료');
+      Logger.info("Console", '✅ 데이터베이스 매니저 정리 완료');
     } catch (error) {
-      log.error("Console", '❌ 데이터베이스 정리 실패:', error);
+      Logger.error("Console", '❌ 데이터베이스 정리 실패:', error);
     }
   }
 }

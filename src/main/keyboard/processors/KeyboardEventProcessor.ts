@@ -9,6 +9,8 @@ import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, INFO_MESSAGES } from '../constants'
 import { GigaChadLogger } from '../logger';
 import { HealthCheckManager } from '../HealthCheckManager';
 
+const logger = GigaChadLogger.getInstance();
+
 export interface KeyEvent {
   keycode: number;
   key: string;
@@ -52,7 +54,7 @@ export class KeyboardEventProcessor extends EventEmitter {
     super();
     this.healthCheckManager = HealthCheckManager.getInstance();
     this.startKeyEventProcessor();
-    GigaChadLogger.info('KeyboardEventProcessor', '🔥 키보드 이벤트 프로세서 생성됨');
+    logger.info('KeyboardEventProcessor', '🔥 키보드 이벤트 프로세서 생성됨');
   }
 
   /**
@@ -87,7 +89,7 @@ export class KeyboardEventProcessor extends EventEmitter {
       this.emit('key-event', keyEvent);
       
     } catch (error) {
-      GigaChadLogger.error('KeyboardEventProcessor', ERROR_MESSAGES.KEY_EVENT_PROCESS_FAILED, error);
+      logger.error('KeyboardEventProcessor', ERROR_MESSAGES.KEY_EVENT_PROCESS_FAILED, error);
       this.healthCheckManager.recordError('KeyboardEventProcessor', error as Error);
     } finally {
       const duration = Date.now() - startTime;
@@ -124,7 +126,7 @@ export class KeyboardEventProcessor extends EventEmitter {
     
     if (removeCount > 0) {
       this.keyEventQueue.splice(0, removeCount);
-      GigaChadLogger.debug('KeyboardEventProcessor', `${INFO_MESSAGES.QUEUE_CLEANUP}: ${removeCount}개 이벤트 제거`);
+      logger.debug('KeyboardEventProcessor', `${INFO_MESSAGES.QUEUE_CLEANUP}: ${removeCount}개 이벤트 제거`);
     }
   }
 
@@ -146,13 +148,13 @@ export class KeyboardEventProcessor extends EventEmitter {
     if (this.keyEventBatch.length === 0) return;
     
     const startTime = Date.now();
-    const timerId = GigaChadLogger.startTimer('KeyboardEventProcessor', 'processBatchedKeyEvents');
+    const timerId = logger.startTimer('KeyboardEventProcessor', 'processBatchedKeyEvents');
     
     try {
       const batchToProcess = [...this.keyEventBatch];
       this.keyEventBatch.length = 0;
       
-      GigaChadLogger.debug('KeyboardEventProcessor', `🔥 배치 처리 시작: ${batchToProcess.length}개 이벤트`);
+      logger.debug('KeyboardEventProcessor', `🔥 배치 처리 시작: ${batchToProcess.length}개 이벤트`);
       
       // 배치 이벤트 발생
       this.emit('batch-processed', {
@@ -163,12 +165,12 @@ export class KeyboardEventProcessor extends EventEmitter {
       
       this.stats.batchSize = batchToProcess.length;
       
-      GigaChadLogger.debug('KeyboardEventProcessor', `✅ 배치 처리 완료: ${batchToProcess.length}개 이벤트`);
+      logger.debug('KeyboardEventProcessor', `✅ 배치 처리 완료: ${batchToProcess.length}개 이벤트`);
     } catch (error) {
-      GigaChadLogger.error('KeyboardEventProcessor', '배치 키 이벤트 처리 실패', error);
+      logger.error('KeyboardEventProcessor', '배치 키 이벤트 처리 실패', error);
       this.healthCheckManager.recordError('KeyboardEventProcessor', error as Error);
     } finally {
-      GigaChadLogger.endTimer(timerId);
+      logger.endTimer(timerId);
       const duration = Date.now() - startTime;
       this.healthCheckManager.recordPerformanceMetric('processBatchedKeyEvents', duration);
       this.stats.averageProcessingTime = duration;
@@ -191,7 +193,7 @@ export class KeyboardEventProcessor extends EventEmitter {
       this.stats.queueSize = this.keyEventQueue.length;
       
     } catch (error) {
-      GigaChadLogger.error('KeyboardEventProcessor', '키 이벤트 큐 처리 실패', error);
+      logger.error('KeyboardEventProcessor', '키 이벤트 큐 처리 실패', error);
     }
   }
 
@@ -256,6 +258,6 @@ export class KeyboardEventProcessor extends EventEmitter {
     this.keyEventBatch.length = 0;
     this.removeAllListeners();
     
-    GigaChadLogger.info('KeyboardEventProcessor', '🧹 키보드 이벤트 프로세서 정리 완료');
+    logger.info('KeyboardEventProcessor', '🧹 키보드 이벤트 프로세서 정리 완료');
   }
 }

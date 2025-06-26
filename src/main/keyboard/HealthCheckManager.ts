@@ -5,7 +5,8 @@
 
 import { EventEmitter } from 'events';
 import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from './constants';
-import { GigaChadLogger } from './logger';
+import { GigaChadLogger } from '../../shared/logger';
+const logger = GigaChadLogger.getInstance();
 
 export interface SystemHealth {
   memory: {
@@ -75,7 +76,7 @@ export class HealthCheckManager extends EventEmitter {
       this.performHealthCheck();
     }, KEYBOARD_CONSTANTS.PERMISSION_CHECK_INTERVAL); // 30초마다
 
-    GigaChadLogger.info('HealthCheck', '🏥 헬스체크 매니저 시작됨');
+    logger.info('HealthCheck', '🏥 헬스체크 매니저 시작됨');
   }
 
   /**
@@ -90,7 +91,7 @@ export class HealthCheckManager extends EventEmitter {
       this.healthCheckInterval = null;
     }
 
-    GigaChadLogger.info('HealthCheck', '🏥 헬스체크 매니저 중지됨');
+    logger.info('HealthCheck', '🏥 헬스체크 매니저 중지됨');
   }
 
   /**
@@ -140,7 +141,7 @@ export class HealthCheckManager extends EventEmitter {
     }
 
     this.emit('health-alert', alert);
-    GigaChadLogger.warn('HealthCheck', `🚨 ${alert.level}: ${alert.component} - ${alert.message}`);
+    logger.warn('HealthCheck', `🚨 ${alert.level}: ${alert.component} - ${alert.message}`);
   }
 
   /**
@@ -268,13 +269,13 @@ export class HealthCheckManager extends EventEmitter {
       this.emit('health-check', health);
 
       if (overall !== 'healthy') {
-        GigaChadLogger.warn('HealthCheck', `⚠️ 시스템 상태: ${overall}`, health);
+        logger.warn('HealthCheck', `⚠️ 시스템 상태: ${overall}`, health);
       }
 
       return health;
 
     } catch (error) {
-      GigaChadLogger.error('HealthCheck', '헬스체크 수행 실패', error);
+      logger.error('HealthCheck', '헬스체크 수행 실패', error);
       this.recordError('HealthCheckManager', error as Error);
       
       return {

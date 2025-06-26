@@ -1,43 +1,29 @@
-/**
- * 🔥 기가차드 렌더러 타입 정의 (브라우저 환경용)
- * Loop Typing Analytics - Renderer Types
- */
+// 공통 타입 정의 (기가차드 스타일)
 
-export interface Log {
-  id: string;
-  content: string;
-  keyCount: number;
-  typingTime: number;
-  timestamp: string;
-  totalChars: number;
-}
-
-export interface TypingStats {
-  wpm: number;
-  accuracy: number;
-  totalKeys: number;
-  totalTime: number;
-}
-
-export interface SessionStats {
-  id?: string;
-  sessionId?: string;
-  content?: string;
-  totalKeys?: number;
-  keyCount?: number;
-  duration?: number;
-  createdAt?: Date;
-  timestamp?: string;
-  totalChars?: number;
-  charactersTyped?: number;
-  characters?: number;
-}
-
+// IPC 응답 타입
 export interface IpcResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
-  message?: string;
+  timestamp: Date;
 }
 
-// CommonComponentProps는 shared/types.ts에서 import하여 사용
+// 앱 상태 타입
+export type AppStatus = 'idle' | 'monitoring' | 'analyzing' | 'error';
+
+// 모니터링 상태 타입
+export interface MonitoringState {
+  active: boolean;
+  startedAt?: Date;
+  stoppedAt?: Date;
+  error?: string;
+}
+
+// AI 분석 상태 타입
+export interface AiAnalysisState {
+  running: boolean;
+  lastResult?: string;
+  startedAt?: Date;
+  finishedAt?: Date;
+  error?: string;
+} 

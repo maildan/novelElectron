@@ -1,5 +1,5 @@
 import { Logger } from "../../shared/logger";
-const log = Logger;/**
+/**
  * 🔥 기가차드 통합 키보드 핸들러
  * Unified Keyboard Handler integrating all keyboard modules
  */
@@ -61,7 +61,7 @@ export class UnifiedKeyboardHandler {
    * 핸들러 초기화 및 등록
    */
   async initialize(mainWindow: BrowserWindow): Promise<void> {
-    log.info("Console", '🔌 통합 키보드 핸들러 초기화 시작...');
+    Logger.info("Console", '🔌 통합 키보드 핸들러 초기화 시작...');
     
     this.mainWindow = mainWindow;
     
@@ -78,7 +78,7 @@ export class UnifiedKeyboardHandler {
     await this.permissionManager.checkPermissions();
     
     this.isRegistered = true;
-    log.info("Console", '✅ 통합 키보드 핸들러 초기화 완료');
+    Logger.info("Console", '✅ 통합 키보드 핸들러 초기화 완료');
   }
 
   /**
@@ -148,7 +148,7 @@ export class UnifiedKeyboardHandler {
       this.sendToRenderer('keyboard:pattern-analysis', patterns);
     });
 
-    log.info("Console", '🔗 키보드 시스템 이벤트 리스너 설정 완료');
+    Logger.info("Console", '🔗 키보드 시스템 이벤트 리스너 설정 완료');
   }
 
   /**
@@ -156,7 +156,7 @@ export class UnifiedKeyboardHandler {
    */
   private registerIpcHandlers(): void {
     if (this.isRegistered) {
-      log.warn("Console", '⚠️ IPC 핸들러가 이미 등록되어 있습니다');
+      Logger.warn("Console", '⚠️ IPC 핸들러가 이미 등록되어 있습니다');
       return;
     }
 
@@ -241,7 +241,7 @@ export class UnifiedKeyboardHandler {
       ipcMain.handle(channel, handler);
     }
 
-    log.info("Console", '📡 통합 키보드 IPC 핸들러 등록 완료');
+    Logger.info("Console", '📡 통합 키보드 IPC 핸들러 등록 완료');
   }
 
   /**
@@ -334,10 +334,10 @@ export class UnifiedKeyboardHandler {
   private simulateKeyEvent(keycode: number, type: 'keydown' | 'keyup'): boolean {
     try {
       // 실제 구현에서는 keyboardEngine에 테스트 이벤트 전송
-      log.info("Console", `🧪 키 이벤트 시뮬레이션: ${keycode} (${type})`);
+      Logger.info("Console", `🧪 키 이벤트 시뮬레이션: ${keycode} (${type})`);
       return true;
     } catch (error) {
-      log.error("Console", '❌ 키 이벤트 시뮬레이션 실패:', error);
+      Logger.error("Console", '❌ 키 이벤트 시뮬레이션 실패:', error);
       return false;
     }
   }
@@ -356,7 +356,7 @@ export class UnifiedKeyboardHandler {
       
       return JSON.stringify(data, null, 2);
     } catch (error) {
-      log.error("Console", '❌ 세션 데이터 내보내기 실패:', error);
+      Logger.error("Console", '❌ 세션 데이터 내보내기 실패:', error);
       return JSON.stringify({ error: '데이터 내보내기 실패' });
     }
   }
@@ -367,12 +367,12 @@ export class UnifiedKeyboardHandler {
   private importSessionData(data: string): boolean {
     try {
       const parsedData = JSON.parse(data);
-      log.info("Console", '📥 세션 데이터 가져오기:', parsedData);
+      Logger.info("Console", '📥 세션 데이터 가져오기:', parsedData);
       
       // 실제 구현에서는 데이터 검증 및 복원 로직 추가
       return true;
     } catch (error) {
-      log.error("Console", '❌ 세션 데이터 가져오기 실패:', error);
+      Logger.error("Console", '❌ 세션 데이터 가져오기 실패:', error);
       return false;
     }
   }
@@ -424,7 +424,7 @@ export class UnifiedKeyboardHandler {
    * 설정 가져오기
    */
   private getConfig(): KeyboardConfig {
-    log.debug('UnifiedHandler', '설정 정보 가져오기 요청');
+    Logger.debug('UnifiedHandler', '설정 정보 가져오기 요청');
     // 기본 설정 반환 - 실제로는 ConfigManager에서 가져와야 함
     return {
       enabled: true,
@@ -446,7 +446,7 @@ export class UnifiedKeyboardHandler {
    * 권한 상태 가져오기
    */
   private getPermissionStatus(): PermissionStatus {
-    log.debug('UnifiedHandler', '권한 상태 가져오기 요청');
+    Logger.debug('UnifiedHandler', '권한 상태 가져오기 요청');
     // 기본 권한 상태 반환 - 실제로는 권한 확인 로직 필요
     return {
       accessibility: true,
@@ -580,14 +580,14 @@ export class UnifiedKeyboardHandler {
       ipcMain.removeHandler(channel);
     }
 
-    log.info("Console", '🔌 통합 키보드 IPC 핸들러 해제 완료');
+    Logger.info("Console", '🔌 통합 키보드 IPC 핸들러 해제 완료');
   }
 
   /**
    * 정리 및 종료
    */
   async cleanup(): Promise<void> {
-    log.info("Console", '🧹 통합 키보드 핸들러 정리 시작...');
+    Logger.info("Console", '🧹 통합 키보드 핸들러 정리 시작...');
 
     try {
       // 권한 모니터링 중지
@@ -613,9 +613,9 @@ export class UnifiedKeyboardHandler {
       this.isRegistered = false;
       this.mainWindow = null;
 
-      log.info("Console", '✅ 통합 키보드 핸들러 정리 완료');
+      Logger.info("Console", '✅ 통합 키보드 핸들러 정리 완료');
     } catch (error) {
-      log.error("Console", '❌ 통합 키보드 핸들러 정리 실패:', error);
+      Logger.error("Console", '❌ 통합 키보드 핸들러 정리 실패:', error);
     }
   }
 

@@ -1,5 +1,4 @@
 import { Logger } from "../../shared/logger";
-const log = Logger;
 /**
  * 🔥 기가차드 윈도우 관리자
  * Loop Typing Analytics - Window Manager
@@ -13,7 +12,7 @@ import { isDev } from '../utils/environment';
  * 메인 윈도우 생성
  */
 export async function createMainWindow(): Promise<BrowserWindow> {
-  log.gigachad('WindowManager', '메인 윈도우 생성 중...');
+  Logger.gigachad('WindowManager', '메인 윈도우 생성 중...');
 
   // 화면 크기 정보 가져오기
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -51,7 +50,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     ? 'http://localhost:5500' 
     : `file://${join(__dirname, '../renderer/out/index.html')}`;
 
-  log.info('WindowManager', `로딩 URL: ${startUrl}`);
+  Logger.info('WindowManager', `로딩 URL: ${startUrl}`);
 
   try {
     await mainWindow.loadURL(startUrl);
@@ -67,13 +66,13 @@ export async function createMainWindow(): Promise<BrowserWindow> {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
       }
       
-      log.success('WindowManager', '✅ 메인 윈도우 표시 완료');
+      Logger.success('WindowManager', '✅ 메인 윈도우 표시 완료');
     });
 
     // 더 짧은 Fallback으로 수정
     setTimeout(() => {
       if (!mainWindow.isVisible()) {
-        log.warn('WindowManager', '🔧 윈도우 강제 표시 (Fallback)');
+        Logger.warn('WindowManager', '🔧 윈도우 강제 표시 (Fallback)');
         mainWindow.show();
         mainWindow.focus();
         centerWindow(mainWindow);
@@ -86,25 +85,25 @@ export async function createMainWindow(): Promise<BrowserWindow> {
     }, 1500); // 3초에서 1.5초로 단축
 
   } catch (error) {
-    log.error('WindowManager', '윈도우 로딩 실패', error);
+    Logger.error('WindowManager', '윈도우 로딩 실패', error);
     throw error;
   }
 
   // 윈도우 이벤트 핸들러
   mainWindow.on('closed', () => {
-    log.info('WindowManager', '메인 윈도우 닫힘');
+    Logger.info('WindowManager', '메인 윈도우 닫힘');
   });
 
   mainWindow.webContents.on('render-process-gone', () => {
-    log.error('WindowManager', '렌더러 프로세스 크래시');
+    Logger.error('WindowManager', '렌더러 프로세스 크래시');
   });
 
   mainWindow.webContents.on('unresponsive', () => {
-    log.warn('WindowManager', '렌더러 프로세스 응답 없음');
+    Logger.warn('WindowManager', '렌더러 프로세스 응답 없음');
   });
 
   mainWindow.webContents.on('responsive', () => {
-    log.success('WindowManager', '렌더러 프로세스 응답 복구');
+    Logger.success('WindowManager', '렌더러 프로세스 응답 복구');
   });
 
   // 보안: 새 윈도우 차단

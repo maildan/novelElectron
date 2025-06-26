@@ -8,6 +8,8 @@ import { KEYBOARD_CONSTANTS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constan
 import { GigaChadLogger } from '../logger';
 import { LoopKeyboardEvent as KeyEvent, SessionStats } from '@shared/types';
 
+const logger = GigaChadLogger.getInstance();
+
 export interface SessionConfig {
   sessionTimeout: number; // minutes
   autoSave: boolean;
@@ -34,7 +36,7 @@ export class SessionManager extends EventEmitter {
       ...config
     };
     
-    GigaChadLogger.info('SessionManager', '🔥 세션 매니저 생성됨');
+    logger.info('SessionManager', '🔥 세션 매니저 생성됨');
   }
 
   /**
@@ -79,11 +81,11 @@ export class SessionManager extends EventEmitter {
       // 세션 타임아웃 설정
       this.resetSessionTimeout();
       
-      GigaChadLogger.info('SessionManager', `🆕 새 타이핑 세션 시작: ${sessionId} (${appData.appName})`);
+      logger.info('SessionManager', `🆕 새 타이핑 세션 시작: ${sessionId} (${appData.appName})`);
       this.emit('session-started', this.currentSession);
       
     } catch (error) {
-      GigaChadLogger.error('SessionManager', '세션 시작 실패', error);
+      logger.error('SessionManager', '세션 시작 실패', error);
       throw error;
     }
   }
@@ -106,7 +108,7 @@ export class SessionManager extends EventEmitter {
         session.wpm = Math.round(session.characters / sessionDurationMinutes);
       }
 
-      GigaChadLogger.info('SessionManager', `📊 세션 종료: ${session.sessionId} - ${session.keyCount}키, ${session.wpm}WPM`);
+      logger.info('SessionManager', `📊 세션 종료: ${session.sessionId} - ${session.keyCount}키, ${session.wpm}WPM`);
       
       // 세션 저장 이벤트
       this.emit('session-ended', session);
@@ -119,7 +121,7 @@ export class SessionManager extends EventEmitter {
       }
       
     } catch (error) {
-      GigaChadLogger.error('SessionManager', '세션 종료 실패', error);
+      logger.error('SessionManager', '세션 종료 실패', error);
     }
   }
 
@@ -180,7 +182,7 @@ export class SessionManager extends EventEmitter {
       this.resetSessionTimeout();
       
     } catch (error) {
-      GigaChadLogger.error('SessionManager', '통계 업데이트 실패', error);
+      logger.error('SessionManager', '통계 업데이트 실패', error);
     }
   }
 
@@ -204,7 +206,7 @@ export class SessionManager extends EventEmitter {
     }
     
     this.sessionTimeout = setTimeout(() => {
-      GigaChadLogger.info('SessionManager', '⏰ 세션 타임아웃으로 인한 자동 종료');
+      logger.info('SessionManager', '⏰ 세션 타임아웃으로 인한 자동 종료');
       this.endCurrentSession();
     }, this.config.sessionTimeout * 60 * 1000);
   }
@@ -228,7 +230,7 @@ export class SessionManager extends EventEmitter {
    */
   public updateConfig(newConfig: Partial<SessionConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    GigaChadLogger.info('SessionManager', '⚙️ 세션 설정 업데이트', newConfig);
+    logger.info('SessionManager', '⚙️ 세션 설정 업데이트', newConfig);
   }
 
   /**
@@ -245,6 +247,6 @@ export class SessionManager extends EventEmitter {
     }
     
     this.removeAllListeners();
-    GigaChadLogger.info('SessionManager', '🧹 세션 매니저 정리 완료');
+    logger.info('SessionManager', '🧹 세션 매니저 정리 완료');
   }
 }

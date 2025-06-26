@@ -7,7 +7,7 @@ import { app, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { ErrorMetadata } from '@shared/types';
-import { log } from '../../shared/logger'; // 
+import { Logger } from '../../shared/logger';
 
 export class ErrorHandler {
   private static initialized = false;
@@ -27,29 +27,29 @@ export class ErrorHandler {
     try {
       fs.mkdirSync(path.dirname(this.logFile), { recursive: true });
     } catch (error) {
-      log.error("Console", '❌ 로그 디렉토리 생성 실패:', error);
+      Logger.error("Console", '❌ 로그 디렉토리 생성 실패:', error);
     }
 
     // 🔥 글로벌 에러 핸들러 설정
     process.on('uncaughtException', (error) => {
-      log.error("Console", '🔥 기가차드가 잡은 예외:', error);
+      Logger.error("Console", '🔥 기가차드가 잡은 예외:', error);
       this.handleError('Uncaught Exception', error);
     });
 
     process.on('unhandledRejection', (reason, promise) => {
-      log.error("Console", '🔥 기가차드가 잡은 Promise 거부:', reason);
+      Logger.error("Console", '🔥 기가차드가 잡은 Promise 거부:', reason);
       this.handleError('Unhandled Rejection', reason as Error, { promise });
     });
 
     app.on('render-process-gone', (event, webContents, details) => {
-      log.error("Console", '🔥 렌더러 프로세스 죽음:', details);
+      Logger.error("Console", '🔥 렌더러 프로세스 죽음:', details);
       this.handleError('Renderer Process Crash', new Error(details.reason), {
         exitCode: details.exitCode
       });
     });
 
     this.initialized = true;
-    log.info("Console", '🔥 기가차드 에러 핸들러 초기화 완료!');
+    Logger.info("Console", '🔥 기가차드 에러 핸들러 초기화 완료!');
   }
 
   /**
@@ -72,9 +72,9 @@ export class ErrorHandler {
     };
 
     // log 로 디버깅
-    log.error("Console", `❌ [${context}] ${errorMessage}`);
+    Logger.error("Console", `❌ [${context}] ${errorMessage}`);
     if (errorStack) {
-      log.error("Console", errorStack);
+      Logger.error("Console", errorStack);
     }
 
     // log 로 추가 데이터
@@ -94,7 +94,7 @@ export class ErrorHandler {
       const logLine = JSON.stringify(logEntry) + '\n';
       fs.appendFileSync(this.logFile, logLine);
     } catch (writeError) {
-      log.error("Console", '오류 로그 쓰기 실패:', writeError);
+      Logger.error("Console", '오류 로그 쓰기 실패:', writeError);
     }
   }
 
@@ -118,7 +118,7 @@ export class ErrorHandler {
         `An error occurred: ${message}\n\nCheck the error log for more details.`
       );
     } catch (dialogError) {
-      log.error("Console", '오류 다이로그 표시 실패:', dialogError);
+      Logger.error("Console", '오류 다이로그 표시 실패:', dialogError);
     }
   }
 
@@ -138,7 +138,7 @@ export class ErrorHandler {
         fs.unlinkSync(this.logFile);
       }
     } catch (error) {
-      log.error("Console", '오류 로그 지우기 실패:', error);
+      Logger.error("Console", '오류 로그 지우기 실패:', error);
     }
   }
 }

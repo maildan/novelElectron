@@ -46,6 +46,7 @@
   "exclude": [
     "src/renderer/**/*",
     "node_modules",
-    "dist"
+    "dist",
+    "renderer_backup"
   ]
 }
