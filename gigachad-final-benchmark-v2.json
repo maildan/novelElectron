@@ -29,34 +29,34 @@
     }
   },
   "data": {
-    "timestamp": "2025-06-26T10:30:03.201Z",
+    "timestamp": "2025-06-26T10:45:56.063Z",
     "version": "2.0",
     "benchmarks": {
       "styleOptimization": {
-        "loadTime": 0.16729199999999977,
+        "loadTime": 0.15366699999999867,
         "constantsCount": 111,
         "objectsCount": 14,
-        "fileSize": 19276,
-        "compressionRatio": "40.16"
+        "fileSize": 19458,
+        "compressionRatio": "40.37"
       },
       "memoryUsage": {
         "heapUsed": 4.08,
         "heapTotal": 5.09,
         "external": 1.44,
-        "rss": 37.28,
-        "efficiency": "80.07"
+        "rss": 37.81,
+        "efficiency": "80.08"
       },
       "renderingPerformance": {
         "iterations": 10000,
-        "optimizedTime": 0.54,
-        "opsPerSecond": 18691589,
+        "optimizedTime": 0.61,
+        "opsPerSecond": 16421494,
         "performanceGain": "90%+ (estimated)",
         "memoryReduction": "~60% (estimated)"
       },
       "codeMetrics": {
         "totalFiles": 100,
-        "totalLines": 18920,
-        "averageLinesPerFile": 189,
+        "totalLines": 18990,
+        "averageLinesPerFile": 190,
         "duplicatedPatterns": 2,
         "duplicationRatio": "2.00"
       }

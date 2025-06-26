@@ -146,17 +146,20 @@ body {
   border-color: var(--border-secondary);
 }
 
-/* ===== 카드 스타일 통합 ===== */
-.card {
+/* ===== 🔥 기가차드 카드 스타일 (Tailwind 보완) ===== */
+.gigachad-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: 12px;
   padding: 24px;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
+  /* 🚨 Z-Index 명시적 설정 */
+  position: relative;
+  z-index: 10;
 }
 
-.card:hover {
+.gigachad-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -243,30 +246,7 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
-.stats-grid {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.stats-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.stats-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.stats-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
+/* 🔥 기가차드 레거시 CSS 완전 제거 - 모든 grid/flex는 optimized-styles.tsx에서 처리 */
 
 /* ===== 유틸리티 클래스 통합 ===== */
 .flex { display: flex; }
@@ -347,9 +327,7 @@ body {
 
 /* ===== 반응형 ===== */
 @media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+  /* 🔥 기가차드 레거시 grid 클래스 완전 제거 - 모든 grid는 GRID_PATTERNS에서 처리 */
   
   .app-header {
     padding: 0 12px;

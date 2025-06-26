@@ -7,6 +7,7 @@ import { Logger } from '../../shared/logger';
 import { 
   OPTIMIZED_STYLES,
   FLEX_PATTERNS,
+  GRID_PATTERNS,
   ICON_PATTERNS,
   TEXT_PATTERNS,
   flexItemsCenter,
@@ -92,8 +93,8 @@ interface ActiveProject {
 }
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
-  // #DEBUG: Dashboard 컴포넌트 진입점
-  Logger.info('// #DEBUG: Dashboard 렌더링 시작');
+  // #DEBUG: Dashboard 컴포넌트 진입점 - 기가차드 Deep Dive
+  Logger.info('// #DEBUG: Dashboard 렌더링 시작 - Deep Dive 모드');
   
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
@@ -208,9 +209,16 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
       {/* 메인 콘텐츠 */}
       <div className={contentArea}>
-        {/* 🔥 상단 통계 카드 추가 - 기가차드! */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        {/* 🔥 상단 통계 카드 - Z-Index + 패딩으로 완전 격리 */}
+        <div 
+          className={`${GRID_PATTERNS.cols1Sm2Lg4} mb-8`} 
+          style={{ 
+            position: 'relative', 
+            zIndex: 5,
+            padding: '0 1rem' // 좌우 패딩으로 오버플로우 방지
+          }}
+        >
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-100 text-blue-600">
                 <FileText className="w-5 h-5" />
@@ -223,7 +231,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className="text-sm text-slate-600">오늘 작성 <span className="text-slate-500">(글자)</span></div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 text-green-600">
                 <Clock className="w-5 h-5" />
@@ -236,7 +244,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className="text-sm text-slate-600">이번 주 <span className="text-slate-500">(글자)</span></div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-100 text-purple-600">
                 <Target className="w-5 h-5" />
@@ -251,7 +259,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className="text-sm text-slate-600">평균 속도 <span className="text-slate-500">(WPM)</span></div>
           </div>
           
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100 text-orange-600">
                 <CheckCircle className="w-5 h-5" />
@@ -308,7 +316,8 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* 프로젝트 그리드 - 기가차드 모듈화 완료 */}
+          <div className={GRID_PATTERNS.cols1Sm2Lg3}>
             <div className={`${cardBase} cursor-pointer transition-colors hover:border-green-300 hover:bg-green-50`}>
               <div className={`${flexItemsCenter} gap-2 mb-2`}>
                 <CheckCircle className="w-5 h-5 text-green-600" />

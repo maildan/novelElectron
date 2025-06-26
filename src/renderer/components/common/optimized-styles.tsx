@@ -6,17 +6,19 @@
 
 import { Logger } from '../../shared/logger';
 
-// ==================== 🔥 Z-INDEX 시스템 ====================
+// ==================== 🔥 Z-INDEX 시스템 - 기가차드 최종 보강 ====================
 export const Z_INDEX = {
-  modal: 100,      // 최상위 모달
-  tooltip: 90,     // 툴팁
-  dropdown: 80,    // 드롭다운
-  overlay: 70,     // 오버레이
-  header: 50,      // 헤더 (낮춤!)
-  sidebar: 40,     // 사이드바 (낮춤!)
-  backdrop: 30,    // 백드롭 (낮춤!)
-  sticky: 20,      // 스티키 메뉴
-  card: 10         // 카드
+  modal: 1000,          // 모달/알림 (최상위)
+  tooltip: 999,         // 툴팁
+  dropdown: 998,        // 드롭다운 메뉴
+  overlay: 100,         // 오버레이
+  header: 50,           // AppHeader (고정 위치)
+  sidebar: 40,          // Navigation sidebar
+  backdrop: 30,         // 모바일 백드롭
+  sticky: 20,           // 스티키 메뉴
+  card: 10,             // Dashboard 카드들 (명시적 레이어)
+  content: 1,           // 메인 컨텐츠 (기본보다 약간 위)
+  base: 0               // 기본 레이어
 } as const;
 
 // ==================== 🔥 ICON 시스템 ====================
