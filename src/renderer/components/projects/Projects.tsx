@@ -10,6 +10,7 @@ import {
   debugExit, 
   measurePerformance
 } from '../common/common';
+import { Logger } from '../../shared/logger';
 import { 
   Search,
   Filter,
@@ -56,7 +57,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
           // #DEBUG: 프로젝트 데이터 로드 완료
         }
       } catch (error) {
-        console.error('프로젝트 데이터 로딩 실패:', error);
+        Logger.error('프로젝트 데이터 로딩 실패:', error);
         setProjects([]);
       }
     };

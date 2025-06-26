@@ -196,7 +196,9 @@ const electronAPI: ElectronAPI = {
   }
 };
 
+import { Logger } from '../shared/logger';
+
 // Context Bridge로 안전하게 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-console.log('🔥 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');
+Logger.info('PRELOAD', '🔥 기가차드 Preload script loaded - 완전 타입 안전 ElectronAPI 노출');

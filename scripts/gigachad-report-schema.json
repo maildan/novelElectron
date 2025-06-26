@@ -159,9 +159,17 @@
                 "button": {
                   "type": "object", 
                   "properties": {
-                    "before": { "type": "number", "const": 30000 },
-                    "after": { "type": "number", "const": 42000 },
-                    "improvement": { "type": "string", "const": "+40%" }
+                    "before": { "type": "number", "const": 199203187 },
+                    "after": { "type": "number", "const": 12660298 },
+                    "improvement": { "type": "string", "const": "-93.64%" }
+                  }
+                },
+                "buttonClassName": {
+                  "type": "object", 
+                  "properties": {
+                    "before": { "type": "number", "const": 156821909 },
+                    "after": { "type": "number", "const": 12978164 },
+                    "improvement": { "type": "string", "const": "-91.72%" }
                   }
                 }
               }

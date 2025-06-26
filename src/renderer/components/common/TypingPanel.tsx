@@ -49,7 +49,7 @@ export function TypingPanel({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-20 right-4 w-80 z-50 animate-in slide-in-from-right-4">
+    <div className="fixed top-20 right-4 w-80 z-[60] animate-in slide-in-from-right-4">
       <Card className="glass-card">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">

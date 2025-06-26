@@ -9,6 +9,7 @@ import {
   debugExit, 
   measurePerformance
 } from '../common/common';
+import { Logger } from '../../shared/logger';
 import { useEffect, useState } from 'react';
 import { 
   Download,
@@ -56,7 +57,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
           setGoals([]);
           setGenres([]);
         } catch (error) {
-          console.error('통계 데이터 로딩 실패:', error);
+          Logger.error('통계 데이터 로딩 실패:', error);
         }
       }
     };
