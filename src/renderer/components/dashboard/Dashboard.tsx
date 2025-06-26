@@ -10,9 +10,12 @@ import {
   getButtonClassName,
   debugEntry, 
   debugExit, 
+  flexBetween,
   measurePerformance,
-  measureMemory
+  measureMemory,
+  getAdditionalPattern
 } from '../common/common';
+import { AIPanel } from '../common/AIPanel';
 import { 
   Play, 
   Pause, 
@@ -142,38 +145,11 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
 
   return (  
     <div className="flex-1 flex flex-col bg-slate-50">
-      {/* AI 패널 */}
-      {aiPanelOpen && (
-        <div className={`${COMMON_STYLES.layout.fixedPanel} ${COMMON_STYLES.card.variants.panel} rounded-lg`}>
-          <div className="bg-purple-600 text-white flex items-center justify-between p-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              <h3 className="font-semibold">Loop AI</h3>
-            </div>
-            <button
-              onClick={() => setAiPanelOpen(false)}
-              className="text-white hover:bg-white/20 h-8 w-8 p-0 rounded"
-            >
-              ×
-            </button>
-          </div>
-          <div className="p-4 space-y-4">
-            <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-md">
-              💡 <strong>추천 질문:</strong>
-              <br />• &ldquo;오늘 작성할 내용 아이디어 줘&rdquo;
-              <br />• &ldquo;이 문단을 더 매력적으로 써줘&rdquo;
-              <br />• &ldquo;캐릭터 설정 도움이 필요해&rdquo;
-            </div>
-            <textarea
-              placeholder="질문을 입력하세요..."
-              className="w-full min-h-[80px] p-3 border border-slate-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <button className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors">
-              질문하기
-            </button>
-          </div>
-        </div>
-      )}
+      {/* AI 패널 - 별도 컴포넌트 사용 */}
+      <AIPanel 
+        isOpen={aiPanelOpen} 
+        onClose={() => setAiPanelOpen(false)}
+      />
 
       {/* 헤더 */}
       <div className="bg-white border-b border-slate-200 p-6">
@@ -226,7 +202,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
         {/* 모니터링 패널 */}
         {isMonitoring && (
           <div className="bg-blue-600 text-white p-6 rounded-lg shadow-lg">
-            <div className="flex items-center justify-between mb-4">
+            <div className={`${flexBetween()} mb-4`}>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <h2 className="text-lg font-semibold">실시간 모니터링</h2>
@@ -316,7 +292,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             <div className="space-y-4">
               {activeProjects.map((project, index) => (
                 <div key={index} className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
+                  <div className={`${flexBetween()} mb-3`}>
                     <h4 className="font-semibold text-slate-900">{project.title}</h4>
                     <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded">
                       {project.status}

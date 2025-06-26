@@ -7,7 +7,9 @@ import {
   getButtonClassName,
   debugEntry, 
   debugExit, 
-  measurePerformance
+  measurePerformance,
+  flexBetween,
+  iconBox
 } from '../common/common';
 import { Logger } from '../../shared/logger';
 import { useEffect, useState } from 'react';
@@ -91,7 +93,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
             <div key={index} className={getCardClassName({})}>
-                <div className="flex items-center justify-between mb-3">
+                <div className={`${flexBetween()} mb-3`}>
                   <div
                     className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                       stat.color === "blue"

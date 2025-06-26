@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CommonComponentProps } from '@shared/types';
-import { getCardClassName } from '../common/common';
+import { getCardClassName, flexBetween, getAdditionalPattern } from '../common/common';
 import { 
   Settings as SettingsIcon,
   Edit3,
@@ -70,7 +70,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               일반 설정
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">테마</div>
                   <div className="text-sm text-slate-600">앱의 외관을 선택하세요</div>
@@ -95,7 +95,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">알림</div>
                   <div className="text-sm text-slate-600">시스템 알림을 받을지 설정하세요</div>
@@ -106,7 +106,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">자동 저장</div>
                   <div className="text-sm text-slate-600">작업 내용을 자동으로 저장합니다</div>
@@ -126,7 +126,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               편집기 설정
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">맞춤법 검사</div>
                   <div className="text-sm text-slate-600">입력하는 동안 맞춤법을 확인합니다</div>
@@ -137,7 +137,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">자동 줄바꿈</div>
                   <div className="text-sm text-slate-600">긴 줄을 자동으로 줄바꿈합니다</div>
@@ -148,7 +148,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">글꼴 크기</div>
                   <div className="text-sm text-slate-600">편집기의 글꼴 크기를 조정합니다</div>
@@ -170,7 +170,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">줄 간격</div>
                   <div className="text-sm text-slate-600">텍스트의 줄 간격을 조정합니다</div>
@@ -201,7 +201,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               동기화 설정
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">Google Docs 동기화</div>
                   <div className="text-sm text-slate-600">Google Docs와 자동으로 동기화합니다</div>
@@ -217,7 +217,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">Loop 클라우드</div>
                   <div className="text-sm text-slate-600">Loop 클라우드에 백업합니다</div>
@@ -233,7 +233,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">자동 백업</div>
                   <div className="text-sm text-slate-600">5분마다 자동으로 백업합니다</div>
@@ -250,7 +250,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
               AI 설정
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">AI 모델</div>
                   <div className="text-sm text-slate-600">사용할 AI 모델을 선택하세요</div>
@@ -262,7 +262,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </select>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">창의성 수준</div>
                   <div className="text-sm text-slate-600">AI 응답의 창의성을 조정합니다</div>
@@ -274,7 +274,7 @@ export function Settings({ logs, loading }: CommonComponentProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className={flexBetween()}>
                 <div>
                   <div className="font-medium text-slate-900">응답 길이</div>
                   <div className="text-sm text-slate-600">AI 응답의 기본 길이를 설정합니다</div>

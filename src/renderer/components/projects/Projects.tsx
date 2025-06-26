@@ -7,9 +7,11 @@ import {
   getCardClassName, 
   getButtonClassName,
   getTextClassName,
+  getLayoutClassName,
   flexCenter,
   flexBetween,
   headerCard,
+  iconBox,
   inputBase,
   getAdditionalPattern,
   debugEntry, 
@@ -90,12 +92,12 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
       <div className={headerCard()}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className={getLayoutClassName({ variant: 'flexColumn' })}>
           <div>
             <h1 className={getTextClassName({ variant: 'title' })}>프로젝트</h1>
             <p className={getTextClassName({ variant: 'subtitle' })}>모든 창작 프로젝트를 관리하세요</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className={getAdditionalPattern('flex', 'itemsCenterGap3')}>
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
@@ -122,7 +124,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
           {/* 새 프로젝트 카드 */}
           <div className={getCardClassName({ variant: 'blue' })}>
             <div className="text-center py-8">
-              <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3">
+              <div className={iconBox('medium') + " bg-blue-600 text-white mx-auto mb-3"}>
                 <Plus className="w-6 h-6" />
               </div>
               <h3 className="font-semibold text-slate-900 mb-1">새 프로젝트</h3>
@@ -138,7 +140,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               onClick={() => setSelectedProject(project.title)}
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
+                <div className={getAdditionalPattern('flex', 'itemsCenterGap2')}>
                   <h3 className="font-semibold text-slate-900">{project.title}</h3>
                   {project.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                 </div>
@@ -150,7 +152,7 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
               <p className="text-sm text-slate-600 mb-4 line-clamp-2">{project.description}</p>
               
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
+                <div className={flexBetween() + " text-sm"}>
                   <span className="text-slate-600">진행률</span>
                   <span className="font-medium">{project.progress}%</span>
                 </div>
@@ -161,15 +163,15 @@ function ProjectsComponent({ logs, loading }: CommonComponentProps) {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className={flexBetween()}>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                     {project.status}
                   </span>
                   <span className="text-xs text-slate-500">{project.lastModified}</span>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm text-slate-600 pt-2 border-t border-slate-100">
-                  <div className="flex items-center gap-4">
+                <div className={flexBetween() + " text-sm text-slate-600 pt-2 border-t border-slate-100"}>
+                  <div className={getAdditionalPattern('flex', 'itemsCenterGap4')}>
                     <div className="flex items-center gap-1">
                       <FileText className="w-4 h-4" />
                       <span>{project.wordCount}</span>
