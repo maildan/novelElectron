@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GigaChad Code Duplication Analysis",
+  "metadata": {
+    "scan_date": "2025-06-26T11:28:14.488Z",
+    "total_execution_time_ms": 26,
+    "scanned_files": 100,
+    "scanned_lines": 19009
+  },
+  "results": {
+    "total_files": 100,
+    "total_lines": 19009,
+    "duplicate_patterns": [
+      {
+        "pattern": "flex-items-center",
+        "count": 15,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/layout/AppHeader.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Button.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Card.tsx"
+        ],
+        "memory_cost": 55,
+        "optimization": "FLEX_ITEMS_CENTER 상수"
+      },
+      {
+        "pattern": "icon-size",
+        "count": 23,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/layout/AppHeader.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx"
+        ],
+        "memory_cost": 44,
+        "optimization": "ICON_SIZES 객체"
+      },
+      {
+        "pattern": "background-color",
+        "count": 57,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/TypingPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx"
+        ],
+        "memory_cost": 38,
+        "optimization": "BG_COLORS 팔레트"
+      },
+      {
+        "pattern": "border-radius",
+        "count": 53,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/layout/AppHeader.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Badge.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Button.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Input.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Textarea.tsx"
+        ],
+        "memory_cost": 32,
+        "optimization": "BORDER_RADIUS 상수"
+      },
+      {
+        "pattern": "text-color",
+        "count": 137,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/TypingPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Card.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Input.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Progress.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Textarea.tsx"
+        ],
+        "memory_cost": 28,
+        "optimization": "TEXT_COLORS 팔레트"
+      },
+      {
+        "pattern": "padding",
+        "count": 57,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/TypingPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Button.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Input.tsx"
+        ],
+        "memory_cost": 25,
+        "optimization": "PADDING 유틸리티"
+      },
+      {
+        "pattern": "margin-bottom",
+        "count": 33,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/AIPanel.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Progress.tsx"
+        ],
+        "memory_cost": 22,
+        "optimization": "MARGIN 유틸리티"
+      },
+      {
+        "pattern": "border-style",
+        "count": 17,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/TypingBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings-optimized.tsx",
+          "/Users/user/loop/loop/src/renderer/components/settings/Settings.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx"
+        ],
+        "memory_cost": 35,
+        "optimization": "BORDER_STYLES 상수"
+      },
+      {
+        "pattern": "justify-center",
+        "count": 37,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/ai/AIAnalytics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/IconBox.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/common.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/optimized-styles.tsx",
+          "/Users/user/loop/loop/src/renderer/components/dashboard/Dashboard.tsx",
+          "/Users/user/loop/loop/src/renderer/components/layout/AppHeader.tsx",
+          "/Users/user/loop/loop/src/renderer/components/statistics/Statistics.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Avatar.tsx",
+          "/Users/user/loop/loop/src/renderer/components/ui/Button.tsx",
+          "/Users/user/loop/loop/src/renderer/shared/styles.ts"
+        ],
+        "memory_cost": 24,
+        "optimization": "JUSTIFY_CENTER 상수"
+      },
+      {
+        "pattern": "flex-column",
+        "count": 6,
+        "files": [
+          "/Users/user/loop/loop/src/renderer/components/common/common.tsx",
+          "/Users/user/loop/loop/src/renderer/components/common/optimized-styles.tsx",
+          "/Users/user/loop/loop/src/renderer/components/projects/Projects.tsx"
+        ],
+        "memory_cost": 28,
+        "optimization": "FLEX_COLUMN 상수"
+      }
+    ],
+    "memory_saved": 13337,
+    "performance_gain": 2000.55,
+    "execution_time": 26
+  },
+  "recommendations": [
+    "Create common.tsx module with 10 optimized constants",
+    "Replace 435 duplicate patterns",
+    "Save 13337 bytes of memory",
+    "Improve bundle performance by 2000.5%",
+    "Add DEBUG logs at module entry/exit points",
+    "Implement benchmark testing for optimization verification"
+  ]
+}
