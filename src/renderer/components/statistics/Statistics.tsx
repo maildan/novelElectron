@@ -11,6 +11,7 @@ import {
   flexBetween,
   iconBox
 } from '../common/common';
+import { ICON_SM } from '../common/optimized-styles';
 import { Logger } from '../../shared/logger';
 import { useEffect, useState } from 'react';
 import { 
@@ -131,7 +132,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
+              <TrendingUp className={`${ICON_SM} text-blue-600`} />
               주간 작성량
             </h3>
             <div className="h-48 flex items-end justify-between gap-2">
@@ -158,7 +159,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
 
           <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-green-600" />
+              <BarChart3 className={`${ICON_SM} text-green-600`} />
               프로젝트별 진행률
             </h3>
             <div className="h-48 flex items-end justify-between gap-2">
@@ -187,7 +188,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-red-600" />
+              <Activity className={`${ICON_SM} text-red-600`} />
               활동 패턴
             </h3>
             <div className="space-y-3">
@@ -207,7 +208,7 @@ function StatisticsComponent({ logs, loading }: CommonComponentProps) {
 
           <div className={getCardClassName({ variant: 'settings' })}>
             <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <Award className="w-4 h-4 text-yellow-600" />
+              <Award className={`${ICON_SM} text-yellow-600`} />
               달성 목표
             </h3>
             <div className="space-y-4">

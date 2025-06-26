@@ -4,28 +4,33 @@ import { useState, useEffect } from 'react';
 import { Log, TypingStats } from '../../shared/types';
 import { CommonComponentProps } from '../common/common';
 import { Logger } from '../../shared/logger';
-import { FLEX_PATTERNS, ICON_PATTERNS } from '../common/optimized-styles';
 import { 
-  COMMON_STYLES, 
   OPTIMIZED_STYLES,
-  getCardClassName, 
-  getButtonClassName,
-  debugEntry, 
-  debugExit, 
+  flexItemsCenter,
   flexBetween,
-  measurePerformance,
-  measureMemory,
-  getAdditionalPattern,
-  FLEX_ITEMS_CENTER_GAP_2,
-  ICON_SM
-} from '../common/common';
-import {
-  FLEX_GAP2 as FLEX_GAP2_ZERO,
-  ICON_SM as ICON_SM_ZERO,
-  ICON_MD as ICON_MD_ZERO,
-  TEXT_SECTION_HEADER,
-  CARD_BLUE_HOVER,
-  BTN_PRIMARY
+  flexGap2,
+  flexGap3,
+  iconSm,
+  iconWithText,
+  gridCol3,
+  gridCol1Lg2,
+  cardBase,
+  cardSettings,
+  cardMonitoring,
+  cardQuickStart,
+  btnPrimary,
+  btnDanger,
+  btnPurple,
+  btnIcon,
+  textTitle,
+  textSubtitle,
+  responsiveHeaderFlex,
+  headerBase,
+  pageContainer,
+  contentArea,
+  fileItemBase,
+  projectItemBase,
+  statusIndicator,
 } from '../common/optimized-styles';
 import { AIPanel } from '../common/AIPanel';
 import { 
@@ -70,9 +75,8 @@ interface ActiveProject {
 
 export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentProps) {
   // #DEBUG: Dashboard 컴포넌트 진입점
-  debugEntry('Dashboard 렌더링');
-  measureMemory('Dashboard 시작');
-
+  console.log('// #DEBUG: Dashboard 렌더링 시작');
+  
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
     wpm: 0,
@@ -156,7 +160,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
   }, []);
 
   return (  
-    <div className="flex-1 flex flex-col bg-slate-50">
+    <div className={pageContainer}>
       {/* AI 패널 - 별도 컴포넌트 사용 */}
       <AIPanel 
         isOpen={aiPanelOpen} 
@@ -164,64 +168,59 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
       />
 
       {/* 헤더 */}
-      <div className="bg-white border-b border-slate-200 p-6">
-        <div className={OPTIMIZED_STYLES.responsiveHeaderFlex}>
+      <div className={headerBase}>
+        <div className={responsiveHeaderFlex}>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">대시보드</h1>
-            <p className="text-slate-600 mt-1">오늘의 창작을 시작하세요</p>
+            <h1 className={textTitle}>대시보드</h1>
+            <p className={textSubtitle}>오늘의 창작을 시작하세요</p>
           </div>
 
-          <div className={OPTIMIZED_STYLES.flexGap3}>
+          <div className={flexGap3}>
             <button
               onClick={() => setAiPanelOpen(!aiPanelOpen)}
-              className={getButtonClassName({ 
-                variant: aiPanelOpen ? 'purple' : 'purple',
-                className: aiPanelOpen ? 'bg-purple-700 hover:bg-purple-800' : 'bg-purple-600 hover:bg-purple-700'
-              })}
+              className={`${btnPurple} ${aiPanelOpen ? 'bg-purple-700 hover:bg-purple-800' : ''}`}
             >
-              <Sparkles className={ICON_PATTERNS.w4h4Mr2} />
+              <Sparkles className={iconWithText} />
               Loop AI
             </button>
 
             <button
               onClick={() => setIsMonitoring(!isMonitoring)}
-              className={getButtonClassName({ 
-                variant: isMonitoring ? 'danger' : 'primary'
-              })}
+              className={isMonitoring ? btnDanger : btnPrimary}
             >
               {isMonitoring ? (
                 <>
-                  <Pause className={ICON_PATTERNS.w4h4Mr2} />
+                  <Pause className={iconWithText} />
                   중지
                 </>
               ) : (
                 <>
-                  <Play className={ICON_PATTERNS.w4h4Mr2} />
+                  <Play className={iconWithText} />
                   시작
                 </>
               )}
             </button>
 
-            <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-md">
-              <MoreHorizontal className={ICON_PATTERNS.w4h4} />
+            <button className={btnIcon}>
+              <MoreHorizontal className={iconSm} />
             </button>
           </div>
         </div>
       </div>
 
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className={contentArea}>
         {/* 모니터링 패널 */}
         {isMonitoring && (
-          <div className="bg-blue-600 text-white p-6 rounded-lg shadow-lg">
-            <div className={`${flexBetween()} mb-4`}>
-              <div className={FLEX_ITEMS_CENTER_GAP_2}>
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <div className={cardMonitoring}>
+            <div className={`${flexBetween} mb-4`}>
+              <div className={flexGap2}>
+                <div className={statusIndicator}></div>
                 <h2 className="text-lg font-semibold">실시간 모니터링</h2>
               </div>
               <div className="font-mono text-lg">{Math.floor(monitoringData.time / 60)}:{(monitoringData.time % 60).toString().padStart(2, '0')}</div>
             </div>
-            <div className="grid grid-cols-3 gap-6 text-center">
+            <div className={gridCol3}>
               <div>
                 <div className="text-2xl font-bold">{monitoringData.wpm}</div>
                 <div className="text-blue-200 text-sm">분당 단어</div>
@@ -244,7 +243,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-slate-900">빠른 시작</h2>
 
-          <div className={getCardClassName({ variant: 'blue', className: 'h-[120px] flex items-center justify-center cursor-pointer transition-colors' })}>
+          <div className={`${cardBase} ${cardQuickStart}`}>
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3">
                 <Plus className="w-6 h-6" />
@@ -255,10 +254,10 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className={getCardClassName({ variant: 'green', className: COMMON_STYLES.layout.cardGrid })}>
-              <div className="flex items-center gap-2 mb-2">
+            <div className={`${cardBase} cursor-pointer transition-colors hover:border-green-300 hover:bg-green-50`}>
+              <div className={`${flexItemsCenter} gap-2 mb-2`}>
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <Globe className={`${ICON_SM_ZERO} text-green-600`} />
+                <Globe className={`${iconSm} text-green-600`} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">Google Docs</h3>
@@ -267,10 +266,10 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               </div>
             </div>
 
-            <div className={getCardClassName({ variant: 'slate', className: COMMON_STYLES.layout.cardGrid })}>
-              <div className="flex items-center gap-2 mb-2">
+            <div className={`${cardBase} cursor-pointer transition-colors hover:border-slate-300 hover:bg-slate-50`}>
+              <div className={`${flexItemsCenter} gap-2 mb-2`}>
                 <CheckCircle className="w-5 h-5 text-slate-600" />
-                <Cloud className={`${ICON_SM_ZERO} text-slate-600`} />
+                <Cloud className={`${iconSm} text-slate-600`} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 mb-1">Loop 클라우드</h3>
@@ -279,8 +278,8 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               </div>
             </div>
 
-            <div className={getCardClassName({ variant: 'purple', className: COMMON_STYLES.layout.cardGrid })}>
-              <div className="flex items-center gap-2 mb-2">
+            <div className={`${cardBase} cursor-pointer transition-colors hover:border-purple-300 hover:bg-purple-50`}>
+              <div className={`${flexItemsCenter} gap-2 mb-2`}>
                 <FileText className="w-5 h-5 text-purple-600" />
                 <Clock className="w-4 h-4 text-purple-600" />
               </div>
@@ -294,17 +293,17 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
         </div>
 
         {/* 메인 그리드 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className={getCardClassName({ variant: 'settings' })}>
-            <div className="flex items-center gap-2 mb-4">
+        <div className={gridCol1Lg2}>
+          <div className={cardSettings}>
+            <div className={`${flexItemsCenter} gap-2 mb-4`}>
               <Target className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold text-slate-900">활성 프로젝트</h3>
             </div>
 
             <div className="space-y-4">
               {activeProjects.map((project, index) => (
-                <div key={index} className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                  <div className={`${flexBetween()} mb-3`}>
+                <div key={index} className={projectItemBase}>
+                  <div className={`${flexBetween} mb-3`}>
                     <h4 className="font-semibold text-slate-900">{project.title}</h4>
                     <span className="bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded">
                       {project.status}
@@ -316,7 +315,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
                       style={{ width: `${project.progress}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className={flexBetween}>
                     <span className="text-sm font-medium text-slate-700">{project.progress}% 완료</span>
                     <span className="text-xs text-slate-500">목표: {project.deadline}</span>
                   </div>
@@ -325,8 +324,8 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
             </div>
           </div>
 
-          <div className={getCardClassName({ variant: 'settings' })}>
-            <div className="flex items-center gap-2 mb-4">
+          <div className={cardSettings}>
+            <div className={`${flexItemsCenter} gap-2 mb-4`}>
               <Clock className="w-5 h-5 text-green-600" />
               <h3 className="font-semibold text-slate-900">최근 파일</h3>
             </div>
@@ -335,7 +334,7 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
               {recentFiles.map((file, index) => (
                 <div
                   key={index}
-                  className="flex items-center p-3 bg-slate-50 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                  className={fileItemBase}
                 >
                   <FileText className="w-4 h-4 text-slate-600 mr-3 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -355,6 +354,9 @@ export function Dashboard({ logs, loading, onTypingComplete }: CommonComponentPr
     </div>
   );
 }
+
+// #DEBUG: Dashboard 컴포넌트 exit
+console.log('// #DEBUG: Dashboard 렌더링 완료');
 
 // #DEBUG: Dashboard 컴포넌트 export
 export default Dashboard;
