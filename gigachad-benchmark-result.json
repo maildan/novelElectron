@@ -1,0 +1,280 @@
+{
+  "timestamp": "2025-06-27T12:07:50.077Z",
+  "nodeVersion": "v22.16.0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "suites": [
+    {
+      "suiteName": "Common Utilities",
+      "results": [
+        {
+          "name": "Type Guards - isString",
+          "iterations": 100000,
+          "totalTime": 27.953584000000006,
+          "avgTime": 0.0002795358400000001,
+          "opsPerSecond": 3577358.81023342,
+          "memoryUsage": {
+            "before": {
+              "rss": 84131840,
+              "heapTotal": 11632640,
+              "heapUsed": 8110744,
+              "external": 2487743,
+              "arrayBuffers": 100217
+            },
+            "after": {
+              "rss": 88735744,
+              "heapTotal": 12419072,
+              "heapUsed": 8867296,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": 0.7215042114257812
+          }
+        },
+        {
+          "name": "Type Guards - isNumber",
+          "iterations": 100000,
+          "totalTime": 26.047875000000005,
+          "avgTime": 0.00026047875000000006,
+          "opsPerSecond": 3839084.762192692,
+          "memoryUsage": {
+            "before": {
+              "rss": 88735744,
+              "heapTotal": 12419072,
+              "heapUsed": 8872512,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 89079808,
+              "heapTotal": 12419072,
+              "heapUsed": 8250320,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": -0.5933685302734375
+          }
+        },
+        {
+          "name": "Array Utils - chunkArray",
+          "iterations": 10000,
+          "totalTime": 27.806208999999996,
+          "avgTime": 0.0027806208999999996,
+          "opsPerSecond": 359631.9081108828,
+          "memoryUsage": {
+            "before": {
+              "rss": 89079808,
+              "heapTotal": 12419072,
+              "heapUsed": 8252512,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 89096192,
+              "heapTotal": 12419072,
+              "heapUsed": 7467688,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": -0.7484664916992188
+          }
+        },
+        {
+          "name": "String Utils - capitalize",
+          "iterations": 50000,
+          "totalTime": 15.907542000000007,
+          "avgTime": 0.0003181508400000001,
+          "opsPerSecond": 3143163.1612225184,
+          "memoryUsage": {
+            "before": {
+              "rss": 89145344,
+              "heapTotal": 12419072,
+              "heapUsed": 7491000,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 89341952,
+              "heapTotal": 12419072,
+              "heapUsed": 8061976,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": 0.544525146484375
+          }
+        }
+      ],
+      "totalOpsPerSecond": 10919238.641759515,
+      "memoryEfficiency": 27298096.604398787
+    },
+    {
+      "suiteName": "Logger System",
+      "results": [
+        {
+          "name": "Logger - info",
+          "iterations": 10000,
+          "totalTime": 48.704792,
+          "avgTime": 0.0048704792,
+          "opsPerSecond": 205318.60602135412,
+          "memoryUsage": {
+            "before": {
+              "rss": 89341952,
+              "heapTotal": 12419072,
+              "heapUsed": 8078152,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 97484800,
+              "heapTotal": 18186240,
+              "heapUsed": 11038888,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": 2.823577880859375
+          }
+        },
+        {
+          "name": "Logger - debug",
+          "iterations": 10000,
+          "totalTime": 28.52454199999997,
+          "avgTime": 0.002852454199999997,
+          "opsPerSecond": 350575.30459209514,
+          "memoryUsage": {
+            "before": {
+              "rss": 97484800,
+              "heapTotal": 18186240,
+              "heapUsed": 11049008,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 97746944,
+              "heapTotal": 18186240,
+              "heapUsed": 8680912,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "delta": -2.258392333984375
+          }
+        }
+      ],
+      "totalOpsPerSecond": 555893.9106134493,
+      "memoryEfficiency": 983560.0249990014
+    },
+    {
+      "suiteName": "IPC Utilities",
+      "results": [
+        {
+          "name": "IPC Handler Creation",
+          "iterations": 10000,
+          "totalTime": 2.7379159999999843,
+          "avgTime": 0.0002737915999999984,
+          "opsPerSecond": 3652413.0031746984,
+          "memoryUsage": {
+            "before": {
+              "rss": 97746944,
+              "heapTotal": 18186240,
+              "heapUsed": 8694576,
+              "external": 2391049,
+              "arrayBuffers": 16939
+            },
+            "after": {
+              "rss": 106905600,
+              "heapTotal": 18186240,
+              "heapUsed": 9466552,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "delta": 0.7362136840820312
+          }
+        },
+        {
+          "name": "IPC Handler Execution",
+          "iterations": 10000,
+          "totalTime": 3.706583999999964,
+          "avgTime": 0.0003706583999999964,
+          "opsPerSecond": 2697901.895653814,
+          "memoryUsage": {
+            "before": {
+              "rss": 106905600,
+              "heapTotal": 18186240,
+              "heapUsed": 9468536,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "after": {
+              "rss": 106921984,
+              "heapTotal": 18186240,
+              "heapUsed": 8804688,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "delta": -0.6330947875976562
+          }
+        }
+      ],
+      "totalOpsPerSecond": 6350314.898828512,
+      "memoryEfficiency": 31751574.49414256
+    },
+    {
+      "suiteName": "Performance Tools",
+      "results": [
+        {
+          "name": "PerformanceTracker - mark",
+          "iterations": 10000,
+          "totalTime": 3.8716249999999945,
+          "avgTime": 0.00038716249999999944,
+          "opsPerSecond": 2582894.779323931,
+          "memoryUsage": {
+            "before": {
+              "rss": 106921984,
+              "heapTotal": 18186240,
+              "heapUsed": 8809216,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "after": {
+              "rss": 106954752,
+              "heapTotal": 18186240,
+              "heapUsed": 11510360,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "delta": 2.5760116577148438
+          }
+        },
+        {
+          "name": "Debounce Function",
+          "iterations": 10000,
+          "totalTime": 6.858000000000004,
+          "avgTime": 0.0006858000000000004,
+          "opsPerSecond": 1458151.064450276,
+          "memoryUsage": {
+            "before": {
+              "rss": 106954752,
+              "heapTotal": 18186240,
+              "heapUsed": 11512208,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "after": {
+              "rss": 110723072,
+              "heapTotal": 27885568,
+              "heapUsed": 16159712,
+              "external": 2397743,
+              "arrayBuffers": 23641
+            },
+            "delta": 4.4322052001953125
+          }
+        }
+      ],
+      "totalOpsPerSecond": 4041045.843774207,
+      "memoryEfficiency": 576615.4109819089
+    }
+  ],
+  "summary": {
+    "totalOpsPerSecond": 21866493.294975683,
+    "avgMemoryEfficiency": 15152461.633630563
+  }
+}
