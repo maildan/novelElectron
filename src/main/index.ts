@@ -6,7 +6,7 @@ import { windowManager } from './core/window';
 import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
 import { errorHandler } from './core/error-handler';
-import { keyboardService } from './services/keyboardService';
+import { keyboardService } from './keyboard/keyboardService';
 import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
 
 // #DEBUG: Main index module entry point

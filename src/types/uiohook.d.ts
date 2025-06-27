@@ -2,6 +2,7 @@
 declare module 'uiohook-napi' {
   // 기존 타입 확장
   export interface UiohookKeyEvent {
+    keychar: number;
     keycode: number;
     rawcode: number;
     type: number;
