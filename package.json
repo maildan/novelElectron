@@ -5,11 +5,11 @@
   "main": "dist/main/index.js",
   "homepage": "./",
   "scripts": {
-    "dev": "concurrently \"next dev --turbopack\" \"wait-on http://localhost:3000 && npm run dev:electron\"",
+    "dev": "concurrently \"npm run dev:next\" \"wait-on http://localhost:3000 && npm run dev:electron\"",
     "dev:electron": "cross-env NODE_ENV=development tsx src/main/index.ts",
     "dev:next": "next dev --turbopack",
     "dev:main": "tsx src/main/index.ts",
-    "build": "next build && npm run build:main",
+    "build": "npm run build:clean && next build && npm run build:main",
     "build:main": "tsc -p tsconfig.main.json",
     "build:clean": "rimraf dist .next",
     "start": "next start",
@@ -17,8 +17,10 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit && tsc -p tsconfig.main.json --noEmit",
-    "package": "electron-builder",
-    "dist": "npm run build && electron-builder"
+    "package": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never",
+    "test": "echo \"Tests not yet implemented\" && exit 0",
+    "clean": "npm run build:clean && rimraf node_modules/.cache"
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",

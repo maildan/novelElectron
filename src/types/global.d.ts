@@ -3,9 +3,9 @@
 
 import { ElectronAPI } from '../preload/preload';
 
-// 🔥 uiohook-napi 타입 정의 (완전 타입 안전)
+// 🔥 uiohook-napi 타입 정의 (완전 타입 안전 - 모든 any 제거)
 declare module 'uiohook-napi' {
-  // 🔥 기가차드 키보드 이벤트 (실제 사용 타입과 통합)
+  // 🔥 기가차드 키보드 이벤트 타입 (실제 사용 패턴과 100% 일치)
   export interface UiohookKeyboardEvent {
     keychar: number;
     keycode: number;
@@ -17,7 +17,7 @@ declare module 'uiohook-napi' {
     metaKey?: boolean;
   }
 
-  // 🔥 기가차드 마우스 이벤트
+  // 🔥 기가차드 마우스 이벤트 타입
   export interface UiohookMouseEvent {
     x: number;
     y: number;
@@ -26,7 +26,7 @@ declare module 'uiohook-napi' {
     type: number;
   }
 
-  // 🔥 기가차드 휠 이벤트
+  // 🔥 기가차드 휠 이벤트 타입
   export interface UiohookWheelEvent {
     x: number;
     y: number;
@@ -35,7 +35,7 @@ declare module 'uiohook-napi' {
     type: number;
   }
 
-  // 🔥 기가차드 uIOhook 인스턴스 (실제 사용 패턴 반영)
+  // 🔥 기가차드 uIOhook 인스턴스 (KeyboardEngine + KeyboardService 호환)
   export interface UiohookInstance {
     start(): void;
     stop(): void;
@@ -43,8 +43,16 @@ declare module 'uiohook-napi' {
     on(event: 'mousedown' | 'mouseup' | 'mousemove', listener: (event: UiohookMouseEvent) => void): this;
     on(event: 'wheel', listener: (event: UiohookWheelEvent) => void): this;
     removeAllListeners(): void;
+    
+    // 🔥 Loop 전용 확장 메서드들 (KeyboardEngine에서 사용)
+    isRunning?(): boolean;
+    getEventCount?(): number;
+    enableLoopMode?(): void;
+    disableLoopMode?(): void;
+    setLanguage?(lang: 'ko' | 'en' | 'ja' | 'zh'): void;
   }
 
+  // 🔥 기가차드 메인 uIOhook 익스포트 (싱글톤 패턴)
   export const uIOhook: UiohookInstance;
   export default uIOhook;
 }
