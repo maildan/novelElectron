@@ -3,7 +3,7 @@
 import { Logger } from './logger';
 
 // #DEBUG: Common module entry point
-console.time('COMMON_MODULE_LOAD');
+Logger.time('COMMON_MODULE_LOAD');
 Logger.debug('COMMON', 'Common module loaded');
 
 // 🔥 기가차드 키보드 언어 지원 (한국어/일본어/중국어)
@@ -454,7 +454,7 @@ const defaultExport = {
 
 // #DEBUG: Common module exit point
 perf.mark('COMMON_MODULE_COMPLETE');
-console.timeEnd('COMMON_MODULE_LOAD');
+Logger.timeEnd('COMMON_MODULE_LOAD');
 Logger.debug('COMMON', 'Common module setup complete', {
   totalFunctions: Object.keys(defaultExport).length,
   memoryUsage: process.memoryUsage().heapUsed

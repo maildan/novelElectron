@@ -8,6 +8,7 @@ import { autoLaunchManager } from './core/autoLaunch';
 import { errorHandler } from './core/error-handler';
 import { keyboardService } from './keyboard/keyboardService';
 import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
+import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
 
 // #DEBUG: Main index module entry point
 Logger.debug('MAIN_INDEX', 'Main index module loaded');
@@ -155,10 +156,12 @@ class LoopApplication {
       setupKeyboardIpcHandlers();
       Logger.info('MAIN_INDEX', 'Keyboard IPC handlers registered');
 
-      // TODO: 추가 IPC 핸들러들
-      // createDatabaseIpcHandlers();
-      // createSettingsIpcHandlers();
-      // createScreenshotIpcHandlers();
+      // 대시보드 IPC 핸들러 (이미 구현됨)
+      setupDashboardIpcHandlers();
+      Logger.info('MAIN_INDEX', 'Dashboard IPC handlers registered');
+
+      // 추가 IPC 핸들러들은 필요시 확장 가능
+      Logger.debug('MAIN_INDEX', 'All IPC handlers setup completed');
 
     } catch (error) {
       Logger.error('MAIN_INDEX', 'Failed to setup IPC handlers', error);

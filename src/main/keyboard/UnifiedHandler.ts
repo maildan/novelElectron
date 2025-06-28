@@ -3,10 +3,11 @@
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import { Result, KeyboardEvent, TypingSession } from '../../shared/types';
+import { Result, KeyboardEvent, TypingSession, WindowInfo as SharedWindowInfo } from '../../shared/types';
 import { KeyboardEngine } from './KeyboardEngine';
 import { StatsManager } from './StatsManager';
 import { HangulComposer } from './HangulComposer';
+import { WindowTracker, WindowInfo as GetWindowsInfo } from './WindowTracker';
 
 // #DEBUG: Unified handler entry point
 Logger.debug('UNIFIED_HANDLER', 'Unified handler module loaded');
@@ -49,6 +50,7 @@ export class UnifiedHandler extends BaseManager {
   private keyboardEngine: KeyboardEngine;
   private statsManager: StatsManager;
   private hangulComposer: HangulComposer;
+  private windowTracker: WindowTracker; // 🔥 윈도우 추적기 추가
   private eventQueue: KeyboardEvent[] = [];
   private processingLock = false;
 
@@ -73,6 +75,7 @@ export class UnifiedHandler extends BaseManager {
     this.keyboardEngine = new KeyboardEngine();
     this.statsManager = new StatsManager();
     this.hangulComposer = new HangulComposer();
+    this.windowTracker = new WindowTracker(); // 🔥 윈도우 추적기 인스턴스 생성
 
     this.setupInternalHandlers();
     Logger.info(this.componentName, 'Unified handler instance created');
@@ -87,6 +90,7 @@ export class UnifiedHandler extends BaseManager {
       await this.keyboardEngine.initialize();
       await this.statsManager.initialize();
       await this.hangulComposer.initialize();
+      await this.windowTracker.initialize(); // 🔥 윈도우 추적기 초기화 추가
 
       // 이벤트 리스너 설정
       this.setupEventListeners();
@@ -108,6 +112,7 @@ export class UnifiedHandler extends BaseManager {
       await this.keyboardEngine.start();
       await this.statsManager.start();
       await this.hangulComposer.start();
+      await this.windowTracker.start(); // 🔥 윈도우 추적기 시작 추가
 
       this.handlerState.isActive = true;
       this.handlerState.lastActivity = new Date();
@@ -129,6 +134,7 @@ export class UnifiedHandler extends BaseManager {
       await this.keyboardEngine.stop();
       await this.statsManager.stop();
       await this.hangulComposer.stop();
+      await this.windowTracker.stop(); // 🔥 윈도우 추적기 중지 추가
 
       this.handlerState.isActive = false;
       this.eventQueue = [];
@@ -150,6 +156,7 @@ export class UnifiedHandler extends BaseManager {
       await this.keyboardEngine.cleanup();
       await this.statsManager.cleanup();
       await this.hangulComposer.cleanup();
+      await this.windowTracker.cleanup(); // 🔥 윈도우 추적기 정리 추가
 
       this.registeredHandlers.clear();
       this.eventQueue = [];
@@ -486,6 +493,7 @@ export class UnifiedHandler extends BaseManager {
       keyboardEngine: unknown;
       statsManager: unknown;
       hangulComposer: unknown;
+      windowTracker: unknown;
     };
     handlerStats: UnifiedHandlerState;
   }> {
@@ -497,9 +505,62 @@ export class UnifiedHandler extends BaseManager {
         keyboardEngine: await this.keyboardEngine.healthCheck(),
         statsManager: await this.statsManager.healthCheck(),
         hangulComposer: await this.hangulComposer.healthCheck(),
+        windowTracker: await this.windowTracker.healthCheck(),
       },
       handlerStats: this.handlerState,
     };
+  }
+
+  /**
+   * 실시간 통계 정보 반환
+   */
+  public getRealtimeStats(): {
+    currentWpm: number;
+    averageWpm: number;
+    peakWpm: number;
+    totalKeystrokes: number;
+    accuracy: number;
+    sessionDuration: number;
+  } {
+    const stats = this.statsManager.getRealtimeStats();
+    
+    return {
+      currentWpm: stats.currentWpm || 0,
+      averageWpm: stats.averageWpm || 0,
+      peakWpm: stats.peakWpm || 0,
+      totalKeystrokes: this.statsManager.getTotalKeystrokes(),
+      accuracy: stats.currentAccuracy || 0,
+      sessionDuration: this.statsManager.getSessionDuration(),
+    };
+  }
+
+  /**
+   * 현재 윈도우 정보 반환
+   */
+  public getCurrentWindow(): SharedWindowInfo | null {
+    const windowInfo = this.windowTracker.getCurrentWindow();
+    if (!windowInfo) return null;
+    
+    // get-windows WindowInfo → shared/types WindowInfo 변환
+    return {
+      title: windowInfo.title,
+      processName: windowInfo.owner.name,
+      pid: windowInfo.owner.processId,
+    };
+  }
+
+  /**
+   * 윈도우 히스토리 반환
+   */
+  public getWindowHistory(): SharedWindowInfo[] {
+    const history = this.windowTracker.getWindowHistory();
+    
+    // get-windows WindowInfo[] → shared/types WindowInfo[] 변환
+    return history.map(windowInfo => ({
+      title: windowInfo.title,
+      processName: windowInfo.owner.name,
+      pid: windowInfo.owner.processId,
+    }));
   }
 }
 

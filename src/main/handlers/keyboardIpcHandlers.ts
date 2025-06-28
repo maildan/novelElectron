@@ -4,10 +4,10 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { Logger } from '../../shared/logger';
 import { IPC_CHANNELS } from '../../shared/types';
 import { createSafeIpcHandler, createSafeAsyncIpcHandler } from '../../shared/ipc-utils';
-import { keyboardService } from '../services/keyboardService';
+import { keyboardService } from '../keyboard/keyboardService';
 
 // #DEBUG: Keyboard IPC handlers entry point
-console.time('KEYBOARD_IPC_SETUP');
+Logger.time('KEYBOARD_IPC_SETUP');
 Logger.debug('KEYBOARD_IPC', 'Setting up keyboard IPC handlers');
 
 // 🔥 기가차드 키보드 모니터링 IPC 핸들러 설정
@@ -18,7 +18,8 @@ export function setupKeyboardIpcHandlers(): void {
     // 🔥 모니터링 시작
     ipcMain.handle(
       IPC_CHANNELS.KEYBOARD.START_MONITORING,
-      createSafeAsyncIpcHandler(
+      createSafeAsyncIpcHandler
+      (
         async (event) => {
           // #DEBUG: IPC call - start monitoring
           Logger.debug('KEYBOARD_IPC', 'IPC: Start monitoring requested');
@@ -91,19 +92,22 @@ export function setupKeyboardIpcHandlers(): void {
     );
 
     // 🔥 키보드 이벤트 포워딩 설정
-    keyboardService.on('keyboard-event', (event) => {
+    keyboardService.on('keyboard-event', (event: unknown) => {
       // #DEBUG: Forwarding keyboard event to renderer
       const mainWindow = (global as Record<string, unknown>).mainWindow as BrowserWindow | undefined;
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send(IPC_CHANNELS.KEYBOARD.EVENT, event);
+        
+        // 타입 가드로 안전하게 로깅
+        const eventData = event as { type?: string; language?: string };
         Logger.debug('KEYBOARD_IPC', 'Event forwarded to renderer', {
-          eventType: event.type,
-          language: event.language
+          eventType: eventData.type || 'unknown',
+          language: eventData.language || 'unknown'
         });
       }
     });
 
-    console.timeEnd('KEYBOARD_IPC_SETUP');
+    Logger.timeEnd('KEYBOARD_IPC_SETUP');
     Logger.info('KEYBOARD_IPC', 'Keyboard IPC handlers setup completed', {
       handlersCount: 5,
       setupTime: 'measured'

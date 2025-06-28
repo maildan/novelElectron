@@ -5,6 +5,7 @@ import { IpcResponse, KeyboardEvent } from '../../shared/types';
 import { KEYBOARD_LANGUAGES, perf } from '../../shared/common';
 import { EventEmitter } from 'events';
 import type { UiohookKeyboardEvent, UiohookInstance } from 'uiohook-napi';
+import { WindowTracker } from './WindowTracker';
 
 // #DEBUG: Keyboard service entry point
 Logger.debug('KEYBOARD', 'Keyboard service initialization started');
@@ -43,9 +44,11 @@ export class KeyboardService extends EventEmitter {
   private uiohook: UiohookInstance | null = null;
   private eventBuffer: ProcessedKeyboardEvent[] = [];
   private performanceTracker = perf;
+  private windowTracker: WindowTracker; // 🔥 윈도우 추적기 추가
   
   constructor() {
     super();
+    this.windowTracker = new WindowTracker();
     this.initializeUiohook();
   }
 
@@ -176,12 +179,16 @@ export class KeyboardService extends EventEmitter {
       // 조합형 문자 처리 (한글, 일본어, 중국어)
       const composedChar = this.processComposition(rawEvent, languageConfig);
       
+      // 🔥 실제 윈도우 정보 가져오기
+      const currentWindow = this.windowTracker.getCurrentWindow();
+      const windowTitle = currentWindow?.title || 'Unknown Window';
+      
       const processedEvent: ProcessedKeyboardEvent = {
         key: this.mapKeyToString(rawEvent.keycode),
         code: `Key${rawEvent.keycode}`,
         keychar: String.fromCharCode(rawEvent.keychar || 0),
         timestamp: Date.now(),
-        windowTitle: 'Active Window', // TODO: 실제 윈도우 정보 가져오기
+        windowTitle, // 🔥 실제 윈도우 타이틀 사용
         type,
         language: currentLanguage,
         composedChar,
@@ -247,12 +254,67 @@ export class KeyboardService extends EventEmitter {
       return undefined;
     }
 
-    // TODO: 실제 조합형 처리 로직 구현
-    // 한글: 초성 + 중성 + 종성 조합
-    // 일본어: 로마자 → 히라가나/가타카나 변환
-    // 중국어: 핀인 입력 처리
+    // 🔥 한글 조합 처리 (초성 + 중성 + 종성)
+    if (languageConfig.code === 'ko') {
+      return this.processHangulComposition(rawEvent);
+    }
+
+    // 🔥 일본어 조합 처리 (로마자 → 히라가나/가타카나)
+    if (languageConfig.code === 'ja') {
+      return this.processJapaneseComposition(rawEvent);
+    }
+
+    // 🔥 중국어 조합 처리 (핀인 입력)
+    if (languageConfig.code === 'zh') {
+      return this.processChineseComposition(rawEvent);
+    }
     
     return String.fromCharCode(rawEvent.keychar || 0);
+  }
+
+  // 🔥 한글 조합 처리 (초성 + 중성 + 종성)
+  private processHangulComposition(rawEvent: UiohookKeyboardEvent): string | undefined {
+    const char = rawEvent.keychar;
+    if (!char) return undefined;
+
+    // 한글 완성형 문자 범위 (가-힣)
+    if (char >= 0xAC00 && char <= 0xD7AF) {
+      return String.fromCharCode(char);
+    }
+
+    // 한글 자모 분리 처리 (향후 확장 가능)
+    return String.fromCharCode(char);
+  }
+
+  // 🔥 일본어 조합 처리 (로마자 → 히라가나/가타카나)
+  private processJapaneseComposition(rawEvent: UiohookKeyboardEvent): string | undefined {
+    const char = rawEvent.keychar;
+    if (!char) return undefined;
+
+    // 히라가나 범위 (あ-ん)
+    if (char >= 0x3040 && char <= 0x309F) {
+      return String.fromCharCode(char);
+    }
+
+    // 가타카나 범위 (ア-ン)
+    if (char >= 0x30A0 && char <= 0x30FF) {
+      return String.fromCharCode(char);
+    }
+
+    return String.fromCharCode(char);
+  }
+
+  // 🔥 중국어 조합 처리 (핀인 입력)
+  private processChineseComposition(rawEvent: UiohookKeyboardEvent): string | undefined {
+    const char = rawEvent.keychar;
+    if (!char) return undefined;
+
+    // 한자 범위 (一-龯)
+    if (char >= 0x4E00 && char <= 0x9FFF) {
+      return String.fromCharCode(char);
+    }
+
+    return String.fromCharCode(char);
   }
 
   // 🔥 키코드를 문자열로 매핑

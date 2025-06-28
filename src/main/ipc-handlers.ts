@@ -21,10 +21,8 @@ export function setupAllIpcHandlers(): void {
     setupDashboardIpcHandlers();
     Logger.info('IPC_HANDLERS', 'Dashboard IPC handlers setup complete');
 
-    // TODO: 추가 IPC 핸들러들
-    // setupDatabaseIpcHandlers();
-    // setupSettingsIpcHandlers();
-    // setupScreenshotIpcHandlers();
+    // 추가 IPC 핸들러들은 필요시 확장 가능
+    // 예: setupDatabaseIpcHandlers(), setupSettingsIpcHandlers() 등
 
     Logger.info('IPC_HANDLERS', 'All IPC handlers setup complete');
 
@@ -39,9 +37,11 @@ export function cleanupAllIpcHandlers(): void {
   try {
     Logger.debug('IPC_HANDLERS', 'Cleaning up all IPC handlers');
     
-    // TODO: 각 핸들러별 정리 함수 호출
+    // 각 핸들러별 정리 로직은 electron의 IPC 특성상 
+    // 자동으로 프로세스 종료시 정리되므로 별도 처리 불필요
+    Logger.debug('IPC_HANDLERS', 'IPC handlers will be cleaned up automatically on process exit');
     
-    Logger.info('IPC_HANDLERS', 'All IPC handlers cleaned up');
+    Logger.info('IPC_HANDLERS', 'All IPC handlers cleanup completed');
   } catch (error) {
     Logger.error('IPC_HANDLERS', 'Failed to cleanup IPC handlers', error);
   }

@@ -7,7 +7,7 @@ import { createSafeIpcHandler, createSafeAsyncIpcHandler } from '../../shared/ip
 import { databaseService } from '../services/databaseService';
 
 // #DEBUG: Dashboard IPC handlers entry point
-console.time('DASHBOARD_IPC_SETUP');
+Logger.time('DASHBOARD_IPC_SETUP');
 Logger.debug('DASHBOARD_IPC', 'Setting up dashboard IPC handlers');
 
 // 🔥 기가차드 대시보드 IPC 핸들러 설정
@@ -68,11 +68,17 @@ export function setupDashboardIpcHandlers(): void {
           // #DEBUG: IPC call - get realtime WPM
           Logger.debug('DASHBOARD_IPC', 'IPC: Get realtime WPM requested');
           
-          // TODO: 실시간 WPM 계산 로직 구현
+          // 🔥 UnifiedHandler에서 실시간 WPM 데이터 가져오기
+          const unifiedHandler = globalThis.unifiedHandler;
+          if (!unifiedHandler) {
+            throw new Error('UnifiedHandler not initialized');
+          }
+          
+          const stats = unifiedHandler.getRealtimeStats();
           return {
-            currentWpm: 0,
-            avgWpm: 0,
-            peakWpm: 0,
+            currentWpm: stats.currentWpm,
+            avgWpm: stats.averageWpm,
+            peakWpm: stats.peakWpm,
             timestamp: new Date(),
           };
         },
@@ -217,7 +223,7 @@ export function setupDashboardIpcHandlers(): void {
       )
     );
 
-    // 🔥 세션 삭제 (향후 구현)
+    // 🔥 세션 삭제
     ipcMain.handle(
       'dashboard:delete-session',
       createSafeAsyncIpcHandler(
@@ -226,16 +232,36 @@ export function setupDashboardIpcHandlers(): void {
           // #DEBUG: IPC call - delete session
           Logger.debug('DASHBOARD_IPC', 'IPC: Delete session requested', { sessionId });
           
-          // TODO: 세션 삭제 로직 구현
-          Logger.warn('DASHBOARD_IPC', 'Session deletion not implemented yet');
-          return false;
+          if (!sessionId || typeof sessionId !== 'string') {
+            Logger.warn('DASHBOARD_IPC', 'Invalid session ID provided');
+            return false;
+          }
+
+          try {
+            // 🔥 데이터베이스에서 세션 삭제
+            const result = await databaseService.deleteTypingSession(sessionId);
+            
+            if (result.success) {
+              Logger.info('DASHBOARD_IPC', 'Session deleted successfully', { sessionId });
+              return true;
+            } else {
+              Logger.error('DASHBOARD_IPC', 'Failed to delete session', { 
+                sessionId, 
+                error: result.error 
+              });
+              return false;
+            }
+          } catch (error) {
+            Logger.error('DASHBOARD_IPC', 'Error deleting session', { sessionId, error });
+            return false;
+          }
         },
         'DASHBOARD_IPC',
         'Delete session'
       )
     );
 
-    // 🔥 데이터 내보내기 (향후 구현)
+    // 🔥 데이터 내보내기
     ipcMain.handle(
       'dashboard:export-data',
       createSafeAsyncIpcHandler(
@@ -244,22 +270,100 @@ export function setupDashboardIpcHandlers(): void {
           // #DEBUG: IPC call - export data
           Logger.debug('DASHBOARD_IPC', 'IPC: Export data requested', { format });
           
-          // TODO: 데이터 내보내기 로직 구현
-          Logger.warn('DASHBOARD_IPC', 'Data export not implemented yet');
-          return null;
+          try {
+            // 🔥 세션 데이터 조회
+            const sessionsResult = await databaseService.getTypingSessions(1000, 0);
+            
+            if (!sessionsResult.success || !sessionsResult.data) {
+              Logger.error('DASHBOARD_IPC', 'Failed to retrieve sessions for export');
+              return null;
+            }
+
+            const sessions = sessionsResult.data;
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `loop-typing-data-${timestamp}.${format}`;
+
+            let exportData: string;
+            let mimeType: string;
+
+            if (format === 'csv') {
+              // 🔥 CSV 형식으로 내보내기
+              const csvHeaders = 'ID,Start Time,End Time,Duration(s),WPM,Accuracy(%),Key Count,Language,App Name,Window Title\n';
+              const csvRows = sessions.map(session => [
+                session.id,
+                session.startTime?.toISOString() || '',
+                session.endTime?.toISOString() || '',
+                session.startTime && session.endTime ? 
+                  Math.round((session.endTime.getTime() - session.startTime.getTime()) / 1000) : 0,
+                session.wpm || 0,
+                session.accuracy || 0,
+                session.keyCount || 0,
+                session.language || '',
+                session.windowTitle || '', // appName은 windowTitle로 대체
+                session.windowTitle || ''
+              ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(','));
+              
+              exportData = csvHeaders + csvRows.join('\n');
+              mimeType = 'text/csv';
+            } else {
+              // 🔥 JSON 형식으로 내보내기
+              const exportObject = {
+                exportInfo: {
+                  exportDate: new Date().toISOString(),
+                  version: '1.0.0',
+                  sessionCount: sessions.length,
+                  format: 'json'
+                },
+                sessions: sessions.map(session => ({
+                  id: session.id,
+                  startTime: session.startTime?.toISOString(),
+                  endTime: session.endTime?.toISOString(),
+                  duration: session.endTime && session.startTime 
+                    ? session.endTime.getTime() - session.startTime.getTime()
+                    : 0,
+                  wpm: session.wpm,
+                  accuracy: session.accuracy,
+                  keyCount: session.keyCount,
+                  language: session.language,
+                  appName: session.windowTitle.split(' ')[0] || 'Unknown',
+                  windowTitle: session.windowTitle
+                }))
+              };
+              
+              exportData = JSON.stringify(exportObject, null, 2);
+              mimeType = 'application/json';
+            }
+
+            Logger.info('DASHBOARD_IPC', 'Data export completed', {
+              format,
+              sessionCount: sessions.length,
+              filename,
+              dataSize: exportData.length
+            });
+
+            return {
+              filename,
+              data: exportData,
+              mimeType,
+              sessionCount: sessions.length
+            };
+          } catch (error) {
+            Logger.error('DASHBOARD_IPC', 'Error exporting data', { format, error });
+            return null;
+          }
         },
         'DASHBOARD_IPC',
         'Export data'
       )
     );
 
-    console.timeEnd('DASHBOARD_IPC_SETUP');
+    Logger.timeEnd('DASHBOARD_IPC_SETUP');
     Logger.info('DASHBOARD_IPC', 'Dashboard IPC handlers setup successfully', {
       handlerCount: 12,
     });
 
   } catch (error) {
-    console.timeEnd('DASHBOARD_IPC_SETUP');
+    Logger.timeEnd('DASHBOARD_IPC_SETUP');
     Logger.error('DASHBOARD_IPC', 'Failed to setup dashboard IPC handlers', error);
     throw error;
   }

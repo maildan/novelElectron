@@ -52,18 +52,19 @@ declare module 'uiohook-napi' {
     | 'click'
     | 'doubleclick';
 
-  // 인스턴스 확장
-  export class UiohookInstance {
+  // 🔥 기가차드 uIOhook 인스턴스 (실제 사용 패턴 반영)
+  export interface UiohookInstance {
     start(): void;
     stop(): void;
     
-    // 기본 이벤트 리스너
-    on(event: 'keydown' | 'keyup', listener: (event: UiohookKeyEvent) => void): this;
+    // 기본 이벤트 리스너 (실제 uiohook API 반영)
+    on(event: 'keydown' | 'keyup', listener: (event: UiohookKeyboardEvent) => void): this;
     on(event: 'mousedown' | 'mouseup' | 'mousemove', listener: (event: UiohookMouseEvent) => void): this;
     on(event: 'wheel', listener: (event: UiohookWheelEvent) => void): this;
+    on(event: string, listener: Function): this; // 범용 이벤트 오버로드
     
     // Loop 전용 이벤트
-    on(event: 'loop:keystroke', listener: (event: UiohookKeyEvent) => void): this;
+    on(event: 'loop:keystroke', listener: (event: UiohookKeyboardEvent) => void): this;
     on(event: 'loop:session-start', listener: () => void): this;
     on(event: 'loop:session-end', listener: () => void): this;
     

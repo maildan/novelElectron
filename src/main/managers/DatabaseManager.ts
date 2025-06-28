@@ -55,6 +55,10 @@ interface MockPrismaClient {
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
 import { Result, TypingSession, TypingStats, UserPreferences } from '../../shared/types';
+import { existsSync, copyFileSync, statSync, mkdirSync, readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { createHash } from 'crypto';
+import { app } from 'electron';
 
 // #DEBUG: Database manager entry point
 Logger.debug('DATABASE_MANAGER', 'Database manager module loaded');
@@ -476,16 +480,51 @@ export class DatabaseManager extends BaseManager {
    */
   public async createBackup(): Promise<Result<BackupInfo>> {
     try {
-      // TODO: 실제 백업 로직 구현
+      // 백업 디렉토리 생성
+      const userDataPath = app.getPath('userData');
+      const backupDir = join(userDataPath, 'backups');
+      
+      if (!existsSync(backupDir)) {
+        mkdirSync(backupDir, { recursive: true });
+      }
+
+      // 데이터베이스 파일 경로 (SQLite 파일 경로를 가정)
+      const dbPath = join(userDataPath, 'database.db');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupFileName = `loop_backup_${timestamp}.db`;
+      const backupPath = join(backupDir, backupFileName);
+
+      // 데이터베이스 파일이 존재하는지 확인
+      if (!existsSync(dbPath)) {
+        Logger.warn(this.componentName, 'Database file not found for backup', { dbPath });
+        return { 
+          success: false, 
+          error: 'Database file not found' 
+        };
+      }
+
+      // 파일 복사
+      copyFileSync(dbPath, backupPath);
+
+      // 백업 파일 정보 수집
+      const stats = statSync(backupPath);
+      const backupData = readFileSync(backupPath);
+      const checksum = createHash('sha256').update(backupData).digest('hex');
+
       const backupInfo: BackupInfo = {
         id: `backup_${Date.now()}`,
-        path: `./backups/loop_${Date.now()}.db`,
-        size: 0,
+        path: backupPath,
+        size: stats.size,
         created: new Date(),
-        checksum: 'placeholder',
+        checksum: checksum,
       };
 
-      Logger.info(this.componentName, 'Database backup created', backupInfo);
+      Logger.info(this.componentName, 'Database backup created successfully', {
+        path: backupPath,
+        size: stats.size,
+        checksum: checksum.substring(0, 8),
+      });
+
       return { success: true, data: backupInfo };
     } catch (error) {
       Logger.error(this.componentName, 'Failed to create backup', error);
@@ -519,6 +558,40 @@ export class DatabaseManager extends BaseManager {
       return { success: true, data: result.count };
     } catch (error) {
       Logger.error(this.componentName, 'Failed to cleanup old data', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  /**
+   * 타이핑 세션 삭제
+   */
+  public async deleteTypingSession(sessionId: string): Promise<Result<boolean>> {
+    try {
+      if (!this.connectionStatus.connected) {
+        throw new Error('Database not connected');
+      }
+
+      if (!this.prisma) {
+        throw new Error('Prisma client not initialized');
+      }
+
+      // 세션 삭제 (deleteMany 사용)
+      const result = await this.prisma.typingSession.deleteMany({
+        where: { id: sessionId },
+      });
+
+      if (result.count === 0) {
+        Logger.warn(this.componentName, 'Session not found for deletion', { sessionId });
+        return { success: false, error: 'Session not found' };
+      }
+
+      Logger.info(this.componentName, 'Typing session deleted successfully', { 
+        sessionId, 
+        deletedCount: result.count 
+      });
+      return { success: true, data: true };
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to delete typing session', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }

@@ -386,6 +386,33 @@ export class StatsManager extends BaseManager {
   }
 
   /**
+   * 총 키스트로크 수 반환 (모든 세션)
+   */
+  public getTotalKeystrokes(): number {
+    let total = 0;
+    for (const stats of this.statsState.sessionStats.values()) {
+      total += stats.totalKeystrokes || 0;
+    }
+    return total;
+  }
+
+  /**
+   * 현재 세션 지속 시간 반환 (밀리초)
+   */
+  public getSessionDuration(): number {
+    if (!this.currentSessionId || !this.statsState.sessionStats.has(this.currentSessionId)) {
+      return 0;
+    }
+    
+    const sessionStats = this.statsState.sessionStats.get(this.currentSessionId);
+    if (!sessionStats) {
+      return 0;
+    }
+    
+    return sessionStats.sessionDuration || 0;
+  }
+
+  /**
    * 헬스 체크 (BaseManager 오버라이드)
    */
   public async healthCheck(): Promise<{

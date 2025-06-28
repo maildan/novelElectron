@@ -18,6 +18,7 @@ class LoggerService {
   private logLevel: LogLevel = LogLevel.INFO;
   private logs: LogEntry[] = [];
   private maxLogs = 1000;
+  private timers: Map<string, number> = new Map();
 
   setLogLevel(level: LogLevel): void {
     this.logLevel = level;
@@ -94,6 +95,24 @@ class LoggerService {
 
   getLogsByLevel(level: LogLevel): LogEntry[] {
     return this.logs.filter(log => log.level >= level);
+  }
+
+  // 🔥 Timer 기능
+  time(label: string): void {
+    this.timers.set(label, performance.now());
+    this.debug('TIMER', `Timer started: ${label}`);
+  }
+
+  timeEnd(label: string): void {
+    const startTime = this.timers.get(label);
+    if (startTime === undefined) {
+      this.warn('TIMER', `Timer not found: ${label}`);
+      return;
+    }
+    
+    const duration = performance.now() - startTime;
+    this.timers.delete(label);
+    this.info('TIMER', `Timer completed: ${label}`, { duration: `${duration.toFixed(3)}ms` });
   }
 }
 

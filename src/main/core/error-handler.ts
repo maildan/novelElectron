@@ -155,15 +155,12 @@ export class ErrorHandler {
 
   // 🔥 에러 로깅
   private logError(errorInfo: ErrorInfo): void {
-    // #DEBUG: Logging error
-    console.error(`[${errorInfo.timestamp.toISOString()}] ERROR [${errorInfo.component}]`);
-    console.error(`Message: ${errorInfo.message}`);
-    if (errorInfo.stack) {
-      console.error(`Stack: ${errorInfo.stack}`);
-    }
-    if (errorInfo.context) {
-      console.error(`Context:`, errorInfo.context);
-    }
+    // #DEBUG: Logging error using Logger system
+    Logger.error(errorInfo.component, `Error: ${errorInfo.message}`, {
+      stack: errorInfo.stack,
+      context: errorInfo.context,
+      timestamp: errorInfo.timestamp
+    });
   }
 
   // 🔥 에러 큐에 추가

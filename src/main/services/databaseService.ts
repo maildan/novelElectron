@@ -191,6 +191,34 @@ export class DatabaseService {
     }
   }
 
+  // 🔥 타이핑 세션 삭제
+  public async deleteTypingSession(sessionId: string): Promise<Result<boolean>> {
+    try {
+      if (!this.ensureConnection()) {
+        throw new Error('Database not connected');
+      }
+
+      // #DEBUG: Deleting typing session
+      Logger.debug('DATABASE', 'Deleting typing session', { sessionId });
+
+      const deleted = await this.prisma!.typingSession.delete({
+        where: { id: sessionId },
+      });
+
+      if (deleted) {
+        Logger.info('DATABASE', 'Typing session deleted successfully', { sessionId });
+        return createSuccess(true);
+      } else {
+        Logger.warn('DATABASE', 'Session not found for deletion', { sessionId });
+        return createError('Session not found');
+      }
+
+    } catch (error) {
+      Logger.error('DATABASE', 'Failed to delete typing session', error);
+      return createError(error instanceof Error ? error.message : 'Failed to delete session');
+    }
+  }
+
   // 🔥 타이핑 통계 계산
   public async getTypingStats(days = 30): Promise<Result<TypingStats>> {
     try {

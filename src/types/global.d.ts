@@ -104,3 +104,12 @@ export interface KeyMapping {
 
 // 모듈로 만들기 위해 필요
 export {};
+
+// 🔥 GlobalThis 타입 확장 (Loop 애플리케이션 전용)
+declare global {
+  namespace globalThis {
+    var unifiedHandler: import('../main/keyboard/UnifiedHandler').UnifiedHandler | undefined;
+    var windowTracker: import('../main/keyboard/WindowTracker').WindowTracker | undefined;
+    var databaseManager: import('../main/managers/DatabaseManager').DatabaseManager | undefined;
+  }
+}

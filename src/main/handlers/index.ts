@@ -2,6 +2,7 @@
 
 import { Logger } from '../../shared/logger';
 import { setupKeyboardIpcHandlers } from './keyboardIpcHandlers';
+import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -45,7 +46,12 @@ export class HandlersManager {
           'keyboard:set-language',
           'keyboard:get-recent-events',
         ]),
-        // TODO: 추가 핸들러들
+        this.setupHandler('dashboard', () => setupDashboardIpcHandlers(), [
+          'dashboard:get-stats',
+          'dashboard:get-sessions',
+          'dashboard:export-data',
+        ]),
+        
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),
         // this.setupHandler('settings', () => setupSettingsIpcHandlers(), [...]),
         // this.setupHandler('screenshot', () => setupScreenshotIpcHandlers(), [...]),
@@ -177,7 +183,7 @@ export class HandlersManager {
         case 'keyboard':
           setupKeyboardIpcHandlers();
           break;
-        // TODO: 다른 핸들러들 추가
+        // 추가 핸들러들은 필요시 확장 가능
         default:
           Logger.warn('HANDLERS_INDEX', `Unknown handler type: ${name}`);
           return false;
