@@ -81,6 +81,27 @@ function validateAppSettings(app: unknown): SettingsResult<unknown> {
     }
   }
 
+  // 자동 시작 검증 - 더 엄격하게
+  if (appSettings.autoStart !== undefined) {
+    if (typeof appSettings.autoStart !== 'boolean') {
+      return { success: false, error: 'Auto start must be a boolean' };
+    }
+  }
+
+  // 최소화 상태로 시작 검증 - 더 엄격하게
+  if (appSettings.startMinimized !== undefined) {
+    if (typeof appSettings.startMinimized !== 'boolean') {
+      return { success: false, error: 'Start minimized must be a boolean' };
+    }
+  }
+
+  // 시스템 트레이 사용 검증 - 더 엄격하게
+  if (appSettings.useSystemTray !== undefined) {
+    if (typeof appSettings.useSystemTray !== 'boolean') {
+      return { success: false, error: 'Use system tray must be a boolean' };
+    }
+  }
+
   // 윈도우 경계 검증 - 더 엄격하게
   if (appSettings.windowBounds !== undefined) {
     if (!appSettings.windowBounds || typeof appSettings.windowBounds !== 'object') {

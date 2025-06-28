@@ -175,12 +175,8 @@ export class SettingsManager extends BaseManager {
         };
       }
       
-      // 값 변경 (object면 병합, 아니면 그대로)
-      if (typeof DEFAULT_SETTINGS[key] === 'object' && DEFAULT_SETTINGS[key] !== null && !Array.isArray(DEFAULT_SETTINGS[key])) {
-        this.settings[key] = { ...(DEFAULT_SETTINGS[key] as object), ...(value as object) } as SettingsSchema[K];
-      } else {
-        this.settings[key] = value;
-      }
+      // 값 변경 (사용자가 제공한 값을 그대로 사용)
+      this.settings[key] = value;
       this.settings.lastModified = new Date();
       
       // 변경 이벤트 발생
