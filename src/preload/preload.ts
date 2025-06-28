@@ -38,7 +38,16 @@ interface ElectronAPI {
   keyboard: {
     startMonitoring: () => Promise<IpcResponse<boolean>>;
     stopMonitoring: () => Promise<IpcResponse<boolean>>;
-    getStatus: () => Promise<IpcResponse<boolean>>;
+    getStatus: () => Promise<IpcResponse<{ isActive: boolean; startTime?: Date; sessionDuration: number; language: string }>>;
+    getRealtimeStats: () => Promise<IpcResponse<{
+      currentWPM: number;
+      averageWPM: number;
+      totalKeystrokes: number;
+      sessionDuration: number;
+      accuracy: number;
+      charactersTyped: number;
+      errorsCount: number;
+    }>>;
     onEvent: (callback: (event: unknown) => void) => void;
     removeEventListener: () => void;
   };
@@ -111,6 +120,7 @@ const electronAPI: ElectronAPI = {
     startMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.START_MONITORING),
     stopMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.STOP_MONITORING),
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.GET_STATUS),
+    getRealtimeStats: () => ipcRenderer.invoke('keyboard:get-realtime-stats'),
     onEvent: (callback: (event: unknown) => void) => {
       ipcRenderer.on(IPC_CHANNELS.KEYBOARD.EVENT, (_event, data) => callback(data));
     },

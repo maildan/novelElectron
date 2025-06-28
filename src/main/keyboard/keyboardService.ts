@@ -6,6 +6,7 @@ import { KEYBOARD_LANGUAGES, perf } from '../../shared/common';
 import { EventEmitter } from 'events';
 import type { UiohookKeyboardEvent, UiohookInstance } from 'uiohook-napi';
 import { WindowTracker } from './WindowTracker';
+import { StatsManager, RealtimeStats } from './StatsManager';
 
 // #DEBUG: Keyboard service entry point
 Logger.debug('KEYBOARD', 'Keyboard service initialization started');
@@ -45,10 +46,12 @@ export class KeyboardService extends EventEmitter {
   private eventBuffer: ProcessedKeyboardEvent[] = [];
   private performanceTracker = perf;
   private windowTracker: WindowTracker; // 🔥 윈도우 추적기 추가
+  private statsManager: StatsManager; // 🔥 통계 관리자 추가
   
   constructor() {
     super();
     this.windowTracker = new WindowTracker();
+    this.statsManager = new StatsManager();
     this.initializeUiohook();
   }
 
@@ -96,6 +99,10 @@ export class KeyboardService extends EventEmitter {
       // 모니터링 시작
       this.uiohook.start();
       
+      // StatsManager 시작
+      await this.statsManager.initialize();
+      await this.statsManager.start();
+      
       this.state.isActive = true;
       this.state.startTime = new Date();
       this.state.totalEvents = 0;
@@ -142,6 +149,9 @@ export class KeyboardService extends EventEmitter {
         this.uiohook.removeAllListeners();
       }
 
+      // StatsManager 중지
+      await this.statsManager.stop();
+
       this.state.isActive = false;
       this.state.startTime = null;
       
@@ -167,7 +177,7 @@ export class KeyboardService extends EventEmitter {
   }
 
   // 🔥 키보드 이벤트 처리 (다국어 지원)
-  private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): void {
+  private async handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
     try {
       // #DEBUG: Processing keyboard event
       const processingStart = performance.now();
@@ -206,6 +216,16 @@ export class KeyboardService extends EventEmitter {
       // 통계 업데이트
       this.state.totalEvents++;
       this.updateEventsPerSecond();
+
+      // StatsManager에 이벤트 전달
+      await this.statsManager.processKeyEvent({
+        key: processedEvent.key,
+        code: processedEvent.code,
+        keychar: processedEvent.keychar,
+        timestamp: processedEvent.timestamp,
+        windowTitle: processedEvent.windowTitle,
+        type: processedEvent.type,
+      });
 
       // 이벤트 발송
       this.emit('keyboard-event', processedEvent);
@@ -403,6 +423,30 @@ export class KeyboardService extends EventEmitter {
     });
     
     return true;
+  }
+
+  // 🔥 실시간 통계 조회
+  public async getRealtimeStats(): Promise<IpcResponse<RealtimeStats>> {
+    try {
+      // #DEBUG: Getting realtime stats
+      Logger.debug('KEYBOARD', 'Getting realtime stats');
+      
+      // StatsManager에서 실시간 통계 가져오기
+      const stats = this.statsManager.getRealtimeStats();
+      
+      return {
+        success: true,
+        data: stats,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to get realtime stats', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
   }
 }
 

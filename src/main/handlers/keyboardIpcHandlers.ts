@@ -91,6 +91,20 @@ export function setupKeyboardIpcHandlers(): void {
       )
     );
 
+    // 🔥 실시간 통계 조회
+    ipcMain.handle(
+      'keyboard:get-realtime-stats',
+      createSafeIpcHandler(
+        (event: unknown) => {
+          // #DEBUG: IPC call - get realtime stats
+          Logger.debug('KEYBOARD_IPC', 'IPC: Realtime stats requested');
+          return keyboardService.getRealtimeStats();
+        },
+        'KEYBOARD_IPC',
+        'Get realtime typing stats'
+      )
+    );
+
     // 🔥 키보드 이벤트 포워딩 설정
     keyboardService.on('keyboard-event', (event: unknown) => {
       // #DEBUG: Forwarding keyboard event to renderer
