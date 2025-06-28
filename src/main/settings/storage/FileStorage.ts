@@ -17,10 +17,17 @@ export class FileStorage implements SettingsStorage {
   private readonly backupPath: string;
   private readonly componentName = 'FILE_STORAGE';
 
-  constructor() {
-    const userDataPath = app.getPath('userData');
-    this.settingsPath = join(userDataPath, 'settings.json');
-    this.backupPath = join(userDataPath, 'settings.backup.json');
+  constructor(customPath?: string) {
+    if (customPath) {
+      // 테스트용 커스텀 경로
+      this.settingsPath = customPath;
+      this.backupPath = customPath.replace('.json', '.backup.json');
+    } else {
+      // 프로덕션용 기본 경로
+      const userDataPath = app.getPath('userData');
+      this.settingsPath = join(userDataPath, 'settings.json');
+      this.backupPath = join(userDataPath, 'settings.backup.json');
+    }
     
     Logger.debug(this.componentName, `Settings path: ${this.settingsPath}`);
   }

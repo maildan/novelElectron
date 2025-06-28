@@ -83,18 +83,16 @@ export class SettingsManager extends BaseManager {
    */
   private async loadSettings(): Promise<void> {
     try {
-      const savedSettings = await this.storage.load();
-      
+      const loadResult = await this.storage.load();
+      const savedSettings = loadResult && 'data' in loadResult ? loadResult.data : loadResult;
       // 기본값과 병합
-      this.settings = this.mergeWithDefaults(savedSettings);
-      
+      this.settings = this.mergeWithDefaults(savedSettings as Partial<SettingsSchema>);
       // 설정 검증
       const validationResult = validateSettings(this.settings);
       if (!validationResult.success) {
         Logger.warn(this.componentName, 'Settings validation failed, using defaults', validationResult.error);
         this.settings = { ...DEFAULT_SETTINGS };
       }
-      
       Logger.info(this.componentName, 'Settings loaded successfully');
     } catch (error) {
       Logger.error(this.componentName, 'Failed to load settings, using defaults', error);
@@ -177,8 +175,12 @@ export class SettingsManager extends BaseManager {
         };
       }
       
-      // 값 변경
-      this.settings[key] = value;
+      // 값 변경 (object면 병합, 아니면 그대로)
+      if (typeof DEFAULT_SETTINGS[key] === 'object' && DEFAULT_SETTINGS[key] !== null && !Array.isArray(DEFAULT_SETTINGS[key])) {
+        this.settings[key] = { ...(DEFAULT_SETTINGS[key] as object), ...(value as object) } as SettingsSchema[K];
+      } else {
+        this.settings[key] = value;
+      }
       this.settings.lastModified = new Date();
       
       // 변경 이벤트 발생
