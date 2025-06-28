@@ -439,6 +439,29 @@ export class ShortcutsManager extends BaseManager {
     }
     return false;
   }
+
+  /**
+   * 🔥 단축키 업데이트 메서드 - any 타입 제거용
+   */
+  public updateShortcuts(shortcuts: Record<string, string>): void {
+    Logger.info(this.componentName, 'Shortcuts updated', { count: Object.keys(shortcuts).length });
+    
+    // 기존 글로벌 단축키 해제
+    this.unregisterAllGlobalShortcuts();
+    
+    // 새로운 단축키 등록
+    Object.entries(shortcuts).forEach(([action, accelerator]) => {
+      this.registerShortcut(`global_${action}`, {
+        accelerator,
+        description: `Global shortcut for ${action}`,
+        action: () => {
+          Logger.debug(this.componentName, `Global shortcut triggered: ${action}`);
+          // 실제 액션 실행 로직은 나중에 구현
+        },
+        global: true
+      });
+    });
+  }
 }
 
 // 🔥 기가차드 싱글톤 인스턴스

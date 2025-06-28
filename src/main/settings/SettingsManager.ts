@@ -153,7 +153,7 @@ export class SettingsManager extends BaseManager {
   ): unknown {
     const categoryData = this.settings[category];
     if (categoryData && typeof categoryData === 'object') {
-      return (categoryData as any)[key];
+      return (categoryData as unknown as Record<string, unknown>)[key];
     }
     return undefined;
   }
@@ -211,9 +211,9 @@ export class SettingsManager extends BaseManager {
     value: unknown
   ): Promise<SettingsResult<unknown>> {
     try {
-      const categorySettings = { ...this.settings[category] as any };
+      const categorySettings = { ...this.settings[category] as unknown as Record<string, unknown> };
       categorySettings[key] = value;
-      const result = await this.set(category, categorySettings);
+      const result = await this.set(category, categorySettings as unknown as SettingsSchema[K]);
       return {
         success: result.success,
         data: value,

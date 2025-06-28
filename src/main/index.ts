@@ -258,9 +258,9 @@ class LoopApplication {
           newValue: event.newValue?.colorScheme
         });
         
-        // 메뉴 관리자에 테마 변경 알림 (메서드가 있는 경우에만)
-        if (this.menuManager && 'updateTheme' in this.menuManager) {
-          (this.menuManager as any).updateTheme(event.newValue?.colorScheme || 'blue');
+        // 메뉴 관리자에 테마 변경 알림
+        if (this.menuManager) {
+          this.menuManager.updateTheme(event.newValue?.colorScheme || 'blue');
         }
       });
 
@@ -277,9 +277,9 @@ class LoopApplication {
           this.trayManager.toggleTrayVisibility();
         }
 
-        // 언어 변경 시 메뉴 업데이트 (메서드가 있는 경우에만)
-        if (this.menuManager && 'updateLanguage' in this.menuManager && event.oldValue?.language !== event.newValue?.language) {
-          (this.menuManager as any).updateLanguage(event.newValue?.language || 'ko');
+        // 언어 변경 시 메뉴 업데이트
+        if (this.menuManager && event.oldValue?.language !== event.newValue?.language) {
+          this.menuManager.updateLanguage(event.newValue?.language || 'ko');
         }
       });
 
@@ -291,9 +291,9 @@ class LoopApplication {
           shortcuts: event.newValue?.globalShortcuts
         });
 
-        // 단축키 관리자에 변경 알림 (메서드가 있는 경우에만)
-        if (this.shortcutsManager && 'updateShortcuts' in this.shortcutsManager) {
-          (this.shortcutsManager as any).updateShortcuts(event.newValue?.globalShortcuts || {});
+        // 단축키 관리자에 변경 알림
+        if (this.shortcutsManager) {
+          this.shortcutsManager.updateShortcuts(event.newValue?.globalShortcuts || {});
         }
       });
 
@@ -312,9 +312,15 @@ class LoopApplication {
           retentionPeriod: event.newValue?.retentionPeriod
         });
 
-        // 데이터 동기화 관리자에 변경 알림 (메서드가 있는 경우에만)
-        if (this.dataSyncManager && 'updateRetentionPolicy' in this.dataSyncManager) {
-          (this.dataSyncManager as any).updateRetentionPolicy(event.newValue || {});
+        // 데이터 동기화 관리자에 변경 알림
+        if (this.dataSyncManager) {
+          this.dataSyncManager.updateRetentionPolicy(event.newValue || {
+            retentionPeriod: 30,
+            autoDeleteOldData: false,
+            enableDataArchive: true,
+            typingData: { enabled: true, retentionDays: 30, enableCompression: false },
+            keystrokeData: { enabled: true, retentionDays: 7, enableAggregation: true }
+          });
         }
       });
 

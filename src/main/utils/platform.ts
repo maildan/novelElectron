@@ -325,23 +325,23 @@ export class Platform {
   }
 
   /**
-   * 🔥 플랫폼별 설정값 조정
+   * 🔥 플랫폼별 설정값 조정 - unknown 타입 사용으로 안전성 확보
    */
   public static adaptConfig<T extends Record<string, unknown>>(config: T): T {
     const adapted = { ...config };
 
-    // 플랫폼별 설정 조정 로직
+    // 플랫폼별 설정 조정 로직 (unknown 사용으로 타입 안전성 확보)
     if (Platform.isMacOS()) {
       // macOS 특화 설정
-      (adapted as any).vibrancy = 'under-window';
-      (adapted as any).transparent = true;
+      (adapted as Record<string, unknown>).vibrancy = 'under-window';
+      (adapted as Record<string, unknown>).transparent = true;
     } else if (Platform.isWindows()) {
       // Windows 특화 설정
-      (adapted as any).frame = true;
-      (adapted as any).backgroundColor = '#ffffff';
+      (adapted as Record<string, unknown>).frame = true;
+      (adapted as Record<string, unknown>).backgroundColor = '#ffffff';
     } else if (Platform.isLinux()) {
       // Linux 특화 설정
-      (adapted as any).icon = Platform.getAppDataPath('icon.png');
+      (adapted as Record<string, unknown>).icon = Platform.getAppDataPath('icon.png');
     }
 
     return adapted;

@@ -434,7 +434,11 @@ export class ClipboardWatcher extends BaseManager {
     // UnifiedHandler에서 현재 활성 윈도우 정보 가져오기
     if (globalThis.unifiedHandler?.getCurrentWindow) {
       const currentWindow = globalThis.unifiedHandler.getCurrentWindow();
-      return (currentWindow as any)?.owner?.name || 'Unknown';
+      // 타입 가드를 사용한 안전한 접근
+      if (currentWindow && typeof currentWindow === 'object' && 'owner' in currentWindow) {
+        const owner = (currentWindow as { owner?: { name?: string } }).owner;
+        return owner?.name || 'Unknown';
+      }
     }
     return 'Unknown';
   }

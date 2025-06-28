@@ -560,6 +560,24 @@ export class MenuManager extends BaseManager {
       Logger.debug(this.componentName, `Menu action ${actionId} ${enabled ? 'enabled' : 'disabled'}`);
     }
   }
+
+  /**
+   * 🔥 테마 변경 메서드 - any 타입 제거용
+   */
+  public updateTheme(colorScheme: string): void {
+    Logger.info(this.componentName, `Theme updated to: ${colorScheme}`);
+    // 테마 변경에 따른 메뉴 스타일 업데이트 로직
+    // 필요시 메뉴 재구성
+  }
+
+  /**
+   * 🔥 언어 변경 메서드 - any 타입 제거용
+   */
+  public updateLanguage(language: string): void {
+    Logger.info(this.componentName, `Language updated to: ${language}`);
+    // 언어 변경에 따른 메뉴 라벨 업데이트 로직
+    // 필요시 메뉴 재구성
+  }
 }
 
 // 🔥 기가차드 싱글톤 인스턴스

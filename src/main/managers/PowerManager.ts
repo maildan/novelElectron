@@ -211,7 +211,7 @@ export class PowerManager extends BaseManager {
     }
 
     // 열 상태 변경 (macOS)
-    if (Platform.isMacOS() && (powerMonitor as any).getThermalState) {
+    if (Platform.isMacOS() && 'getThermalState' in powerMonitor) {
       powerMonitor.on('thermal-state-change', () => {
         this.updateThermalState();
       });
@@ -338,8 +338,8 @@ export class PowerManager extends BaseManager {
     Logger.info(this.componentName, 'System suspend detected');
     
     // 키보드 모니터링 일시중지 (필요시)
-    if (globalThis.unifiedHandler) {
-      (globalThis.unifiedHandler as any).pauseMonitoring?.();
+    if (globalThis.unifiedHandler && 'pauseMonitoring' in globalThis.unifiedHandler) {
+      (globalThis.unifiedHandler as { pauseMonitoring(): void }).pauseMonitoring();
     }
   }
 
@@ -350,8 +350,8 @@ export class PowerManager extends BaseManager {
     Logger.info(this.componentName, 'System resume detected');
     
     // 키보드 모니터링 재개 (필요시)
-    if (globalThis.unifiedHandler) {
-      (globalThis.unifiedHandler as any).resumeMonitoring?.();
+    if (globalThis.unifiedHandler && 'resumeMonitoring' in globalThis.unifiedHandler) {
+      (globalThis.unifiedHandler as { resumeMonitoring(): void }).resumeMonitoring();
     }
     
     // 전력 상태 업데이트
@@ -457,8 +457,8 @@ export class PowerManager extends BaseManager {
     this.currentStatus.powerSaveMode = true;
     
     // 키보드 모니터링 폴링 간격 늘리기
-    if (globalThis.unifiedHandler) {
-      (globalThis.unifiedHandler as any).setBatteryOptimization?.(true);
+    if (globalThis.unifiedHandler && 'setBatteryOptimization' in globalThis.unifiedHandler) {
+      (globalThis.unifiedHandler as { setBatteryOptimization(enabled: boolean): void }).setBatteryOptimization(true);
     }
     
     this.emit('battery-save-enabled');
@@ -473,8 +473,8 @@ export class PowerManager extends BaseManager {
     this.currentStatus.powerSaveMode = false;
     
     // 키보드 모니터링 성능 복원
-    if (globalThis.unifiedHandler) {
-      (globalThis.unifiedHandler as any).setBatteryOptimization?.(false);
+    if (globalThis.unifiedHandler && 'setBatteryOptimization' in globalThis.unifiedHandler) {
+      (globalThis.unifiedHandler as { setBatteryOptimization(enabled: boolean): void }).setBatteryOptimization(false);
     }
     
     this.emit('performance-mode-restored');
@@ -497,8 +497,8 @@ export class PowerManager extends BaseManager {
     Logger.debug(this.componentName, 'Enabling idle power save');
     
     // 불필요한 백그라운드 작업 일시중지
-    if (globalThis.unifiedHandler) {
-      (globalThis.unifiedHandler as any).reduceBackgroundActivity?.();
+    if (globalThis.unifiedHandler && 'reduceBackgroundActivity' in globalThis.unifiedHandler) {
+      (globalThis.unifiedHandler as { reduceBackgroundActivity(): void }).reduceBackgroundActivity();
     }
   }
 
