@@ -3,6 +3,7 @@
 import { app, BrowserWindow } from 'electron';
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
+import { Platform } from '../utils/platform';
 
 // #DEBUG: App lifecycle manager entry point
 Logger.debug('APP_LIFECYCLE', 'App lifecycle manager module loaded');
@@ -131,7 +132,7 @@ export class AppLifecycle extends BaseManager {
       this.addEvent('windows-all-closed', this.currentState);
       
       // macOS가 아니면 앱 종료
-      if (process.platform !== 'darwin') {
+      if (!Platform.isMacOS()) {
         this.gracefulQuit();
       }
     });

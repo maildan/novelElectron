@@ -1,6 +1,7 @@
 // 🔥 기가차드 환경 감지 유틸리티
 
 import { Logger } from '../../shared/logger';
+import { Platform } from './platform';
 
 // #DEBUG: Environment utils entry point
 Logger.debug('ENVIRONMENT', 'Environment utility module loaded');
@@ -51,7 +52,7 @@ export class EnvironmentDetector {
       isTest: nodeEnv === 'test',
       isElectron: typeof process !== 'undefined' && 'electron' in process.versions,
       isPackaged: process.env.NODE_ENV === 'production' || !process.env.ELECTRON_IS_DEV,
-      platform: process.platform,
+      platform: Platform.getCurrentPlatform(),
       arch: process.arch,
       nodeVersion: process.version,
       electronVersion: process.versions.electron,
@@ -90,24 +91,24 @@ export class EnvironmentDetector {
     return this.environmentInfo.isPackaged;
   }
 
-  // 🔥 플랫폼 확인
+  // 🔥 플랫폼 확인 (Platform 모듈 위임)
   public isPlatform(platform: NodeJS.Platform): boolean {
-    return this.environmentInfo.platform === platform;
+    return Platform.getCurrentPlatform() === platform;
   }
 
-  // 🔥 macOS 여부
+  // 🔥 macOS 여부 (Platform 모듈 위임)
   public isMacOS(): boolean {
-    return this.isPlatform('darwin');
+    return Platform.isMacOS();
   }
 
-  // 🔥 Windows 여부
+  // 🔥 Windows 여부 (Platform 모듈 위임)
   public isWindows(): boolean {
-    return this.isPlatform('win32');
+    return Platform.isWindows();
   }
 
-  // 🔥 Linux 여부
+  // 🔥 Linux 여부 (Platform 모듈 위임)
   public isLinux(): boolean {
-    return this.isPlatform('linux');
+    return Platform.isLinux();
   }
 
   // 🔥 디버그 모드 여부

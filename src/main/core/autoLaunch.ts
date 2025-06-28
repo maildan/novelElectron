@@ -3,6 +3,7 @@
 import { app } from 'electron';
 import { Logger } from '../../shared/logger';
 import { isObject } from '../../shared/common';
+import { Platform } from '../utils/platform';
 
 // #DEBUG: Auto-launch manager entry point
 Logger.debug('AUTO_LAUNCH', 'Auto-launch manager module loaded');
@@ -25,7 +26,7 @@ export class AutoLaunchManager {
       enabled: false,
       minimized: true,
       delay: 5,
-      platform: process.platform
+      platform: Platform.getCurrentPlatform()
     };
     
     this.loadAutoLaunchConfig();

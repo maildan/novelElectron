@@ -9,6 +9,11 @@ import { errorHandler } from './core/error-handler';
 import { keyboardService } from './keyboard/keyboardService';
 import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
+import { initializeSettings, cleanupSettings } from './settings';
+import { BrowserDetector } from './managers/BrowserDetector';
+import { MemoryManager } from './managers/MemoryManager';
+import { DataSyncManager } from './managers/DataSyncManager';
+import { Platform } from './utils/platform';
 
 // #DEBUG: Main index module entry point
 Logger.debug('MAIN_INDEX', 'Main index module loaded');
@@ -17,10 +22,42 @@ Logger.debug('MAIN_INDEX', 'Main index module loaded');
 class LoopApplication {
   private isInitialized = false;
   private mainWindow: BrowserWindow | null = null;
+  private browserDetector: BrowserDetector | null = null;
+  private memoryManager: MemoryManager | null = null;
+  private dataSyncManager: DataSyncManager | null = null;
 
   constructor() {
     Logger.info('MAIN_INDEX', 'Loop application instance created');
     this.setupEventHandlers();
+  }
+
+  // 🔥 새로운 매니저들 초기화
+  private async initializeNewManagers(): Promise<void> {
+    try {
+      Logger.debug('MAIN_INDEX', 'Initializing new managers');
+
+      // 브라우저 감지기 초기화
+      this.browserDetector = new BrowserDetector();
+      await this.browserDetector.initialize();
+      await this.browserDetector.start();
+      Logger.info('MAIN_INDEX', 'Browser detector initialized');
+
+      // 메모리 관리자 초기화
+      this.memoryManager = new MemoryManager();
+      await this.memoryManager.initialize();
+      await this.memoryManager.start();
+      Logger.info('MAIN_INDEX', 'Memory manager initialized');
+
+      // 데이터 동기화 관리자 초기화
+      this.dataSyncManager = new DataSyncManager();
+      await this.dataSyncManager.initialize();
+      Logger.info('MAIN_INDEX', 'Data sync manager initialized');
+
+      Logger.info('MAIN_INDEX', 'All new managers initialized successfully');
+    } catch (error) {
+      Logger.error('MAIN_INDEX', 'Failed to initialize new managers', error);
+      throw error;
+    }
   }
 
   // 🔥 애플리케이션 초기화
@@ -31,6 +68,14 @@ class LoopApplication {
 
       // 보안 관리자는 이미 초기화됨 (싱글톤)
       Logger.info('MAIN_INDEX', 'Security manager ready');
+
+      // Settings 시스템 초기화
+      await initializeSettings();
+      Logger.info('MAIN_INDEX', 'Settings system initialized');
+
+      // 새로운 매니저들 초기화
+      await this.initializeNewManagers();
+      Logger.info('MAIN_INDEX', 'New managers initialized');
 
       // 자동 실행 설정
       if (app.isPackaged) {
@@ -113,7 +158,7 @@ class LoopApplication {
       Logger.debug('MAIN_INDEX', 'All windows closed');
       
       // macOS가 아니면 앱 종료
-      if (process.platform !== 'darwin') {
+      if (!Platform.isMacOS()) {
         this.shutdown();
       }
     });
@@ -169,6 +214,42 @@ class LoopApplication {
     }
   }
 
+  // 🔥 새로운 매니저들 정리
+  private async cleanupNewManagers(): Promise<void> {
+    try {
+      Logger.debug('MAIN_INDEX', 'Cleaning up new managers');
+
+      // 데이터 동기화 관리자 정리
+      if (this.dataSyncManager) {
+        await this.dataSyncManager.stop();
+        await this.dataSyncManager.cleanup();
+        this.dataSyncManager = null;
+        Logger.info('MAIN_INDEX', 'Data sync manager cleaned up');
+      }
+
+      // 메모리 관리자 정리
+      if (this.memoryManager) {
+        await this.memoryManager.stop();
+        await this.memoryManager.cleanup();
+        this.memoryManager = null;
+        Logger.info('MAIN_INDEX', 'Memory manager cleaned up');
+      }
+
+      // 브라우저 감지기 정리
+      if (this.browserDetector) {
+        await this.browserDetector.stop();
+        await this.browserDetector.cleanup();
+        this.browserDetector = null;
+        Logger.info('MAIN_INDEX', 'Browser detector cleaned up');
+      }
+
+      Logger.info('MAIN_INDEX', 'All new managers cleaned up successfully');
+    } catch (error) {
+      Logger.error('MAIN_INDEX', 'Error cleaning up new managers', error);
+      // 정리 중 에러는 로그만 남기고 계속 진행
+    }
+  }
+
   // 🔥 애플리케이션 종료
   private async shutdown(): Promise<void> {
     try {
@@ -177,6 +258,14 @@ class LoopApplication {
       // 키보드 서비스 정지
       await keyboardService.stopMonitoring();
       Logger.info('MAIN_INDEX', 'Keyboard service stopped');
+
+      // 새로운 매니저들 정리
+      await this.cleanupNewManagers();
+      Logger.info('MAIN_INDEX', 'New managers cleaned up');
+
+      // Settings 시스템 정리
+      await cleanupSettings();
+      Logger.info('MAIN_INDEX', 'Settings system cleaned up');
 
       // 윈도우 정리
       if (this.mainWindow && !this.mainWindow.isDestroyed()) {

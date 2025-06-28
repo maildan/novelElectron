@@ -5,6 +5,7 @@ import uIOhook from 'uiohook-napi';
 import { app } from 'electron';
 import * as os from 'os';
 import * as fs from 'fs/promises';
+import { Platform } from '../utils/platform';
 
 /**
  * 🔥 HealthCheckManager - 시스템 및 키보드 모니터링 건강 상태 관리
@@ -226,7 +227,7 @@ export class HealthCheckManager extends BaseManager {
         message: 'Keyboard hook functioning',
         details: { 
           hookRegistered: true,
-          platform: os.platform(),
+          platform: Platform.getCurrentPlatform(),
           arch: os.arch()
         },
         issues: [],
@@ -251,11 +252,11 @@ export class HealthCheckManager extends BaseManager {
     try {
       const issues: string[] = [];
       const details: Record<string, unknown> = {
-        platform: os.platform()
+        platform: Platform.getCurrentPlatform()
       };
 
       // macOS 접근성 권한 체크
-      if (os.platform() === 'darwin') {
+      if (Platform.isMacOS()) {
         // 실제로는 systemPreferences.isTrustedAccessibilityClient() 사용
         const hasAccessibility = true; // 플레이스홀더
         details.accessibilityPermission = hasAccessibility;

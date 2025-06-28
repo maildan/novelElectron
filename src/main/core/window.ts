@@ -6,6 +6,7 @@ import isDev from 'electron-is-dev';
 import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { isObject } from '../../shared/common';
+import { Platform } from '../utils/platform';
 
 // #DEBUG: Window manager entry point
 Logger.debug('WINDOW', 'Window manager module loaded');
@@ -45,7 +46,7 @@ export class WindowManager {
         minHeight: 600,
         show: false,
         center: true,
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        titleBarStyle: Platform.isMacOS() ? 'hiddenInset' : 'default',
       };
 
       const window = new BrowserWindow({
@@ -164,13 +165,13 @@ export class WindowManager {
     });
   }
 
-  // 🔥 앱 아이콘 경로 가져오기
+  // 🔥 앱 아이콘 경로 가져오기 (Platform 모듈 사용)
   private getAppIcon(): string | undefined {
     // #DEBUG: Getting app icon
     try {
-      if (process.platform === 'win32') {
+      if (Platform.isWindows()) {
         return join(__dirname, '../../assets/icon.ico');
-      } else if (process.platform === 'darwin') {
+      } else if (Platform.isMacOS()) {
         return join(__dirname, '../../assets/icon.icns');
       } else {
         return join(__dirname, '../../assets/icon.png');

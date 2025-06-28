@@ -3,6 +3,7 @@
 import { Logger } from '../../shared/logger';
 import { setupKeyboardIpcHandlers } from './keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
+import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -50,6 +51,16 @@ export class HandlersManager {
           'dashboard:get-stats',
           'dashboard:get-sessions',
           'dashboard:export-data',
+        ]),
+        this.setupHandler('settings', () => setupSettingsIpcHandlers(), [
+          'settings:get-all',
+          'settings:get-category',
+          'settings:get-value',
+          'settings:set-category',
+          'settings:set-value',
+          'settings:reset',
+          'settings:backup',
+          'settings:restore',
         ]),
         
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),

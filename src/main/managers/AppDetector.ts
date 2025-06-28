@@ -2,6 +2,7 @@ import { BaseManager } from '../common/BaseManager';
 import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { EventEmitter } from 'events';
+import { Platform } from '../utils/platform';
 import * as path from 'path';
 
 // macOS용 네이티브 모듈 (실제로는 addon이나 exec 사용)
@@ -163,15 +164,14 @@ export class AppDetector extends BaseManager {
   private async detectActiveWindow(): Promise<WindowInfo | null> {
     try {
       // 플랫폼별 구현
-      switch (process.platform) {
-        case 'darwin':
-          return await this.detectActiveWindowMacOS();
-        case 'win32':
-          return await this.detectActiveWindowWindows();
-        case 'linux':
-          return await this.detectActiveWindowLinux();
-        default:
-          throw new Error(`Unsupported platform: ${process.platform}`);
+      if (Platform.isMacOS()) {
+        return await this.detectActiveWindowMacOS();
+      } else if (Platform.isWindows()) {
+        return await this.detectActiveWindowWindows();
+      } else if (Platform.isLinux()) {
+        return await this.detectActiveWindowLinux();
+      } else {
+        throw new Error(`Unsupported platform: ${Platform.current().platform}`);
       }
     } catch (error) {
       Logger.error(this.componentName, 'Failed to detect active window', error);
