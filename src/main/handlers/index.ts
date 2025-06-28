@@ -4,6 +4,7 @@ import { Logger } from '../../shared/logger';
 import { setupKeyboardIpcHandlers } from './keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
 import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
+import { setupTrayIpcHandlers } from './trayIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -62,9 +63,17 @@ export class HandlersManager {
           'settings:backup',
           'settings:restore',
         ]),
+        this.setupHandler('tray', () => setupTrayIpcHandlers(), [
+          'tray:get-info',
+          'tray:set-monitoring-status',
+          'tray:update-stats',
+          'tray:show-success',
+          'tray:show-error',
+          'tray:toggle-visibility',
+          'tray:test',
+        ]),
         
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),
-        // this.setupHandler('settings', () => setupSettingsIpcHandlers(), [...]),
         // this.setupHandler('screenshot', () => setupScreenshotIpcHandlers(), [...]),
       ];
 

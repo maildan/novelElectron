@@ -10,9 +10,14 @@ import { keyboardService } from './keyboard/keyboardService';
 import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
 import { initializeSettings, cleanupSettings } from './settings';
+import { getSettingsManager } from './settings';
+import type { SettingsChangeEvent, UISettingsSchema, AppSettingsSchema, KeyboardSettingsSchema, NotificationSettingsSchema, DataRetentionSettingsSchema } from './settings/types';
 import { BrowserDetector } from './managers/BrowserDetector';
 import { MemoryManager } from './managers/MemoryManager';
 import { DataSyncManager } from './managers/DataSyncManager';
+import { getMenuManager } from './managers/MenuManager';
+import { getShortcutsManager } from './managers/ShortcutsManager';
+import { getTrayManager } from './managers/TrayManager';
 import { Platform } from './utils/platform';
 
 // #DEBUG: Main index module entry point
@@ -25,6 +30,9 @@ class LoopApplication {
   private browserDetector: BrowserDetector | null = null;
   private memoryManager: MemoryManager | null = null;
   private dataSyncManager: DataSyncManager | null = null;
+  private menuManager: import('./managers/MenuManager').MenuManager | null = null;
+  private shortcutsManager: import('./managers/ShortcutsManager').ShortcutsManager | null = null;
+  private trayManager: import('./managers/TrayManager').TrayManager | null = null;
 
   constructor() {
     Logger.info('MAIN_INDEX', 'Loop application instance created');
@@ -52,6 +60,27 @@ class LoopApplication {
       this.dataSyncManager = new DataSyncManager();
       await this.dataSyncManager.initialize();
       Logger.info('MAIN_INDEX', 'Data sync manager initialized');
+
+      // 메뉴 관리자 초기화
+      this.menuManager = getMenuManager();
+      await this.menuManager.initialize();
+      await this.menuManager.start();
+      Logger.info('MAIN_INDEX', 'Menu manager initialized');
+
+      // 단축키 관리자 초기화
+      this.shortcutsManager = getShortcutsManager();
+      await this.shortcutsManager.initialize();
+      await this.shortcutsManager.start();
+      Logger.info('MAIN_INDEX', 'Shortcuts manager initialized');
+
+      // 트레이 관리자 초기화 (설정에 따라)
+      this.trayManager = getTrayManager();
+      await this.trayManager.initialize();
+      await this.trayManager.start();
+      Logger.info('MAIN_INDEX', 'Tray manager initialized');
+
+      // 🔥 설정 변경 감시자 설정
+      this.setupSettingsWatchers();
 
       Logger.info('MAIN_INDEX', 'All new managers initialized successfully');
     } catch (error) {
@@ -214,10 +243,116 @@ class LoopApplication {
     }
   }
 
+  // 🔥 설정 변경 감시자 설정
+  private setupSettingsWatchers(): void {
+    try {
+      Logger.debug('MAIN_INDEX', 'Setting up settings watchers');
+
+      const settingsManager = getSettingsManager();
+
+      // 🎨 UI 테마 변경 감지
+      settingsManager.watch('ui', (event: SettingsChangeEvent<UISettingsSchema>) => {
+        Logger.info('MAIN_INDEX', 'UI settings changed', {
+          key: event.key,
+          oldValue: event.oldValue?.colorScheme,
+          newValue: event.newValue?.colorScheme
+        });
+        
+        // 메뉴 관리자에 테마 변경 알림 (메서드가 있는 경우에만)
+        if (this.menuManager && 'updateTheme' in this.menuManager) {
+          (this.menuManager as any).updateTheme(event.newValue?.colorScheme || 'blue');
+        }
+      });
+
+      // 🏠 앱 설정 변경 감지
+      settingsManager.watch('app', (event: SettingsChangeEvent<AppSettingsSchema>) => {
+        Logger.info('MAIN_INDEX', 'App settings changed', {
+          key: event.key,
+          theme: event.newValue?.theme,
+          language: event.newValue?.language
+        });
+
+        // 트레이 표시/숨기기
+        if (this.trayManager) {
+          this.trayManager.toggleTrayVisibility();
+        }
+
+        // 언어 변경 시 메뉴 업데이트 (메서드가 있는 경우에만)
+        if (this.menuManager && 'updateLanguage' in this.menuManager && event.oldValue?.language !== event.newValue?.language) {
+          (this.menuManager as any).updateLanguage(event.newValue?.language || 'ko');
+        }
+      });
+
+      // ⌨️ 키보드 설정 변경 감지
+      settingsManager.watch('keyboard', (event: SettingsChangeEvent<KeyboardSettingsSchema>) => {
+        Logger.info('MAIN_INDEX', 'Keyboard settings changed', {
+          key: event.key,
+          enabled: event.newValue?.enabled,
+          shortcuts: event.newValue?.globalShortcuts
+        });
+
+        // 단축키 관리자에 변경 알림 (메서드가 있는 경우에만)
+        if (this.shortcutsManager && 'updateShortcuts' in this.shortcutsManager) {
+          (this.shortcutsManager as any).updateShortcuts(event.newValue?.globalShortcuts || {});
+        }
+      });
+
+      // 🔔 알림 설정 변경 감지
+      settingsManager.watch('notifications', (event: SettingsChangeEvent<NotificationSettingsSchema>) => {
+        Logger.info('MAIN_INDEX', 'Notification settings changed', {
+          key: event.key,
+          enabled: event.newValue?.enableNotifications
+        });
+      });
+
+      // 🗄️ 데이터 보관 설정 변경 감지
+      settingsManager.watch('dataRetention', (event: SettingsChangeEvent<DataRetentionSettingsSchema>) => {
+        Logger.info('MAIN_INDEX', 'Data retention settings changed', {
+          key: event.key,
+          retentionPeriod: event.newValue?.retentionPeriod
+        });
+
+        // 데이터 동기화 관리자에 변경 알림 (메서드가 있는 경우에만)
+        if (this.dataSyncManager && 'updateRetentionPolicy' in this.dataSyncManager) {
+          (this.dataSyncManager as any).updateRetentionPolicy(event.newValue || {});
+        }
+      });
+
+      Logger.info('MAIN_INDEX', 'Settings watchers setup complete');
+
+    } catch (error) {
+      Logger.error('MAIN_INDEX', 'Failed to setup settings watchers', error);
+    }
+  }
+
   // 🔥 새로운 매니저들 정리
   private async cleanupNewManagers(): Promise<void> {
     try {
       Logger.debug('MAIN_INDEX', 'Cleaning up new managers');
+
+      // 트레이 관리자 정리
+      if (this.trayManager) {
+        await this.trayManager.stop();
+        await this.trayManager.cleanup();
+        this.trayManager = null;
+        Logger.info('MAIN_INDEX', 'Tray manager cleaned up');
+      }
+
+      // 단축키 관리자 정리
+      if (this.shortcutsManager) {
+        await this.shortcutsManager.stop();
+        await this.shortcutsManager.cleanup();
+        this.shortcutsManager = null;
+        Logger.info('MAIN_INDEX', 'Shortcuts manager cleaned up');
+      }
+
+      // 메뉴 관리자 정리
+      if (this.menuManager) {
+        await this.menuManager.stop();
+        await this.menuManager.cleanup();
+        this.menuManager = null;
+        Logger.info('MAIN_INDEX', 'Menu manager cleaned up');
+      }
 
       // 데이터 동기화 관리자 정리
       if (this.dataSyncManager) {

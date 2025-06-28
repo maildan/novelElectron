@@ -3,6 +3,7 @@ import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { EventEmitter } from 'events';
 import { Platform } from '../utils/platform';
+import { APP_CATEGORIES } from '../settings/defaults';
 import * as path from 'path';
 
 // macOS용 네이티브 모듈 (실제로는 addon이나 exec 사용)
@@ -20,17 +21,8 @@ export class AppDetector extends BaseManager {
   private lastWindowTitle = '';
   private windowChangeCount = 0;
 
-  // 애플리케이션 카테고리 정의
-  private readonly appCategories = {
-    DEVELOPMENT: ['Visual Studio Code', 'Xcode', 'IntelliJ', 'Sublime Text', 'WebStorm', 'Terminal'],
-    BROWSER: ['Safari', 'Chrome', 'Firefox', 'Edge', 'Arc'],
-    OFFICE: ['Microsoft Word', 'Microsoft Excel', 'Microsoft PowerPoint', 'Pages', 'Numbers', 'Keynote'],
-    COMMUNICATION: ['Slack', 'Discord', 'Microsoft Teams', 'Zoom', 'Mail'],
-    DESIGN: ['Photoshop', 'Illustrator', 'Figma', 'Sketch', 'Canva'],
-    ENTERTAINMENT: ['YouTube', 'Netflix', 'Spotify', 'Music', 'VLC'],
-    PRODUCTIVITY: ['Notion', 'Obsidian', 'Todoist', 'Calendar', 'Notes'],
-    SYSTEM: ['Finder', 'System Preferences', 'Activity Monitor', 'Console']
-  } as const;
+  // 🔥 Settings와 통합된 앱 카테고리 (중앙화됨)
+  private readonly appCategories = APP_CATEGORIES;
 
   constructor() {
     super({
@@ -325,12 +317,13 @@ export class AppDetector extends BaseManager {
    * 애플리케이션 카테고리 분류
    */
   private categorizeApp(processName: string): string {
-    for (const [category, apps] of Object.entries(this.appCategories)) {
+    // 🔥 Settings defaults.ts와 완벽 호환되도록 수정
+    for (const [categoryKey, apps] of Object.entries(this.appCategories)) {
       if (apps.some(app => processName.toLowerCase().includes(app.toLowerCase()))) {
-        return category;
+        return categoryKey.toLowerCase(); // DEVELOPMENT -> development
       }
     }
-    return 'OTHER';
+    return 'other';
   }
 
   /**

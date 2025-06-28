@@ -126,6 +126,11 @@ export class SettingsManager extends BaseManager {
       analytics: { ...DEFAULT_SETTINGS.analytics, ...savedSettings.analytics },
       security: { ...DEFAULT_SETTINGS.security, ...savedSettings.security },
       notifications: { ...DEFAULT_SETTINGS.notifications, ...savedSettings.notifications },
+      ai: { ...DEFAULT_SETTINGS.ai, ...savedSettings.ai },
+      clipboard: { ...DEFAULT_SETTINGS.clipboard, ...savedSettings.clipboard },
+      screenshot: { ...DEFAULT_SETTINGS.screenshot, ...savedSettings.screenshot },
+      account: { ...DEFAULT_SETTINGS.account, ...savedSettings.account },
+      dataRetention: { ...DEFAULT_SETTINGS.dataRetention, ...savedSettings.dataRetention },
       version: savedSettings.version || DEFAULT_SETTINGS.version,
       lastModified: new Date(),
       userId: savedSettings.userId
