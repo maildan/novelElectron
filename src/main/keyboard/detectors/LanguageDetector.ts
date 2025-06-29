@@ -134,7 +134,12 @@ export class LanguageDetector extends BaseManager {
       
       // keychar 없으면 keycode만으로 처리 (macOS IME 우회!)
       if (!rawEvent.keychar || rawEvent.keychar === 0) {
-        Logger.debug(this.componentName, '❌ NO KEYCHAR - keycode 기반 처리', { keycode: rawEvent.keycode });
+        Logger.debug(this.componentName, '❌ NO KEYCHAR - keycode 기반 처리', { 
+          keycode: rawEvent.keycode,
+          keycodeHex: `0x${rawEvent.keycode.toString(16)}`,
+          isHangulKey: this.KEYCODE_TO_HANGUL.has(rawEvent.keycode),
+          isEnglishKey: this.ENGLISH_KEYCODES.has(rawEvent.keycode)
+        });
         return this.detectByKeycodeOnly(rawEvent, startTime);
       }
       
@@ -356,8 +361,21 @@ export class LanguageDetector extends BaseManager {
   private detectByFallback(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     const { keycode, keychar } = rawEvent;
     
-    // 특수 키들 (화살표, Ctrl, Alt 등)
-    if (keycode < 32 || !keychar) {
+    // 🔥 정확한 특수 키 목록 (macOS 키코드 기준)
+    const SPECIAL_KEYCODES = new Set([
+      // 기능키
+      8, 9, 13, 16, 17, 18, 19, 20, 27, // Backspace, Tab, Enter, Shift, Ctrl, Alt, Pause, CapsLock, Esc
+      33, 34, 35, 36, 37, 38, 39, 40,  // PageUp, PageDown, End, Home, Arrow keys
+      45, 46,                          // Insert, Delete
+      91, 92, 93,                      // Windows/Cmd keys, Menu
+      112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, // F1-F12
+      144, 145,                        // NumLock, ScrollLock
+      // 한/영, 한자 등 IME 관련 키
+      21, 25, 28, 29                   // 한/영, 한자 등
+    ]);
+    
+    // 특수 키들 - 현재 언어 유지
+    if (SPECIAL_KEYCODES.has(keycode) || !keychar) {
       return {
         language: this.currentLanguage,
         confidence: 0.8, // 현재 언어 유지로 높은 신뢰도

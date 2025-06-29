@@ -237,26 +237,29 @@ export class KeyboardService extends EventEmitter {
   // 🔥 키보드 이벤트 처리 (다국어 지원 + HANGUL_KEY_MAP 활용)
   private async handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
     try {
+      // 🔥 rawEvent를 enhanced event로 변환 (정확한 keychar 포함)
+      const enhancedEvent = this.enhanceRawEvent(rawEvent);
+      
       // #DEBUG: Processing keyboard event with enhanced Korean detection
       const processingStart = performance.now();
       
-      // 🔥 1. 개선된 언어 감지 (HANGUL_KEY_MAP 활용)
-      const detectedLanguage = this.detectLanguage(rawEvent);
+      // 🔥 1. 개선된 언어 감지 (enhanced event 사용)
+      const detectedLanguage = this.detectLanguage(enhancedEvent);
       
       // 🔥 2. 한글 특별 처리
       let composedChar: string | undefined;
       let isComposing = false;
       let hangulResult: any = null; // 🔥 스코프 확장
       
-      if (detectedLanguage === 'ko' || this.isKoreanKeyEvent(rawEvent)) {
+      if (detectedLanguage === 'ko' || this.isKoreanKeyEvent(enhancedEvent)) {
         Logger.debug('KEYBOARD', 'Korean input detected, processing with HangulComposer', {
-          keycode: rawEvent.keycode,
-          keychar: rawEvent.keychar,
+          keycode: enhancedEvent.keycode,
+          keychar: enhancedEvent.keychar,
           detectedLanguage
         });
         
-        // 🔥 실제 눌린 키를 HANGUL_KEY_MAP으로 변환
-        const pressedKey = String.fromCharCode(rawEvent.keycode).toLowerCase();
+        // 🔥 정확한 keycode -> 문자 변환 사용
+        const pressedKey = this.keycodeToChar(enhancedEvent.keycode || 0);
         const hangulChar = Object.entries(HANGUL_KEY_MAP).find(([_, english]) => 
           english.toLowerCase() === pressedKey
         )?.[0];
@@ -264,8 +267,8 @@ export class KeyboardService extends EventEmitter {
         // 🔥 HangulComposer로 한글 조합 처리 (실제 키 전달)
         hangulResult = await this.hangulComposer.processKey({
           key: pressedKey, // 실제 눌린 키 (q, w, e, r 등)
-          code: `Key${rawEvent.keycode}`,
-          keychar: hangulChar || String.fromCharCode(rawEvent.keychar || 0), // 한글 문자 우선
+          code: `Key${enhancedEvent.keycode}`,
+          keychar: hangulChar || enhancedEvent.keychar, // 한글 문자 우선
           timestamp: Date.now(),
           windowTitle: '',
           type
@@ -296,9 +299,9 @@ export class KeyboardService extends EventEmitter {
       const windowTitle = currentWindow?.title || 'Unknown Window';
       
       const processedEvent: ProcessedKeyboardEvent = {
-        key: this.getDisplayKey(rawEvent, currentLanguage, composedChar, hangulResult), // 🔥 정확한 입력 문자 표시
-        code: `Key${rawEvent.keycode}`,
-        keychar: composedChar || hangulResult?.completed || (rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : ''), // 🔥 조합된 문자 우선
+        key: this.getDisplayKey(enhancedEvent, currentLanguage, composedChar, hangulResult), // 🔥 enhanced event 사용
+        code: `Key${enhancedEvent.keycode}`,
+        keychar: composedChar || hangulResult?.completed || enhancedEvent.keychar, // 🔥 정확한 keychar 사용
         timestamp: Date.now(),
         windowTitle,
         type: type === 'keydown' && (composedChar || hangulResult?.completed) ? 'input' : type, // 🔥 실제 입력 시 'input' 타입
@@ -494,7 +497,49 @@ export class KeyboardService extends EventEmitter {
     }
   }
   
-  // 🔥 한글 키보드 이벤트 감지 헬퍼 메서드 (HANGUL_KEY_MAP 기반)
+  // 🔥 기가차드 keycode를 정확한 문자로 변환하는 함수
+  private keycodeToChar(keycode: number): string {
+    // 🔥 QWERTY 키보드 레이아웃 기준 정확한 매핑
+    const KEYCODE_TO_CHAR_MAP: Record<number, string> = {
+      // 숫자 키 (0-9)
+      48: '0', 49: '1', 50: '2', 51: '3', 52: '4',
+      53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
+      
+      // 영문자 키 (A-Z) -> 소문자
+      65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f',
+      71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l',
+      77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r',
+      83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x',
+      89: 'y', 90: 'z',
+      
+      // 특수문자 키
+      32: ' ',   // Space
+      188: ',',  // Comma
+      190: '.',  // Period
+      191: '/',  // Slash
+      186: ';',  // Semicolon
+      222: "'",  // Apostrophe
+      219: '[',  // Left bracket
+      221: ']',  // Right bracket
+      220: '\\', // Backslash
+      189: '-',  // Minus
+      187: '=',  // Equals
+    };
+    
+    return KEYCODE_TO_CHAR_MAP[keycode] || `Key${keycode}`;
+  }
+
+  // 🔥 기가차드 rawEvent에 정확한 keychar 추가하는 함수
+  private enhanceRawEvent(rawEvent: UiohookKeyboardEvent): any {
+    // 🔥 keycode를 정확한 문자로 변환
+    const keychar = this.keycodeToChar(rawEvent.keycode || 0);
+    
+    return {
+      ...rawEvent,
+      keychar
+    };
+  }
+
   private isKoreanKeyEvent(rawEvent: UiohookKeyboardEvent): boolean {
     try {
       // 🔥 1. 이미 한글로 설정되어 있으면 true

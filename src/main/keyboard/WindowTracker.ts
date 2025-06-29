@@ -204,8 +204,11 @@ export class WindowTracker extends BaseManager {
       }
       
       // 🔥 접근성 권한이 있으면 더 정확한 정보 가져오기
-      // 🔥 active-win 함수 직접 사용 (active-win 패키지에서 import됨)
-      const activeWinResult = await activeWin();
+      // 🔥 active-win 8.x 호환: 옵션 객체로 권한 우회
+      const activeWinResult = await activeWin({
+        accessibilityPermission: false,   // macOS 접근성 권한 우회
+        screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
+      });
       const activeWindowResult = this.convertActiveWinToWindowInfo(activeWinResult);
 
       // 🔥 윈도우 정보 유효성 검증 및 보완
@@ -284,10 +287,18 @@ export class WindowTracker extends BaseManager {
         windowInfo.owner.name = 'Unknown App';
       }
 
-      // 🔥 title 검증 및 보완
+      // 🔥 title 검증 및 보완 (개선된 로직)
       if (!windowInfo.title || windowInfo.title.trim() === '') {
         Logger.debug(this.componentName, '⚠️ title 없음 - 앱 이름으로 보완');
-        windowInfo.title = windowInfo.owner.name;
+        
+        // 추후 activeWin 옵션 확장 시 활용 가능
+        // TODO: active-win 8.x 옵션 활용하여 더 정확한 title 획득
+        windowInfo.title = `${windowInfo.owner.name} - Active Window`;
+        
+        Logger.debug(this.componentName, '✅ title 보완 완료', { 
+          originalTitle: '',
+          enhancedTitle: windowInfo.title 
+        });
       }
 
       // 🔥 processId 검증 및 보완
@@ -515,8 +526,11 @@ export class WindowTracker extends BaseManager {
       // 🔥 active-win은 openWindows를 지원하지 않음 - 현재 윈도우만 반환
       Logger.warn(this.componentName, '⚠️ active-win은 모든 윈도우 조회를 지원하지 않음');
       
-      // 🔥 현재 활성 윈도우만 배열로 반환
-      const activeWinResult = await activeWin();
+      // 🔥 현재 활성 윈도우만 배열로 반환 (active-win 8.x 호환)
+      const activeWinResult = await activeWin({
+        accessibilityPermission: false,   // macOS 접근성 권한 우회
+        screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
+      });
       const currentWindow = this.convertActiveWinToWindowInfo(activeWinResult);
       const windowsArray = currentWindow ? [currentWindow] : [];
       
@@ -572,8 +586,11 @@ export class WindowTracker extends BaseManager {
         };
       }
 
-      // 🔥 active-win 함수 직접 사용
-      const activeWinResult = await activeWin();
+      // 🔥 active-win 8.x 호환: 옵션 객체로 권한 우회
+      const activeWinResult = await activeWin({
+        accessibilityPermission: false,   // macOS 접근성 권한 우회
+        screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
+      });
       const activeWindowResult = this.convertActiveWinToWindowInfo(activeWinResult);
       
       if (!activeWindowResult) {
