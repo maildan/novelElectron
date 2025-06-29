@@ -13,7 +13,8 @@ import {
   Calendar,
   Zap,
   FolderOpen,
-  PenTool
+  PenTool,
+  type LucideIcon
 } from 'lucide-react';
 import { 
   Card, 
@@ -112,53 +113,214 @@ export function DashboardMain({
   isAIOpen = false,
 }: DashboardMainProps): React.ReactElement {
   
-  const [monitoringData] = useState<MonitoringData>({
-    wpm: 68,
-    words: 1234,
-    time: 1847,
+  // 🔥 기가차드 규칙: 실제 데이터 상태 관리 - 더미 데이터 제거
+  const [monitoringData, setMonitoringData] = useState<MonitoringData>({
+    wpm: 0,
+    words: 0,
+    time: 0,
   });
+  
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [recentFiles, setRecentFiles] = useState<RecentFile[]>([]);
+  // 🔥 기가차드 규칙: 타입 안전성 - KPI 데이터 타입 정의
+  interface KpiDataItem {
+    readonly title: string;
+    readonly value: string;
+    readonly icon: LucideIcon;
+    readonly color: 'blue' | 'green' | 'purple' | 'orange' | 'red';
+    readonly change: {
+      readonly value: number;
+      readonly type: 'increase' | 'decrease' | 'neutral';
+      readonly period: string;
+    };
+  }
 
-  // 🔥 기가차드 규칙: 메모이제이션으로 성능 최적화
-  const projects: Project[] = React.useMemo(() => [
+  const [loading, setLoading] = useState<boolean>(true);
+  const [kpiData, setKpiData] = useState<KpiDataItem[]>([
     {
-      id: '1',
-      title: '시간의 강',
-      status: 'active',
-      progress: 67,
-      goal: '12월 31일',
+      title: '오늘 작성',
+      value: '0',
+      icon: PenTool,
+      color: 'blue' as const,
+      change: { value: 0, type: 'neutral' as const, period: '%' },
     },
     {
-      id: '2', 
-      title: '일상의 철학',
-      status: 'draft',
-      progress: 30,
-      goal: '1월 15일',
+      title: '이번 주',
+      value: '0', 
+      icon: Calendar,
+      color: 'green' as const,
+      change: { value: 0, type: 'neutral' as const, period: '%' },
     },
-  ], []);
+    {
+      title: '평균 속도',
+      value: '0 WPM',
+      icon: Zap,
+      color: 'purple' as const,
+      change: { value: 0, type: 'neutral' as const, period: '%' },
+    },
+    {
+      title: '활성 프로젝트',
+      value: '0',
+      icon: FolderOpen,
+      color: 'orange' as const,
+      change: { value: 0, type: 'neutral' as const, period: '개' },
+    },
+  ]);
 
-  const recentFiles: RecentFile[] = React.useMemo(() => [
-    {
-      id: '1',
-      name: 'chapter-12.md',
-      project: '시간의 강',
-      time: '2분 전',
-      status: '수정됨',
-    },
-    {
-      id: '2',
-      name: 'intro.md', 
-      project: '일상의 철학',
-      time: '1시간 전',
-      status: '저장됨',
-    },
-    {
-      id: '3',
-      name: 'outline.md',
-      project: '도시 이야기', 
-      time: '3시간 전',
-      status: '동기화됨',
-    },
-  ], []);
+  // 🔥 대시보드 데이터 로딩
+  React.useEffect(() => {
+    loadDashboardData();
+    
+    // 🔥 실시간 업데이트 (5초마다)
+    const interval = setInterval(loadDashboardData, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  /**
+   * 🔥 실제 대시보드 데이터 로딩 (BE 연동)
+   */
+  const loadDashboardData = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      
+      // 🔥 기가차드 규칙: 타입 안전한 IPC 통신 - 병렬 처리
+      const [dashboardStatsResult, realtimeStatsResult, projectsResult, recentSessionsResult] = await Promise.allSettled([
+        window.electronAPI.dashboard.getStats(),
+        window.electronAPI.keyboard.getRealtimeStats(),
+        window.electronAPI.projects.getAll(),
+        window.electronAPI.dashboard.getRecentSessions()
+      ]);
+
+      // 🔥 대시보드 통계 업데이트
+      if (dashboardStatsResult.status === 'fulfilled' && dashboardStatsResult.value.success) {
+        const stats = dashboardStatsResult.value.data;
+        updateKpiData(stats);
+        Logger.debug('DASHBOARD', '✅ Dashboard stats loaded', stats);
+      }
+
+      // 🔥 실시간 통계 업데이트
+      if (realtimeStatsResult.status === 'fulfilled' && realtimeStatsResult.value.success) {
+        const realtimeStats = realtimeStatsResult.value.data;
+        setMonitoringData({
+          wpm: realtimeStats?.currentWpm || 0,
+          words: realtimeStats?.charactersTyped || 0,
+          time: realtimeStats?.sessionTime || 0,
+        });
+        Logger.debug('DASHBOARD', '✅ Realtime stats loaded', realtimeStats);
+      }
+
+      // 🔥 프로젝트 데이터 업데이트
+      if (projectsResult.status === 'fulfilled' && projectsResult.value.success) {
+        const projectsData = projectsResult.value.data || [];
+        setProjects(projectsData.map((p: any) => ({
+          id: p.id || '',
+          title: p.title || '제목 없음',
+          status: p.status || 'draft',
+          progress: p.progress || 0,
+          goal: p.dueDate ? new Date(p.dueDate).toLocaleDateString() : '목표 미설정',
+        })));
+        Logger.debug('DASHBOARD', '✅ Projects loaded', { count: projectsData.length });
+      }
+
+      // 🔥 최근 세션 데이터를 파일 형태로 변환
+      if (recentSessionsResult.status === 'fulfilled' && recentSessionsResult.value.success) {
+        const sessions = recentSessionsResult.value.data || [];
+        setRecentFiles(sessions.slice(0, 3).map((session: any, index: number) => ({
+          id: session.id || `session-${index}`,
+          name: `session-${new Date(session.startTime).toLocaleDateString()}.md`,
+          project: session.windowTitle || '알 수 없는 앱',
+          time: formatTimeAgo(session.endTime || session.startTime),
+          status: '완료',
+        })));
+        Logger.debug('DASHBOARD', '✅ Recent sessions loaded', { count: sessions.length });
+      }
+
+    } catch (error) {
+      Logger.error('DASHBOARD', '❌ Failed to load dashboard data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * 🔥 변화율 타입 결정 헬퍼 함수
+   */
+  const getChangeType = (value: number): 'increase' | 'decrease' | 'neutral' => {
+    if (value > 0) return 'increase';
+    if (value < 0) return 'decrease';
+    return 'neutral';
+  };
+
+  /**
+   * 🔥 KPI 데이터 업데이트
+   */
+  const updateKpiData = (stats: any): void => {
+    setKpiData([
+      {
+        title: '오늘 작성',
+        value: (stats?.todayWords || 0).toLocaleString(),
+        icon: PenTool,
+        color: 'blue' as const,
+        change: {
+          value: Math.max(0, stats?.dailyGrowth || 0),
+          type: getChangeType(stats?.dailyGrowth || 0),
+          period: '%',
+        },
+      },
+      {
+        title: '이번 주',
+        value: (stats?.weekWords || 0).toLocaleString(),
+        icon: Calendar,
+        color: 'green' as const,
+        change: {
+          value: Math.max(0, stats?.weeklyGrowth || 0),
+          type: getChangeType(stats?.weeklyGrowth || 0),
+          period: '%',
+        },
+      },
+      {
+        title: '평균 속도',
+        value: `${Math.round(stats?.avgWpm || 0)} WPM`,
+        icon: Zap,
+        color: 'purple' as const,
+        change: {
+          value: Math.max(0, stats?.wpmImprovement || 0),
+          type: getChangeType(stats?.wpmImprovement || 0),
+          period: '%',
+        },
+      },
+      {
+        title: '활성 프로젝트',
+        value: (stats?.activeProjects || 0).toString(),
+        icon: FolderOpen,
+        color: 'orange' as const,
+        change: {
+          value: Math.max(0, stats?.projectGrowth || 0),
+          type: getChangeType(stats?.projectGrowth || 0),
+          period: '개',
+        },
+      },
+    ]);
+  };
+
+  /**
+   * 🔥 시간 경과 표시 헬퍼
+   */
+  const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMins < 1) return '방금 전';
+    if (diffMins < 60) return `${diffMins}분 전`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}일 전`;
+  };
 
   const handleToggleMonitoring = (): void => {
     Logger.info('DASHBOARD', `Monitoring ${!isMonitoring ? 'started' : 'stopped'}`);
@@ -169,53 +331,6 @@ export function DashboardMain({
     Logger.info('DASHBOARD', `AI Panel ${!isAIOpen ? 'opened' : 'closed'}`);
     onAIToggle?.();
   };
-
-  const kpiData = [
-    {
-      title: '오늘 작성',
-      value: '1,234',
-      icon: PenTool,
-      color: 'blue' as const,
-      change: {
-        value: 12,
-        type: 'increase' as const,
-        period: '%',
-      },
-    },
-    {
-      title: '이번 주',
-      value: '8,567', 
-      icon: Calendar,
-      color: 'green' as const,
-      change: {
-        value: 8,
-        type: 'increase' as const,
-        period: '%',
-      },
-    },
-    {
-      title: '평균 속도',
-      value: '68 WPM',
-      icon: Zap,
-      color: 'purple' as const,
-      change: {
-        value: 5,
-        type: 'increase' as const,
-        period: '%',
-      },
-    },
-    {
-      title: '총 프로젝트',
-      value: '12',
-      icon: FolderOpen,
-      color: 'orange' as const,
-      change: {
-        value: 2,
-        type: 'increase' as const,
-        period: '개',
-      },
-    },
-  ];
 
   return (
     <div className={DASHBOARD_STYLES.container}>

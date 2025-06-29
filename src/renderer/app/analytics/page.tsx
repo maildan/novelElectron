@@ -34,26 +34,26 @@ const ANALYTICS_PAGE_STYLES = {
 
 // 🔥 기가차드 규칙: IPC 연동을 위한 Analytics 데이터 타입
 interface AnalyticsData {
-  readonly kpis: {
-    readonly dailyWords: number;
-    readonly totalWords: number;
-    readonly avgWpm: number;
-    readonly activeProjects: number;
-    readonly sessionTime: number;
-    readonly accuracy: number;
-    readonly weeklyGoal: number;
-    readonly improvementRate: number;
+  kpis: {
+    dailyWords: number;
+    totalWords: number;
+    avgWpm: number;
+    activeProjects: number;
+    sessionTime: number;
+    accuracy: number;
+    weeklyGoal: number;
+    improvementRate: number;
   };
-  readonly weeklyData: readonly number[];
-  readonly projectProgress: readonly {
-    readonly name: string;
-    readonly progress: number;
-    readonly color: 'blue' | 'green' | 'purple' | 'orange' | 'red';
+  weeklyData: number[];
+  projectProgress: {
+    name: string;
+    progress: number;
+    color: 'blue' | 'green' | 'purple' | 'orange' | 'red';
   }[];
-  readonly goals: readonly {
-    readonly label: string;
-    readonly current: number;
-    readonly target: number;
+  goals: {
+    label: string;
+    current: number;
+    target: number;
   }[];
 }
 
@@ -77,7 +77,7 @@ const DEFAULT_ANALYTICS: AnalyticsData = {
     { label: '정확도 목표 (95%)', current: 0, target: 95 },
     { label: 'WPM 목표 (90)', current: 0, target: 90 }
   ]
-} as const;
+};
 
 export default function AnalyticsPage(): React.ReactElement {
   const [analyticsData, setAnalyticsData] = React.useState<AnalyticsData>(DEFAULT_ANALYTICS);
@@ -90,38 +90,66 @@ export default function AnalyticsPage(): React.ReactElement {
   }, []);
 
   /**
-   * 🔥 실제 분석 데이터 로딩 (BE 연동)
+   * 🔥 실제 분석 데이터 로딩 (BE 연동) - 더미 데이터 제거
    */
   const loadAnalyticsData = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
 
-      // 🔥 기가차드 규칙: 타입 안전한 IPC 통신
-      const electronAPI = (window as Window & { electronAPI: ElectronAPI }).electronAPI;
-      const dashboardStats = await electronAPI.dashboard.getStats();
-      const projectsData = await electronAPI.projects.getAll();
-      const recentSessions = await electronAPI.dashboard.getRecentSessions();
+      // 🔥 기가차드 규칙: 타입 안전한 IPC 통신으로 실제 데이터 가져오기
+      const dashboardStats = await window.electronAPI.dashboard.getStats();
+      const realtimeStats = await window.electronAPI.keyboard.getRealtimeStats();
+      const keyboardStatus = await window.electronAPI.keyboard.getStatus();
+      const recentSessions = await window.electronAPI.dashboard.getRecentSessions();
 
-      if (dashboardStats?.success && projectsData?.success && recentSessions?.success) {
-        // 🔥 실제 데이터로 변환
-        const analytics = convertToAnalyticsData(
-          dashboardStats.data,
-          projectsData.data,
-          recentSessions.data
-        );
-        setAnalyticsData(analytics);
-        Logger.info('ANALYTICS_PAGE', 'Analytics data loaded successfully');
-      } else {
-        // 🔥 IPC API가 없거나 실패한 경우 기본값 사용
-        Logger.warn('ANALYTICS_PAGE', 'IPC API not available, using default data');
-        setAnalyticsData(DEFAULT_ANALYTICS);
+      // 🔥 에러 처리 - IPC 응답 검증
+      if (!dashboardStats.success) {
+        throw new Error(`Dashboard stats failed: ${dashboardStats.error}`);
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '분석 데이터를 불러오는 중 오류가 발생했습니다.';
-      setError(errorMessage);
-      Logger.error('ANALYTICS_PAGE', 'Failed to load analytics data', err);
-      // 에러 시에도 기본값 사용
+      if (!realtimeStats.success) {
+        throw new Error(`Realtime stats failed: ${realtimeStats.error}`);
+      }
+      if (!keyboardStatus.success) {
+        throw new Error(`Keyboard status failed: ${keyboardStatus.error}`);
+      }
+      if (!recentSessions.success) {
+        throw new Error(`Recent sessions failed: ${recentSessions.error}`);
+      }
+
+      // 🔥 실제 BE 데이터로 analytics 데이터 구성
+      const convertedData = convertToAnalyticsData(
+        dashboardStats.data,
+        [], // projects는 별도 API로 가져올 예정
+        recentSessions.data || []
+      );
+
+      // 🔥 실시간 통계로 WPM, 정확도 업데이트
+      if (realtimeStats.data) {
+        convertedData.kpis.avgWpm = realtimeStats.data.currentWpm || 0;
+        convertedData.kpis.accuracy = realtimeStats.data.accuracy || 0;
+        convertedData.kpis.sessionTime = (realtimeStats.data.sessionTime || 0) / 3600; // 시간 단위로 변환
+      }
+
+      // 🔥 키보드 모니터링 상태 반영
+      if (keyboardStatus.data?.isActive && keyboardStatus.data.sessionDuration) {
+        convertedData.kpis.sessionTime = keyboardStatus.data.sessionDuration / 3600; // 시간 단위로 변환
+      }
+
+      setAnalyticsData(convertedData);
+      
+      Logger.info('ANALYTICS', '✅ Analytics data loaded successfully', {
+        dailyWords: convertedData.kpis.dailyWords,
+        avgWpm: convertedData.kpis.avgWpm,
+        accuracy: convertedData.kpis.accuracy,
+        sessionsCount: recentSessions.data?.length || 0,
+      });
+      
+    } catch (error) {
+      const err = error as Error;
+      Logger.error('ANALYTICS', '❌ Failed to load analytics data', err);
+      setError(`데이터 로딩 실패: ${err.message}`);
+      // 🔥 에러 시에도 기본값으로 폴백
       setAnalyticsData(DEFAULT_ANALYTICS);
     } finally {
       setLoading(false);
@@ -136,7 +164,6 @@ export default function AnalyticsPage(): React.ReactElement {
     projects: any[] | undefined,
     sessions: any[] | undefined
   ): AnalyticsData => {
-    const today = new Date();
     const safeProjects = projects || [];
     const safeSessions = sessions || [];
     const weekData = calculateWeeklyData(safeSessions);

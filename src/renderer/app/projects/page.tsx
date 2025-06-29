@@ -30,32 +30,32 @@ export default function ProjectsPage(): React.ReactElement {
   }, []);
 
   /**
-   * 🔥 실제 프로젝트 데이터 로딩 (BE 연동)
+   * 🔥 실제 프로젝트 데이터 로딩 (BE 연동) - 더미 데이터 제거
    */
   const loadProjects = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
       
-      // 🔥 기가차드 규칙: IPC 통신으로 실제 데이터 가져오기
-      const result = await window.electronAPI?.projects?.getAll?.();
+      // 🔥 기가차드 규칙: 타입 안전한 IPC 통신
+      const result = await window.electronAPI.projects.getAll();
       
-      if (result?.success && result.data) {
-        // BE 데이터를 FE 형식으로 변환
-        const projectsData = convertToProjectData(result.data);
-        setProjects(projectsData);
-        Logger.info('PROJECTS_PAGE', `Loaded ${projectsData.length} projects`);
-      } else {
-        // 🔥 IPC API가 없거나 실패한 경우 기본값 사용
-        Logger.warn('PROJECTS_PAGE', 'IPC API not available, showing empty projects');
-        setProjects(DEFAULT_PROJECTS);
+      // 🔥 에러 처리 - IPC 응답 검증
+      if (!result.success) {
+        throw new Error(result.error || 'Projects API failed');
       }
+      
+      // 🔥 BE 데이터를 FE 형식으로 변환
+      const projectsData = convertToProjectData(result.data || []);
+      setProjects(projectsData);
+      
+      Logger.info('PROJECTS_PAGE', `✅ Loaded ${projectsData.length} projects successfully`);
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '프로젝트를 불러오는 중 오류가 발생했습니다.';
       setError(errorMessage);
-      Logger.error('PROJECTS_PAGE', 'Failed to load projects', err);
-      // 에러 시에도 기본값 사용
+      Logger.error('PROJECTS_PAGE', '❌ Failed to load projects', err);
+      // 🔥 에러 시에도 기본값 사용
       setProjects(DEFAULT_PROJECTS);
     } finally {
       setLoading(false);

@@ -997,6 +997,19 @@ export function getAppCategory(appName: string): AppCategory {
   return APP_CATEGORIES.UNKNOWN;
 }
 
+// #DEBUG: App categories module setup complete
+// #DEBUG: App categories module setup complete
+Logger.debug('APP_CATEGORIES', 'App categories module loaded', {
+  totalMappedApps: Object.keys(APP_CATEGORY_MAPPING).length,
+  totalCategories: Object.keys(APP_CATEGORIES).length,
+});
+
+export default {
+  APP_CATEGORIES,
+  APP_CATEGORY_MAPPING,
+  getAppCategory,
+};
+
 /**
  * 🔥 카테고리별 앱 목록 반환
  */
