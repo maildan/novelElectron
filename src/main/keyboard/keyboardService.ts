@@ -130,10 +130,11 @@ export class KeyboardService extends EventEmitter {
         Logger.info('KEYBOARD', 'WindowTracker started with monitoring');
       }
 
-      // 🔥 LanguageDetector 시작
+      // 🔥 LanguageDetector 초기화 및 시작
       if (!this.languageDetector.isRunning()) {
+        await this.languageDetector.initialize();
         await this.languageDetector.start();
-        Logger.info('KEYBOARD', 'LanguageDetector started with monitoring');
+        Logger.info('KEYBOARD', 'LanguageDetector initialized and started with monitoring');
       }
 
       // 키보드 이벤트 리스너 설정
@@ -337,18 +338,31 @@ export class KeyboardService extends EventEmitter {
   /**
    * 🔥 새로운 언어 감지 시스템 사용
    */
-  // 🔥 언어 감지 (새로운 LanguageDetector 사용 - 정확성 최우선!)
+  // 🔥 언어 감지 (극한 디버깅 모드!)
   private detectLanguage(rawEvent: UiohookKeyboardEvent): string {
     try {
-      // 🔥 성능 측정 시작
+      // � 극한 디버깅: 전체 이벤트 정보
+      Logger.debug('KEYBOARD', '🚨🚨🚨 KEYBOARD SERVICE 언어 감지 시작 🚨🚨🚨', {
+        keycode: rawEvent.keycode,
+        keychar: rawEvent.keychar,
+        altKey: rawEvent.altKey,
+        ctrlKey: rawEvent.ctrlKey,
+        metaKey: rawEvent.metaKey,
+        shiftKey: rawEvent.shiftKey,
+        currentLanguage: this.state.language,
+        languageDetectorState: this.languageDetector.getCurrentLanguage()
+      });
+      
+      // �🔥 성능 측정 시작
       const detectionStart = performance.now();
       
-      // 🔥 새로운 LanguageDetector 사용 (정확성 최우선!)
+      // 🔥 새로운 keycode 기반 LanguageDetector 사용 (macOS IME 우회!)
       const detectionResult = this.languageDetector.detectLanguage(rawEvent);
       
       const detectionTime = performance.now() - detectionStart;
       
-      Logger.debug('KEYBOARD', '🔥 Advanced language detection completed', {
+      // 🚨 극한 디버깅: 감지 결과 상세 분석
+      Logger.debug('KEYBOARD', '🔥 keycode 기반 언어 감지 완료', {
         keycode: rawEvent.keycode,
         keychar: rawEvent.keychar,
         result: {
@@ -358,6 +372,14 @@ export class KeyboardService extends EventEmitter {
           isComposing: detectionResult.isComposing
         },
         detectionTime: `${detectionTime.toFixed(3)}ms`
+      });
+      
+      // 🚨 극한 디버깅: 신뢰도 임계값 체크
+      Logger.debug('KEYBOARD', '🔍 신뢰도 임계값 체크', {
+        confidence: detectionResult.confidence,
+        threshold: 0.7,
+        passesThreshold: detectionResult.confidence >= 0.7,
+        willChangeLanguage: detectionResult.confidence >= 0.7 && detectionResult.language !== this.state.language
       });
       
       // 🔥 신뢰도 기반 언어 선택 (정확성 우선!)

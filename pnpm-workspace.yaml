@@ -2,4 +2,5 @@ onlyBuiltDependencies:
   - electron
   - electron-chromedriver
   - electron-winstaller
-  - get-windows
+  - spectron
+  - uiohook-napi

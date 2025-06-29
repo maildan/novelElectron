@@ -2,7 +2,6 @@
 
 import { BrowserWindow, screen } from 'electron';
 import { join } from 'path';
-import isDev from 'electron-is-dev';
 import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { isObject } from '../../shared/common';
@@ -203,7 +202,7 @@ export class WindowManager {
         throw new Error(`Window ${windowId} not found`);
       }
 
-      const targetUrl = url || (isDev 
+      const targetUrl = url || (process.env.NODE_ENV === 'development'
         ? 'http://localhost:4000'
         : `file://${join(__dirname, '../../out/index.html')}`
       );
@@ -211,7 +210,7 @@ export class WindowManager {
       await window.loadURL(targetUrl);
 
       // 🔥 개발 도구 (개발 환경에서만) - 별창으로 열기
-      if (isDev) {
+      if (process.env.NODE_ENV === 'development') {
         window.webContents.openDevTools({ mode: 'detach' });
       }
 
@@ -282,10 +281,25 @@ export class WindowManager {
         return null;
       }
 
+      const bounds = focusedWindow.getBounds();
       const windowInfo: WindowInfo = {
+        id: focusedWindow.id,
         title: focusedWindow.getTitle(),
-        processName: 'Loop Typing Analytics',
-        pid: process.pid,
+        owner: {
+          name: 'Loop Typing Analytics',
+          processId: process.pid,
+          bundleId: Platform.isMacOS() ? 'com.loop.typing-analytics' : undefined,
+          path: process.execPath,
+        },
+        bounds: {
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+        },
+        memoryUsage: process.memoryUsage().heapUsed,
+        loopTimestamp: Date.now(),
+        loopAppCategory: 'productivity',
       };
 
       Logger.debug('WINDOW', 'Active window info retrieved', windowInfo);
@@ -305,10 +319,25 @@ export class WindowManager {
 
       this.windows.forEach((window, windowId) => {
         if (!window.isDestroyed()) {
+          const bounds = window.getBounds();
           windowList.push({
+            id: window.id,
             title: window.getTitle(),
-            processName: `Loop Window (${windowId})`,
-            pid: process.pid,
+            owner: {
+              name: `Loop Window (${windowId})`,
+              processId: process.pid,
+              bundleId: Platform.isMacOS() ? 'com.loop.typing-analytics' : undefined,
+              path: process.execPath,
+            },
+            bounds: {
+              x: bounds.x,
+              y: bounds.y,
+              width: bounds.width,
+              height: bounds.height,
+            },
+            memoryUsage: process.memoryUsage().heapUsed,
+            loopTimestamp: Date.now(),
+            loopAppCategory: 'productivity',
           });
         }
       });

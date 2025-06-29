@@ -101,9 +101,23 @@ export const mockTypingSession: TypingSession = {
 
 // 🪟 Window 정보 픽스처
 export const mockWindowInfo: WindowInfo = {
+  id: 12345,
   title: 'Test Window',
-  processName: 'Test Application',
-  pid: 1234
+  owner: {
+    name: 'Test Application',
+    processId: 1234,
+    bundleId: 'com.test.app',
+    path: '/Applications/Test.app'
+  },
+  bounds: {
+    x: 100,
+    y: 100,
+    width: 800,
+    height: 600
+  },
+  memoryUsage: 1024000,
+  loopTimestamp: Date.now(),
+  loopAppCategory: 'development'
 };
 
 // 🔧 IPC 응답 픽스처

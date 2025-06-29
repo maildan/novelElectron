@@ -1,5 +1,5 @@
-// 🔥 기가차드 get-windows 타입 정의 - Loop 전용 확장
-declare module 'get-windows' {
+// 🔥 기가차드 active-win 타입 정의 - Loop 전용 확장
+declare module 'active-win' {
   // 🔥 기가차드 윈도우 정보 인터페이스
   export interface WindowInfo {
     id: number;

@@ -2,9 +2,8 @@
 
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
-import { Result } from '../../shared/types';
+import { Result, WindowInfo } from '../../shared/types';
 import { WindowTracker } from '../keyboard/WindowTracker';
-import type { WindowInfo } from 'get-windows';
 
 // #DEBUG: Browser detector entry point
 Logger.debug('BROWSER_DETECTOR', 'Browser detector module loaded');

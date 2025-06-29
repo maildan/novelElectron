@@ -3,11 +3,11 @@
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import { Result, KeyboardEvent, TypingSession, WindowInfo as SharedWindowInfo } from '../../shared/types';
+import { Result, KeyboardEvent, TypingSession, WindowInfo } from '../../shared/types';
 import { KeyboardEngine } from './KeyboardEngine';
 import { StatsManager } from './StatsManager';
 import { HangulComposer } from './HangulComposer';
-import { WindowTracker, WindowInfo as GetWindowsInfo } from './WindowTracker';
+import { WindowTracker } from './WindowTracker';
 
 // #DEBUG: Unified handler entry point
 Logger.debug('UNIFIED_HANDLER', 'Unified handler module loaded');
@@ -537,30 +537,22 @@ export class UnifiedHandler extends BaseManager {
   /**
    * 현재 윈도우 정보 반환
    */
-  public getCurrentWindow(): SharedWindowInfo | null {
+  public getCurrentWindow(): WindowInfo | null {
     const windowInfo = this.windowTracker.getCurrentWindow();
     if (!windowInfo) return null;
     
-    // get-windows WindowInfo → shared/types WindowInfo 변환
-    return {
-      title: windowInfo.title,
-      processName: windowInfo.owner.name,
-      pid: windowInfo.owner.processId,
-    };
+    // active-win WindowInfo → shared/types WindowInfo 변환 (이미 호환됨)
+    return windowInfo;
   }
 
   /**
    * 윈도우 히스토리 반환
    */
-  public getWindowHistory(): SharedWindowInfo[] {
+  public getWindowHistory(): WindowInfo[] {
     const history = this.windowTracker.getWindowHistory();
     
-    // get-windows WindowInfo[] → shared/types WindowInfo[] 변환
-    return history.map(windowInfo => ({
-      title: windowInfo.title,
-      processName: windowInfo.owner.name,
-      pid: windowInfo.owner.processId,
-    }));
+    // active-win WindowInfo[] → shared/types WindowInfo[] 변환 (이미 호환됨)
+    return history;
   }
 }
 

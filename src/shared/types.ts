@@ -191,11 +191,70 @@ export interface LanguageDetectionResult {
   };
 }
 
+// 🔥 기가차드 윈도우 정보 통합 타입 (모든 기능 포함)
 export interface WindowInfo {
+  // 🔥 기본 정보 (모든 플랫폼 공통)
+  id: number;
+  title: string;
+  
+  // 🔥 프로세스 정보
+  owner: {
+    name: string;          // processName 역할
+    processId: number;     // pid 역할
+    bundleId?: string;     // macOS용
+    path?: string;         // 실행파일 경로
+  };
+  
+  // 🔥 윈도우 위치/크기 정보
+  bounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  
+  // 🔥 시스템 정보
+  memoryUsage: number;
+  
+  // 🔥 Loop 전용 확장 필드 (기존 호환성 유지)
+  loopTimestamp?: number;
+  loopAppCategory?: AppCategory;
+  loopSessionId?: string;
+  loopTypingStats?: {
+    wpm: number;
+    accuracy: number;
+    keystrokeCount: number;
+    sessionDuration: number;
+  };
+}
+
+// 🔥 간단한 윈도우 정보 (하위 호환성)
+export interface SimpleWindowInfo {
   title: string;
   processName: string;
   pid: number;
 }
+
+// 🔥 앱 카테고리 타입 (appCategories.ts와 동일하게 유지)
+export type AppCategory = 
+  | 'ai-assistant'
+  | 'browser'
+  | 'cloud-storage'
+  | 'communication'
+  | 'design'
+  | 'development'
+  | 'e-commerce'
+  | 'entertainment'
+  | 'file-management'
+  | 'finance'
+  | 'marketing'
+  | 'media-production'
+  | 'office'
+  | 'productivity'
+  | 'project-management'
+  | 'security'
+  | 'system'
+  | 'unknown';
 
 export interface TypingStats {
   totalKeystrokes: number;

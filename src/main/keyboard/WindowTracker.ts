@@ -3,13 +3,10 @@
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import { activeWindow, openWindows, WindowInfo } from 'get-windows';
-import { Result } from '../../shared/types';
+import activeWin from 'active-win';
+import { Result, WindowInfo, AppCategory } from '../../shared/types';
 import { Platform } from '../utils/platform';
-import { getAppCategory, AppCategory, APP_CATEGORIES, APP_CATEGORY_MAPPING } from './appCategories';
-
-// 🔥 기가차드 타입 재export
-export type { WindowInfo } from 'get-windows';
+import { getAppCategory, APP_CATEGORIES, APP_CATEGORY_MAPPING } from './appCategories';
 
 // #DEBUG: Window tracker entry point
 Logger.debug('WINDOW_TRACKER', 'Window tracker module loaded');
@@ -207,8 +204,9 @@ export class WindowTracker extends BaseManager {
       }
       
       // 🔥 접근성 권한이 있으면 더 정확한 정보 가져오기
-      // 🔥 activeWindow 함수 직접 사용 (get-windows 패키지에서 import됨)
-      const activeWindowResult = await activeWindow();
+      // 🔥 active-win 함수 직접 사용 (active-win 패키지에서 import됨)
+      const activeWinResult = await activeWin();
+      const activeWindowResult = this.convertActiveWinToWindowInfo(activeWinResult);
 
       // 🔥 윈도우 정보 유효성 검증 및 보완
       if (activeWindowResult) {
@@ -222,6 +220,41 @@ export class WindowTracker extends BaseManager {
       
       // 🔥 대체 방법 시도 (항상 안전)
       return this.fallbackWindowDetection();
+    }
+  }
+
+  /**
+   * 🔥 active-win 결과를 WindowInfo로 변환
+   */
+  private convertActiveWinToWindowInfo(activeWinResult: any): WindowInfo | null {
+    try {
+      if (!activeWinResult) {
+        return null;
+      }
+
+      // 🔥 active-win 결과 구조 적응
+      const windowInfo: WindowInfo = {
+        id: activeWinResult.id || 0,
+        title: activeWinResult.title || '',
+        owner: {
+          name: activeWinResult.owner?.name || 'Unknown App',
+          processId: activeWinResult.owner?.processId || 0,
+          bundleId: activeWinResult.owner?.bundleId,
+          path: activeWinResult.owner?.path,
+        },
+        bounds: {
+          x: activeWinResult.bounds?.x || 0,
+          y: activeWinResult.bounds?.y || 0,
+          width: activeWinResult.bounds?.width || 0,
+          height: activeWinResult.bounds?.height || 0,
+        },
+        memoryUsage: activeWinResult.memoryUsage || 0,
+      };
+
+      return windowInfo;
+    } catch (error) {
+      Logger.error(this.componentName, 'active-win 결과 변환 실패', error);
+      return null;
     }
   }
 
@@ -479,10 +512,15 @@ export class WindowTracker extends BaseManager {
         };
       }
 
-      // 🔥 openWindows 함수 사용하여 모든 윈도우 가져오기
-      const windows = await openWindows();
+      // 🔥 active-win은 openWindows를 지원하지 않음 - 현재 윈도우만 반환
+      Logger.warn(this.componentName, '⚠️ active-win은 모든 윈도우 조회를 지원하지 않음');
       
-      if (!windows || !Array.isArray(windows)) {
+      // 🔥 현재 활성 윈도우만 배열로 반환
+      const activeWinResult = await activeWin();
+      const currentWindow = this.convertActiveWinToWindowInfo(activeWinResult);
+      const windowsArray = currentWindow ? [currentWindow] : [];
+      
+      if (windowsArray.length === 0) {
         return {
           success: true,
           data: [],
@@ -490,7 +528,7 @@ export class WindowTracker extends BaseManager {
       }
 
       // 🔥 윈도우 정보 검증 및 향상
-      const validWindows = windows
+      const validWindows = windowsArray
         .map(window => this.validateAndEnhanceWindowInfo(window))
         .filter((window): window is WindowInfo => window !== null)
         .map(window => this.enhanceWindowInfo(window));
@@ -534,8 +572,9 @@ export class WindowTracker extends BaseManager {
         };
       }
 
-      // 🔥 activeWindow 함수 직접 사용
-      const activeWindowResult = await activeWindow();
+      // 🔥 active-win 함수 직접 사용
+      const activeWinResult = await activeWin();
+      const activeWindowResult = this.convertActiveWinToWindowInfo(activeWinResult);
       
       if (!activeWindowResult) {
         return {

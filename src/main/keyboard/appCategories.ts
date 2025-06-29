@@ -2,27 +2,7 @@
 // Loop 프로젝트 전용 앱 카테고리 정의 (중복 제거, 알파벳 정렬)
 
 import { Logger } from '../../shared/logger';
-
-// 🔥 앱 카테고리 타입 정의
-export type AppCategory = 
-  | 'ai-assistant'
-  | 'browser'
-  | 'cloud-storage'
-  | 'communication'
-  | 'design'
-  | 'development'
-  | 'e-commerce'
-  | 'entertainment'
-  | 'file-management'
-  | 'finance'
-  | 'marketing'
-  | 'media-production'
-  | 'office'
-  | 'productivity'
-  | 'project-management'
-  | 'security'
-  | 'system'
-  | 'unknown';
+import { AppCategory } from '../../shared/types';
 
 // 🔥 앱 카테고리 상수 정의
 export const APP_CATEGORIES = {

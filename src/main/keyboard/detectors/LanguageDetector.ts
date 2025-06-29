@@ -1,20 +1,15 @@
-// 🔥 기가차드 심플 언어 감지기 - 연구 기반 최적 알고리즘
-// Research: TypeAny(96.7%), Samsung LDE(94.5%), Gboard 방식 적용
+// 🔥 기가차드 keycode 기반 LanguageDetector - macOS IME 완전 우회!
 
-import Common from 'electron/common';
 import { Logger } from '../../../shared/logger';
 import { BaseManager } from '../../common/BaseManager';
 import { KEYBOARD_LANGUAGES } from '../../../shared/common';
-import { HANGUL_KEY_MAP } from '../constants';
 import type { UiohookKeyboardEvent } from 'uiohook-napi';
-import { UiohookInstance } from 'uiohook-napi';
-
 
 // 🔥 언어 감지 결과 인터페이스
 export interface LanguageDetectionResult {
   language: 'ko' | 'en' | 'ja' | 'zh';
-  confidence: number; // 0.0 ~ 1.0
-  method: 'keymap' | 'pattern' | 'fallback';
+  confidence: number;
+  method: 'keycode' | 'pattern' | 'fallback';
   isComposing: boolean;
   metadata?: Record<string, unknown>;
 }
@@ -27,17 +22,7 @@ interface KeyBufferEvent {
 }
 
 /**
- * 🔥 LanguageDetector - 연구 기반 최적화된 언어 감지
- * 
- * 성능 목표:
- * - 처리 시간: <25µs (Samsung LDE 기준)
- * - 정확도: >96% (TypeAny 기준)
- * - 메모리: 최소 사용 (키 버퍼 5개)
- * 
- * 알고리즘:
- * 1. 키매핑 기반 즉시 감지 (95% 케이스)
- * 2. 패턴 분석 기반 감지 (4% 케이스)  
- * 3. 스마트 fallback (1% 케이스)
+ * 🔥 기가차드 keycode 기반 LanguageDetector - IME 우회 버전!
  */
 export class LanguageDetector extends BaseManager {
   private readonly componentName = 'LANGUAGE_DETECTOR';
@@ -45,15 +30,57 @@ export class LanguageDetector extends BaseManager {
   // 🔥 상태 관리
   private currentLanguage: 'ko' | 'en' | 'ja' | 'zh' = 'en';
   private keyBuffer: KeyBufferEvent[] = [];
-  private readonly BUFFER_SIZE = 5; // 연구 기반 최적 크기
+  private readonly BUFFER_SIZE = 5;
   
   // 🔥 성능 카운터
   private detectionCount = 0;
   private totalProcessingTime = 0;
   
-  // 🔥 키매핑 테이블 (O(1) lookup)
-  private hangulKeyMap: Map<string, string>;
+  // 🔥 기가차드 물리적 keycode → 한글자모 매핑 (OS 무관!)
+  private readonly KEYCODE_TO_HANGUL: Map<number, string> = new Map([
+    // 자음 (상단 행)
+    [81, 'ㅂ'],   // Q
+    [87, 'ㅈ'],   // W  
+    [69, 'ㄷ'],   // E
+    [82, 'ㄱ'],   // R
+    [84, 'ㅅ'],   // T
+    [89, 'ㅛ'],   // Y
+    [85, 'ㅕ'],   // U
+    [73, 'ㅑ'],   // I
+    [79, 'ㅐ'],   // O
+    [80, 'ㅔ'],   // P
+    
+    // 자음 (중단 행)
+    [65, 'ㅁ'],   // A
+    [83, 'ㄴ'],   // S
+    [68, 'ㅇ'],   // D
+    [70, 'ㄹ'],   // F ⭐ 이게 ㄹ이다!
+    [71, 'ㅎ'],   // G
+    [72, 'ㅗ'],   // H
+    [74, 'ㅓ'],   // J
+    [75, 'ㅏ'],   // K
+    [76, 'ㅣ'],   // L
+    
+    // 자음 (하단 행)  
+    [90, 'ㅋ'],   // Z
+    [88, 'ㅌ'],   // X
+    [67, 'ㅊ'],   // C
+    [86, 'ㅍ'],   // V
+    [66, 'ㅠ'],   // B
+    [78, 'ㅜ'],   // N
+    [77, 'ㅡ'],   // M
+  ]);
   
+  // 🔥 영어 키코드 범위 (A-Z, 숫자, 특수문자)
+  private readonly ENGLISH_KEYCODES = new Set([
+    // A-Z (65-90)
+    ...Array.from({length: 26}, (_, i) => 65 + i),
+    // 숫자 (48-57) 
+    ...Array.from({length: 10}, (_, i) => 48 + i),
+    // 특수문자 (자주 사용되는 것들)
+    32, 188, 190, 191, 186, 222, 219, 221, 220, 192, 189, 187
+  ]);
+
   constructor() {
     super({
       name: 'LanguageDetector',
@@ -63,69 +90,70 @@ export class LanguageDetector extends BaseManager {
       retryDelay: 100,
     });
     
-    this.hangulKeyMap = new Map();
-    this.setupKeyMappings();
-    
-    Logger.info(this.componentName, 'Simple language detector created');
+    Logger.info(this.componentName, '🔥 keycode 기반 언어 감지기 생성됨');
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 초기화
-   */
   protected async doInitialize(): Promise<void> {
-    this.setupKeyMappings();
     this.resetState();
-    Logger.info(this.componentName, 'Simple language detector initialized');
+    Logger.info(this.componentName, '🔥 keycode 기반 언어 감지기 초기화됨');
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 시작
-   */
   protected async doStart(): Promise<void> {
     this.resetState();
-    Logger.info(this.componentName, 'Simple language detector started');
+    Logger.info(this.componentName, '🔥 keycode 기반 언어 감지기 시작됨');
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 중지
-   */
   protected async doStop(): Promise<void> {
     this.resetState();
-    Logger.info(this.componentName, 'Simple language detector stopped');
+    Logger.info(this.componentName, '🔥 keycode 기반 언어 감지기 중지됨');
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 정리
-   */
   protected async doCleanup(): Promise<void> {
     this.keyBuffer = [];
-    this.hangulKeyMap.clear();
-    Logger.info(this.componentName, 'Simple language detector cleaned up');
+    Logger.info(this.componentName, '🔥 keycode 기반 언어 감지기 정리됨');
   }
 
   /**
-   * 🔥 메인 언어 감지 메서드 - 최적화된 3단계 알고리즘
+   * 🔥 메인 언어 감지 메서드 - keycode 기반 3단계 알고리즘
    */
   public detectLanguage(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     const startTime = performance.now();
     
     try {
+      // 극한 디버깅
+      Logger.debug(this.componentName, '🔥🔥🔥 RAW INPUT DATA 🔥🔥🔥', {
+        keycode: rawEvent.keycode,
+        keychar: rawEvent.keychar,
+        keycodeHex: `0x${rawEvent.keycode.toString(16)}`,
+        keycharHex: rawEvent.keychar ? `0x${rawEvent.keychar.toString(16)}` : 'null',
+        keycharString: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'null',
+        keycharUnicode: rawEvent.keychar ? `U+${rawEvent.keychar.toString(16).padStart(4, '0')}` : 'null',
+        isShift: rawEvent.shiftKey,
+        currentLanguage: this.currentLanguage
+      });
+      
+      // keychar 없으면 keycode만으로 처리 (macOS IME 우회!)
+      if (!rawEvent.keychar || rawEvent.keychar === 0) {
+        Logger.debug(this.componentName, '❌ NO KEYCHAR - keycode 기반 처리', { keycode: rawEvent.keycode });
+        return this.detectByKeycodeOnly(rawEvent, startTime);
+      }
+      
       // 키 버퍼에 추가
       this.addToBuffer(rawEvent);
       
-      // 🔥 1단계: 키매핑 기반 즉시 감지 (95% 케이스, <5µs)
-      const keymapResult = this.detectByKeyMapping(rawEvent);
-      if (keymapResult.confidence >= 0.9) {
-        return this.finalizeResult(keymapResult, startTime);
+      // 🔥 1단계: keycode 기반 즉시 감지
+      const keycodeResult = this.detectByKeycode(rawEvent);
+      if (keycodeResult.confidence >= 0.8) {
+        return this.finalizeResult(keycodeResult, startTime);
       }
       
-      // 🔥 2단계: 패턴 분석 기반 감지 (4% 케이스, <15µs)
+      // 🔥 2단계: 패턴 분석 기반 감지
       const patternResult = this.detectByPattern();
-      if (patternResult.confidence >= 0.7) {
+      if (patternResult.confidence >= 0.6) {
         return this.finalizeResult(patternResult, startTime);
       }
       
-      // 🔥 3단계: 스마트 fallback (1% 케이스, <20µs)
+      // 🔥 3단계: 스마트 fallback
       const fallbackResult = this.detectByFallback(rawEvent);
       return this.finalizeResult(fallbackResult, startTime);
       
@@ -136,86 +164,151 @@ export class LanguageDetector extends BaseManager {
   }
 
   /**
-   * 🔥 1단계: 키매핑 기반 즉시 감지
+   * 🔥 keycode만으로 감지 (macOS IME 우회)
    */
-  private detectByKeyMapping(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
+  private detectByKeycodeOnly(rawEvent: UiohookKeyboardEvent, startTime: number): LanguageDetectionResult {
     const { keycode } = rawEvent;
     
-    // A-Z 키만 처리 (65-90)
-    if (keycode < 65 || keycode > 90) {
-      return {
-        language: this.currentLanguage,
-        confidence: 0.3,
-        method: 'keymap',
-        isComposing: false,
-        metadata: { reason: 'non-alpha-key' }
-      };
+    // 한글 키매핑 확인
+    if (this.KEYCODE_TO_HANGUL.has(keycode)) {
+      const hangulChar = this.KEYCODE_TO_HANGUL.get(keycode);
+      this.currentLanguage = 'ko';
+      
+      Logger.debug(this.componentName, '🔥 keycode 기반 한글 감지!', {
+        keycode,
+        hangulChar,
+        keycodeHex: `0x${keycode.toString(16)}`
+      });
+      
+      return this.finalizeResult({
+        language: 'ko',
+        confidence: 0.95, // 높은 신뢰도
+        method: 'keycode',
+        isComposing: true,
+        metadata: { 
+          keycode,
+          hangulChar,
+          reason: 'keycode-hangul-mapping'
+        }
+      }, startTime);
     }
     
-    const char = String.fromCharCode(keycode).toLowerCase();
-    const hangulChar = this.hangulKeyMap.get(char);
+    // 영어 키 확인
+    if (this.ENGLISH_KEYCODES.has(keycode)) {
+      return this.finalizeResult({
+        language: 'en',
+        confidence: 0.8,
+        method: 'keycode',
+        isComposing: false,
+        metadata: { 
+          keycode,
+          reason: 'keycode-english-key'
+        }
+      }, startTime);
+    }
     
-    if (hangulChar) {
-      // 한글 키 감지 - 높은 신뢰도
+    // 특수 키들 (현재 언어 유지)
+    return this.finalizeResult({
+      language: this.currentLanguage,
+      confidence: 0.7,
+      method: 'fallback',
+      isComposing: false,
+      metadata: { 
+        keycode,
+        reason: 'keycode-special-key-maintain'
+      }
+    }, startTime);
+  }
+
+  /**
+   * 🔥 1단계: keycode 기반 즉시 감지
+   */
+  private detectByKeycode(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
+    const { keycode, keychar } = rawEvent;
+    
+    // 한글 키매핑 확인 (keycode 우선)
+    if (this.KEYCODE_TO_HANGUL.has(keycode)) {
+      const hangulChar = this.KEYCODE_TO_HANGUL.get(keycode);
       this.currentLanguage = 'ko';
+      
       return {
         language: 'ko',
         confidence: 0.95,
-        method: 'keymap',
+        method: 'keycode',
         isComposing: true,
         metadata: { 
-          pressedKey: char,
+          keycode,
+          keychar,
           hangulChar,
-          reason: 'hangul-keymap-match'
-        }
-      };
-    } else {
-      // 영어 키 추정 - 중간 신뢰도
-      return {
-        language: 'en',
-        confidence: 0.6,
-        method: 'keymap',
-        isComposing: false,
-        metadata: { 
-          pressedKey: char,
-          reason: 'english-key-assumed'
+          reason: 'keycode-hangul-direct'
         }
       };
     }
+    
+    // 영어 키 확인
+    if (this.ENGLISH_KEYCODES.has(keycode)) {
+      return {
+        language: 'en',
+        confidence: 0.85,
+        method: 'keycode',
+        isComposing: false,
+        metadata: { 
+          keycode,
+          keychar,
+          reason: 'keycode-english-direct'
+        }
+      };
+    }
+    
+    return {
+      language: this.currentLanguage,
+      confidence: 0.4,
+      method: 'keycode',
+      isComposing: false,
+      metadata: { reason: 'keycode-no-match' }
+    };
   }
 
   /**
    * 🔥 2단계: 패턴 분석 기반 감지
    */
   private detectByPattern(): LanguageDetectionResult {
-    if (this.keyBuffer.length < 3) {
+    if (this.keyBuffer.length < 2) {
       return {
         language: this.currentLanguage,
-        confidence: 0.4,
+        confidence: 0.3,
         method: 'pattern',
         isComposing: false,
-        metadata: { reason: 'insufficient-buffer' }
+        metadata: { reason: 'insufficient-buffer', bufferSize: this.keyBuffer.length }
       };
     }
     
-    // 최근 3개 키 분석
-    const recentKeys = this.keyBuffer.slice(-3);
-    let hangulKeyCount = 0;
-    let englishKeyCount = 0;
+    // 최근 키들의 keycode 분석
+    const recentKeycodes = this.keyBuffer
+      .slice(-3)
+      .map(event => event.keycode);
     
-    for (const keyEvent of recentKeys) {
-      if (keyEvent.keycode >= 65 && keyEvent.keycode <= 90) {
-        const char = String.fromCharCode(keyEvent.keycode).toLowerCase();
-        if (this.hangulKeyMap.has(char)) {
-          hangulKeyCount++;
-        } else {
-          englishKeyCount++;
-        }
+    if (recentKeycodes.length === 0) {
+      return {
+        language: this.currentLanguage,
+        confidence: 0.3,
+        method: 'pattern',
+        isComposing: false,
+        metadata: { reason: 'no-valid-keycodes' }
+      };
+    }
+    
+    // 한글 키 패턴 분석 (keycode 기반)
+    let hangulKeyCount = 0;
+    for (const keycode of recentKeycodes) {
+      if (this.KEYCODE_TO_HANGUL.has(keycode)) {
+        hangulKeyCount++;
       }
     }
     
-    // 패턴 기반 결정
-    if (hangulKeyCount >= 2) {
+    const hangulRatio = hangulKeyCount / recentKeycodes.length;
+    
+    if (hangulRatio >= 0.6) {
       this.currentLanguage = 'ko';
       return {
         language: 'ko',
@@ -224,11 +317,12 @@ export class LanguageDetector extends BaseManager {
         isComposing: true,
         metadata: { 
           hangulKeyCount,
-          englishKeyCount,
-          reason: 'hangul-pattern-detected'
+          totalKeys: recentKeycodes.length,
+          hangulRatio,
+          reason: 'hangul-pattern-strong'
         }
       };
-    } else if (englishKeyCount >= 2) {
+    } else if (hangulRatio <= 0.3) {
       this.currentLanguage = 'en';
       return {
         language: 'en',
@@ -237,8 +331,9 @@ export class LanguageDetector extends BaseManager {
         isComposing: false,
         metadata: { 
           hangulKeyCount,
-          englishKeyCount,
-          reason: 'english-pattern-detected'
+          totalKeys: recentKeycodes.length,
+          hangulRatio,
+          reason: 'english-pattern-strong'
         }
       };
     }
@@ -248,7 +343,10 @@ export class LanguageDetector extends BaseManager {
       confidence: 0.5,
       method: 'pattern',
       isComposing: false,
-      metadata: { reason: 'pattern-inconclusive' }
+      metadata: { 
+        hangulRatio,
+        reason: 'pattern-mixed'
+      }
     };
   }
 
@@ -256,50 +354,45 @@ export class LanguageDetector extends BaseManager {
    * 🔥 3단계: 스마트 fallback
    */
   private detectByFallback(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
-    const { keycode } = rawEvent;
+    const { keycode, keychar } = rawEvent;
     
-    // 특수 키들은 현재 언어 유지
-    if (keycode < 32 || keycode > 126) {
+    // 특수 키들 (화살표, Ctrl, Alt 등)
+    if (keycode < 32 || !keychar) {
       return {
         language: this.currentLanguage,
-        confidence: 0.6,
+        confidence: 0.8, // 현재 언어 유지로 높은 신뢰도
         method: 'fallback',
         isComposing: false,
-        metadata: { reason: 'special-key-current-language' }
+        metadata: { reason: 'special-key-maintain-current', keycode }
       };
     }
     
-    // 기본값: 영어로 fallback
-    this.currentLanguage = 'en';
+    // 숫자 키 (48-57)
+    if (keycode >= 48 && keycode <= 57) {
+      return {
+        language: this.currentLanguage,
+        confidence: 0.7,
+        method: 'fallback',
+        isComposing: false,
+        metadata: { reason: 'number-key-maintain-current', keycode }
+      };
+    }
+    
+    // 기본값: 영어로 fallback (confidence 낮춤)
     return {
       language: 'en',
-      confidence: 0.5,
+      confidence: 0.4,
       method: 'fallback',
       isComposing: false,
-      metadata: { reason: 'default-english-fallback' }
+      metadata: { reason: 'default-english-fallback', keycode }
     };
   }
 
   /**
-   * 키매핑 설정
-   */
-  private setupKeyMappings(): void {
-    this.hangulKeyMap.clear();
-    
-    // HANGUL_KEY_MAP을 역매핑 (영어키 → 한글)
-    Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
-      this.hangulKeyMap.set(english.toLowerCase(), hangul);
-    });
-    
-    Logger.debug(this.componentName, 'Key mappings setup completed', {
-      mappingCount: this.hangulKeyMap.size
-    });
-  }
-
-  /**
-   * 키 버퍼에 추가 (롤링 윈도우)
+   * 키 버퍼에 추가
    */
   private addToBuffer(rawEvent: UiohookKeyboardEvent): void {
+    // keycode 기반으로 버퍼에 추가
     const keyEvent: KeyBufferEvent = {
       keycode: rawEvent.keycode,
       timestamp: Date.now()
@@ -307,7 +400,7 @@ export class LanguageDetector extends BaseManager {
     
     this.keyBuffer.push(keyEvent);
     
-    // 버퍼 크기 제한 (FIFO)
+    // 버퍼 크기 제한
     if (this.keyBuffer.length > this.BUFFER_SIZE) {
       this.keyBuffer.shift();
     }
@@ -319,12 +412,11 @@ export class LanguageDetector extends BaseManager {
   private finalizeResult(result: LanguageDetectionResult, startTime: number): LanguageDetectionResult {
     const processingTime = performance.now() - startTime;
     
-    // 성능 통계 업데이트
     this.detectionCount++;
     this.totalProcessingTime += processingTime;
     
-    // 현재 언어 업데이트
-    if (result.confidence >= 0.7) {
+    // 신뢰도 임계값 (0.6 이상일 때만 언어 변경)
+    if (result.confidence >= 0.6) {
       this.currentLanguage = result.language;
     }
     
@@ -332,16 +424,13 @@ export class LanguageDetector extends BaseManager {
       language: result.language,
       confidence: result.confidence,
       method: result.method,
-      processingTime: `${processingTime.toFixed(3)}µs`,
-      averageTime: `${(this.totalProcessingTime / this.detectionCount).toFixed(3)}µs`
+      processingTime: `${processingTime.toFixed(3)}ms`,
+      averageTime: `${(this.totalProcessingTime / this.detectionCount).toFixed(3)}ms`
     });
     
     return result;
   }
 
-  /**
-   * Fallback 결과 생성
-   */
   private createFallbackResult(startTime: number): LanguageDetectionResult {
     return this.finalizeResult({
       language: this.currentLanguage,
@@ -352,9 +441,6 @@ export class LanguageDetector extends BaseManager {
     }, startTime);
   }
 
-  /**
-   * 상태 리셋
-   */
   private resetState(): void {
     this.currentLanguage = 'en';
     this.keyBuffer = [];
@@ -363,24 +449,15 @@ export class LanguageDetector extends BaseManager {
     Logger.debug(this.componentName, 'State reset completed');
   }
 
-  /**
-   * 현재 언어 반환
-   */
   public getCurrentLanguage(): 'ko' | 'en' | 'ja' | 'zh' {
     return this.currentLanguage;
   }
 
-  /**
-   * 언어 강제 설정
-   */
   public setLanguage(language: 'ko' | 'en' | 'ja' | 'zh'): void {
     this.currentLanguage = language;
     Logger.info(this.componentName, 'Language manually set', { language });
   }
 
-  /**
-   * 성능 통계 반환
-   */
   public getPerformanceStats(): {
     detectionCount: number;
     averageProcessingTime: number;
@@ -397,6 +474,5 @@ export class LanguageDetector extends BaseManager {
   }
 }
 
-// 🔥 싱글톤 인스턴스
 export const languageDetector = new LanguageDetector();
 export default languageDetector;

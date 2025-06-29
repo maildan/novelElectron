@@ -48,8 +48,8 @@ export class AppDetector extends BaseManager {
         this.currentActiveWindow = window;
         Logger.info(this.componentName, 'Initial active window detected', {
           title: window.title,
-          processName: window.processName,
-          pid: window.pid
+          processName: window.owner.name,
+          pid: window.owner.processId
         });
       }
     } catch (error) {
@@ -126,12 +126,12 @@ export class AppDetector extends BaseManager {
         Logger.info(this.componentName, 'Window changed', {
           from: previousWindow ? {
             title: previousWindow.title,
-            processName: previousWindow.processName
+            processName: previousWindow.owner.name
           } : null,
           to: {
             title: activeWindow.title,
-            processName: activeWindow.processName,
-            category: this.categorizeApp(activeWindow.processName)
+            processName: activeWindow.owner.name,
+            category: this.categorizeApp(activeWindow.owner.name)
           },
           changeCount: this.windowChangeCount
         });
@@ -141,7 +141,7 @@ export class AppDetector extends BaseManager {
           previousWindow,
           currentWindow: activeWindow,
           timestamp: new Date(),
-          category: this.categorizeApp(activeWindow.processName)
+          category: this.categorizeApp(activeWindow.owner.name)
         });
       }
 
@@ -200,9 +200,19 @@ export class AppDetector extends BaseManager {
       }
 
       return {
+        id: parseInt(pidStr) || 0,
         title: windowTitle || processName,
-        processName: processName,
-        pid: parseInt(pidStr) || 0
+        owner: {
+          name: processName,
+          processId: parseInt(pidStr) || 0
+        },
+        bounds: {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0
+        },
+        memoryUsage: 0
       };
 
     } catch (error) {
@@ -253,8 +263,13 @@ export class AppDetector extends BaseManager {
 
       return {
         title: windowTitle || processName,
-        processName: processName,
-        pid: parseInt(pidStr) || 0
+        owner: {
+          name: processName,
+          processId: parseInt(pidStr) || 0
+        },
+        bounds: { x: 0, y: 0, width: 0, height: 0 },
+        id: Date.now(),
+        memoryUsage: 0
       };
 
     } catch (error) {
@@ -288,8 +303,13 @@ export class AppDetector extends BaseManager {
 
       return {
         title: windowTitle.trim(),
-        processName: processName.trim(),
-        pid: pid
+        owner: {
+          name: processName.trim(),
+          processId: pid
+        },
+        bounds: { x: 0, y: 0, width: 0, height: 0 },
+        id: Date.now(),
+        memoryUsage: 0
       };
 
     } catch (error) {
@@ -308,8 +328,8 @@ export class AppDetector extends BaseManager {
 
     return (
       this.currentActiveWindow.title !== newWindow.title ||
-      this.currentActiveWindow.processName !== newWindow.processName ||
-      this.currentActiveWindow.pid !== newWindow.pid
+      this.currentActiveWindow.owner.name !== newWindow.owner.name ||
+      this.currentActiveWindow.owner.processId !== newWindow.owner.processId
     );
   }
 
