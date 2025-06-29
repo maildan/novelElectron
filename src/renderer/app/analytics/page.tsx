@@ -131,12 +131,14 @@ export default function AnalyticsPage(): React.ReactElement {
    */
   const convertToAnalyticsData = (
     dashboardStats: any,
-    projects: any[],
-    sessions: any[]
+    projects: any[] | undefined,
+    sessions: any[] | undefined
   ): AnalyticsData => {
     const today = new Date();
-    const weekData = calculateWeeklyData(sessions);
-    const projectProgress = calculateProjectProgress(projects);
+    const safeProjects = projects || [];
+    const safeSessions = sessions || [];
+    const weekData = calculateWeeklyData(safeSessions);
+    const projectProgress = calculateProjectProgress(safeProjects);
     
     return {
       kpis: {
@@ -144,10 +146,10 @@ export default function AnalyticsPage(): React.ReactElement {
         totalWords: dashboardStats?.monthWords || 0,
         avgWpm: dashboardStats?.avgWpm || 0,
         activeProjects: dashboardStats?.activeProjects || 0,
-        sessionTime: calculateSessionTime(sessions),
+        sessionTime: calculateSessionTime(safeSessions),
         accuracy: dashboardStats?.accuracy || 0,
         weeklyGoal: calculateWeeklyGoalProgress(weekData),
-        improvementRate: calculateImprovementRate(sessions)
+        improvementRate: calculateImprovementRate(safeSessions)
       },
       weeklyData: weekData,
       projectProgress,

@@ -20,7 +20,7 @@ declare module 'get-windows' {
     
     // 🔥 Loop 전용 확장 필드
     loopTimestamp?: number;
-    loopAppCategory?: 'development' | 'browser' | 'office' | 'communication' | 'design' | 'entertainment' | 'productivity' | 'system' | 'other';
+    loopAppCategory?: 'ai-assistant' | 'browser' | 'cloud-storage' | 'communication' | 'design' | 'development' | 'e-commerce' | 'entertainment' | 'file-management' | 'finance' | 'marketing' | 'media-production' | 'office' | 'productivity' | 'project-management' | 'security' | 'system' | 'unknown';
     loopSessionId?: string;
     loopTypingStats?: {
       wpm: number;

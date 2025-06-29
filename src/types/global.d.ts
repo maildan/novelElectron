@@ -1,7 +1,8 @@
 // 🔥 기가차드 글로벌 타입 확장 - Electron 환경 특화
 // src/types/global.d.ts
 
-import { ElectronAPI } from '../preload/preload';
+import { ElectronAPI } from '../shared/types';
+import { AppCategory } from '../main/keyboard/appCategories';
 
 // 🔥 uiohook-napi 타입 정의 (완전 타입 안전 - 모든 any 제거)
 declare module 'uiohook-napi' {

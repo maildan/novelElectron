@@ -966,27 +966,44 @@ export const APP_CATEGORY_MAPPING: Record<string, AppCategory> = {
 } as const;
 
 /**
- * 🔥 앱 카테고리 조회 함수 (타입 안전)
+ * 🔥 앱 이름으로 카테고리 반환
  */
 export function getAppCategory(appName: string): AppCategory {
-  const normalizedName = appName.trim();
-  const category = APP_CATEGORY_MAPPING[normalizedName];
+  const normalizedAppName = appName.trim();
   
-  if (!category) {
-    Logger.debug('APP_CATEGORIES', `Unknown app: ${normalizedName}`, { appName });
-    return APP_CATEGORIES.UNKNOWN;
+  // 정확한 매치 시도
+  if (APP_CATEGORY_MAPPING[normalizedAppName]) {
+    return APP_CATEGORY_MAPPING[normalizedAppName];
   }
   
-  return category;
+  // 대소문자 무시하고 검색
+  const lowerAppName = normalizedAppName.toLowerCase();
+  for (const [mappedAppName, category] of Object.entries(APP_CATEGORY_MAPPING)) {
+    if (mappedAppName.toLowerCase() === lowerAppName) {
+      return category;
+    }
+  }
+  
+  // 부분 매치 시도 (앱 이름이 포함된 경우)
+  for (const [mappedAppName, category] of Object.entries(APP_CATEGORY_MAPPING)) {
+    if (lowerAppName.includes(mappedAppName.toLowerCase()) || 
+        mappedAppName.toLowerCase().includes(lowerAppName)) {
+      return category;
+    }
+  }
+  
+  // 매치되지 않은 경우
+  Logger.debug('APP_CATEGORIES', 'Unknown app category', { appName: normalizedAppName });
+  return APP_CATEGORIES.UNKNOWN;
 }
 
 /**
- * 🔥 카테고리별 앱 목록 조회
+ * 🔥 카테고리별 앱 목록 반환
  */
 export function getAppsByCategory(category: AppCategory): string[] {
   return Object.entries(APP_CATEGORY_MAPPING)
-    .filter(([, appCategory]) => appCategory === category)
-    .map(([appName]) => appName);
+    .filter(([_, cat]) => cat === category)
+    .map(([appName, _]) => appName);
 }
 
 /**

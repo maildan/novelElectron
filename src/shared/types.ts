@@ -217,6 +217,7 @@ export const IPC_CHANNELS = {
     QUIT: 'app:quit',
     MINIMIZE: 'app:minimize',
     MAXIMIZE: 'app:maximize',
+    IS_MAXIMIZED: 'app:is-maximized',
   },
 } as const;
 
@@ -246,13 +247,6 @@ export interface SystemHealth {
   storage: HealthCheckResult;
   uptime: number;
   version: string;
-}
-
-// 🔥 Window 글로벌 타입 확장 - Renderer에서 사용  
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
 }
 
 // 🔥 이 파일을 모듈로 만들기 위한 export
