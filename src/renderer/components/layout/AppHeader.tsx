@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { SearchInput } from '../ui/Input';
 import { Avatar } from '../ui/Avatar';
 import { Badge } from '../ui/Badge';
+import { HydrationGuard } from '../ui/HydrationGuard';
 import { useState } from 'react';
 import { Logger } from '../../../shared/logger';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
@@ -107,12 +108,14 @@ export function AppHeader({
       {/* 우측 섹션 */}
       <div className={HEADER_STYLES.rightSection}>
         {/* 모니터링 상태 표시 */}
-        {isMonitoring && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm">
-            <Activity className="w-4 h-4 animate-pulse" />
-            <span className="font-medium">모니터링 중</span>
-          </div>
-        )}
+        <HydrationGuard fallback={null}>
+          {isMonitoring && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm">
+              <Activity className="w-4 h-4 animate-pulse" />
+              <span className="font-medium">모니터링 중</span>
+            </div>
+          )}
+        </HydrationGuard>
 
         {/* 알림 버튼 */}
         <div className={HEADER_STYLES.notificationButton}>
