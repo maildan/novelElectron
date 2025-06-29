@@ -6,7 +6,7 @@ if (typeof global === 'undefined') {
 }
 
 import { Inter } from 'next/font/google';
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useLayoutEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
@@ -38,26 +38,24 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps): React.ReactElement {
-  // 🔥 하이드레이션 안전한 사이드바 상태 초기화
-  const getSidebarInitialState = (): boolean => {
-    if (typeof window === 'undefined') {
-      return false; // 서버사이드에서는 기본값
-    }
-    
-    try {
-      const savedState = localStorage.getItem('sidebar-collapsed');
-      return savedState === 'true';
-    } catch (error) {
-      return false;
-    }
-  };
-
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(getSidebarInitialState);
+  // 🔥 하이드레이션 안전한 사이드바 상태 초기화 (서버와 클라이언트 동일)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isClientMounted, setIsClientMounted] = useState<boolean>(false);
   const pathname = usePathname();
 
-  // 🔥 클라이언트 마운트 확인만
-  useEffect(() => {
+  // 🔥 DOM 업데이트 전에 localStorage에서 사이드바 상태 즉시 복원
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedState = localStorage.getItem('sidebar-collapsed');
+        if (savedState === 'true') {
+          setSidebarCollapsed(true);
+        }
+        Logger.debug('LAYOUT', 'Sidebar state restored immediately', { collapsed: savedState === 'true' });
+      } catch (error) {
+        Logger.error('LAYOUT', 'Failed to restore sidebar state', error);
+      }
+    }
     setIsClientMounted(true);
   }, []);
 

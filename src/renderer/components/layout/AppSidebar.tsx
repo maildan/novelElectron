@@ -198,12 +198,12 @@ export function AppSidebar({
       {/* 로고 */}
       <div className={collapsed ? SIDEBAR_STYLES.logoCollapsed : SIDEBAR_STYLES.logoSection}>
         {collapsed ? (
-          <div className="flex flex-col items-center gap-4 py-3">
+          <div className="flex flex-col items-center gap-3 py-4">
             <div className={SIDEBAR_STYLES.logoIcon}>L</div>
             
-            {/* 축소 시 사용자 프로필 */}
+            {/* 축소 시 사용자 프로필 - 아래로 이동 */}
             <div 
-              className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors mt-2"
               onClick={() => {
                 Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
                 onNavigate?.('/settings');

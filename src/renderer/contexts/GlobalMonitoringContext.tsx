@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useLayoutEffect } from 'react';
 import { Logger } from '../../shared/logger';
 
 // 🔥 기가차드 규칙: 명시적 타입 정의
@@ -28,51 +28,44 @@ export const MonitoringContext = createContext<MonitoringContextType | undefined
 
 // 🔥 프로바이더 컴포넌트
 export function MonitoringProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  // 🔥 하이드레이션 안전한 초기 상태 - localStorage에서 읽은 값으로 바로 초기화
-  const getInitialState = (): MonitoringState => {
-    if (typeof window === 'undefined') {
-      // 서버사이드에서는 기본값
-      return {
-        isMonitoring: false,
-        isAIOpen: false,
-        startTime: null,
-        sessionData: { wpm: 0, words: 0, time: 0 },
-      };
-    }
-    
-    // 클라이언트사이드에서는 localStorage에서 읽기
-    try {
-      const savedState = localStorage.getItem('monitoring-state');
-      if (savedState) {
-        const parsed = JSON.parse(savedState);
-        return {
-          isMonitoring: parsed.isMonitoring || false,
-          isAIOpen: parsed.isAIOpen || false,
-          startTime: parsed.startTime ? new Date(parsed.startTime) : null,
-          sessionData: {
-            wpm: parsed.sessionData?.wpm || 0,
-            words: parsed.sessionData?.words || 0,
-            time: parsed.sessionData?.time || 0,
-          },
-        };
-      }
-    } catch (error) {
-      Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
-    }
-    
-    return {
-      isMonitoring: false,
-      isAIOpen: false,
-      startTime: null,
-      sessionData: { wpm: 0, words: 0, time: 0 },
-    };
-  };
+  // 🔥 SSR 안전한 초기 상태 (서버와 클라이언트 모두 동일 - 기본값만 사용)
+  const [state, setState] = useState<MonitoringState>(() => ({
+    isMonitoring: false,
+    isAIOpen: false,
+    startTime: null,
+    sessionData: {
+      wpm: 0,
+      words: 0,
+      time: 0,
+    },
+  }));
 
-  const [state, setState] = useState<MonitoringState>(getInitialState);
   const [isClientMounted, setIsClientMounted] = useState<boolean>(false);
 
-  // 🔥 클라이언트 마운트 확인만
-  React.useEffect(() => {
+  // 🔥 클라이언트 마운트와 동시에 localStorage에서 상태 복원 (하이드레이션 불일치 해결)
+  useLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedState = localStorage.getItem('monitoring-state');
+        if (savedState) {
+          const parsed = JSON.parse(savedState);
+          // 🔥 DOM 업데이트 전에 동기적으로 상태 업데이트 (0ms 딜레이)
+          setState(prev => ({
+            ...prev,
+            isMonitoring: parsed.isMonitoring || false,
+            isAIOpen: parsed.isAIOpen || false,
+            startTime: parsed.startTime ? new Date(parsed.startTime) : null,
+            sessionData: {
+              ...prev.sessionData,
+              ...parsed.sessionData,
+            },
+          }));
+          Logger.debug('MONITORING_CONTEXT', 'State restored immediately from localStorage', parsed);
+        }
+      } catch (error) {
+        Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
+      }
+    }
     setIsClientMounted(true);
   }, []);
 
