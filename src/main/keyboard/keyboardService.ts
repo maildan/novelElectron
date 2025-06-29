@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 import type { UiohookKeyboardEvent, UiohookInstance } from 'uiohook-napi';
 import { WindowTracker } from './WindowTracker';
 import { HangulComposer } from './HangulComposer';
+import { LanguageDetector } from './detectors/LanguageDetector';
 import { HANGUL_KEY_MAP } from './constants';
 
 // #DEBUG: Keyboard service entry point
@@ -49,11 +50,18 @@ export class KeyboardService extends EventEmitter {
   private windowTracker: WindowTracker | null = null; // 🔥 지연 초기화로 변경
   private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
   private hangulComposer: HangulComposer; // 🔥 한글 조합기 추가
+  private languageDetector: LanguageDetector; // 🔥 새로운 언어 감지 시스템
+  
+  // 🔥 영어 키 시퀀스 감지를 위한 배열
+  private englishKeySequence: string[] = [];
+  private readonly englishSwitchThreshold = 5; // 연속 5개 영어 키
   
   constructor() {
     super();
     // 🔥 HangulComposer 초기화
     this.hangulComposer = new HangulComposer();
+    // 🔥 LanguageDetector 초기화
+    this.languageDetector = new LanguageDetector();
     // 🔥 WindowTracker는 권한 확인 후 지연 초기화
     this.initializeUiohook();
   }
@@ -225,6 +233,7 @@ export class KeyboardService extends EventEmitter {
       // 🔥 2. 한글 특별 처리
       let composedChar: string | undefined;
       let isComposing = false;
+      let hangulResult: any = null; // 🔥 스코프 확장
       
       if (detectedLanguage === 'ko' || this.isKoreanKeyEvent(rawEvent)) {
         Logger.debug('KEYBOARD', 'Korean input detected, processing with HangulComposer', {
@@ -240,7 +249,7 @@ export class KeyboardService extends EventEmitter {
         )?.[0];
         
         // 🔥 HangulComposer로 한글 조합 처리 (실제 키 전달)
-        const hangulResult = await this.hangulComposer.processKey({
+        hangulResult = await this.hangulComposer.processKey({
           key: pressedKey, // 실제 눌린 키 (q, w, e, r 등)
           code: `Key${rawEvent.keycode}`,
           keychar: hangulChar || String.fromCharCode(rawEvent.keychar || 0), // 한글 문자 우선
@@ -274,16 +283,16 @@ export class KeyboardService extends EventEmitter {
       const windowTitle = currentWindow?.title || 'Unknown Window';
       
       const processedEvent: ProcessedKeyboardEvent = {
-        key: this.mapKeyToString(rawEvent.keycode),
+        key: this.getDisplayKey(rawEvent, currentLanguage, composedChar, hangulResult), // 🔥 정확한 입력 문자 표시
         code: `Key${rawEvent.keycode}`,
-        keychar: composedChar || String.fromCharCode(rawEvent.keychar || 0), // 🔥 조합된 문자 우선 사용
+        keychar: composedChar || hangulResult?.completed || (rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : ''), // 🔥 조합된 문자 우선
         timestamp: Date.now(),
         windowTitle,
-        type,
+        type: type === 'keydown' && (composedChar || hangulResult?.completed) ? 'input' : type, // 🔥 실제 입력 시 'input' 타입
         language: currentLanguage,
-        composedChar,
-        isComposing: isComposing || (languageConfig?.composition || false),
-        inputMethod: languageConfig?.inputMethod || 'direct',
+        composedChar: hangulResult?.completed || composedChar,
+        isComposing: isComposing || !!hangulResult?.composing || (languageConfig?.composition || false),
+        inputMethod: languageConfig?.inputMethod || 'composition',
         processingTime: performance.now() - processingStart,
       };
 
@@ -313,149 +322,88 @@ export class KeyboardService extends EventEmitter {
   }
 
   // 🔥 언어 감지 (향상된 keycode + keychar 기반 + HANGUL_KEY_MAP 활용)
+  /**
+   * 🔥 새로운 언어 감지 시스템 사용
+   */
+  // 🔥 언어 감지 (새로운 LanguageDetector 사용 - 정확성 최우선!)
   private detectLanguage(rawEvent: UiohookKeyboardEvent): string {
-    // #DEBUG: Detecting input language with HANGUL_KEY_MAP
-    
     try {
-      const keycode = rawEvent.keycode;
-      const keychar = rawEvent.keychar;
+      // 🔥 성능 측정 시작
+      const detectionStart = performance.now();
       
-      Logger.debug('KEYBOARD', '🔥 Language detection started', {
-        keycode,
-        keychar,
-        keycodeChar: String.fromCharCode(keycode),
-        keycharChar: keychar ? String.fromCharCode(keychar) : 'null',
-        currentLanguage: this.state.language
+      // 🔥 새로운 LanguageDetector 사용 (정확성 최우선!)
+      const detectionResult = this.languageDetector.detectLanguage(rawEvent);
+      
+      const detectionTime = performance.now() - detectionStart;
+      
+      Logger.debug('KEYBOARD', '🔥 Advanced language detection completed', {
+        keycode: rawEvent.keycode,
+        keychar: rawEvent.keychar,
+        result: {
+          language: detectionResult.language,
+          confidence: detectionResult.confidence,
+          method: detectionResult.method,
+          isComposing: detectionResult.isComposing
+        },
+        detectionTime: `${detectionTime.toFixed(3)}ms`
       });
       
-      // 🔥 **1단계: 한글 자모/완성형 문자 직접 감지 (최우선)**
-      if (keychar) {
-        // 한글 완성형 문자 범위 (가-힣: 0xAC00-0xD7AF)
-        if (keychar >= 0xAC00 && keychar <= 0xD7AF) {
-          Logger.info('KEYBOARD', '🔥 Korean detected - Complete Hangul character!', {
-            keychar,
-            character: String.fromCharCode(keychar),
-            keycode
+      // 🔥 신뢰도 기반 언어 선택 (정확성 우선!)
+      if (detectionResult.confidence >= 0.7) {
+        // 🔥 상태 업데이트 (언어가 변경되었을 때만)
+        if (this.state.language !== detectionResult.language) {
+          Logger.info('KEYBOARD', '🔄 Language changed', {
+            from: this.state.language,
+            to: detectionResult.language,
+            confidence: detectionResult.confidence,
+            method: detectionResult.method
           });
-          this.state.language = 'ko';
-          this.state.inputMethod = 'composition';
-          return 'ko';
-        }
-        
-        // 한글 자모 범위 (ㄱ-㆏: 0x3131-0x318F)
-        if (keychar >= 0x3131 && keychar <= 0x318F) {
-          Logger.info('KEYBOARD', '🔥 Korean detected - Hangul jamo!', {
-            keychar,
-            character: String.fromCharCode(keychar),
-            keycode
-          });
-          this.state.language = 'ko';
-          this.state.inputMethod = 'composition';
-          return 'ko';
-        }
-      }
-      
-      // 🔥 **2단계: 한글 IME 활성 상태 감지**
-      // 한글 자판 키를 눌렀는데 keychar가 0이거나 다른 값이면 IME 처리 중
-      if (keycode >= 65 && keycode <= 90) { // A-Z 키만
-        const pressedKey = String.fromCharCode(keycode).toLowerCase();
-        
-        // HANGUL_KEY_MAP 역매핑 생성
-        const reversedHangulMap = new Map<string, string>();
-        Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
-          reversedHangulMap.set(english.toLowerCase(), hangul);
-        });
-        
-        Logger.debug('KEYBOARD', '🔥 Checking HANGUL_KEY_MAP for IME', {
-          pressedKey,
-          hasMapping: reversedHangulMap.has(pressedKey),
-          mappedHangul: reversedHangulMap.get(pressedKey),
-          keychar,
-          expectedKeychar: keycode,
-          isIMEActive: !keychar || keychar !== keycode
-        });
-        
-        // 현재 키가 한글 자판 키이고 IME가 처리 중이면 한글
-        if (reversedHangulMap.has(pressedKey)) {
-          // IME가 활성화되어 있으면 (keychar가 예상과 다름) 한글 확정
-          if (!keychar || keychar !== keycode) {
-            Logger.info('KEYBOARD', '🔥 Korean IME detected - Processing Hangul!', { 
-              pressedKey, 
-              hangulChar: reversedHangulMap.get(pressedKey),
-              keychar,
-              expectedKeychar: keycode
-            });
-            this.state.language = 'ko';
-            this.state.inputMethod = 'composition';
-            return 'ko';
-          }
           
-          // 일반 상황에서도 한글 키이면 한글로 간주
-          Logger.info('KEYBOARD', '🔥 Korean key detected via HANGUL_KEY_MAP!', { 
-            pressedKey, 
-            hangulChar: reversedHangulMap.get(pressedKey)
-          });
-          this.state.language = 'ko';
-          this.state.inputMethod = 'composition';
-          return 'ko';
-        }
-      }
-      
-      // 🔥 **3단계: 현재 설정된 언어가 한글이면 유지**
-      if (this.state.language === 'ko') {
-        Logger.debug('KEYBOARD', 'Using preset Korean language');
-        return 'ko';
-      }
-
-      // 🔥 **4단계: 한글 키보드 레이아웃 강제 감지**
-      if (this.isKoreanKeyboardLayout(rawEvent)) {
-        Logger.info('KEYBOARD', '🔥 Korean keyboard layout detected!');
-        this.state.language = 'ko';
-        this.state.inputMethod = 'composition';
-        return 'ko';
-      }
-      
-      // 🔥 **5단계: 다른 언어 감지**
-      if (keychar) {
-        // 일본어 감지 (히라가나/가타카나)
-        if ((keychar >= 0x3040 && keychar <= 0x309F) || 
-            (keychar >= 0x30A0 && keychar <= 0x30FF)) {
-          Logger.debug('KEYBOARD', 'Japanese detected');
-          this.state.language = 'ja';
-          return 'ja';
+          this.state.language = detectionResult.language;
+          
+          // 🔥 입력 방식 설정 (언어별 최적화)
+          if (detectionResult.language === 'ko') {
+            this.state.inputMethod = 'composition'; // 한글은 조합형
+          } else if (detectionResult.language === 'ja') {
+            this.state.inputMethod = 'composition'; // 일본어도 조합형
+          } else if (detectionResult.language === 'zh') {
+            this.state.inputMethod = 'composition'; // 중국어도 조합형
+          } else {
+            this.state.inputMethod = 'direct'; // 영어는 직접 입력
+          }
         }
         
-        // 중국어 감지 (한자 범위)
-        if (keychar >= 0x4E00 && keychar <= 0x9FFF) {
-          Logger.debug('KEYBOARD', 'Chinese detected');
-          this.state.language = 'zh';
-          return 'zh';
+        return detectionResult.language;
+      }
+      
+      // 🔥 중간 신뢰도 (0.5 ~ 0.7): 부분적 업데이트
+      if (detectionResult.confidence >= 0.5) {
+        Logger.debug('KEYBOARD', '⚠️ Medium confidence, partial update', {
+          currentLanguage: this.state.language,
+          detectedLanguage: detectionResult.language,
+          confidence: detectionResult.confidence
+        });
+        
+        // 현재 언어와 다르고 충분한 신뢰도가 있으면 업데이트
+        if (this.state.language !== detectionResult.language) {
+          this.state.language = detectionResult.language;
         }
+        
+        return detectionResult.language;
       }
       
-      // 🔥 **6단계: 강제 한글 설정 옵션**
-      // 만약 계속 영어로 감지되면 한글로 강제 설정
-      if (this.state.totalEvents > 0 && this.state.language !== 'ko') {
-        Logger.warn('KEYBOARD', '🔥 Force setting to Korean for better detection');
-        this.state.language = 'ko';
-        this.state.inputMethod = 'composition';
-        return 'ko';
-      }
-      
-      // 🔥 **최종: 기본값 (하지만 한글 우선)**
-      const finalLanguage = this.state.language || 'ko'; // 기본값을 한글로!
-      Logger.warn('KEYBOARD', '🔥 Using fallback language', {
-        keycode,
-        keychar,
-        finalLanguage,
-        keycodeChar: String.fromCharCode(keycode || 0),
-        keycharChar: keychar ? String.fromCharCode(keychar) : 'null'
+      // 🔥 낮은 신뢰도일 때는 기존 언어 유지
+      Logger.debug('KEYBOARD', '⚠️ Low confidence, keeping current language', {
+        currentLanguage: this.state.language,
+        detectedLanguage: detectionResult.language,
+        confidence: detectionResult.confidence
       });
-      return finalLanguage;
+      
+      return this.state.language;
       
     } catch (error) {
-      Logger.error('KEYBOARD', '🔥 Error in language detection', error);
-      return 'en';
+      Logger.error('KEYBOARD', '❌ Language detection failed', error);
+      return this.state.language || 'en'; // 안전한 fallback
     }
   }
   
@@ -696,6 +644,94 @@ export class KeyboardService extends EventEmitter {
     return specialKeys[keycode] || `Key${keycode}`;
   }
 
+  // 🔥 정확한 키 표시 메서드 (기가차드 정확성 원칙!)
+  private getDisplayKey(
+    rawEvent: UiohookKeyboardEvent, 
+    language: string, 
+    composedChar?: string, 
+    hangulResult?: { completed?: string; composing?: string }
+  ): string {
+    try {
+      const { keycode, keychar } = rawEvent;
+      
+      // 🔥 1. 조합된 문자가 있으면 최우선 표시
+      if (composedChar) {
+        Logger.debug('KEYBOARD', 'Using composed character', { composedChar });
+        return composedChar;
+      }
+      
+      // 🔥 2. 한글 조합 결과가 있으면 표시
+      if (hangulResult?.completed) {
+        Logger.debug('KEYBOARD', 'Using hangul completed character', { completed: hangulResult.completed });
+        return hangulResult.completed;
+      }
+      
+      // 🔥 3. 한글 조합 중인 문자가 있으면 표시
+      if (hangulResult?.composing) {
+        Logger.debug('KEYBOARD', 'Using hangul composing character', { composing: hangulResult.composing });
+        return hangulResult.composing;
+      }
+      
+      // 🔥 4. keychar가 있고 출력 가능한 문자면 표시
+      if (keychar && keychar >= 32 && keychar <= 126) {
+        const displayChar = String.fromCharCode(keychar);
+        Logger.debug('KEYBOARD', 'Using keychar', { keychar, displayChar });
+        return displayChar;
+      }
+      
+      // 🔥 5. 한글 언어일 때 HANGUL_KEY_MAP 활용
+      if (language === 'ko' && keycode >= 65 && keycode <= 90) {
+        const englishKey = String.fromCharCode(keycode).toLowerCase();
+        const hangulChar = HANGUL_KEY_MAP[englishKey as keyof typeof HANGUL_KEY_MAP];
+        
+        if (hangulChar) {
+          Logger.debug('KEYBOARD', 'Using hangul mapping', { englishKey, hangulChar });
+          return hangulChar;
+        }
+      }
+      
+      // 🔥 6. 특수 키 처리
+      const specialKeys: Record<number, string> = {
+        8: 'Backspace',
+        9: 'Tab',
+        13: 'Enter',
+        16: 'Shift',
+        17: 'Ctrl',
+        18: 'Alt',
+        27: 'Escape',
+        32: 'Space',
+        37: 'ArrowLeft',
+        38: 'ArrowUp',
+        39: 'ArrowRight',
+        40: 'ArrowDown',
+        46: 'Delete',
+      };
+      
+      if (specialKeys[keycode]) {
+        return specialKeys[keycode];
+      }
+      
+      // 🔥 7. 일반 알파벳 키 (A-Z)
+      if (keycode >= 65 && keycode <= 90) {
+        return String.fromCharCode(keycode).toLowerCase();
+      }
+      
+      // 🔥 8. 숫자 키 (0-9)
+      if (keycode >= 48 && keycode <= 57) {
+        return String.fromCharCode(keycode);
+      }
+      
+      // 🔥 9. 기타 키는 keycode 표시
+      const fallbackKey = `Key${keycode}`;
+      Logger.debug('KEYBOARD', 'Using fallback key', { keycode, fallbackKey });
+      return fallbackKey;
+      
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to get display key', error);
+      return `Key${rawEvent.keycode}`;
+    }
+  }
+
   // 🔥 초당 이벤트 수 계산
   private updateEventsPerSecond(): void {
     if (!this.state.startTime) return;
@@ -792,6 +828,48 @@ export class KeyboardService extends EventEmitter {
     const result = this.detectLanguage(testEvent);
     Logger.info('KEYBOARD', '🔥 Language detection test result', { result });
     return result;
+  }
+
+  /**
+   * 🔥 영어 키 시퀀스 감지 메서드
+   */
+  private isEnglishKeySequence(rawEvent: UiohookKeyboardEvent): boolean {
+    try {
+      const { keycode, keychar } = rawEvent;
+      
+      // 영어 알파벳 키만 확인 (A-Z)
+      if (keycode >= 65 && keycode <= 90) {
+        const pressedKey = String.fromCharCode(keycode).toLowerCase();
+        
+        // keychar가 예상 ASCII와 일치하면 영어 키
+        if (keychar && keychar === keycode) {
+          this.englishKeySequence.push(pressedKey);
+          
+          // 배열 크기 제한 (메모리 최적화)
+          if (this.englishKeySequence.length > 10) {
+            this.englishKeySequence.shift();
+          }
+          
+          // 연속 영어 키 임계값 확인
+          if (this.englishKeySequence.length >= this.englishSwitchThreshold) {
+            Logger.debug('KEYBOARD', '🔥 English key sequence detected', {
+              sequence: this.englishKeySequence.slice(-5),
+              count: this.englishKeySequence.length
+            });
+            return true;
+          }
+        } else {
+          // IME 활성 상태이면 시퀀스 리셋
+          this.englishKeySequence = [];
+        }
+      }
+      
+      return false;
+      
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Error in English sequence detection', error);
+      return false;
+    }
   }
 }
 

@@ -158,6 +158,86 @@ export function setupKeyboardIpcHandlers(): void {
       'Test language detection'
     ));
 
+    // 🔥 새로운 다국어 지원 IPC 핸들러들
+
+    // 언어 감지 (단일 키코드)
+    ipcMain.handle('keyboard:detect-language', createSafeIpcHandler(
+      (event: unknown, keycode: unknown) => {
+        const keycodeNum = typeof keycode === 'number' ? keycode : 0;
+        Logger.debug('KEYBOARD_IPC', 'IPC: Detect language requested', { keycode: keycodeNum });
+        
+        const detectedLanguage = keyboardService.testLanguageDetection(keycodeNum);
+        
+        Logger.debug('KEYBOARD_IPC', 'Language detected', { keycode: keycodeNum, detectedLanguage });
+        return detectedLanguage;
+      },
+      'KEYBOARD_IPC',
+      'Detect language from keycode'
+    ));
+
+    // 지원되는 언어 목록 조회
+    ipcMain.handle('keyboard:get-supported-languages', createSafeIpcHandler(
+      () => {
+        Logger.debug('KEYBOARD_IPC', 'IPC: Get supported languages requested');
+        
+        const supportedLanguages = ['ko', 'en', 'ja', 'zh'];
+        
+        Logger.debug('KEYBOARD_IPC', 'Supported languages returned', { languages: supportedLanguages });
+        return supportedLanguages;
+      },
+      'KEYBOARD_IPC',
+      'Get supported languages'
+    ));
+
+    // 입력 방식 설정
+    ipcMain.handle('keyboard:set-input-method', createSafeAsyncIpcHandler(
+      async (event: unknown, method: unknown) => {
+        const methodStr = typeof method === 'string' ? method as 'direct' | 'composition' : 'composition';
+        Logger.info('KEYBOARD_IPC', 'IPC: Set input method requested', { method: methodStr });
+        
+        // KeyboardService에 입력 방식 설정 메서드 호출
+        const result = await keyboardService.setLanguage(methodStr === 'composition' ? 'ko' : 'en');
+        
+        Logger.info('KEYBOARD_IPC', 'Input method set', { method: methodStr, result });
+        return result;
+      },
+      'KEYBOARD_IPC',
+      'Set input method'
+    ));
+
+    // 조합 상태 초기화
+    ipcMain.handle('keyboard:reset-composition', createSafeIpcHandler(
+      () => {
+        Logger.info('KEYBOARD_IPC', 'IPC: Reset composition requested');
+        
+        // HangulComposer 초기화 (KeyboardService 경유)
+        const result = keyboardService.forceKoreanLanguage();
+        
+        Logger.info('KEYBOARD_IPC', 'Composition reset', { result });
+        return result;
+      },
+      'KEYBOARD_IPC',
+      'Reset composition state'
+    ));
+
+    // 조합 상태 조회
+    ipcMain.handle('keyboard:get-composition-state', createSafeIpcHandler(
+      () => {
+        Logger.debug('KEYBOARD_IPC', 'IPC: Get composition state requested');
+        
+        const status = keyboardService.getStatus();
+        const compositionState = {
+          isComposing: status.data?.inputMethod === 'composition',
+          composingText: '' // 추후 HangulComposer에서 실제 조합 중인 텍스트 반환
+        };
+        
+        Logger.debug('KEYBOARD_IPC', 'Composition state returned', compositionState);
+        return compositionState;
+      },
+      'KEYBOARD_IPC',
+      'Get composition state'
+    ));
+
     // 🔥 키보드 이벤트 포워딩 설정
     keyboardService.on('keyboard-event', (event: unknown) => {
       // #DEBUG: Forwarding keyboard event to renderer
@@ -201,6 +281,11 @@ export function cleanupKeyboardIpcHandlers(): void {
     ipcMain.removeHandler('keyboard:get-realtime-stats');
     ipcMain.removeHandler('keyboard:force-korean');
     ipcMain.removeHandler('keyboard:test-language-detection');
+    ipcMain.removeHandler('keyboard:detect-language');
+    ipcMain.removeHandler('keyboard:get-supported-languages');
+    ipcMain.removeHandler('keyboard:set-input-method');
+    ipcMain.removeHandler('keyboard:reset-composition');
+    ipcMain.removeHandler('keyboard:get-composition-state');
 
     // 키보드 서비스 이벤트 리스너 정리
     keyboardService.removeAllListeners();

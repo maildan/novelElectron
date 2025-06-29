@@ -88,6 +88,12 @@ export interface ElectronAPI {
     // 🔥 기가차드 한글 입력 강화 API
     forceKorean: () => Promise<IpcResponse<boolean>>;
     testLanguageDetection: (keycode: number, keychar?: number) => Promise<IpcResponse<string>>;
+    // 🔥 새로운 다국어 지원 메서드들
+    detectLanguage: (keycode: number) => Promise<IpcResponse<string>>;
+    getSupportedLanguages: () => Promise<IpcResponse<string[]>>;
+    setInputMethod: (method: 'direct' | 'composition') => Promise<IpcResponse<boolean>>;
+    resetComposition: () => Promise<IpcResponse<boolean>>;
+    getCompositionState: () => Promise<IpcResponse<{ isComposing: boolean; composingText: string }>>;
   };
 
   // 📊 대시보드 API
@@ -151,13 +157,38 @@ export interface ElectronAPI {
   };
 }
 
+// 🔥 기가차드 키보드 이벤트 인터페이스
 export interface KeyboardEvent {
-  key: string;
-  code: string;
-  keychar: string;
-  timestamp: number;
-  windowTitle: string;
-  type: 'keydown' | 'keyup';
+  readonly key: string;
+  readonly code: string;
+  readonly keychar: string;
+  readonly timestamp: number;
+  readonly windowTitle: string;
+  readonly type: 'keydown' | 'keyup' | 'input'; // 🔥 'input' 타입 추가 (실제 문자 입력)
+}
+
+// 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer)
+export interface UiohookKeyboardEvent {
+  keycode: number;
+  keychar?: number;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+}
+
+// 🔥 기가차드 언어 감지 결과
+export interface LanguageDetectionResult {
+  language: string;
+  confidence: number;
+  method: 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'fallback'; // 🔥 method 속성 확장
+  isComposing: boolean;
+  metadata?: {
+    keySequence?: string[];
+    switchReason?: string;
+    hangulChar?: string;
+    detectionTime?: number;
+  };
 }
 
 export interface WindowInfo {

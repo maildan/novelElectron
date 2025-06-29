@@ -37,6 +37,12 @@ const electronAPI: ElectronAPI = {
     setLanguage: (language: string) => ipcRenderer.invoke('keyboard:set-language', language),
     forceKorean: () => ipcRenderer.invoke('keyboard:force-korean'),
     testLanguageDetection: (keycode: number, keychar?: number) => ipcRenderer.invoke('keyboard:test-language-detection', keycode, keychar),
+    // 🔥 새로운 다국어 지원 메서드들 추가
+    detectLanguage: (keycode: number) => ipcRenderer.invoke('keyboard:detect-language', keycode),
+    getSupportedLanguages: () => ipcRenderer.invoke('keyboard:get-supported-languages'),
+    setInputMethod: (method: 'direct' | 'composition') => ipcRenderer.invoke('keyboard:set-input-method', method),
+    resetComposition: () => ipcRenderer.invoke('keyboard:reset-composition'),
+    getCompositionState: () => ipcRenderer.invoke('keyboard:get-composition-state'),
   },
 
   dashboard: {
