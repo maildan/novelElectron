@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
 import { MonitoringProvider } from '../contexts/GlobalMonitoringContext';
+import { Logger } from '../../shared/logger';
 import './globals.css';
 
 // 🔥 기가차드 규칙: Inter 폰트 최적화
@@ -37,39 +38,27 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps): React.ReactElement {
-  // 🔥 localStorage를 사용한 사이드바 상태 지속성
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedState = localStorage.getItem('sidebar-collapsed');
-        return savedState ? JSON.parse(savedState) : false;
-      } catch (error) {
-        console.error('Failed to load sidebar state from localStorage', error);
-        return false;
-      }
+  // 🔥 하이드레이션 안전한 사이드바 상태 초기화
+  const getSidebarInitialState = (): boolean => {
+    if (typeof window === 'undefined') {
+      return false; // 서버사이드에서는 기본값
     }
-    return false;
-  });
-  
+    
+    try {
+      const savedState = localStorage.getItem('sidebar-collapsed');
+      return savedState === 'true';
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(getSidebarInitialState);
+  const [isClientMounted, setIsClientMounted] = useState<boolean>(false);
   const pathname = usePathname();
 
-  // 🔥 사이드바 상태 변경 시 localStorage에 저장
+  // 🔥 클라이언트 마운트 확인만
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed));
-      } catch (error) {
-        console.error('Failed to save sidebar state to localStorage', error);
-      }
-    }
-  }, [sidebarCollapsed]);
-
-  // 🔥 localStorage에서 사이드바 상태 복원
-  useEffect(() => {
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    if (savedState !== null) {
-      setSidebarCollapsed(JSON.parse(savedState));
-    }
+    setIsClientMounted(true);
   }, []);
 
   const handleNavigate = (href: string): void => {
@@ -80,8 +69,16 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
   const handleToggleSidebar = (): void => {
     const newState = !sidebarCollapsed;
     setSidebarCollapsed(newState);
-    // 🔥 localStorage에 상태 저장
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+    
+    // 🔥 localStorage에 상태 저장 (일관된 키 사용)
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('sidebar-collapsed', newState.toString());
+        Logger.debug('LAYOUT', 'Sidebar state saved', { collapsed: newState });
+      } catch (error) {
+        Logger.error('LAYOUT', 'Failed to save sidebar state', error);
+      }
+    }
   };
 
   return (

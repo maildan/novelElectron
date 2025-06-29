@@ -24,6 +24,7 @@ import {
   KpiCard 
 } from '../ui';
 import { QuickStartCard } from './QuickStartCard';
+import { HydrationGuard } from '../ui/HydrationGuard';
 import { Logger } from '../../../shared/logger';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 
@@ -350,38 +351,59 @@ export function DashboardMain(): React.ReactElement {
           </div>
 
           <div className={DASHBOARD_STYLES.headerActions}>
-            <Button
-              onClick={handleAIToggle}
-              variant={isAIOpen ? 'primary' : 'outline'}
-              className="gap-2"
-              aria-pressed={isAIOpen}
-            >
-              <Target className="w-4 h-4" />
-              Loop AI
-            </Button>
+            <HydrationGuard fallback={
+              <Button
+                variant="outline"
+                className="gap-2"
+              >
+                <Target className="w-4 h-4" />
+                Loop AI
+              </Button>
+            }>
+              <Button
+                onClick={handleAIToggle}
+                variant={isAIOpen ? 'primary' : 'outline'}
+                className="gap-2"
+                aria-pressed={isAIOpen}
+              >
+                <Target className="w-4 h-4" />
+                Loop AI
+              </Button>
+            </HydrationGuard>
 
-            <Button
-              onClick={handleToggleMonitoring}
-              variant={isMonitoring ? 'destructive' : 'primary'}
-              className={`gap-2 min-w-[120px] transition-all duration-200 ${
-                isMonitoring 
-                  ? 'animate-pulse bg-red-600 hover:bg-red-700' 
-                  : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl'
-              }`}
-              size="md"
-            >
-              {isMonitoring ? (
-                <>
-                  <Pause className="w-4 h-4" />
-                  모니터링 중지
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  타이핑 시작
-                </>
-              )}
-            </Button>
+            <HydrationGuard fallback={
+              <Button
+                variant="primary"
+                className="gap-2 min-w-[120px]"
+                size="md"
+              >
+                <Play className="w-4 h-4" />
+                타이핑 시작
+              </Button>
+            }>
+              <Button
+                onClick={handleToggleMonitoring}
+                variant={isMonitoring ? 'destructive' : 'primary'}
+                className={`gap-2 min-w-[120px] transition-all duration-200 ${
+                  isMonitoring 
+                    ? 'animate-pulse bg-red-600 hover:bg-red-700' 
+                    : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl'
+                }`}
+                size="md"
+              >
+                {isMonitoring ? (
+                  <>
+                    <Pause className="w-4 h-4" />
+                    모니터링 중지
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    타이핑 시작
+                  </>
+                )}
+              </Button>
+            </HydrationGuard>
           </div>
         </div>
       </div>

@@ -28,47 +28,65 @@ export const MonitoringContext = createContext<MonitoringContextType | undefined
 
 // 🔥 프로바이더 컴포넌트
 export function MonitoringProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  // 🔥 localStorage를 사용한 상태 지속성
-  const [state, setState] = useState<MonitoringState>(() => {
-    // 브라우저 환경에서만 localStorage 접근
-    if (typeof window !== 'undefined') {
-      try {
-        const savedState = localStorage.getItem('monitoring-state');
-        if (savedState) {
-          const parsed = JSON.parse(savedState);
-          return {
-            ...parsed,
-            startTime: parsed.startTime ? new Date(parsed.startTime) : null,
-          };
-        }
-      } catch (error) {
-        Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
-      }
+  // 🔥 하이드레이션 안전한 초기 상태 - localStorage에서 읽은 값으로 바로 초기화
+  const getInitialState = (): MonitoringState => {
+    if (typeof window === 'undefined') {
+      // 서버사이드에서는 기본값
+      return {
+        isMonitoring: false,
+        isAIOpen: false,
+        startTime: null,
+        sessionData: { wpm: 0, words: 0, time: 0 },
+      };
     }
     
-    // 기본값
+    // 클라이언트사이드에서는 localStorage에서 읽기
+    try {
+      const savedState = localStorage.getItem('monitoring-state');
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        return {
+          isMonitoring: parsed.isMonitoring || false,
+          isAIOpen: parsed.isAIOpen || false,
+          startTime: parsed.startTime ? new Date(parsed.startTime) : null,
+          sessionData: {
+            wpm: parsed.sessionData?.wpm || 0,
+            words: parsed.sessionData?.words || 0,
+            time: parsed.sessionData?.time || 0,
+          },
+        };
+      }
+    } catch (error) {
+      Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
+    }
+    
     return {
       isMonitoring: false,
       isAIOpen: false,
       startTime: null,
-      sessionData: {
-        wpm: 0,
-        words: 0,
-        time: 0,
-      },
+      sessionData: { wpm: 0, words: 0, time: 0 },
     };
-  });
+  };
 
-  // 🔥 상태 변경 시 localStorage에 저장
+  const [state, setState] = useState<MonitoringState>(getInitialState);
+  const [isClientMounted, setIsClientMounted] = useState<boolean>(false);
+
+  // 🔥 클라이언트 마운트 확인만
   React.useEffect(() => {
-    if (typeof window !== 'undefined') {
+    setIsClientMounted(true);
+  }, []);
+
+  // 🔥 상태 변경 시 localStorage에 저장 (클라이언트 마운트 후에만)
+  React.useEffect(() => {
+    if (isClientMounted && typeof window !== 'undefined') {
       try {
         localStorage.setItem('monitoring-state', JSON.stringify(state));
+        Logger.debug('MONITORING_CONTEXT', 'State saved to localStorage', state);
       } catch (error) {
         Logger.error('MONITORING_CONTEXT', 'Failed to save state to localStorage', error);
       }
     }
-  }, [state]);
+  }, [state, isClientMounted]);
 
   const startMonitoring = useCallback(async (): Promise<void> => {
     try {
