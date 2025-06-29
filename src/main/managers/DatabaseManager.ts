@@ -2,15 +2,16 @@
 interface PrismaSessionData {
   data: {
     id?: string;
+    userId: string;
     content: string;
     startTime: Date;
     endTime: Date;
     keyCount: number;
     wpm: number;
     accuracy: number;
-    language: string;
-    windowTitle: string;
-    errors?: number;
+    windowTitle: string | null;
+    appName: string | null;
+    isActive?: boolean;
   };
 }
 
@@ -275,15 +276,15 @@ export class DatabaseManager extends BaseManager {
 
       const result = await this.prisma.typingSession.create({
         data: {
+          userId: session.userId,
           content: session.content,
           startTime: session.startTime,
-          endTime: session.endTime,
+          endTime: session.endTime || new Date(),
           keyCount: session.keyCount,
           wpm: session.wpm,
           accuracy: session.accuracy,
-          language: session.language || 'en',
-          windowTitle: session.windowTitle || '',
-          errors: session.errors || 0,
+          windowTitle: session.windowTitle || 'Unknown',
+          appName: session.appName || 'Unknown',
         },
       });
 

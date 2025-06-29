@@ -1,2 +1,5 @@
 onlyBuiltDependencies:
+  - electron
+  - electron-chromedriver
+  - electron-winstaller
   - get-windows

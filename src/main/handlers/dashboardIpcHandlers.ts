@@ -298,7 +298,7 @@ export function setupDashboardIpcHandlers(): void {
                 session.wpm || 0,
                 session.accuracy || 0,
                 session.keyCount || 0,
-                session.language || '',
+                'ko',
                 session.windowTitle || '', // appName은 windowTitle로 대체
                 session.windowTitle || ''
               ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(','));
@@ -324,8 +324,8 @@ export function setupDashboardIpcHandlers(): void {
                   wpm: session.wpm,
                   accuracy: session.accuracy,
                   keyCount: session.keyCount,
-                  language: session.language,
-                  appName: session.windowTitle.split(' ')[0] || 'Unknown',
+                  language: 'ko',
+                  appName: session.windowTitle?.split(' ')[0] || 'Unknown',
                   windowTitle: session.windowTitle
                 }))
               };

@@ -289,15 +289,18 @@ export class SessionManager extends BaseManager {
       const stats = this.calculateSessionStats(session);
       const typingSession: TypingSession = {
         id: sessionId,
+        userId: 'default-user',
         content: session.content,
         startTime: session.startTime,
         endTime,
         keyCount: session.keyCount,
         wpm: stats.wpm,
         accuracy: stats.accuracy,
-        language: session.language,
         windowTitle: session.windowTitle,
-        errors: session.errorCount,
+        appName: session.windowTitle?.split(' ')[0] || null,
+        isActive: false,
+        createdAt: session.startTime,
+        updatedAt: new Date(),
       };
 
       this.activeSessions.delete(sessionId);

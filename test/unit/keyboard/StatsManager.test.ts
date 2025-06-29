@@ -31,16 +31,19 @@ function createValidKeyboardEvent(overrides?: Partial<KeyboardEvent>): KeyboardE
 
 function createValidTypingSession(overrides?: Partial<TypingSession>): TypingSession {
   return {
-    id: 'test-session-1',
+    id: 'test-session-' + Date.now(),
+    userId: 'test-user-1',
     content: 'Hello World',
     startTime: new Date(),
     endTime: new Date(),
     keyCount: 11,
     wpm: 60,
     accuracy: 95,
-    language: 'en',
     windowTitle: 'Test Window',
-    errors: 0,
+    appName: 'Test App',
+    isActive: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     ...overrides,
   };
 }
@@ -288,8 +291,16 @@ describe('StatsManager', () => {
       await statsManager.initialize();
       await statsManager.start();
       
-      // @ts-expect-error - Testing invalid input
-      await expect(statsManager.processKeyEvent(null)).resolves.not.toThrow();
+      // 🔥 null 대신 완전한 KeyboardEvent 객체 사용 - 타입 안전성 준수
+      const invalidEvent: KeyboardEvent = {
+        key: '',
+        code: '',
+        keychar: '',
+        timestamp: Date.now(),
+        windowTitle: '',
+        type: 'keydown'
+      };
+      await expect(statsManager.processKeyEvent(invalidEvent)).resolves.not.toThrow();
     });
 
     it('should handle session operations when not initialized', async () => {

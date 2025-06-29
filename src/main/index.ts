@@ -134,12 +134,15 @@ class LoopApplication {
       // #DEBUG: Creating main window
       Logger.debug('MAIN_INDEX', 'Creating main window');
 
-      this.mainWindow = await windowManager.createMainWindow();
+      this.mainWindow = windowManager.createMainWindow();
+      
+      // 🔥 URL 로딩 추가 (필수!)
+      await windowManager.loadUrl('main');
       
       // 글로벌 윈도우 참조 설정 (keyboardService에서 사용)
       (global as typeof global & { mainWindow: BrowserWindow }).mainWindow = this.mainWindow;
 
-      Logger.info('MAIN_INDEX', 'Main window created successfully');
+      Logger.info('MAIN_INDEX', 'Main window created and URL loaded successfully');
 
     } catch (error) {
       Logger.error('MAIN_INDEX', 'Failed to create main window', error);
@@ -202,7 +205,7 @@ class LoopApplication {
     });
 
     // 앱 종료 전
-    app.on('before-quit', (event) => {
+    app.on('before-quit', (event: any) => {
       Logger.debug('MAIN_INDEX', 'Application before quit');
       
       if (this.isInitialized) {
@@ -212,7 +215,7 @@ class LoopApplication {
     });
 
     // 보안 경고 (WebContents 핸들러는 보안 매니저에서 자동 처리됨)
-    app.on('web-contents-created', (_, contents) => {
+    app.on('web-contents-created', (_: any, contents: any) => {
       // 보안 매니저가 자동으로 처리
       Logger.debug('MAIN_INDEX', 'Web contents created with security protection');
     });

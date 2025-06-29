@@ -112,7 +112,7 @@ const electronAPI: ElectronAPI = {
     stopMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.STOP_MONITORING),
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.GET_STATUS),
     onEvent: (callback: (event: unknown) => void) => {
-      ipcRenderer.on(IPC_CHANNELS.KEYBOARD.EVENT, (_event, data) => callback(data));
+      ipcRenderer.on(IPC_CHANNELS.KEYBOARD.EVENT, (_event: any, data: any) => callback(data));
     },
     removeEventListener: () => {
       ipcRenderer.removeAllListeners(IPC_CHANNELS.KEYBOARD.EVENT);
@@ -168,9 +168,4 @@ const electronAPI: ElectronAPI = {
 // 🔥 안전한 API 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
-// 타입 확장을 위한 글로벌 선언
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-  }
-}
+// Window 글로벌 타입은 shared/types.ts에서 이미 선언됨

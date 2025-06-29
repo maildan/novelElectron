@@ -44,7 +44,7 @@ export class WindowManager {
         height: Math.min(800, Math.floor(height * 0.8)),
         minWidth: 800,
         minHeight: 600,
-        show: false,
+        show: true, // 🔥 즉시 표시로 변경
         center: true,
         titleBarStyle: Platform.isMacOS() ? 'hiddenInset' : 'default',
       };
@@ -97,7 +97,7 @@ export class WindowManager {
     // 네비게이션 보안
     window.webContents.on('will-navigate', (event, navigationUrl) => {
       const allowedOrigins = [
-        'http://localhost:3000',
+        'http://localhost:4000',
         'file://'
       ];
 
@@ -116,7 +116,7 @@ export class WindowManager {
     // 외부 링크 차단 (최신 Electron API 사용)
     window.webContents.on('will-redirect', (event, navigationUrl) => {
       const allowedOrigins = [
-        'http://localhost:3000',
+        'http://localhost:4000',
         'file://'
       ];
 
@@ -138,10 +138,11 @@ export class WindowManager {
     // #DEBUG: Setting up window events
     Logger.debug('WINDOW', 'Setting up window events', { windowId });
 
-    window.once('ready-to-show', () => {
-      window.show();
-      Logger.info('WINDOW', 'Window shown', { windowId });
-    });
+    // 🔥 ready-to-show 이벤트 제거 (이미 show: true로 설정됨)
+    // window.once('ready-to-show', () => {
+    //   window.show();
+    //   Logger.info('WINDOW', 'Window shown', { windowId });
+    // });
 
     window.on('closed', () => {
       this.windows.delete(windowId);
@@ -192,15 +193,15 @@ export class WindowManager {
       }
 
       const targetUrl = url || (isDev 
-        ? 'http://localhost:3000'
+        ? 'http://localhost:4000'
         : `file://${join(__dirname, '../../out/index.html')}`
       );
 
       await window.loadURL(targetUrl);
 
-      // 개발 도구 (개발 환경에서만)
+      // 🔥 개발 도구 (개발 환경에서만) - 별창으로 열기
       if (isDev) {
-        window.webContents.openDevTools();
+        window.webContents.openDevTools({ mode: 'detach' });
       }
 
       Logger.info('WINDOW', 'URL loaded successfully', { 

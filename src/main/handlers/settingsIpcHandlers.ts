@@ -1,6 +1,6 @@
 // 🔥 기가차드 Settings IPC 핸들러 - 프론트엔드와 연결!
 
-import { ipcMain } from 'electron';
+import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { Logger } from '../../shared/logger';
 import { getSettingsManager } from '../settings';
 import { SettingsSchema } from '../settings/types';
@@ -34,7 +34,7 @@ export function setupSettingsIpcHandlers(): void {
   });
 
   // 🔥 특정 카테고리 설정 가져오기
-  ipcMain.handle('settings:get-category', async (_, category: keyof SettingsSchema) => {
+  ipcMain.handle('settings:get-category', async (_: IpcMainInvokeEvent, category: keyof SettingsSchema) => {
     try {
       const settingsManager = getSettingsManager();
       const categorySettings = settingsManager.get(category);
@@ -54,7 +54,7 @@ export function setupSettingsIpcHandlers(): void {
   });
 
   // 🔥 특정 설정값 가져오기
-  ipcMain.handle('settings:get-value', async (_, category: keyof SettingsSchema, key: string) => {
+  ipcMain.handle('settings:get-value', async (_: any, category: keyof SettingsSchema, key: string) => {
     try {
       const settingsManager = getSettingsManager();
       const value = settingsManager.getDeep(category, key);
@@ -74,7 +74,7 @@ export function setupSettingsIpcHandlers(): void {
   });
 
   // 🔥 전체 카테고리 설정 변경
-  ipcMain.handle('settings:set-category', async (_, category: keyof SettingsSchema, value: unknown) => {
+  ipcMain.handle('settings:set-category', async (_: any, category: keyof SettingsSchema, value: unknown) => {
     try {
       const settingsManager = getSettingsManager();
       const result = await settingsManager.set(category, value as SettingsSchema[typeof category]);
@@ -94,7 +94,7 @@ export function setupSettingsIpcHandlers(): void {
   });
 
   // 🔥 특정 설정값 변경
-  ipcMain.handle('settings:set-value', async (_, category: keyof SettingsSchema, key: string, value: unknown) => {
+  ipcMain.handle('settings:set-value', async (_: any, category: keyof SettingsSchema, key: string, value: unknown) => {
     try {
       const settingsManager = getSettingsManager();
       const result = await settingsManager.setDeep(category, key, value);
@@ -154,7 +154,7 @@ export function setupSettingsIpcHandlers(): void {
   });
 
   // 🔥 설정 복원
-  ipcMain.handle('settings:restore', async (_, backupData: string) => {
+  ipcMain.handle('settings:restore', async (_: any, backupData: string) => {
     try {
       const settingsManager = getSettingsManager();
       const result = await settingsManager.restore(backupData);

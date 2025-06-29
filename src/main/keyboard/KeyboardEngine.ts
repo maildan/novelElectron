@@ -205,15 +205,18 @@ export class KeyboardEngine extends BaseManager {
 
       const session: TypingSession = {
         id: `session_${Date.now()}`,
+        userId: 'default',
         startTime: new Date(),
-        endTime: new Date(),
+        endTime: null,
         content: '',
         keyCount: 0,
         wpm: 0,
         accuracy: 1.0,
-        language: 'ko', // 기본값
-        windowTitle: '',
-        errors: 0,
+        windowTitle: null,
+        appName: null,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       this.keyboardState.currentSession = session;
@@ -249,9 +252,9 @@ export class KeyboardEngine extends BaseManager {
       // 세션 데이터 완성
       session.endTime = endTime;
       session.keyCount = this.keyBuffer.length;
-      session.errors = this.errorBuffer.length;
+      const errorCount = this.errorBuffer.length;
       session.wpm = this.calculateWpm(this.keyBuffer.length, duration);
-      session.accuracy = this.calculateAccuracy(session.keyCount, session.errors || 0);
+      session.accuracy = this.calculateAccuracy(session.keyCount, errorCount);
 
       this.keyboardState.isRecording = false;
       this.keyboardState.currentSession = null;

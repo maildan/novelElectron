@@ -33,7 +33,7 @@ export function setupTrayIpcHandlers(): void {
   });
 
   // 🔥 키보드 모니터링 상태 업데이트
-  ipcMain.handle('tray:set-monitoring-status', async (_, isMonitoring: boolean) => {
+  ipcMain.handle('tray:set-monitoring-status', async (_: any, isMonitoring: boolean) => {
     try {
       const trayManager = getTrayManager();
       trayManager.setKeyboardMonitoringStatus(isMonitoring);
@@ -53,7 +53,7 @@ export function setupTrayIpcHandlers(): void {
   });
 
   // 🔥 통계 업데이트
-  ipcMain.handle('tray:update-stats', async (_, stats: { wpm: number; accuracy: number; sessionTime: number }) => {
+  ipcMain.handle('tray:update-stats', async (_: any, stats: { wpm: number; accuracy: number; sessionTime: number }) => {
     try {
       const trayManager = getTrayManager();
       trayManager.updateStats(stats);
@@ -73,7 +73,7 @@ export function setupTrayIpcHandlers(): void {
   });
 
   // 🔥 성공 알림 표시
-  ipcMain.handle('tray:show-success', async (_, message: string) => {
+  ipcMain.handle('tray:show-success', async (_: any, message: string) => {
     try {
       const trayManager = getTrayManager();
       trayManager.showSuccessNotification(message);
@@ -93,7 +93,7 @@ export function setupTrayIpcHandlers(): void {
   });
 
   // 🔥 에러 상태 표시
-  ipcMain.handle('tray:show-error', async (_, errorMessage: string) => {
+  ipcMain.handle('tray:show-error', async (_: any, errorMessage: string) => {
     try {
       const trayManager = getTrayManager();
       trayManager.showErrorStatus(errorMessage);

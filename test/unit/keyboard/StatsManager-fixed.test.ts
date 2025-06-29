@@ -18,15 +18,18 @@ jest.mock('../../../src/shared/logger', () => ({
 function createValidTypingSession(overrides?: Partial<TypingSession>): TypingSession {
   return {
     id: 'test-session-' + Date.now(),
+    userId: 'test-user-1',
     content: 'Hello World Test Content',
     startTime: new Date(),
     endTime: new Date(Date.now() + 60000), // 1분 후
     keyCount: 22,
     wpm: 25,
     accuracy: 95,
-    language: 'en',
     windowTitle: 'Test Application',
-    errors: 1,
+    appName: 'Test App',
+    isActive: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     ...overrides,
   };
 }
@@ -157,6 +160,7 @@ describe('StatsManager', () => {
     it('should get realtime stats', async () => {
       const realtimeStats: RealtimeStats = statsManager.getRealtimeStats();
       
+      expect(realtimeStats).toBeDefined();
       expect(typeof realtimeStats.currentWpm).toBe('number');
       expect(typeof realtimeStats.currentAccuracy).toBe('number');
       expect(typeof realtimeStats.keystrokesPerMinute).toBe('number');

@@ -218,47 +218,215 @@ src/renderer/
 ### **1. AppSidebar.tsx**
 
 ```tsx
+'use client';
+
+import { LucideIcon, Home, FolderOpen, BarChart3, Sparkles } from 'lucide-react';
+import { Logger } from '../../shared/logger';
+
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+const SIDEBAR_STYLES = {
+  container: 'fixed left-0 top-0 h-full w-60 bg-white border-r border-gray-200 z-40',
+  logoSection: 'h-15 flex items-center justify-center border-b border-gray-200',
+  navItem: 'flex items-center h-12 px-4 text-gray-700 hover:bg-gray-50 transition-colors duration-150',
+  navItemActive: 'flex items-center h-12 px-4 bg-blue-50 text-blue-600 border-r-2 border-blue-500',
+  icon: 'w-5 h-5 mr-3',
+  text: 'font-medium',
+  badge: 'ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1'
+} as const;
+
 interface SidebarItem {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  href: string;
-  badge?: number;
+  readonly id: string;
+  readonly label: string;
+  readonly icon: LucideIcon;
+  readonly href: string;
+  readonly badge?: number;
+  readonly ariaLabel?: string; // 🔥 접근성 규칙 추가
 }
 
-const sidebarItems: SidebarItem[] = [
-  { id: 'dashboard', label: '대시보드', icon: Home, href: '/' },
-  { id: 'projects', label: '프로젝트', icon: FolderOpen, href: '/projects' },
-  { id: 'analytics', label: '통계', icon: BarChart3, href: '/analytics' },
-  { id: 'ai', label: 'Loop AI', icon: Sparkles, href: '/ai' }
-];
+interface AppSidebarProps {
+  readonly activeRoute: string;
+  readonly onNavigate: (href: string) => void;
+}
 
+// 🔥 기가차드 규칙: 상수 분리
+const SIDEBAR_ITEMS: readonly SidebarItem[] = [
+  { 
+    id: 'dashboard', 
+    label: '대시보드', 
+    icon: Home, 
+    href: '/',
+    ariaLabel: '대시보드로 이동'
+  },
+  { 
+    id: 'projects', 
+    label: '프로젝트', 
+    icon: FolderOpen, 
+    href: '/projects',
+    ariaLabel: '프로젝트 목록으로 이동'
+  },
+  { 
+    id: 'analytics', 
+    label: '통계', 
+    icon: BarChart3, 
+    href: '/analytics',
+    ariaLabel: '통계 대시보드로 이동'
+  },
+  { 
+    id: 'ai', 
+    label: 'Loop AI', 
+    icon: Sparkles, 
+    href: '/ai',
+    ariaLabel: 'Loop AI 기능으로 이동'
+  }
+] as const;
+
+export function AppSidebar({ activeRoute, onNavigate }: AppSidebarProps): JSX.Element {
+  const handleNavigation = (href: string): void => {
+    Logger.info('SIDEBAR', `Navigating to: ${href}`);
+    onNavigate(href);
+  };
+
+  return (
+    <nav className={SIDEBAR_STYLES.container} role="navigation" aria-label="메인 네비게이션">
+      <div className={SIDEBAR_STYLES.logoSection}>
+        <h1 className="text-xl font-bold text-gray-900">Loop</h1>
+      </div>
+      
+      <ul className="py-4" role="list">
+        {SIDEBAR_ITEMS.map((item) => {
+          const isActive = activeRoute === item.href;
+          const Icon = item.icon;
+          
+          return (
+            <li key={item.id} role="listitem">
+              <button
+                type="button"
+                className={isActive ? SIDEBAR_STYLES.navItemActive : SIDEBAR_STYLES.navItem}
+                onClick={() => handleNavigation(item.href)}
+                aria-label={item.ariaLabel}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Icon className={SIDEBAR_STYLES.icon} aria-hidden="true" />
+                <span className={SIDEBAR_STYLES.text}>{item.label}</span>
+                {item.badge && (
+                  <span className={SIDEBAR_STYLES.badge} aria-label={`${item.badge}개의 알림`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
 ```
 
-**스타일링 가이드**:
+**🔥 기가차드 강화 사항**:
 
-- 너비: 240px 고정
-- 아이템 높이: 48px
-- 호버: bg-gray-50, 텍스트 전환 150ms
-- 액티브: bg-blue-50, border-right-2 border-blue-500
+- ✅ **'use client'** 지시어 최상단 추가
+- ✅ **SIDEBAR_STYLES** 프리컴파일 상수 객체
+- ✅ **타입 안전성**: readonly, as const 사용
+- ✅ **접근성**: ARIA 레이블, role 속성, 키보드 네비게이션
+- ✅ **Logger 시스템** 사용 (console.log 금지)
+- ✅ **명시적 반환 타입**: JSX.Element
 
 ### **2. Card.tsx (재사용 컴포넌트)**
 
 ```tsx
+'use client';
+
+import { forwardRef, ReactNode } from 'react';
+import { cn } from '../../shared/utils';
+
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+const CARD_STYLES = {
+  base: 'rounded-lg transition-shadow duration-200',
+  variants: {
+    default: 'bg-white border border-gray-200',
+    elevated: 'bg-white shadow-lg border-0',
+    outlined: 'bg-transparent border-2 border-gray-300'
+  },
+  padding: {
+    sm: 'p-4',
+    md: 'p-6', 
+    lg: 'p-8'
+  },
+  hover: {
+    default: 'hover:shadow-sm',
+    elevated: 'hover:shadow-xl',
+    outlined: 'hover:border-gray-400'
+  }
+} as const;
+
 interface CardProps {
-  variant?: 'default' | 'elevated' | 'outlined';
-  padding?: 'sm' | 'md' | 'lg';
-  className?: string;
-  children: React.ReactNode;
+  readonly variant?: keyof typeof CARD_STYLES.variants;
+  readonly padding?: keyof typeof CARD_STYLES.padding;
+  readonly hoverable?: boolean;
+  readonly className?: string;
+  readonly children: ReactNode;
+  readonly onClick?: () => void;
+  readonly role?: string;
+  readonly 'aria-label'?: string;
 }
 
-const cardVariants = {
-  default: 'bg-white border border-gray-200',
-  elevated: 'bg-white shadow-lg border-0',
-  outlined: 'bg-transparent border-2 border-gray-300'
-};
+// 🔥 기가차드 규칙: forwardRef로 ref 전달 지원
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ 
+    variant = 'default', 
+    padding = 'md', 
+    hoverable = false,
+    className, 
+    children, 
+    onClick,
+    role,
+    'aria-label': ariaLabel,
+    ...props 
+  }, ref): JSX.Element => {
+    
+    const cardClassName = cn(
+      CARD_STYLES.base,
+      CARD_STYLES.variants[variant],
+      CARD_STYLES.padding[padding],
+      hoverable && CARD_STYLES.hover[variant],
+      onClick && 'cursor-pointer',
+      className
+    );
 
+    return (
+      <div
+        ref={ref}
+        className={cardClassName}
+        onClick={onClick}
+        role={role}
+        aria-label={ariaLabel}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={onClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        } : undefined}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+Card.displayName = 'Card';
 ```
+
+**🔥 기가차드 강화 사항**:
+
+- ✅ **'use client'** 지시어 추가
+- ✅ **CARD_STYLES** 프리컴파일 상수 객체
+- ✅ **forwardRef** ref 전달 지원
+- ✅ **접근성**: 키보드 네비게이션, ARIA 속성
+- ✅ **타입 안전성**: readonly, keyof 활용
+- ✅ **cn() 유틸리티** 조건부 클래스 결합
 
 ### **3. KpiCard.tsx**
 
@@ -557,3 +725,112 @@ const progressBarStyle = {
 - [ ]  애니메이션 60fps 유지
 
 이 가이드대로 구현하면 **Figma 디자인과 100% 동일한** 품질의 Electron 앱을 만들 수 있다. 각 컴포넌트는 완전히 모듈화되어 있어 유지보수와 확장이 용이하다.
+
+---
+
+## 🔥 기가차드 10대 철칙 적용 강화
+
+### **원칙 4: 코드 품질 엄수 체크리스트**
+
+**✅ 필수 준수 사항:**
+- [ ] 모든 컴포넌트에 `'use client'` 지시어
+- [ ] `any` 타입 절대 사용 금지 → `unknown` + 타입 가드
+- [ ] 사용하지 않는 import 제거
+- [ ] 프리컴파일된 스타일 상수 객체 사용
+- [ ] `console.log` 대신 `Logger` 시스템 사용
+- [ ] 명시적 반환 타입 정의: `JSX.Element`
+
+### **원칙 6: 성능 우선주의 강화**
+
+```tsx
+// 🔥 메모리 누수 방지 패턴
+export function OptimizedComponent(): JSX.Element {
+  useEffect(() => {
+    const handleResize = () => { /* logic */ };
+    window.addEventListener('resize', handleResize);
+    
+    // 🔥 필수: cleanup 함수
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // 🔥 성능 최적화: 안정적인 참조
+  const memoizedValue = useMemo(() => 
+    expensiveCalculation(data), [data]
+  );
+
+  return <div>{/* JSX */}</div>;
+}
+```
+
+### **원칙 7: 보안 철벽 방어**
+
+```tsx
+// 🔥 입력값 검증 패턴
+interface ValidatedProps {
+  readonly userInput: string;
+}
+
+function validateUserInput(input: unknown): input is string {
+  return typeof input === 'string' && 
+         input.length <= 100 && 
+         !/[<>]/.test(input); // XSS 방지
+}
+
+export function SecureComponent({ userInput }: ValidatedProps): JSX.Element {
+  if (!validateUserInput(userInput)) {
+    Logger.warn('SECURITY', 'Invalid user input detected');
+    return <div>Invalid input</div>;
+  }
+
+  return <div>{userInput}</div>;
+}
+```
+
+### **원칙 8: 테스트 기반 검증**
+
+```tsx
+// 🔥 테스트 가능한 컴포넌트 구조
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Card } from './Card';
+
+describe('Card Component', () => {
+  it('should render with correct variant styles', () => {
+    render(<Card variant="elevated">Test Content</Card>);
+    
+    const card = screen.getByText('Test Content').parentElement;
+    expect(card).toHaveClass('shadow-lg');
+  });
+
+  it('should handle keyboard navigation', () => {
+    const handleClick = jest.fn();
+    render(<Card onClick={handleClick}>Clickable Card</Card>);
+    
+    const card = screen.getByRole('button');
+    fireEvent.keyDown(card, { key: 'Enter' });
+    expect(handleClick).toHaveBeenCalled();
+  });
+});
+```
+
+### **성능 벤치마크 목표**
+
+- ⚡ **컴포넌트 렌더링**: < 16ms (60fps)
+- 🧠 **메모리 사용량**: < 200MB
+- 🚀 **초기 로딩**: < 3초
+- 📦 **번들 크기**: < 500KB per route
+
+### **일일 체크리스트**
+
+**매일 확인해야 할 사항:**
+- [ ] TypeScript 컴파일 에러 0개
+- [ ] ESLint 에러 0개  
+- [ ] 사용하지 않는 import 0개
+- [ ] any 타입 사용 0개
+- [ ] 접근성 테스트 통과
+- [ ] 성능 벤치마크 달성
+
+---
+
+이 **기가차드 강화 버전**으로 UI를 구현하면 **기업급 품질**의 Electron 앱을 만들 수 있습니다! 🚀

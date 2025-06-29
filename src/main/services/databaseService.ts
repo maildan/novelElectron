@@ -67,16 +67,16 @@ export class DatabaseService {
       // #DEBUG: Initializing database
       Logger.debug('DATABASE', 'Initializing database connection');
 
-      // Prisma 클라이언트 동적 로딩 (우회 방법)
+      // Prisma 클라이언트 동적 로딩 (타입 안전한 방법)
       const prismaModule = await import('@prisma/client');
-      const PrismaClientConstructor = (prismaModule as Record<string, unknown>).PrismaClient ||
-        ((prismaModule as Record<string, Record<string, unknown>>).default?.PrismaClient);
+      const PrismaClientConstructor = (prismaModule as unknown as { PrismaClient: new (...args: unknown[]) => PrismaClient }).PrismaClient ||
+        (prismaModule as unknown as { default: { PrismaClient: new (...args: unknown[]) => PrismaClient } }).default?.PrismaClient;
       
       if (!PrismaClientConstructor) {
         throw new Error('PrismaClient not found in module');
       }
       
-      this.prisma = new (PrismaClientConstructor as new (...args: unknown[]) => PrismaClient)({
+      this.prisma = new PrismaClientConstructor({
         datasourceUrls: {
           db: this.config.databaseUrl,
         },
@@ -134,19 +134,20 @@ export class DatabaseService {
       Logger.debug('DATABASE', 'Saving typing session', { 
         keyCount: session.keyCount, 
         wpm: session.wpm,
-        language: session.language,
+        userId: session.userId,
       });
 
       const result = await this.prisma!.typingSession.create({
         data: {
+          userId: session.userId,
           content: session.content,
           startTime: session.startTime,
           endTime: session.endTime,
           keyCount: session.keyCount,
           wpm: session.wpm,
           accuracy: session.accuracy,
-          language: session.language,
           windowTitle: session.windowTitle,
+          appName: session.appName,
         },
       });
 
@@ -338,14 +339,18 @@ export class DatabaseService {
 
     return {
       id: String(data.id || ''),
+      userId: String(data.userId || ''),
       content: String(data.content || ''),
       startTime: new Date(data.startTime as string),
-      endTime: new Date(data.endTime as string),
+      endTime: data.endTime ? new Date(data.endTime as string) : null,
       keyCount: Number(data.keyCount || 0),
       wpm: Number(data.wpm || 0),
       accuracy: Number(data.accuracy || 0),
-      language: String(data.language || 'en'),
-      windowTitle: String(data.windowTitle || ''),
+      windowTitle: data.windowTitle ? String(data.windowTitle) : null,
+      appName: data.appName ? String(data.appName) : null,
+      isActive: Boolean(data.isActive),
+      createdAt: new Date(data.createdAt as string),
+      updatedAt: new Date(data.updatedAt as string),
     };
   }
 

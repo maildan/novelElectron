@@ -108,7 +108,7 @@ export class ScreenshotManager {
       // #DEBUG: Getting all displays
       const displays = screen.getAllDisplays();
       
-      const displayInfos: DisplayInfo[] = displays.map(display => ({
+      const displayInfos: DisplayInfo[] = displays.map((display: any) => ({
         id: display.id,
         bounds: display.bounds,
         workArea: display.workArea,
@@ -170,7 +170,7 @@ export class ScreenshotManager {
       });
 
       // displayId에 해당하는 소스 찾기
-      const targetSource = sources.find(source => 
+      const targetSource = sources.find((source: any) => 
         source.display_id === displayId.toString()
       );
 

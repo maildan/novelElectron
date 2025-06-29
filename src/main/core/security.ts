@@ -114,8 +114,8 @@ export class SecurityManager {
       }
 
       // 외부 링크 차단
-      app.on('web-contents-created', (event, contents) => {
-        contents.on('will-navigate', (navigationEvent, navigationUrl) => {
+      app.on('web-contents-created', (event: any, contents: any) => {
+        contents.on('will-navigate', (navigationEvent: any, navigationUrl: any) => {
           if (!this.isUrlAllowed(navigationUrl)) {
             navigationEvent.preventDefault();
             this.recordSecurityViolation('navigation', navigationUrl, true);
@@ -123,7 +123,7 @@ export class SecurityManager {
           }
         });
 
-        contents.setWindowOpenHandler(({ url }) => {
+        contents.setWindowOpenHandler(({ url }: any) => {
           if (!this.config.allowExternalLinks && !this.isUrlAllowed(url)) {
             this.recordSecurityViolation('window-open', url, true);
             Logger.warn('SECURITY', 'Blocked window open attempt', { url });

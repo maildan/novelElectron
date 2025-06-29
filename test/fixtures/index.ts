@@ -85,15 +85,18 @@ export const mockKeyboardEvent: KeyboardEvent = {
 
 export const mockTypingSession: TypingSession = {
   id: 'test-session-1',
+  userId: 'test-user-1',
   content: 'Hello, World!',
   startTime: new Date('2024-01-01T10:00:00.000Z'),
   endTime: new Date('2024-01-01T10:05:00.000Z'),
   keyCount: 13,
   wpm: 50,
   accuracy: 95.5,
-  language: 'english',
   windowTitle: 'Test Document',
-  errors: 1
+  appName: 'Test App',
+  isActive: false,
+  createdAt: new Date('2024-01-01T10:00:00.000Z'),
+  updatedAt: new Date('2024-01-01T10:05:00.000Z'),
 };
 
 // 🪟 Window 정보 픽스처

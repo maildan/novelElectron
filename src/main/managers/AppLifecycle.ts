@@ -138,7 +138,7 @@ export class AppLifecycle extends BaseManager {
     });
 
     // 앱 종료 전
-    app.on('before-quit', async (event) => {
+    app.on('before-quit', async (event: any) => {
       if (!this.isQuitting) {
         Logger.info(this.componentName, 'Before quit event received');
         event.preventDefault();
@@ -183,7 +183,7 @@ export class AppLifecycle extends BaseManager {
     });
 
     // 렌더러 프로세스 크래시
-    app.on('render-process-gone', (event, webContents, details) => {
+    app.on('render-process-gone', (event: any, webContents: any, details: any) => {
       Logger.error(this.componentName, 'Renderer process crashed', details);
       this.crashCount++;
       this.setState(AppState.CRASHED);
@@ -194,7 +194,7 @@ export class AppLifecycle extends BaseManager {
     });
 
     // 자식 프로세스 크래시
-    app.on('child-process-gone', (event, details) => {
+    app.on('child-process-gone', (event: any, details: any) => {
       Logger.error(this.componentName, 'Child process crashed', details);
       this.crashCount++;
       this.addEvent('child-process-crashed', this.currentState, details);

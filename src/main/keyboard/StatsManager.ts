@@ -323,10 +323,12 @@ export class StatsManager extends BaseManager {
     stats.totalKeystrokes = session.keyCount;
     stats.wpm = session.wpm;
     stats.accuracy = session.accuracy;
-    stats.sessionDuration = session.endTime.getTime() - session.startTime.getTime();
+    stats.sessionDuration = session.endTime 
+      ? session.endTime.getTime() - session.startTime.getTime()
+      : 0;
     stats.charactersTyped = session.content.length;
     stats.wordsTyped = Math.ceil(session.content.length / KEYBOARD_CONSTANTS.WPM_CONSTANTS.AVERAGE_WORD_LENGTH);
-    stats.errorsCount = session.errors || 0;
+    stats.errorsCount = Math.max(0, Math.round(session.keyCount * (1 - session.accuracy)));
     
     return stats;
   }
