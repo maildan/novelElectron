@@ -32,7 +32,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/renderer/**/*.ts",
-    "src/renderer/**/*.tsx"
+    "src/renderer/**/*.tsx",
+    "src/types/**/*.d.ts",
+    "src/shared/**/*.ts",
+    "src/preload/**/*.ts"
   ],
   "exclude": [
     "node_modules",

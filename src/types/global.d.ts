@@ -1,8 +1,8 @@
 // 🔥 기가차드 글로벌 타입 확장 - Electron 환경 특화
 // src/types/global.d.ts
 
-import { ElectronAPI } from '../shared/types';
-import { AppCategory } from '../main/keyboard/appCategories';
+import type { ElectronAPI } from '../shared/types';
+import type { AppCategory } from '../main/keyboard/appCategories';
 
 // 🔥 uiohook-napi 타입 정의 (완전 타입 안전 - 모든 any 제거)
 declare module 'uiohook-napi' {
@@ -106,8 +106,12 @@ export interface KeyMapping {
 // 모듈로 만들기 위해 필요
 export {};
 
-// 🔥 GlobalThis 타입 확장 (Loop 애플리케이션 전용)
+// 🔥 Window 인터페이스 확장 (Electron API 노출)
 declare global {
+  interface Window {
+    electronAPI: import('../shared/types').ElectronAPI;
+  }
+
   namespace globalThis {
     var unifiedHandler: import('../main/keyboard/UnifiedHandler').UnifiedHandler | undefined;
     var windowTracker: import('../main/keyboard/WindowTracker').WindowTracker | undefined;

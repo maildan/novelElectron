@@ -6,7 +6,7 @@ import { BaseManager } from '../common/BaseManager';
 import { activeWindow, openWindows, WindowInfo } from 'get-windows';
 import { Result } from '../../shared/types';
 import { Platform } from '../utils/platform';
-import { getAppCategory, AppCategory, APP_CATEGORY_MAPPING } from './appCategories';
+import { getAppCategory, AppCategory, APP_CATEGORIES, APP_CATEGORY_MAPPING } from './appCategories';
 
 // 🔥 기가차드 타입 재export
 export type { WindowInfo } from 'get-windows';
@@ -207,26 +207,8 @@ export class WindowTracker extends BaseManager {
       }
       
       // 🔥 접근성 권한이 있으면 더 정확한 정보 가져오기
-      let activeWindowFunc;
-      
-      try {
-        // 동적 import로 get-windows 모듈 로드
-        const getWindowsModule = await import('get-windows');
-        
-        // 🔥 정확한 export 이름 사용: activeWindow
-        activeWindowFunc = getWindowsModule.activeWindow;
-                             
-        if (typeof activeWindowFunc !== 'function') {
-          throw new Error('activeWindow function not found in get-windows module');
-        }
-        
-      } catch (moduleError) {
-        Logger.warn(this.componentName, '⚠️ get-windows 모듈 로드 실패 - 대체 방법 사용:', moduleError);
-        return this.fallbackWindowDetection();
-      }
-
-      // 🔥 get-windows v9.2.0에서는 옵션 없이 호출 (권한 있을 때만)
-      const activeWindowResult = await activeWindowFunc();
+      // 🔥 activeWindow 함수 직접 사용 (get-windows 패키지에서 import됨)
+      const activeWindowResult = await activeWindow();
 
       // 🔥 윈도우 정보 유효성 검증 및 보완
       if (activeWindowResult) {
@@ -344,10 +326,17 @@ export class WindowTracker extends BaseManager {
     // 🔥 owner와 name의 안전성 확인
     const ownerName = window?.owner?.name || 'Unknown';
     
-    // Loop 전용 필드 추가
+    // 🔥 Loop 전용 필드 추가 - getAppCategory 함수 사용
     enhanced.loopTimestamp = Date.now();
     enhanced.loopAppCategory = getAppCategory(ownerName) as WindowInfo['loopAppCategory'];
     enhanced.loopSessionId = `${ownerName}-${Date.now()}`;
+
+    // 🔥 추가 디버그 정보
+    Logger.debug(this.componentName, '🔧 윈도우 정보 향상 완료', {
+      originalApp: ownerName,
+      detectedCategory: enhanced.loopAppCategory,
+      sessionId: enhanced.loopSessionId,
+    });
 
     return enhanced;
   }
@@ -477,34 +466,163 @@ export class WindowTracker extends BaseManager {
   }
 
   /**
-   * 공개 API: 강제 윈도우 감지
+   * 🔥 모든 열린 윈도우 가져오기 (openWindows 사용)
    */
-  public async forceDetection(): Promise<Result<WindowInfo>> {
+  public async getAllOpenWindows(): Promise<Result<WindowInfo[]>> {
     try {
-      const activeWindow = await this.getCurrentActiveWindow();
+      // 🔥 접근성 권한이 없으면 빈 배열 반환
+      if (!this.hasAccessibilityPermission) {
+        Logger.warn(this.componentName, '⚠️ 접근성 권한이 없어 모든 윈도우 조회 불가');
+        return {
+          success: true,
+          data: [],
+        };
+      }
+
+      // 🔥 openWindows 함수 사용하여 모든 윈도우 가져오기
+      const windows = await openWindows();
       
-      if (!activeWindow) {
+      if (!windows || !Array.isArray(windows)) {
+        return {
+          success: true,
+          data: [],
+        };
+      }
+
+      // 🔥 윈도우 정보 검증 및 향상
+      const validWindows = windows
+        .map(window => this.validateAndEnhanceWindowInfo(window))
+        .filter((window): window is WindowInfo => window !== null)
+        .map(window => this.enhanceWindowInfo(window));
+
+      Logger.info(this.componentName, `✅ 열린 윈도우 ${validWindows.length}개 조회 성공`);
+
+      return {
+        success: true,
+        data: validWindows,
+      };
+    } catch (error) {
+      const err = error as Error;
+      Logger.error(this.componentName, '❌ 모든 윈도우 조회 실패', err);
+      return {
+        success: false,
+        error: err.message,
+      };
+    }
+  }
+
+  /**
+   * 🔥 활성 윈도우 정보 가져오기 (activeWindow 직접 사용)
+   */
+  public async getActiveWindowDirect(): Promise<Result<WindowInfo>> {
+    try {
+      // 🔥 접근성 권한이 없으면 대체 방법 사용
+      if (!this.hasAccessibilityPermission) {
+        Logger.warn(this.componentName, '⚠️ 접근성 권한이 없어 대체 방법 사용');
+        const fallbackWindow = await this.fallbackWindowDetection();
+        
+        if (!fallbackWindow) {
+          return {
+            success: false,
+            error: 'No active window found and fallback failed',
+          };
+        }
+
+        return {
+          success: true,
+          data: this.enhanceWindowInfo(fallbackWindow),
+        };
+      }
+
+      // 🔥 activeWindow 함수 직접 사용
+      const activeWindowResult = await activeWindow();
+      
+      if (!activeWindowResult) {
         return {
           success: false,
           error: 'No active window found',
         };
       }
 
-      const enhancedWindow = this.enhanceWindowInfo(activeWindow);
-      this.handleWindowChange(enhancedWindow);
+      const validWindow = this.validateAndEnhanceWindowInfo(activeWindowResult);
+      
+      if (!validWindow) {
+        return {
+          success: false,
+          error: 'Active window validation failed',
+        };
+      }
 
       return {
         success: true,
-        data: enhancedWindow,
+        data: this.enhanceWindowInfo(validWindow),
       };
     } catch (error) {
       const err = error as Error;
-      Logger.error(this.componentName, 'Failed to force detect window', err);
+      Logger.error(this.componentName, '❌ 활성 윈도우 직접 조회 실패', err);
       return {
         success: false,
         error: err.message,
       };
     }
+  }
+
+  /**
+   * 🔥 앱 카테고리별 윈도우 통계 (APP_CATEGORIES 사용)
+   */
+  public getCategoryStats(): Record<AppCategory, { count: number; windows: WindowInfo[] }> {
+    const stats = {} as Record<AppCategory, { count: number; windows: WindowInfo[] }>;
+    
+    // 🔥 모든 카테고리 초기화 (APP_CATEGORIES 사용)
+    Object.values(APP_CATEGORIES).forEach(category => {
+      stats[category] = { count: 0, windows: [] };
+    });
+
+    // 🔥 윈도우 히스토리를 카테고리별로 분류
+    this.windowHistory.forEach((window) => {
+      const category = window.loopAppCategory || APP_CATEGORIES.UNKNOWN;
+      stats[category].count++;
+      stats[category].windows.push(window);
+    });
+
+    Logger.debug(this.componentName, '📊 카테고리별 윈도우 통계 생성', {
+      totalCategories: Object.keys(stats).length,
+      totalWindows: this.windowHistory.length,
+    });
+
+    return stats;
+  }
+
+  /**
+   * 🔥 특정 카테고리의 윈도우만 필터링
+   */
+  public getWindowsByCategory(category: AppCategory): WindowInfo[] {
+    return this.windowHistory.filter(window => 
+      window.loopAppCategory === category
+    );
+  }
+
+  /**
+   * 🔥 앱 카테고리 매핑 정보 가져오기 (APP_CATEGORY_MAPPING 사용)
+   */
+  public getAppMappingInfo(): {
+    totalMappedApps: number;
+    categoriesUsed: AppCategory[];
+    mappingDetails: Record<string, AppCategory>;
+  } {
+    // 🔥 현재 히스토리에서 사용된 카테고리 추출
+    const usedCategories = new Set<AppCategory>();
+    this.windowHistory.forEach(window => {
+      if (window.loopAppCategory) {
+        usedCategories.add(window.loopAppCategory);
+      }
+    });
+
+    return {
+      totalMappedApps: Object.keys(APP_CATEGORY_MAPPING).length,
+      categoriesUsed: Array.from(usedCategories),
+      mappingDetails: { ...APP_CATEGORY_MAPPING }, // 전체 매핑 정보 제공
+    };
   }
 
   /**
@@ -605,6 +723,101 @@ export class WindowTracker extends BaseManager {
         return null;
       }
     }
+  }
+
+  /**
+   * 🔥 윈도우 카테고리별 활동 시간 분석
+   */
+  public getActivityTimeByCategory(): Record<AppCategory, { totalTime: number; averageSessionTime: number; sessionCount: number }> {
+    const categoryStats = {} as Record<AppCategory, { totalTime: number; averageSessionTime: number; sessionCount: number }>;
+    
+    // 🔥 모든 카테고리 초기화
+    Object.values(APP_CATEGORIES).forEach(category => {
+      categoryStats[category] = { totalTime: 0, averageSessionTime: 0, sessionCount: 0 };
+    });
+
+    // 🔥 윈도우 히스토리 분석
+    this.windowHistory.forEach((window, index) => {
+      const category = window.loopAppCategory || APP_CATEGORIES.UNKNOWN;
+      categoryStats[category].sessionCount++;
+      
+      // 다음 윈도우와의 시간 차이 계산
+      if (index < this.windowHistory.length - 1) {
+        const nextWindow = this.windowHistory[index + 1];
+        const sessionTime = (nextWindow.loopTimestamp || 0) - (window.loopTimestamp || 0);
+        if (sessionTime > 0 && sessionTime < 3600000) { // 1시간 이내만 유효
+          categoryStats[category].totalTime += sessionTime;
+        }
+      }
+    });
+
+    // 평균 세션 시간 계산
+    Object.keys(categoryStats).forEach(categoryKey => {
+      const category = categoryKey as AppCategory;
+      const stats = categoryStats[category];
+      if (stats.sessionCount > 0) {
+        stats.averageSessionTime = stats.totalTime / stats.sessionCount;
+      }
+    });
+
+    return categoryStats;
+  }
+
+  /**
+   * 🔥 생산성 점수 계산 (카테고리별 가중치 적용)
+   */
+  public getProductivityScore(): { 
+    score: number; 
+    breakdown: Record<AppCategory, { time: number; weight: number; contribution: number }>; 
+  } {
+    const PRODUCTIVITY_WEIGHTS: Record<AppCategory, number> = {
+      [APP_CATEGORIES.DEVELOPMENT]: 1.0,
+      [APP_CATEGORIES.OFFICE]: 0.9,
+      [APP_CATEGORIES.PROJECT_MANAGEMENT]: 0.9,
+      [APP_CATEGORIES.DESIGN]: 0.8,
+      [APP_CATEGORIES.PRODUCTIVITY]: 0.8,
+      [APP_CATEGORIES.AI_ASSISTANT]: 0.7,
+      [APP_CATEGORIES.COMMUNICATION]: 0.6,
+      [APP_CATEGORIES.BROWSER]: 0.5,
+      [APP_CATEGORIES.MARKETING]: 0.5,
+      [APP_CATEGORIES.FINANCE]: 0.4,
+      [APP_CATEGORIES.FILE_MANAGEMENT]: 0.3,
+      [APP_CATEGORIES.SYSTEM]: 0.2,
+      [APP_CATEGORIES.ENTERTAINMENT]: 0.1,
+      [APP_CATEGORIES.E_COMMERCE]: 0.1,
+      [APP_CATEGORIES.MEDIA_PRODUCTION]: 0.7,
+      [APP_CATEGORIES.CLOUD_STORAGE]: 0.3,
+      [APP_CATEGORIES.SECURITY]: 0.2,
+      [APP_CATEGORIES.UNKNOWN]: 0.0,
+    };
+
+    const activityTime = this.getActivityTimeByCategory();
+    const breakdown = {} as Record<AppCategory, { time: number; weight: number; contribution: number }>;
+    
+    let totalWeightedTime = 0;
+    let totalTime = 0;
+
+    Object.entries(activityTime).forEach(([categoryKey, stats]) => {
+      const category = categoryKey as AppCategory;
+      const weight = PRODUCTIVITY_WEIGHTS[category] || 0;
+      const contribution = stats.totalTime * weight;
+      
+      breakdown[category] = {
+        time: stats.totalTime,
+        weight: weight,
+        contribution: contribution
+      };
+      
+      totalWeightedTime += contribution;
+      totalTime += stats.totalTime;
+    });
+
+    const score = totalTime > 0 ? (totalWeightedTime / totalTime) * 100 : 0;
+
+    return {
+      score: Math.round(score * 10) / 10, // 소수점 1자리까지
+      breakdown
+    };
   }
 }
 

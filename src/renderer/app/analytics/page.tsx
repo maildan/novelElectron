@@ -1,3 +1,6 @@
+import { ElectronAPI } from '../../../shared/types';
+import '../../../types/global'; // 🔥 global.d.ts 명시적 import
+
 'use client';
 
 import React from 'react';
@@ -94,12 +97,11 @@ export default function AnalyticsPage(): React.ReactElement {
       setLoading(true);
       setError(null);
 
-      // 🔥 기가차드 규칙: IPC 통신으로 실제 데이터 가져오기
-      const [dashboardStats, projectsData, recentSessions] = await Promise.all([
-        window.electronAPI?.dashboard?.getStats?.(),
-        window.electronAPI?.projects?.getAll?.(),
-        window.electronAPI?.dashboard?.getRecentSessions?.()
-      ]);
+      // 🔥 기가차드 규칙: 타입 안전한 IPC 통신
+      const electronAPI = (window as Window & { electronAPI: ElectronAPI }).electronAPI;
+      const dashboardStats = await electronAPI.dashboard.getStats();
+      const projectsData = await electronAPI.projects.getAll();
+      const recentSessions = await electronAPI.dashboard.getRecentSessions();
 
       if (dashboardStats?.success && projectsData?.success && recentSessions?.success) {
         // 🔥 실제 데이터로 변환
