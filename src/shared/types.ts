@@ -85,6 +85,9 @@ export interface ElectronAPI {
     getStatus: () => Promise<IpcResponse<MonitoringStatus>>;
     getRealtimeStats: () => Promise<IpcResponse<RealtimeStats>>;
     setLanguage: (language: string) => Promise<IpcResponse<boolean>>;
+    // 🔥 기가차드 한글 입력 강화 API
+    forceKorean: () => Promise<IpcResponse<boolean>>;
+    testLanguageDetection: (keycode: number, keychar?: number) => Promise<IpcResponse<string>>;
   };
 
   // 📊 대시보드 API

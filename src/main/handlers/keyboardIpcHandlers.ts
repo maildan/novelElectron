@@ -127,6 +127,37 @@ export function setupKeyboardIpcHandlers(): void {
       'Get realtime statistics'
     ));
 
+    // 🔥 한글 강제 설정 (디버깅용)
+    ipcMain.handle('keyboard:force-korean', createSafeAsyncIpcHandler(
+      async () => {
+        Logger.info('KEYBOARD_IPC', 'IPC: Force Korean language requested');
+        
+        const result = keyboardService.forceKoreanLanguage();
+        
+        Logger.info('KEYBOARD_IPC', 'Force Korean result', { success: result });
+        return result;
+      },
+      'KEYBOARD_IPC',
+      'Force Korean language setting'
+    ));
+
+    // 🔥 언어 감지 테스트 (디버깅용)
+    ipcMain.handle('keyboard:test-language-detection', createSafeAsyncIpcHandler(
+      async (event, ...args: unknown[]) => {
+        const keycode = args[0] as number;
+        const keychar = args[1] as number | undefined;
+        
+        Logger.info('KEYBOARD_IPC', 'IPC: Language detection test requested', { keycode, keychar });
+        
+        const result = keyboardService.testLanguageDetection(keycode, keychar);
+        
+        Logger.info('KEYBOARD_IPC', 'Language detection test result', { result, keycode, keychar });
+        return result;
+      },
+      'KEYBOARD_IPC',
+      'Test language detection'
+    ));
+
     // 🔥 키보드 이벤트 포워딩 설정
     keyboardService.on('keyboard-event', (event: unknown) => {
       // #DEBUG: Forwarding keyboard event to renderer
@@ -168,6 +199,8 @@ export function cleanupKeyboardIpcHandlers(): void {
     ipcMain.removeHandler('keyboard:set-language');
     ipcMain.removeHandler('keyboard:get-recent-events');
     ipcMain.removeHandler('keyboard:get-realtime-stats');
+    ipcMain.removeHandler('keyboard:force-korean');
+    ipcMain.removeHandler('keyboard:test-language-detection');
 
     // 키보드 서비스 이벤트 리스너 정리
     keyboardService.removeAllListeners();

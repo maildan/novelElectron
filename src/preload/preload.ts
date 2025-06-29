@@ -35,6 +35,8 @@ const electronAPI: ElectronAPI = {
     getStatus: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.GET_STATUS),
     getRealtimeStats: () => ipcRenderer.invoke('keyboard:get-realtime-stats'),
     setLanguage: (language: string) => ipcRenderer.invoke('keyboard:set-language', language),
+    forceKorean: () => ipcRenderer.invoke('keyboard:force-korean'),
+    testLanguageDetection: (keycode: number, keychar?: number) => ipcRenderer.invoke('keyboard:test-language-detection', keycode, keychar),
   },
 
   dashboard: {

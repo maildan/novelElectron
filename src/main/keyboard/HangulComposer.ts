@@ -3,7 +3,7 @@
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
 import { KeyboardEvent, Result } from '../../shared/types';
-import KEYBOARD_CONSTANTS from './constants';
+import { HANGUL_KEY_MAP } from './constants';
 
 // #DEBUG: Hangul composer entry point
 Logger.debug('HANGUL_COMPOSER', 'Hangul composer module loaded');
@@ -351,16 +351,24 @@ export class HangulComposer extends BaseManager {
   }
 
   /**
-   * 키 매핑 설정
+   * 키 매핑 설정 (HANGUL_KEY_MAP 직접 사용)
    */
   private setupKeyMapping(): void {
-    // KEYBOARD_CONSTANTS에서 한글 키 매핑 가져오기
-    if (KEYBOARD_CONSTANTS.HANGUL_KEY_MAP) {
-      Object.entries(KEYBOARD_CONSTANTS.HANGUL_KEY_MAP).forEach(([key, value]) => {
-        this.keyMap.set(key, value as string);
+    try {
+      // 🔥 HANGUL_KEY_MAP을 역매핑하여 영어키 → 한글 매핑 생성
+      Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
+        this.keyMap.set(english.toLowerCase(), hangul);
       });
-    } else {
-      // 기본 키 매핑 (QWERTY → 한글)
+
+      Logger.debug(this.componentName, 'Key mapping setup completed with HANGUL_KEY_MAP', {
+        mappingCount: this.keyMap.size,
+        sampleMappings: Array.from(this.keyMap.entries()).slice(0, 5)
+      });
+      
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to setup key mapping, using fallback', error);
+      
+      // 🔥 폴백: 기본 키 매핑 (QWERTY → 한글)
       const defaultMapping: Record<string, string> = {
         'q': 'ㅂ', 'w': 'ㅈ', 'e': 'ㄷ', 'r': 'ㄱ', 't': 'ㅅ',
         'y': 'ㅛ', 'u': 'ㅕ', 'i': 'ㅑ', 'o': 'ㅐ', 'p': 'ㅔ',
@@ -374,10 +382,6 @@ export class HangulComposer extends BaseManager {
         this.keyMap.set(key, value);
       });
     }
-
-    Logger.debug(this.componentName, 'Key mapping setup completed', {
-      mappingCount: this.keyMap.size,
-    });
   }
 
   /**
