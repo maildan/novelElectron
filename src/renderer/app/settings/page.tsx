@@ -86,7 +86,7 @@ interface SettingsData {
 
 const INITIAL_SETTINGS: SettingsData = {
   profile: {
-    name: '작가님',
+    name: 'Loop 사용자',
     email: 'writer@example.com',
     bio: 'Loop을 사용하여 더 나은 글쓰기를 추구하는 작가입니다.'
   },

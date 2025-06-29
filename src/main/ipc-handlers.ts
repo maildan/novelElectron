@@ -19,8 +19,32 @@ export function cleanupAllIpcHandlers(): void {
   try {
     Logger.debug('IPC_HANDLERS', 'Cleaning up all IPC handlers');
     
-    // 모든 핸들러 제거
-    ipcMain.removeAllListeners();
+    // 개별 핸들러 제거 (removeHandler는 없으므로 removeAllListeners 사용)
+    const handlersToClean = [
+      'keyboard:start-monitoring',
+      'keyboard:stop-monitoring', 
+      'keyboard:get-status',
+      'keyboard:get-realtime-stats',
+      'keyboard:set-language',
+      'dashboard:get-stats',
+      'dashboard:get-recent-sessions',
+      'projects:get-all',
+      'projects:get-by-id',
+      'projects:create',
+      'projects:update', 
+      'projects:delete',
+      'projects:create-sample',
+      'projects:import-file'
+    ];
+    
+    handlersToClean.forEach(channel => {
+      try {
+        ipcMain.removeHandler(channel);
+      } catch (error) {
+        // 핸들러가 없어도 무시
+      }
+    });
+    
     registeredHandlers.clear();
     
     Logger.info('IPC_HANDLERS', 'All IPC handlers cleaned up');
@@ -39,24 +63,39 @@ export function setupAllIpcHandlers(): void {
     Logger.debug('IPC_HANDLERS', 'Setting up all IPC handlers');
 
     // 키보드 IPC 핸들러
-    setupKeyboardIpcHandlers();
-    Logger.info('IPC_HANDLERS', 'Keyboard IPC handlers setup complete');
+    if (!registeredHandlers.has('keyboard')) {
+      setupKeyboardIpcHandlers();
+      registeredHandlers.add('keyboard');
+      Logger.info('IPC_HANDLERS', 'Keyboard IPC handlers setup complete');
+    }
 
     // 대시보드 IPC 핸들러
-    setupDashboardIpcHandlers();
-    Logger.info('IPC_HANDLERS', 'Dashboard IPC handlers setup complete');
+    if (!registeredHandlers.has('dashboard')) {
+      setupDashboardIpcHandlers();
+      registeredHandlers.add('dashboard');
+      Logger.info('IPC_HANDLERS', 'Dashboard IPC handlers setup complete');
+    }
 
     // 프로젝트 IPC 핸들러
-    setupProjectIpcHandlers();
-    Logger.info('IPC_HANDLERS', 'Project IPC handlers setup complete');
+    if (!registeredHandlers.has('projects')) {
+      setupProjectIpcHandlers();
+      registeredHandlers.add('projects');
+      Logger.info('IPC_HANDLERS', 'Project IPC handlers setup complete');
+    }
 
     // 설정 IPC 핸들러
-    setupSettingsIpcHandlers();
-    Logger.info('IPC_HANDLERS', 'Settings IPC handlers setup complete');
+    if (!registeredHandlers.has('settings')) {
+      setupSettingsIpcHandlers();
+      registeredHandlers.add('settings');
+      Logger.info('IPC_HANDLERS', 'Settings IPC handlers setup complete');
+    }
 
     // 트레이 IPC 핸들러
-    setupTrayIpcHandlers();
-    Logger.info('IPC_HANDLERS', 'Tray IPC handlers setup complete');
+    if (!registeredHandlers.has('tray')) {
+      setupTrayIpcHandlers();
+      registeredHandlers.add('tray');
+      Logger.info('IPC_HANDLERS', 'Tray IPC handlers setup complete');
+    }
 
     Logger.info('IPC_HANDLERS', 'All IPC handlers setup complete');
 

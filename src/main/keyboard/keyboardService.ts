@@ -111,6 +111,12 @@ export class KeyboardService extends EventEmitter {
         throw new Error('uiohook not initialized');
       }
 
+      // 🔥 WindowTracker 시작 (모니터링 시작시에만)
+      if (this.windowTracker && !this.windowTracker.isRunning()) {
+        await this.windowTracker.start();
+        Logger.info('KEYBOARD', 'WindowTracker started with monitoring');
+      }
+
       // 키보드 이벤트 리스너 설정
       this.uiohook.on('keydown', this.handleKeyEvent.bind(this, 'keydown'));
       this.uiohook.on('keyup', this.handleKeyEvent.bind(this, 'keyup'));
@@ -162,6 +168,12 @@ export class KeyboardService extends EventEmitter {
       if (this.uiohook) {
         this.uiohook.stop();
         this.uiohook.removeAllListeners();
+      }
+
+      // 🔥 WindowTracker 중지 (모니터링 중지시)
+      if (this.windowTracker && this.windowTracker.isRunning()) {
+        await this.windowTracker.stop();
+        Logger.info('KEYBOARD', 'WindowTracker stopped with monitoring');
       }
 
       this.state.isActive = false;

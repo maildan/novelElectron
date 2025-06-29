@@ -23,6 +23,18 @@ export function setupKeyboardIpcHandlers(): void {
         async (event) => {
           // #DEBUG: IPC call - start monitoring
           Logger.debug('KEYBOARD_IPC', 'IPC: Start monitoring requested');
+          
+          // 🔥 모니터링 시작 시 권한 체크
+          const loopApp = (global as any).loopApp;
+          if (loopApp && typeof loopApp.checkAndRequestPermissions === 'function') {
+            const hasPermission = await loopApp.checkAndRequestPermissions();
+            keyboardService.setAccessibilityPermission(hasPermission);
+            
+            if (!hasPermission) {
+              throw new Error('Accessibility permission required to start monitoring');
+            }
+          }
+          
           const result = await keyboardService.startMonitoring();
           return result.data;
         },

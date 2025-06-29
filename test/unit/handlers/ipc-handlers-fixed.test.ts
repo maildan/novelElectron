@@ -64,7 +64,7 @@ describe('IPC Handlers', () => {
       expect(() => cleanupAllIpcHandlers()).not.toThrow();
       
       expect(Logger.debug).toHaveBeenCalledWith('IPC_HANDLERS', 'Cleaning up all IPC handlers');
-      expect(Logger.info).toHaveBeenCalledWith('IPC_HANDLERS', 'All IPC handlers cleanup completed');
+      expect(Logger.info).toHaveBeenCalledWith('IPC_HANDLERS', 'All IPC handlers cleaned up');
     });
   });
 

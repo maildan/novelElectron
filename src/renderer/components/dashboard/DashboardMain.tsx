@@ -25,6 +25,7 @@ import {
 } from '../ui';
 import { QuickStartCard } from './QuickStartCard';
 import { Logger } from '../../../shared/logger';
+import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const DASHBOARD_STYLES = {
@@ -94,10 +95,7 @@ interface RecentFile {
 }
 
 export interface DashboardMainProps {
-  readonly isMonitoring?: boolean;
-  readonly onToggleMonitoring?: () => void;
-  readonly onAIToggle?: () => void;
-  readonly isAIOpen?: boolean;
+  // props는 더 이상 필요하지 않음 - 글로벌 상태 사용
 }
 
 function formatTime(seconds: number): string {
@@ -106,12 +104,10 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function DashboardMain({
-  isMonitoring = false,
-  onToggleMonitoring,
-  onAIToggle,
-  isAIOpen = false,
-}: DashboardMainProps): React.ReactElement {
+export function DashboardMain(): React.ReactElement {
+  // 🔥 글로벌 모니터링 상태 사용
+  const { state, startMonitoring, stopMonitoring, toggleAI, updateSessionData } = useMonitoring();
+  const { isMonitoring, isAIOpen, sessionData } = state;
   
   // 🔥 기가차드 규칙: 실제 데이터 상태 관리 - 더미 데이터 제거
   const [monitoringData, setMonitoringData] = useState<MonitoringData>({
@@ -328,22 +324,10 @@ export function DashboardMain({
       
       if (!isMonitoring) {
         // 모니터링 시작
-        const result = await window.electronAPI.keyboard.startMonitoring();
-        if (result.success) {
-          Logger.info('DASHBOARD', 'Monitoring started successfully');
-          onToggleMonitoring?.();
-        } else {
-          Logger.error('DASHBOARD', 'Failed to start monitoring', result.error);
-        }
+        await startMonitoring();
       } else {
         // 모니터링 중지
-        const result = await window.electronAPI.keyboard.stopMonitoring();
-        if (result.success) {
-          Logger.info('DASHBOARD', 'Monitoring stopped successfully');
-          onToggleMonitoring?.();
-        } else {
-          Logger.error('DASHBOARD', 'Failed to stop monitoring', result.error);
-        }
+        await stopMonitoring();
       }
     } catch (error) {
       Logger.error('DASHBOARD', 'Error toggling monitoring', error);
@@ -352,7 +336,7 @@ export function DashboardMain({
 
   const handleAIToggle = (): void => {
     Logger.info('DASHBOARD', `AI Panel ${!isAIOpen ? 'opened' : 'closed'}`);
-    onAIToggle?.();
+    toggleAI();
   };
 
   return (
@@ -379,17 +363,22 @@ export function DashboardMain({
             <Button
               onClick={handleToggleMonitoring}
               variant={isMonitoring ? 'destructive' : 'primary'}
-              className="gap-2"
+              className={`gap-2 min-w-[120px] transition-all duration-200 ${
+                isMonitoring 
+                  ? 'animate-pulse bg-red-600 hover:bg-red-700' 
+                  : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl'
+              }`}
+              size="md"
             >
               {isMonitoring ? (
                 <>
                   <Pause className="w-4 h-4" />
-                  중지
+                  모니터링 중지
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4" />
-                  시작
+                  타이핑 시작
                 </>
               )}
             </Button>

@@ -94,15 +94,15 @@ class LoopApplication {
       await this.trayManager.start();
       Logger.info('MAIN_INDEX', 'Tray manager initialized');
 
-      // 🔥 권한 의존적인 매니저들 - 권한이 있을 때만 초기화
+      // 🔥 권한 의존적인 매니저들 - 초기화만 하고 시작은 하지 않음
       if (hasAccessibilityPermission) {
         Logger.info('MAIN_INDEX', '🔐 Initializing accessibility-dependent managers...');
         
-        // 브라우저 감지기 초기화 (WindowTracker 의존) - 권한 상태 전달
+        // 브라우저 감지기 초기화만 (시작은 키보드 모니터링시)
         this.browserDetector = new BrowserDetector({}, hasAccessibilityPermission);
         await this.browserDetector.initialize();
-        await this.browserDetector.start();
-        Logger.info('MAIN_INDEX', 'Browser detector initialized');
+        // await this.browserDetector.start(); // 제거됨 - 키보드 모니터링시 시작
+        Logger.info('MAIN_INDEX', 'Browser detector initialized (not started)');
         
       } else {
         Logger.warn('MAIN_INDEX', '⚠️ Skipping accessibility-dependent managers (no permission)');
@@ -222,11 +222,8 @@ class LoopApplication {
       // #DEBUG: Initializing application
       Logger.debug('MAIN_INDEX', 'Starting application initialization');
 
-      // 🔥 macOS 권한 체크 (최우선)
-      this.hasAccessibilityPermission = await this.checkAndRequestPermissions();
-      if (!this.hasAccessibilityPermission) {
-        Logger.warn('MAIN_INDEX', 'Running with limited permissions');
-      }
+      // 🔥 권한은 모니터링 시작 시에만 체크하도록 변경
+      Logger.info('MAIN_INDEX', 'Permissions will be checked when monitoring starts');
 
       // 보안 관리자는 이미 초기화됨 (싱글톤)
       Logger.info('MAIN_INDEX', 'Security manager ready');
@@ -235,8 +232,8 @@ class LoopApplication {
       await initializeSettings();
       Logger.info('MAIN_INDEX', 'Settings system initialized');
 
-      // 새로운 매니저들 초기화
-      await this.initializeNewManagers(this.hasAccessibilityPermission);
+      // 새로운 매니저들 초기화 - 권한 없이도 초기화
+      await this.initializeNewManagers(false);
       Logger.info('MAIN_INDEX', 'New managers initialized');
 
       // 자동 실행 설정
@@ -274,6 +271,9 @@ class LoopApplication {
       
       // 글로벌 윈도우 참조 설정 (keyboardService에서 사용)
       (global as typeof global & { mainWindow: BrowserWindow }).mainWindow = this.mainWindow;
+      
+      // 🔥 글로벌 앱 참조 설정 (IPC 핸들러에서 사용)
+      (global as any).loopApp = this;
 
       Logger.info('MAIN_INDEX', 'Main window created and URL loaded successfully');
 
@@ -314,7 +314,8 @@ class LoopApplication {
       try {
         await this.initialize();
         await this.createMainWindow();
-        await this.startKeyboardService();
+        // 🔥 키보드 서비스는 사용자가 시작 버튼을 눌렀을 때만 시작
+        // await this.startKeyboardService(); // 제거됨
         
         Logger.info('MAIN_INDEX', 'Application ready and running');
       } catch (error) {
@@ -866,15 +867,15 @@ ${permissionList}
       if (hasAccessibilityPermission) {
         Logger.info('MAIN_INDEX', '🚀 접근성 의존 매니저들 초기화 시작');
 
-        // WindowTracker 초기화
+        // WindowTracker 초기화만 (시작은 키보드 모니터링시)
         if (!this.windowTracker) {
           this.windowTracker = new WindowTracker({}, hasAccessibilityPermission);
           await this.windowTracker.initialize();
-          await this.windowTracker.start();
-          Logger.info('MAIN_INDEX', 'WindowTracker initialized and started');
+          // await this.windowTracker.start(); // 제거됨 - 키보드 모니터링시 시작
+          Logger.info('MAIN_INDEX', 'WindowTracker initialized (not started)');
         }
 
-        // BrowserDetector 초기화
+        // BrowserDetector 초기화만 (시작은 키보드 모니터링시)
         if (!this.browserDetector) {
           this.browserDetector = new BrowserDetector({}, hasAccessibilityPermission);
           await this.browserDetector.initialize();

@@ -36,7 +36,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ 
   onMenuToggle, 
-  user = { name: '작가님', status: 'online' },
+  user,
   notificationCount = 0,
   onSearch,
   onNotificationClick,
@@ -62,7 +62,7 @@ export function AppHeader({
   };
 
   const handleUserClick = (): void => {
-    Logger.info('HEADER', 'User menu clicked', { user: user.name });
+    Logger.info('HEADER', 'User menu clicked', { user: user?.name || 'anonymous' });
     onUserClick?.();
   };
 
@@ -122,26 +122,6 @@ export function AppHeader({
               {notificationCount > 9 ? '9+' : notificationCount}
             </Badge>
           )}
-        </div>
-
-        {/* 사용자 프로필 */}
-        <div className={HEADER_STYLES.userSection}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleUserClick}
-            aria-label="사용자 메뉴"
-            className="flex items-center space-x-2 px-2"
-          >
-            <Avatar
-              size="sm"
-              src={user.avatar}
-              fallback={user.name.charAt(0)}
-              status={user.status}
-              alt={`${user.name} 프로필`}
-            />
-            <span className={HEADER_STYLES.userName}>{user.name}</span>
-          </Button>
         </div>
       </div>
     </header>

@@ -803,6 +803,9 @@ video {
 .min-w-0 {
   min-width: 0px;
 }
+.min-w-\[120px\] {
+  min-width: 120px;
+}
 .max-w-3xl {
   max-width: 48rem;
 }
@@ -2070,6 +2073,11 @@ p {
 .hover\:bg-green-200:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(187 247 208 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-green-700:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(21 128 61 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:bg-orange-200:hover {

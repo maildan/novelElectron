@@ -10,6 +10,7 @@ import { ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
+import { MonitoringProvider } from '../contexts/GlobalMonitoringContext';
 import './globals.css';
 
 // 🔥 기가차드 규칙: Inter 폰트 최적화
@@ -57,30 +58,32 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
         <title>Loop</title>
       </head>
       <body className={LAYOUT_STYLES.body}>
-        <div className={LAYOUT_STYLES.container}>
-          {/* 사이드바 */}
-          <aside className={LAYOUT_STYLES.sidebar}>
-            <AppSidebar 
-              activeRoute={pathname}
-              onNavigate={handleNavigate}
-              collapsed={sidebarCollapsed}
-              onToggleCollapse={handleToggleSidebar}
-            />
-          </aside>
+        <MonitoringProvider>
+          <div className={LAYOUT_STYLES.container}>
+            {/* 사이드바 */}
+            <aside className={LAYOUT_STYLES.sidebar}>
+              <AppSidebar 
+                activeRoute={pathname}
+                onNavigate={handleNavigate}
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={handleToggleSidebar}
+              />
+            </aside>
 
-          {/* 메인 콘텐츠 */}
-          <main className={LAYOUT_STYLES.main}>
-            {/* 헤더 */}
-            <header className={LAYOUT_STYLES.header}>
-              <AppHeader />
-            </header>
+            {/* 메인 콘텐츠 */}
+            <main className={LAYOUT_STYLES.main}>
+              {/* 헤더 */}
+              <header className={LAYOUT_STYLES.header}>
+                <AppHeader />
+              </header>
 
-            {/* 페이지 콘텐츠 */}
-            <div className={LAYOUT_STYLES.content}>
-              {children}
-            </div>
-          </main>
-        </div>
+              {/* 페이지 콘텐츠 */}
+              <div className={LAYOUT_STYLES.content}>
+                {children}
+              </div>
+            </main>
+          </div>
+        </MonitoringProvider>
       </body>
     </html>
   );

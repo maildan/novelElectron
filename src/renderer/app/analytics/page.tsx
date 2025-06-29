@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { ElectronAPI } from '../../../shared/types';
 
 // 🔥 Window 타입 확장
@@ -8,8 +9,6 @@ declare global {
     electronAPI: ElectronAPI;
   }
 }
-
-import React from 'react';
 import { TrendingUp, TrendingDown, Activity, BarChart3, Clock, Target, BookOpen, Zap } from 'lucide-react';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { Card } from '../../components/ui/Card';

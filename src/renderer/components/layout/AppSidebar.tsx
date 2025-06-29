@@ -11,7 +11,6 @@ import {
   ChevronRight,
   type LucideIcon 
 } from 'lucide-react';
-import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
 import { Tooltip } from '../ui/Tooltip';
 import { Badge } from '../ui/Badge';
@@ -63,11 +62,6 @@ export interface AppSidebarProps {
   readonly onNavigate?: (href: string) => void;
   readonly collapsed?: boolean;
   readonly onToggleCollapse?: () => void;
-  readonly user?: {
-    readonly name: string;
-    readonly avatar?: string;
-    readonly status?: 'online' | 'away' | 'busy' | 'offline';
-  };
 }
 
 // 🔥 기가차드 규칙: 상수 분리
@@ -114,8 +108,7 @@ export function AppSidebar({
   activeRoute = '/',
   onNavigate,
   collapsed: controlledCollapsed,
-  onToggleCollapse,
-  user = { name: '작가님', status: 'online' }
+  onToggleCollapse
 }: AppSidebarProps): React.ReactElement {
   
   const [internalCollapsed, setInternalCollapsed] = useState<boolean>(false);
@@ -201,23 +194,8 @@ export function AppSidebar({
       {/* 로고 */}
       <div className={collapsed ? SIDEBAR_STYLES.logoCollapsed : SIDEBAR_STYLES.logoSection}>
         {collapsed ? (
-          <div className={SIDEBAR_STYLES.logoIcon}>L</div>
-        ) : (
-          <h1 className={SIDEBAR_STYLES.logoText}>Loop</h1>
-        )}
-      </div>
-
-      {/* 프로필 */}
-      <div className={collapsed ? SIDEBAR_STYLES.profileCollapsed : SIDEBAR_STYLES.profileSection}>
-        {collapsed ? (
-          <>
-            <Avatar
-              size="sm"
-              src={user.avatar}
-              fallback={user.name.charAt(0)}
-              status={user.status}
-              alt={`${user.name} 프로필`}
-            />
+          <div className="flex flex-col items-center gap-2">
+            <div className={SIDEBAR_STYLES.logoIcon}>L</div>
             <Button
               variant="ghost"
               size="sm"
@@ -227,23 +205,10 @@ export function AppSidebar({
             >
               <ChevronRight className="w-3 h-3" />
             </Button>
-          </>
+          </div>
         ) : (
-          <div className={SIDEBAR_STYLES.profileContent}>
-            <Avatar
-              size="sm"
-              src={user.avatar}
-              fallback={user.name.charAt(0)}
-              status={user.status}
-              alt={`${user.name} 프로필`}
-            />
-            <div className={SIDEBAR_STYLES.profileInfo}>
-              <div className={SIDEBAR_STYLES.profileName}>{user.name}</div>
-              <div className={SIDEBAR_STYLES.profileStatus}>
-                <div className={SIDEBAR_STYLES.statusDot} />
-                <span className={SIDEBAR_STYLES.statusText}>작업 중</span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between w-full">
+            <h1 className={SIDEBAR_STYLES.logoText}>Loop</h1>
             <Button
               variant="ghost"
               size="sm"
@@ -263,6 +228,49 @@ export function AppSidebar({
           {SIDEBAR_ITEMS.map(renderNavItem)}
         </div>
       </nav>
+
+      {/* 사용자 프로필 */}
+      <div className={collapsed ? SIDEBAR_STYLES.profileCollapsed : SIDEBAR_STYLES.profileSection}>
+        {collapsed ? (
+          <div 
+            className="flex flex-col items-center gap-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+            onClick={() => {
+              Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
+              onNavigate?.('/settings'); // 설정 페이지로 이동
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="사용자 프로필"
+          >
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+              U
+            </div>
+            <div className={SIDEBAR_STYLES.statusDot} />
+          </div>
+        ) : (
+          <div 
+            className={`${SIDEBAR_STYLES.profileContent} cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors`}
+            onClick={() => {
+              Logger.info('SIDEBAR', 'User profile clicked');
+              onNavigate?.('/settings'); // 설정 페이지로 이동
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="사용자 프로필"
+          >
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+              U
+            </div>
+            <div className={SIDEBAR_STYLES.profileInfo}>
+              <div className={SIDEBAR_STYLES.profileName}>Loop 사용자</div>
+              <div className={SIDEBAR_STYLES.profileStatus}>
+                <div className={SIDEBAR_STYLES.statusDot} />
+                <span className={SIDEBAR_STYLES.statusText}>온라인</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
