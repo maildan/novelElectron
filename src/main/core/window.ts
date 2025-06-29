@@ -55,7 +55,7 @@ export class WindowManager {
           nodeIntegration: false,
           contextIsolation: true,
           sandbox: false,
-          preload: join(__dirname, '../preload/preload.js'),
+          preload: join(__dirname, '../../preload/preload.js'),
           webSecurity: true,
         },
         icon: this.getAppIcon(),
