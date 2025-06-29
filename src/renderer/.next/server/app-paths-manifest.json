@@ -1,7 +1,5 @@
 {
-  "/page": "app/page.js",
-  "/projects/page": "app/projects/page.js",
-  "/analytics/page": "app/analytics/page.js",
   "/ai/page": "app/ai/page.js",
-  "/settings/page": "app/settings/page.js"
+  "/settings/page": "app/settings/page.js",
+  "/page": "app/page.js"
 }

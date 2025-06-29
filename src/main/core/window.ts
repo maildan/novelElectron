@@ -44,9 +44,9 @@ export class WindowManager {
         height: Math.min(800, Math.floor(height * 0.8)),
         minWidth: 800,
         minHeight: 600,
-        show: true, // 🔥 즉시 표시로 변경
+        show: false, // 🔥 성능 최적화: 준비될 때까지 숨김
         center: true,
-        titleBarStyle: Platform.isMacOS() ? 'hiddenInset' : 'default',
+        titleBarStyle: Platform.isMacOS() ? 'default' : 'default', // 🔥 메뉴바 표시 강제
       };
 
       const window = new BrowserWindow({
@@ -59,6 +59,17 @@ export class WindowManager {
           webSecurity: true,
         },
         icon: this.getAppIcon(),
+        // 🔥 macOS 전용 설정
+        ...(Platform.isMacOS() && {
+          titleBarStyle: 'default', // 🔥 메뉴바 표시를 위해 default로 변경
+          trafficLightPosition: { x: 20, y: 20 },
+          transparent: false, // 🔥 투명도 제거로 성능 개선
+          vibrancy: undefined, // 🔥 vibrancy 제거로 성능 개선
+          autoHideMenuBar: false, // 🔥 메뉴바 강제 표시
+        }),
+        // 🔥 성능 최적화 설정
+        show: false, // 🔥 준비될 때까지 숨김
+        backgroundColor: '#ffffff', // 🔥 배경색 설정으로 깜빡임 방지
       });
 
       // 보안 설정
@@ -138,11 +149,11 @@ export class WindowManager {
     // #DEBUG: Setting up window events
     Logger.debug('WINDOW', 'Setting up window events', { windowId });
 
-    // 🔥 ready-to-show 이벤트 제거 (이미 show: true로 설정됨)
-    // window.once('ready-to-show', () => {
-    //   window.show();
-    //   Logger.info('WINDOW', 'Window shown', { windowId });
-    // });
+    // 🔥 성능 최적화: 윈도우가 준비되면 표시
+    window.once('ready-to-show', () => {
+      window.show();
+      Logger.info('WINDOW', 'Window shown', { windowId });
+    });
 
     window.on('closed', () => {
       this.windows.delete(windowId);

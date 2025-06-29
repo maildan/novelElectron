@@ -54,7 +54,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Loop - AI 기반 타이핑 분석 도구" />
-        <title>Loop - Typing Analytics</title>
+        <title>Loop</title>
       </head>
       <body className={LAYOUT_STYLES.body}>
         <div className={LAYOUT_STYLES.container}>

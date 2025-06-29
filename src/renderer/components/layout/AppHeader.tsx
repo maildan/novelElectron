@@ -8,9 +8,9 @@ import { Badge } from '../ui/Badge';
 import { useState } from 'react';
 import { Logger } from '../../../shared/logger';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - macOS 스타일
 const HEADER_STYLES = {
-  container: 'h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 z-80',
+  container: 'h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between px-6 z-80 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60',
   leftSection: 'flex items-center space-x-4',
   menuButton: 'lg:hidden',
   searchContainer: 'relative hidden md:block w-96',

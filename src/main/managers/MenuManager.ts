@@ -71,10 +71,26 @@ export class MenuManager extends BaseManager {
    */
   protected async doStart(): Promise<void> {
     try {
-      // 애플리케이션 메뉴 설정
+      Logger.debug(this.componentName, 'Starting menu manager...');
+      
+      // 🔥 메뉴 설정 강제 실행
       if (this.applicationMenu) {
         Menu.setApplicationMenu(this.applicationMenu);
-        Logger.info(this.componentName, 'Application menu set successfully');
+        Logger.info(this.componentName, '✅ Application menu set successfully');
+      } else {
+        Logger.error(this.componentName, '❌ Application menu is null!');
+        // 메뉴가 없으면 기본 메뉴라도 생성
+        this.createBasicMenu();
+      }
+
+      // 🔥 개발 환경에서 메뉴 상태 확인
+      if (process.env.NODE_ENV === 'development') {
+        const currentMenu = Menu.getApplicationMenu();
+        if (currentMenu) {
+          Logger.info(this.componentName, '🎉 Menu verification: Menu is active!');
+        } else {
+          Logger.error(this.componentName, '💀 Menu verification: No menu found!');
+        }
       }
 
       Logger.info(this.componentName, 'Menu manager started');
@@ -558,6 +574,127 @@ export class MenuManager extends BaseManager {
       action.enabled = enabled;
       // 메뉴 다시 빌드 (필요시)
       Logger.debug(this.componentName, `Menu action ${actionId} ${enabled ? 'enabled' : 'disabled'}`);
+    }
+  }
+
+  /**
+   * 🔥 기본 메뉴 생성 (fallback용)
+   */
+  private createBasicMenu(): void {
+    try {
+      Logger.debug(this.componentName, 'Creating basic fallback menu...');
+      
+      const template: MenuItemConstructorOptions[] = [];
+
+      if (Platform.isMacOS()) {
+        // macOS 앱 메뉴 (필수)
+        template.push({
+          label: app.getName(),
+          submenu: [
+            {
+              label: `${app.getName()} 정보`,
+              role: 'about'
+            },
+            { type: 'separator' },
+            {
+              label: '환경설정...',
+              accelerator: 'Cmd+,',
+              click: () => Logger.info(this.componentName, 'Preferences clicked')
+            },
+            { type: 'separator' },
+            { role: 'services', submenu: [] },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' }
+          ]
+        });
+      }
+
+      // 기본 파일 메뉴
+      template.push({
+        label: '파일',
+        submenu: [
+          {
+            label: '새 세션',
+            accelerator: Platform.getModifierKey() + '+N',
+            click: () => Logger.info(this.componentName, 'New session clicked')
+          },
+          { type: 'separator' },
+          Platform.isMacOS() ? { role: 'close' } : { role: 'quit' }
+        ]
+      });
+
+      // 기본 편집 메뉴
+      template.push({
+        label: '편집',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' }
+        ]
+      });
+
+      // 기본 보기 메뉴
+      template.push({
+        label: '보기',
+        submenu: [
+          { role: 'reload' },
+          { role: 'toggleDevTools' },
+          { type: 'separator' },
+          { role: 'resetZoom' },
+          { role: 'zoomIn' },
+          { role: 'zoomOut' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' }
+        ]
+      });
+
+      // macOS 윈도우 메뉴
+      if (Platform.isMacOS()) {
+        template.push({
+          label: '윈도우',
+          submenu: [
+            { role: 'minimize' },
+            { role: 'close' },
+            { type: 'separator' },
+            { role: 'front' }
+          ]
+        });
+      }
+
+      // 기본 도움말 메뉴
+      const helpSubmenu: MenuItemConstructorOptions[] = [
+        {
+          label: '단축키',
+          click: () => Logger.info(this.componentName, 'Shortcuts clicked')
+        }
+      ];
+
+      if (!Platform.isMacOS()) {
+        helpSubmenu.push({
+          label: `${app.getName()} 정보`,
+          role: 'about'
+        });
+      }
+
+      template.push({
+        label: '도움말',
+        submenu: helpSubmenu
+      });
+
+      this.applicationMenu = Menu.buildFromTemplate(template);
+      Menu.setApplicationMenu(this.applicationMenu);
+      
+      Logger.info(this.componentName, '✅ Basic fallback menu created and set successfully');
+    } catch (error) {
+      Logger.error(this.componentName, '❌ Failed to create basic menu', error);
     }
   }
 

@@ -62,10 +62,11 @@ class LoopApplication {
       Logger.info('MAIN_INDEX', 'Data sync manager initialized');
 
       // 메뉴 관리자 초기화
+      Logger.info('MAIN_INDEX', '🚀 Starting Menu Manager initialization...');
       this.menuManager = getMenuManager();
       await this.menuManager.initialize();
       await this.menuManager.start();
-      Logger.info('MAIN_INDEX', 'Menu manager initialized');
+      Logger.info('MAIN_INDEX', '✅ Menu manager initialized and started successfully');
 
       // 단축키 관리자 초기화
       this.shortcutsManager = getShortcutsManager();

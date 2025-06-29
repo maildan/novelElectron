@@ -15,10 +15,16 @@ export interface LogEntry {
 }
 
 class LoggerService {
-  private logLevel: LogLevel = LogLevel.INFO;
+  private logLevel: LogLevel = LogLevel.DEBUG; // 🔥 강제로 DEBUG 레벨 활성화
   private logs: LogEntry[] = [];
   private maxLogs = 1000;
   private timers: Map<string, number> = new Map();
+
+  constructor() {
+    // 🔥 환경에 관계없이 DEBUG 레벨 강제 활성화
+    this.logLevel = LogLevel.DEBUG;
+    console.log('🔥 [LOGGER] Logger initialized with DEBUG level');
+  }
 
   setLogLevel(level: LogLevel): void {
     this.logLevel = level;
@@ -42,26 +48,24 @@ class LoggerService {
       this.logs.shift();
     }
 
-    // 콘솔 출력 (개발 환경에서만)
-    if (process.env.NODE_ENV === 'development') {
-      const timestamp = entry.timestamp.toISOString();
-      const levelName = LogLevel[level];
-      const prefix = `[${timestamp}] ${levelName} [${component}]`;
+    // 콘솔 출력 (강제로 모든 환경에서 출력)
+    const timestamp = entry.timestamp.toISOString();
+    const levelName = LogLevel[level];
+    const prefix = `[${timestamp}] ${levelName} [${component}]`;
 
-      switch (level) {
-        case LogLevel.DEBUG:
-          console.debug(prefix, message, data || '');
-          break;
-        case LogLevel.INFO:
-          console.info(prefix, message, data || '');
-          break;
-        case LogLevel.WARN:
-          console.warn(prefix, message, data || '');
-          break;
-        case LogLevel.ERROR:
-          console.error(prefix, message, data || '');
-          break;
-      }
+    switch (level) {
+      case LogLevel.DEBUG:
+        console.debug(`🔍 ${prefix}`, message, data || '');
+        break;
+      case LogLevel.INFO:
+        console.info(`ℹ️ ${prefix}`, message, data || '');
+        break;
+      case LogLevel.WARN:
+        console.warn(`⚠️ ${prefix}`, message, data || '');
+        break;
+      case LogLevel.ERROR:
+        console.error(`❌ ${prefix}`, message, data || '');
+        break;
     }
   }
 
