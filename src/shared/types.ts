@@ -251,7 +251,7 @@ export interface SystemHealth {
 // 🔥 Window 글로벌 타입 확장 - Renderer에서 사용  
 declare global {
   interface Window {
-    electronAPI: ElectronAPI;
+    electronAPI?: ElectronAPI;
   }
 }
 

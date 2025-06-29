@@ -4,6 +4,7 @@ import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
 import { Result } from '../../shared/types';
 import { WindowTracker } from '../keyboard/WindowTracker';
+import type { WindowInfo } from 'get-windows';
 
 // #DEBUG: Browser detector entry point
 Logger.debug('BROWSER_DETECTOR', 'Browser detector module loaded');
@@ -58,8 +59,9 @@ export class BrowserDetector extends BaseManager {
   private currentBrowserInfo: BrowserInfo | null = null;
   private checkInterval: NodeJS.Timeout | null = null;
   private windowTracker: WindowTracker;
+  private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
 
-  // 🔥 지원하는 브라우저 목록
+  // 🔥 지원하는 브라우저 목록 (확장)
   private readonly supportedBrowsers = [
     'Google Chrome',
     'Safari',
@@ -68,7 +70,15 @@ export class BrowserDetector extends BaseManager {
     'Arc',
     'Brave Browser',
     'Opera',
-    'Vivaldi'
+    'Vivaldi',
+    'DuckDuckGo',
+    'Tor Browser',
+    'Chromium',
+    'Opera GX',
+    'SigmaOS',
+    'Orion',
+    'Min',
+    'Webkit'
   ];
 
   // 🔥 사이트 카테고리 매핑
@@ -143,7 +153,7 @@ export class BrowserDetector extends BaseManager {
     ]
   };
 
-  constructor(config: Partial<BrowserConfig> = {}) {
+  constructor(config: Partial<BrowserConfig> = {}, hasAccessibilityPermission = false) {
     super({
       name: 'BrowserDetector',
       autoStart: false,
@@ -151,6 +161,8 @@ export class BrowserDetector extends BaseManager {
       maxRetries: 3,
       retryDelay: 1000,
     });
+
+    this.hasAccessibilityPermission = hasAccessibilityPermission;
 
     this.browserConfig = {
       enableUrlTracking: true,
@@ -161,9 +173,30 @@ export class BrowserDetector extends BaseManager {
       ...config,
     };
 
-    this.windowTracker = new WindowTracker();
+    // 🔥 권한 상태를 WindowTracker에 전달
+    this.windowTracker = new WindowTracker({}, this.hasAccessibilityPermission);
     
-    Logger.info(this.componentName, 'Browser detector instance created');
+    Logger.info(this.componentName, 'Browser detector instance created', {
+      hasAccessibilityPermission: this.hasAccessibilityPermission
+    });
+  }
+
+  /**
+   * 🔥 접근성 권한 상태 설정
+   */
+  public setAccessibilityPermission(hasPermission: boolean): void {
+    const wasChanged = this.hasAccessibilityPermission !== hasPermission;
+    this.hasAccessibilityPermission = hasPermission;
+    
+    if (wasChanged) {
+      Logger.info(this.componentName, '🔐 접근성 권한 상태 변경됨', { 
+        hasPermission,
+        canTrackBrowsers: hasPermission 
+      });
+      
+      // WindowTracker에도 권한 상태 전달
+      this.windowTracker.setAccessibilityPermission(hasPermission);
+    }
   }
 
   /**
@@ -232,13 +265,68 @@ export class BrowserDetector extends BaseManager {
   }
 
   /**
-   * 이벤트 리스너 설정
+   * 윈도우 정보 유효성 검증
+   */
+  private isValidWindowInfo(windowInfo: unknown): windowInfo is WindowInfo {
+    if (!windowInfo || typeof windowInfo !== 'object') {
+      return false;
+    }
+    
+    const info = windowInfo as WindowInfo;
+    
+    // 🔥 기본 필드 검증
+    if (!info.owner || typeof info.owner !== 'object') {
+      return false;
+    }
+    
+    // 🔥 owner.name 검증 (가장 중요)
+    if (!info.owner.name || typeof info.owner.name !== 'string' || info.owner.name.trim() === '') {
+      return false;
+    }
+    
+    // 🔥 title은 없어도 되지만 있다면 문자열이어야 함
+    if (info.title !== undefined && typeof info.title !== 'string') {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * 이벤트 리스너 설정 (권한 안전성 강화)
    */
   private setupEventListeners(): void {
     this.windowTracker.on('window-changed', (windowInfo) => {
-      const isBrowser = this.isBrowserWindow(windowInfo.owner.name);
-      if (isBrowser) {
-        this.handleBrowserWindowChange(windowInfo);
+      try {
+        // 🔥 권한이 없으면 브라우저 감지 건너뛰기
+        if (!this.hasAccessibilityPermission) {
+          Logger.debug(this.componentName, '⚠️ 접근성 권한이 없어 브라우저 감지 건너뛰기');
+          return;
+        }
+
+        // 🔥 안전한 윈도우 정보 접근 및 검증 강화
+        if (!this.isValidWindowInfo(windowInfo)) {
+          Logger.debug(this.componentName, '⚠️ 윈도우 정보 유효하지 않음 - 브라우저 감지 건너뛰기', {
+            hasWindowInfo: !!windowInfo,
+            hasOwner: !!(windowInfo && windowInfo.owner),
+            hasOwnerName: !!(windowInfo && windowInfo.owner && windowInfo.owner.name),
+            ownerName: windowInfo?.owner?.name || 'undefined'
+          });
+          return;
+        }
+
+        const isBrowser = this.isBrowserWindow(windowInfo.owner.name);
+        if (isBrowser) {
+          this.handleBrowserWindowChange(windowInfo);
+        } else {
+          // 🔥 브라우저가 아닌 경우도 로그 남기기 (디버깅용)
+          Logger.debug(this.componentName, '📝 비브라우저 앱 감지됨', {
+            app: windowInfo.owner.name,
+            title: windowInfo.title
+          });
+        }
+      } catch (error) {
+        Logger.error(this.componentName, '브라우저 윈도우 이벤트 처리 중 오류', error);
       }
     });
   }
@@ -276,68 +364,132 @@ export class BrowserDetector extends BaseManager {
   }
 
   /**
-   * 브라우저 윈도우 변경 처리
+   * 브라우저 윈도우 변경 처리 (권한 기반)
    */
-  private async handleBrowserWindowChange(windowInfo: { owner: { name: string }; title: string }): Promise<void> {
+  private async handleBrowserWindowChange(windowInfo: { owner?: { name?: string }; title?: string }): Promise<void> {
     try {
+      // 🔥 필수 데이터 유효성 검증
+      if (!windowInfo || !windowInfo.owner || !windowInfo.owner.name) {
+        Logger.debug(this.componentName, '⚠️ 윈도우 정보가 유효하지 않음 - 건너뛰기', { windowInfo });
+        return;
+      }
+
+      // 🔥 접근성 권한이 없으면 제한된 정보만 처리
+      if (!this.hasAccessibilityPermission) {
+        Logger.debug(this.componentName, '⚠️ 접근성 권한이 없음 - 제한된 브라우저 감지');
+        
+        // 기본적인 브라우저 정보만 추출 (안전한 방법)
+        const basicBrowserInfo = this.extractBasicBrowserInfo(windowInfo);
+        if (basicBrowserInfo && this.hasBrowserInfoChanged(basicBrowserInfo)) {
+          this.currentBrowserInfo = basicBrowserInfo;
+          this.emitBrowserEvent('browser-switch', basicBrowserInfo);
+        }
+        return;
+      }
+
+      // 🔥 권한이 있으면 상세한 정보 추출
       const browserInfo = await this.extractBrowserInfo({
         processName: windowInfo.owner.name,
-        title: windowInfo.title
+        title: windowInfo.title || ''
       });
       
-      if (this.hasBrowserInfoChanged(browserInfo)) {
+      if (browserInfo && this.hasBrowserInfoChanged(browserInfo)) {
         this.currentBrowserInfo = browserInfo;
         this.emitBrowserEvent('browser-switch', browserInfo);
       }
     } catch (error) {
-      Logger.error(this.componentName, 'Error handling browser window change', error);
+      Logger.warn(this.componentName, '⚠️ 브라우저 윈도우 변경 처리 중 오류 (안전하게 무시)', error);
+      // 🔥 에러를 무시하고 안전하게 계속 진행
     }
   }
 
   /**
-   * 브라우저 상태 체크
+   * 🔥 기본적인 브라우저 정보 추출 (권한 없이도 안전)
+   */
+  private extractBasicBrowserInfo(windowInfo: { owner?: { name?: string }; title?: string }): BrowserInfo | null {
+    try {
+      const processName = windowInfo.owner?.name;
+      const title = windowInfo.title;
+      
+      if (!processName || !this.isBrowserWindow(processName)) {
+        return null;
+      }
+
+      return {
+        browserName: processName,
+        currentTitle: title || '',
+        siteCategory: 'unknown',
+        isProductiveSite: false,
+        isGoogleDocs: false
+      };
+    } catch (error) {
+      Logger.debug(this.componentName, '기본 브라우저 정보 추출 실패 (안전하게 무시)', error);
+      return null;
+    }
+  }
+
+  /**
+   * 브라우저 상태 체크 (권한 기반)
    */
   private async checkBrowserState(): Promise<void> {
     try {
-      const currentWindow = this.windowTracker.getCurrentWindow();
-      
-      if (!currentWindow || !this.isBrowserWindow(currentWindow.owner.name)) {
+      // 🔥 접근성 권한이 없으면 체크 건너뛰기
+      if (!this.hasAccessibilityPermission) {
+        Logger.debug(this.componentName, '⚠️ 접근성 권한이 없음 - 브라우저 상태 체크 건너뛰기');
         return;
       }
 
+      const currentWindow = this.windowTracker.getCurrentWindow();
+      
+      if (!currentWindow || !this.isBrowserWindow(currentWindow.owner?.name || '')) {
+        return;
+      }
+
+      // 🔥 안전한 브라우저 정보 추출
       const browserInfo = await this.extractBrowserInfo({
-        processName: currentWindow.owner.name,
-        title: currentWindow.title
+        processName: currentWindow.owner?.name || '',
+        title: currentWindow.title || ''
       });
       
-      if (this.hasBrowserInfoChanged(browserInfo)) {
+      if (browserInfo && this.hasBrowserInfoChanged(browserInfo)) {
         const eventType = this.determineBrowserEventType(browserInfo);
         this.currentBrowserInfo = browserInfo;
         this.emitBrowserEvent(eventType, browserInfo);
       }
     } catch (error) {
-      Logger.error(this.componentName, 'Error checking browser state', error);
+      Logger.debug(this.componentName, '⚠️ 브라우저 상태 체크 중 오류 (안전하게 무시)', error);
+      // 🔥 에러를 무시하고 안전하게 계속 진행
     }
   }
 
   /**
-   * 브라우저 정보 추출
+   * 브라우저 정보 추출 (권한 기반)
    */
-  private async extractBrowserInfo(windowInfo: { processName: string; title: string }): Promise<BrowserInfo> {
-    const browserName = this.normalizeBrowserName(windowInfo.processName);
-    const { url, title } = this.parseWindowTitle(windowInfo.title, browserName);
-    const domain = this.extractDomain(url);
-    const siteCategory = this.categorizeSite(domain);
-    
-    return {
-      browserName,
-      currentUrl: url,
-      currentTitle: title,
-      domain,
-      isGoogleDocs: this.isGoogleDocsUrl(url),
-      isProductiveSite: this.isProductiveSite(domain),
-      siteCategory,
-    };
+  private async extractBrowserInfo(windowInfo: { processName: string; title: string }): Promise<BrowserInfo | null> {
+    try {
+      // 🔥 기본 유효성 검증
+      if (!windowInfo.processName || !this.isBrowserWindow(windowInfo.processName)) {
+        return null;
+      }
+
+      const browserName = this.normalizeBrowserName(windowInfo.processName);
+      const { url, title } = this.parseWindowTitle(windowInfo.title || '', browserName);
+      const domain = this.extractDomain(url);
+      const siteCategory = this.categorizeSite(domain);
+      
+      return {
+        browserName,
+        currentUrl: url,
+        currentTitle: title,
+        domain,
+        isGoogleDocs: this.isGoogleDocsUrl(url),
+        isProductiveSite: this.isProductiveSite(domain),
+        siteCategory,
+      };
+    } catch (error) {
+      Logger.debug(this.componentName, '⚠️ 브라우저 정보 추출 중 오류 (안전하게 무시)', error);
+      return null;
+    }
   }
 
   /**

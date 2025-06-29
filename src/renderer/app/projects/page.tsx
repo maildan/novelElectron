@@ -16,102 +16,69 @@ const PROJECTS_PAGE_STYLES = {
   retryButton: 'mt-4',
 } as const;
 
-// 🔥 기가차드 규칙: 임시 목 데이터 (실제 구현 시 IPC 통신으로 대체)
-const MOCK_PROJECTS: readonly ProjectData[] = [
-  {
-    id: '1',
-    title: 'Loop 개발 문서',
-    description: 'Loop 프로젝트의 기술 문서와 API 명세를 작성하는 프로젝트입니다. TypeScript, React, Electron 관련 내용을 포함합니다.',
-    status: 'active',
-    progress: 75.5,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-20'),
-    wordCount: 15420,
-    author: '개발팀',
-    genre: '기술문서'
-  },
-  {
-    id: '2',
-    title: '소설: 디지털 세상의 모험',
-    description: '미래 사이버펑크 세계를 배경으로 한 SF 소설입니다. 인공지능과 인간의 공존을 다룹니다.',
-    status: 'completed',
-    progress: 100,
-    createdAt: new Date('2023-12-01'),
-    updatedAt: new Date('2024-01-10'),
-    wordCount: 89500,
-    author: '김작가',
-    genre: 'SF소설'
-  },
-  {
-    id: '3',
-    title: '마케팅 기획서',
-    description: '2024년 상반기 제품 런칭을 위한 통합 마케팅 전략 문서입니다.',
-    status: 'paused',
-    progress: 45.2,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-18'),
-    wordCount: 8750,
-    author: '마케팅팀',
-    genre: '기획서'
-  },
-  {
-    id: '4',
-    title: '개인 일기',
-    description: '매일의 생각과 경험을 기록하는 개인 일기장입니다.',
-    status: 'active',
-    progress: 30.8,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-21'),
-    wordCount: 12300,
-    author: '사용자',
-    genre: '일기'
-  },
-  {
-    id: '5',
-    title: '프레젠테이션 스크립트',
-    description: '투자자 미팅을 위한 제품 소개 프레젠테이션 발표 스크립트입니다.',
-    status: 'draft',
-    progress: 15.0,
-    createdAt: new Date('2024-01-19'),
-    updatedAt: new Date('2024-01-19'),
-    wordCount: 2100,
-    author: 'CEO',
-    genre: '발표자료'
-  }
-] as const;
+// 🔥 기가차드 규칙: BE 연동을 위한 기본값 (로딩 중 사용)
+const DEFAULT_PROJECTS: readonly ProjectData[] = [] as const;
 
 export default function ProjectsPage(): React.ReactElement {
-  const [projects, setProjects] = useState<readonly ProjectData[]>([]);
+  const [projects, setProjects] = useState<readonly ProjectData[]>(DEFAULT_PROJECTS);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // 🔥 기가차드 규칙: 이펙트로 데이터 로딩
   useEffect(() => {
-    const loadProjects = async (): Promise<void> => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // TODO: 실제 구현 시 IPC 통신으로 대체
-        // const result = await window.electronAPI.getProjects();
-        
-        // 임시 로딩 시뮬레이션
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setProjects(MOCK_PROJECTS);
-        Logger.info('PROJECTS_PAGE', `Loaded ${MOCK_PROJECTS.length} projects`);
-        
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : '프로젝트를 불러오는 중 오류가 발생했습니다.';
-        setError(errorMessage);
-        Logger.error('PROJECTS_PAGE', 'Failed to load projects', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadProjects();
   }, []);
+
+  /**
+   * 🔥 실제 프로젝트 데이터 로딩 (BE 연동)
+   */
+  const loadProjects = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // 🔥 기가차드 규칙: IPC 통신으로 실제 데이터 가져오기
+      const result = await window.electronAPI?.projects?.getAll?.();
+      
+      if (result?.success && result.data) {
+        // BE 데이터를 FE 형식으로 변환
+        const projectsData = convertToProjectData(result.data);
+        setProjects(projectsData);
+        Logger.info('PROJECTS_PAGE', `Loaded ${projectsData.length} projects`);
+      } else {
+        // 🔥 IPC API가 없거나 실패한 경우 기본값 사용
+        Logger.warn('PROJECTS_PAGE', 'IPC API not available, showing empty projects');
+        setProjects(DEFAULT_PROJECTS);
+      }
+      
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '프로젝트를 불러오는 중 오류가 발생했습니다.';
+      setError(errorMessage);
+      Logger.error('PROJECTS_PAGE', 'Failed to load projects', err);
+      // 에러 시에도 기본값 사용
+      setProjects(DEFAULT_PROJECTS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * 🔥 BE 데이터를 FE ProjectData 타입으로 변환
+   */
+  const convertToProjectData = (backendProjects: any[]): readonly ProjectData[] => {
+    return backendProjects.map(project => ({
+      id: project.id || '',
+      title: project.title || '제목 없음',
+      description: project.description || '',
+      status: project.status || 'draft',
+      progress: project.progress || 0,
+      createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),
+      updatedAt: project.lastModified ? new Date(project.lastModified) : new Date(),
+      wordCount: project.wordCount || 0,
+      author: project.author || '사용자',
+      genre: project.genre || '기타'
+    }));
+  };
 
   const handleCreateProject = (): void => {
     Logger.info('PROJECTS_PAGE', 'Create project requested');

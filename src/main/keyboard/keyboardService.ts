@@ -44,12 +44,34 @@ export class KeyboardService extends EventEmitter {
   private uiohook: UiohookInstance | null = null;
   private eventBuffer: ProcessedKeyboardEvent[] = [];
   private performanceTracker = perf;
-  private windowTracker: WindowTracker; // 🔥 윈도우 추적기 추가
+  private windowTracker: WindowTracker | null = null; // 🔥 지연 초기화로 변경
+  private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
   
   constructor() {
     super();
-    this.windowTracker = new WindowTracker();
+    // 🔥 WindowTracker는 권한 확인 후 지연 초기화
     this.initializeUiohook();
+  }
+
+  // 🔥 접근성 권한 설정 (main process에서 호출)
+  public setAccessibilityPermission(hasPermission: boolean): void {
+    this.hasAccessibilityPermission = hasPermission;
+    
+    if (hasPermission && !this.windowTracker) {
+      try {
+        // 🔥 권한 정보를 WindowTracker에 전달
+        this.windowTracker = new WindowTracker({}, hasPermission);
+        Logger.info('KEYBOARD', 'WindowTracker initialized with accessibility permission');
+      } catch (error) {
+        Logger.error('KEYBOARD', 'Failed to initialize WindowTracker', error);
+        this.windowTracker = null;
+      }
+    } else if (!hasPermission && this.windowTracker) {
+      // 권한이 제거되면 WindowTracker 정리
+      this.windowTracker.cleanup();
+      this.windowTracker = null;
+      Logger.warn('KEYBOARD', 'WindowTracker disabled due to missing permissions');
+    }
   }
 
   private async initializeUiohook(): Promise<void> {
@@ -179,8 +201,8 @@ export class KeyboardService extends EventEmitter {
       // 조합형 문자 처리 (한글, 일본어, 중국어)
       const composedChar = this.processComposition(rawEvent, languageConfig);
       
-      // 🔥 실제 윈도우 정보 가져오기
-      const currentWindow = this.windowTracker.getCurrentWindow();
+      // 🔥 실제 윈도우 정보 가져오기 (권한이 있을 때만)
+      const currentWindow = this.windowTracker?.getCurrentWindow();
       const windowTitle = currentWindow?.title || 'Unknown Window';
       
       const processedEvent: ProcessedKeyboardEvent = {
