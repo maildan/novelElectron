@@ -167,10 +167,11 @@ export interface KeyboardEvent {
   readonly type: 'keydown' | 'keyup' | 'input'; // 🔥 'input' 타입 추가 (실제 문자 입력)
 }
 
-// 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer)
+// 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer) - uiohook-napi 정확한 API
 export interface UiohookKeyboardEvent {
   keycode: number;
-  keychar?: number;
+  // 🔥 주의: uiohook-napi에는 keychar가 없음! (웹 검색으로 확인됨)
+  // keychar는 OS 레벨에서 얻을 수 없는 정보
   altKey?: boolean;
   ctrlKey?: boolean;
   metaKey?: boolean;
@@ -187,6 +188,8 @@ export interface LanguageDetectionResult {
     keySequence?: string[];
     switchReason?: string;
     hangulChar?: string;
+    detectedLanguage?: string;
+    keycodeChar?: string;
     detectionTime?: number;
   };
 }

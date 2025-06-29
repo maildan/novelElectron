@@ -62,14 +62,12 @@ export class LanguageDetector extends BaseManager {
    */
   public detectLanguage(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     try {
-      const { keycode, keychar } = rawEvent;
+      const { keycode } = rawEvent; // 🔥 keychar 제거 - uiohook-napi에 없음
       
       Logger.debug(this.componentName, '🔍 Advanced language detection started', {
         keycode,
-        keychar,
         currentLanguage: this.currentLanguage,
-        keycodeChar: String.fromCharCode(keycode || 0),
-        keycharChar: keychar ? String.fromCharCode(keychar) : 'null'
+        keycodeChar: String.fromCharCode(keycode || 0)
       });
       
       // 🔥 1️⃣ 직접 문자 코드 감지 (최고 우선순위)
@@ -89,7 +87,7 @@ export class LanguageDetector extends BaseManager {
       }
       
       // 🔥 3️⃣ 키 패턴 분석 감지
-      this.updateKeySequence(keycode, keychar);
+      this.updateKeySequence(keycode); // 🔥 keychar 제거
       const patternResult = this.detectByKeyPattern(rawEvent);
       if (patternResult.confidence > 0.7) {
         Logger.info(this.componentName, '✅ Pattern detection', patternResult);
@@ -122,7 +120,6 @@ export class LanguageDetector extends BaseManager {
       
       Logger.warn(this.componentName, '⚠️ Using fallback language detection', {
         keycode,
-        keychar,
         result: fallbackResult
       });
       
@@ -140,73 +137,84 @@ export class LanguageDetector extends BaseManager {
   }
 
   /**
-   * 🔥 1️⃣ 직접 문자 코드 감지
+   * 🔥 1️⃣ 직접 문자 코드 감지 - uiohook-napi 한계 인정
+   * 웹 검색 결과: uiohook-napi는 keychar를 제공하지 않음!
+   * 따라서 keycode 기반 언어 추론으로 변경
    */
   private detectByCharacterCode(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
-    const { keychar } = rawEvent;
+    const { keycode } = rawEvent;
     
-    if (!keychar) {
-      return { language: this.currentLanguage, confidence: 0, method: 'character', isComposing: false };
-    }
-    
-    // 한글 완성형 문자 (가-힣)
-    if (keychar >= 0xAC00 && keychar <= 0xD7AF) {
-      return {
-        language: 'ko',
-        confidence: 1.0,
-        method: 'character',
-        isComposing: false
+    if (!keycode) {
+      return { 
+        language: this.currentLanguage, 
+        confidence: 0, 
+        method: 'character', 
+        isComposing: false,
+        metadata: { keycodeChar: 'unknown' }
       };
     }
     
-    // 한글 자모 (ㄱ-㆏)
-    if (keychar >= 0x3131 && keychar <= 0x318F) {
+    const keycodeChar = String.fromCharCode(keycode);
+    
+    // 🔥 현실적 접근: keycode 범위로 언어 추론
+    // A-Z 범위 (65-90): 잠재적 영어 또는 한글
+    if (keycode >= 65 && keycode <= 90) {
+      
+      // 한글 키 매핑 확인 (QWERTY → 한글)
+      const hangulMapping = this.getHangulMapping(keycodeChar.toLowerCase());
+      if (hangulMapping) {
+        return {
+          language: 'ko',
+          confidence: 0.8, // keychar 없이는 높은 신뢰도 불가
+          method: 'character',
+          isComposing: true,
+          metadata: { 
+            hangulChar: hangulMapping,
+            keycodeChar,
+            detectedLanguage: 'ko'
+          }
+        };
+      }
+      
+      // 영어 키로 판단
       return {
-        language: 'ko',
-        confidence: 0.95,
+        language: 'en',
+        confidence: 0.7,
         method: 'character',
-        isComposing: true
+        isComposing: false,
+        metadata: { 
+          keycodeChar,
+          detectedLanguage: 'en'
+        }
       };
     }
     
-    // 일본어 히라가나
-    if (keychar >= 0x3040 && keychar <= 0x309F) {
-      return {
-        language: 'ja',
-        confidence: 1.0,
-        method: 'character',
-        isComposing: false
+    // 숫자 키 (48-57): 언어 중립적
+    if (keycode >= 48 && keycode <= 57) {
+      return { 
+        language: this.currentLanguage, 
+        confidence: 0.3, 
+        method: 'character', 
+        isComposing: false,
+        metadata: { keycodeChar }
       };
     }
     
-    // 일본어 가타카나
-    if (keychar >= 0x30A0 && keychar <= 0x30FF) {
-      return {
-        language: 'ja',
-        confidence: 1.0,
-        method: 'character',
-        isComposing: false
-      };
-    }
-    
-    // 중국어 한자
-    if (keychar >= 0x4E00 && keychar <= 0x9FFF) {
-      return {
-        language: 'zh',
-        confidence: 1.0,
-        method: 'character',
-        isComposing: false
-      };
-    }
-    
-    return { language: this.currentLanguage, confidence: 0, method: 'character', isComposing: false };
+    // 공백, 특수문자 등: 언어 유지
+    return { 
+      language: this.currentLanguage, 
+      confidence: 0.2, 
+      method: 'character', 
+      isComposing: false,
+      metadata: { keycodeChar }
+    };
   }
 
   /**
-   * 🔥 2️⃣ IME 상태 기반 감지
+   * 🔥 2️⃣ IME 상태 기반 감지 - 현실적 접근법
    */
   private detectByIMEState(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
-    const { keycode, keychar } = rawEvent;
+    const { keycode } = rawEvent;
     
     // A-Z 키만 체크
     if (keycode < 65 || keycode > 90) {
@@ -218,22 +226,16 @@ export class LanguageDetector extends BaseManager {
     // 한글 키 매핑 체크
     const hangulChar = this.getHangulMapping(pressedKey);
     if (hangulChar) {
-      // IME가 활성화되어 있으면 (keychar가 예상과 다름) 한글 확정
-      if (!keychar || keychar !== keycode) {
-        return {
-          language: 'ko',
-          confidence: 0.9,
-          method: 'ime',
-          isComposing: true
-        };
-      }
-      
-      // IME가 비활성화되어 있어도 한글 키라면 한글 가능성 높음
+      // 🔥 실제 IME 상태는 감지 불가하므로 한글 키 매핑으로 추론
       return {
         language: 'ko',
         confidence: 0.8,
         method: 'ime',
-        isComposing: false
+        isComposing: true,
+        metadata: {
+          hangulChar,
+          keycodeChar: pressedKey
+        }
       };
     }
     
@@ -274,14 +276,14 @@ export class LanguageDetector extends BaseManager {
    * 🔥 4️⃣ 언어 전환 감지
    */
   private detectLanguageSwitch(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
-    const { keycode, keychar } = rawEvent;
+    const { keycode } = rawEvent;
     
     // 영어 키 체크 (A-Z)
     if (keycode >= 65 && keycode <= 90) {
       const pressedKey = String.fromCharCode(keycode).toLowerCase();
       
-      // 한글 키가 아니고 keychar가 정상이면 영어
-      if (!this.getHangulMapping(pressedKey) && keychar === keycode) {
+      // 한글 키가 아니면 영어 가능성 높음
+      if (!this.getHangulMapping(pressedKey)) {
         this.englishKeyCount++;
         
         // 연속으로 영어 키를 입력하면 영어로 전환
@@ -329,8 +331,8 @@ export class LanguageDetector extends BaseManager {
   /**
    * 🔥 유틸리티 메서드들
    */
-  private updateKeySequence(keycode: number, keychar?: number): void {
-    const keyString = keychar ? String.fromCharCode(keychar) : String.fromCharCode(keycode).toLowerCase();
+  private updateKeySequence(keycode: number): void {
+    const keyString = String.fromCharCode(keycode).toLowerCase(); // 🔥 keychar 제거, keycode만 사용
     
     this.keySequence.push(keyString);
     if (this.keySequence.length > this.maxSequenceLength) {
@@ -351,17 +353,18 @@ export class LanguageDetector extends BaseManager {
   }
 
   private getHangulMapping(key: string): string | undefined {
-    return Object.entries(HANGUL_KEY_MAP).find(([hangul, english]) => 
-      english.toLowerCase() === key.toLowerCase()
-    )?.[0];
+    // 🔥 이제 HANGUL_KEY_MAP이 영어→한글 구조이므로 직접 접근
+    return HANGUL_KEY_MAP[key.toLowerCase() as keyof typeof HANGUL_KEY_MAP];
   }
 
   private isIMEComposing(rawEvent: UiohookKeyboardEvent): boolean {
-    const { keycode, keychar } = rawEvent;
+    const { keycode } = rawEvent;
     
-    // A-Z 키이고 keychar가 keycode와 다르면 IME 처리 중
+    // 🔥 uiohook-napi는 IME 상태를 직접 감지할 수 없음
+    // 한글 키 매핑이 있으면 IME 가능성 높음
     if (keycode >= 65 && keycode <= 90) {
-      return !keychar || keychar !== keycode;
+      const pressedKey = String.fromCharCode(keycode).toLowerCase();
+      return !!this.getHangulMapping(pressedKey);
     }
     
     return false;

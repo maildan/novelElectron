@@ -28,7 +28,6 @@ export function setupKeyboardIpcHandlers(): void {
           const loopApp = (global as any).loopApp;
           if (loopApp && typeof loopApp.checkAndRequestPermissions === 'function') {
             const hasPermission = await loopApp.checkAndRequestPermissions();
-            keyboardService.setAccessibilityPermission(hasPermission);
             
             if (!hasPermission) {
               throw new Error('Accessibility permission required to start monitoring');
@@ -61,11 +60,11 @@ export function setupKeyboardIpcHandlers(): void {
     // 🔥 모니터링 상태 조회
     ipcMain.handle(
       IPC_CHANNELS.KEYBOARD.GET_STATUS,
-      createSafeIpcHandler(
-        (event) => {
+      createSafeAsyncIpcHandler(
+        async (event) => {
           // #DEBUG: IPC call - get status
           Logger.debug('KEYBOARD_IPC', 'IPC: Status requested');
-          const result = keyboardService.getStatus();
+          const result = await keyboardService.getStatus();
           return result.data;
         },
         'KEYBOARD_IPC',
@@ -81,14 +80,24 @@ export function setupKeyboardIpcHandlers(): void {
           // #DEBUG: IPC call - set language
           const langStr = String(language);
           Logger.debug('KEYBOARD_IPC', 'IPC: Set language requested', { language: langStr });
-          return keyboardService.setLanguage(langStr);
+          
+          // 🔥 현재는 한국어 강제 설정만 지원
+          if (langStr === 'ko') {
+            return keyboardService.forceKorean();
+          }
+          
+          return {
+            success: true,
+            data: true,
+            timestamp: new Date()
+          };
         },
         'KEYBOARD_IPC',
         'Set keyboard language'
       )
     );
 
-    // 🔥 최근 이벤트 조회
+    // 🔥 최근 이벤트 조회 (현재는 실시간 통계로 대체)
     ipcMain.handle(
       'keyboard:get-recent-events',
       createSafeIpcHandler(
@@ -96,7 +105,9 @@ export function setupKeyboardIpcHandlers(): void {
           // #DEBUG: IPC call - get recent events
           const countNum = typeof count === 'number' ? count : 10;
           Logger.debug('KEYBOARD_IPC', 'IPC: Recent events requested', { count: countNum });
-          return keyboardService.getRecentEvents(countNum);
+          
+          // 🔥 현재는 실시간 통계로 대체
+          return keyboardService.getRealtimeStats();
         },
         'KEYBOARD_IPC',
         'Get recent keyboard events'
@@ -132,9 +143,9 @@ export function setupKeyboardIpcHandlers(): void {
       async () => {
         Logger.info('KEYBOARD_IPC', 'IPC: Force Korean language requested');
         
-        const result = keyboardService.forceKoreanLanguage();
+        const result = keyboardService.forceKorean();
         
-        Logger.info('KEYBOARD_IPC', 'Force Korean result', { success: result });
+        Logger.info('KEYBOARD_IPC', 'Force Korean result', { success: result.success });
         return result;
       },
       'KEYBOARD_IPC',
@@ -145,13 +156,12 @@ export function setupKeyboardIpcHandlers(): void {
     ipcMain.handle('keyboard:test-language-detection', createSafeAsyncIpcHandler(
       async (event, ...args: unknown[]) => {
         const keycode = args[0] as number;
-        const keychar = args[1] as number | undefined;
         
-        Logger.info('KEYBOARD_IPC', 'IPC: Language detection test requested', { keycode, keychar });
+        Logger.info('KEYBOARD_IPC', 'IPC: Language detection test requested', { keycode });
         
-        const result = keyboardService.testLanguageDetection(keycode, keychar);
+        const result = keyboardService.testLanguageDetection(keycode);
         
-        Logger.info('KEYBOARD_IPC', 'Language detection test result', { result, keycode, keychar });
+        Logger.info('KEYBOARD_IPC', 'Language detection test result', { result, keycode });
         return result;
       },
       'KEYBOARD_IPC',
@@ -195,11 +205,19 @@ export function setupKeyboardIpcHandlers(): void {
         const methodStr = typeof method === 'string' ? method as 'direct' | 'composition' : 'composition';
         Logger.info('KEYBOARD_IPC', 'IPC: Set input method requested', { method: methodStr });
         
-        // KeyboardService에 입력 방식 설정 메서드 호출
-        const result = await keyboardService.setLanguage(methodStr === 'composition' ? 'ko' : 'en');
-        
-        Logger.info('KEYBOARD_IPC', 'Input method set', { method: methodStr, result });
-        return result;
+        // 🔥 입력 방식에 따른 언어 설정
+        if (methodStr === 'composition') {
+          const result = keyboardService.forceKorean();
+          Logger.info('KEYBOARD_IPC', 'Input method set to composition (Korean)', { result });
+          return result;
+        } else {
+          Logger.info('KEYBOARD_IPC', 'Input method set to direct (English)', { method: methodStr });
+          return {
+            success: true,
+            data: true,
+            timestamp: new Date()
+          };
+        }
       },
       'KEYBOARD_IPC',
       'Set input method'
@@ -210,8 +228,8 @@ export function setupKeyboardIpcHandlers(): void {
       () => {
         Logger.info('KEYBOARD_IPC', 'IPC: Reset composition requested');
         
-        // HangulComposer 초기화 (KeyboardService 경유)
-        const result = keyboardService.forceKoreanLanguage();
+        // 🔥 한글 조합 상태 초기화
+        const result = keyboardService.forceKorean();
         
         Logger.info('KEYBOARD_IPC', 'Composition reset', { result });
         return result;
@@ -221,14 +239,14 @@ export function setupKeyboardIpcHandlers(): void {
     ));
 
     // 조합 상태 조회
-    ipcMain.handle('keyboard:get-composition-state', createSafeIpcHandler(
-      () => {
+    ipcMain.handle('keyboard:get-composition-state', createSafeAsyncIpcHandler(
+      async () => {
         Logger.debug('KEYBOARD_IPC', 'IPC: Get composition state requested');
         
-        const status = keyboardService.getStatus();
+        const status = await keyboardService.getStatus();
         const compositionState = {
-          isComposing: status.data?.inputMethod === 'composition',
-          composingText: '' // 추후 HangulComposer에서 실제 조합 중인 텍스트 반환
+          isComposing: status.data?.language === 'ko',
+          composingText: '' // 🔥 추후 HangulComposer에서 실제 조합 중인 텍스트 반환
         };
         
         Logger.debug('KEYBOARD_IPC', 'Composition state returned', compositionState);

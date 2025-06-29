@@ -292,6 +292,12 @@ class LoopApplication {
       // 🔥 접근성 권한 상태를 키보드 서비스에 전달
       keyboardService.setAccessibilityPermission(this.hasAccessibilityPermission);
 
+      // 🔥 WindowTracker를 keyboardService에 연결
+      if (this.windowTracker) {
+        keyboardService.setWindowTracker(this.windowTracker);
+        Logger.info('MAIN_INDEX', 'WindowTracker connected to keyboard service');
+      }
+
       // 키보드 서비스는 이미 초기화됨 (싱글톤)
       // 모니터링은 사용자가 수동으로 시작
       Logger.info('MAIN_INDEX', 'Keyboard service ready', { 
@@ -314,8 +320,8 @@ class LoopApplication {
       try {
         await this.initialize();
         await this.createMainWindow();
-        // 🔥 키보드 서비스는 사용자가 시작 버튼을 눌렀을 때만 시작
-        // await this.startKeyboardService(); // 제거됨
+        // 🔥 키보드 서비스 시작 (WindowTracker 연결 포함)
+        await this.startKeyboardService();
         
         Logger.info('MAIN_INDEX', 'Application ready and running');
       } catch (error) {
