@@ -3,6 +3,7 @@
 import { Logger } from '../../../shared/logger';
 import { BaseManager } from '../../common/BaseManager';
 import { KEYBOARD_LANGUAGES } from '../../../shared/common';
+import { exec } from 'child_process';
 import type { UiohookKeyboardEvent } from 'uiohook-napi';
 
 // 🔥 언어 감지 결과 인터페이스
@@ -35,6 +36,12 @@ export class LanguageDetector extends BaseManager {
   // 🔥 성능 카운터
   private detectionCount = 0;
   private totalProcessingTime = 0;
+  
+  // 🔥 기가차드 시스템 입력소스 감지 (macOS HIToolbox 우회!)
+  private systemInputSourceCache: 'ko' | 'en' | null = null;
+  private lastSystemCheck = 0;
+  private readonly SYSTEM_CHECK_INTERVAL = 5000; // 5초
+  private systemCheckInProgress = false;
   
   // 🔥 기가차드 물리적 keycode → 한글자모 매핑 (OS 무관!)
   private readonly KEYCODE_TO_HANGUL: Map<number, string> = new Map([
@@ -137,7 +144,7 @@ export class LanguageDetector extends BaseManager {
   /**
    * 🔥 메인 언어 감지 메서드 - keycode 기반 3단계 알고리즘
    */
-  public detectLanguage(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
+  public async detectLanguage(rawEvent: UiohookKeyboardEvent): Promise<LanguageDetectionResult> {
     const startTime = performance.now();
     
     try {
@@ -176,6 +183,12 @@ export class LanguageDetector extends BaseManager {
       const keycodeResult = this.detectByKeycode(rawEvent);
       if (keycodeResult.confidence >= 0.8) {
         return this.finalizeResult(keycodeResult, startTime);
+      }
+      
+      // 🔥 1.5단계: 시스템 입력소스 기반 감지 (macOS HIToolbox)
+      const systemResult = await this.detectBySystemInputSource(startTime);
+      if (systemResult && systemResult.confidence >= 0.9) {
+        return this.finalizeResult(systemResult, startTime);
       }
       
       // 🔥 2단계: 패턴 분석 기반 감지
@@ -527,6 +540,93 @@ export class LanguageDetector extends BaseManager {
     this.detectionCount = 0;
     this.totalProcessingTime = 0;
     Logger.debug(this.componentName, 'State reset completed');
+  }
+
+  // 🔥 기가차드 시스템 입력소스 감지 (macOS HIToolbox 우회!)
+  private async getCurrentInputSourceFromSystem(): Promise<'ko' | 'en' | null> {
+    try {
+      // 캐시된 결과가 유효하면 반환
+      const now = Date.now();
+      if (this.systemInputSourceCache && 
+          now - this.lastSystemCheck < this.SYSTEM_CHECK_INTERVAL) {
+        return this.systemInputSourceCache;
+      }
+
+      // 이미 진행 중이면 캐시된 값 반환
+      if (this.systemCheckInProgress) {
+        return this.systemInputSourceCache;
+      }
+
+      this.systemCheckInProgress = true;
+
+      return new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          resolve(null);
+          this.systemCheckInProgress = false;
+        }, 1000); // 1초 타임아웃
+
+        exec('defaults read com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID', 
+          (error, stdout) => {
+            clearTimeout(timeout);
+            this.systemCheckInProgress = false;
+            
+            if (error) {
+              Logger.debug(this.componentName, 'System input source check failed', { error: error.message });
+              resolve(null);
+              return;
+            }
+
+            const inputSourceId = stdout.trim().toLowerCase();
+            let detectedLanguage: 'ko' | 'en' = 'en';
+
+            if (inputSourceId.includes('korean') || 
+                inputSourceId.includes('2set') ||
+                inputSourceId.includes('hangul')) {
+              detectedLanguage = 'ko';
+            }
+
+            // 캐시 업데이트
+            this.systemInputSourceCache = detectedLanguage;
+            this.lastSystemCheck = now;
+
+            Logger.debug(this.componentName, '🔥🔥🔥 시스템 입력소스 감지 성공! 🔥🔥🔥', {
+              inputSourceId,
+              detectedLanguage,
+              confidence: 0.95
+            });
+
+            resolve(detectedLanguage);
+          });
+      });
+    } catch (error) {
+      Logger.error(this.componentName, 'System input source detection error', error);
+      this.systemCheckInProgress = false;
+      return null;
+    }
+  }
+
+  /**
+   * 🔥 시스템 기반 언어 감지 (HIToolbox 활용)
+   */
+  private async detectBySystemInputSource(startTime: number): Promise<LanguageDetectionResult | null> {
+    const systemLanguage = await this.getCurrentInputSourceFromSystem();
+    
+    if (systemLanguage) {
+      this.currentLanguage = systemLanguage;
+      
+      return {
+        language: systemLanguage,
+        confidence: 0.95, // 시스템 레벨이므로 높은 신뢰도
+        method: 'keycode', // 기존 메서드와 동일하게 표시
+        isComposing: systemLanguage === 'ko',
+        metadata: {
+          source: 'HIToolbox',
+          processingTime: `${(Date.now() - startTime).toFixed(3)}ms`
+        }
+      };
+    }
+    
+    return null;
   }
 
   public getCurrentLanguage(): 'ko' | 'en' | 'ja' | 'zh' {

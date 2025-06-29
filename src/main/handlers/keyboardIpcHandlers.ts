@@ -149,7 +149,7 @@ export function setupKeyboardIpcHandlers(): void {
         
         Logger.info('KEYBOARD_IPC', 'IPC: Language detection test requested', { keycode, keychar });
         
-        const result = keyboardService.testLanguageDetection(keycode, keychar);
+        const result = await keyboardService.testLanguageDetection(keycode, keychar);
         
         Logger.info('KEYBOARD_IPC', 'Language detection test result', { result, keycode, keychar });
         return result;

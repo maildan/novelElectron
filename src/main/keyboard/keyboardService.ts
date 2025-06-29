@@ -244,7 +244,7 @@ export class KeyboardService extends EventEmitter {
       const processingStart = performance.now();
       
       // 🔥 1. 개선된 언어 감지 (enhanced event 사용)
-      const detectedLanguage = this.detectLanguage(enhancedEvent);
+      const detectedLanguage = await this.detectLanguage(enhancedEvent);
       
       // 🔥 2. 한글 특별 처리
       let composedChar: string | undefined;
@@ -342,7 +342,7 @@ export class KeyboardService extends EventEmitter {
    * 🔥 새로운 언어 감지 시스템 사용
    */
   // 🔥 언어 감지 (극한 디버깅 모드!)
-  private detectLanguage(rawEvent: UiohookKeyboardEvent): string {
+  private async detectLanguage(rawEvent: UiohookKeyboardEvent): Promise<string> {
     try {
       // � 극한 디버깅: 전체 이벤트 정보
       Logger.debug('KEYBOARD', '🚨🚨🚨 KEYBOARD SERVICE 언어 감지 시작 🚨🚨🚨', {
@@ -360,7 +360,7 @@ export class KeyboardService extends EventEmitter {
       const detectionStart = performance.now();
       
       // 🔥 새로운 keycode 기반 LanguageDetector 사용 (macOS IME 우회!)
-      const detectionResult = this.languageDetector.detectLanguage(rawEvent);
+      const detectionResult = await this.languageDetector.detectLanguage(rawEvent);
       
       const detectionTime = performance.now() - detectionStart;
       
@@ -891,7 +891,7 @@ export class KeyboardService extends EventEmitter {
   }
 
   // 🔥 언어 감지 강제 재실행
-  public testLanguageDetection(testKeycode: number, testKeychar?: number): string {
+  public async testLanguageDetection(testKeycode: number, testKeychar?: number): Promise<string> {
     const testEvent = {
       keycode: testKeycode,
       keychar: testKeychar || 0
@@ -904,7 +904,7 @@ export class KeyboardService extends EventEmitter {
       testKeycharChar: testKeychar ? String.fromCharCode(testKeychar) : 'null'
     });
     
-    const result = this.detectLanguage(testEvent);
+    const result = await this.detectLanguage(testEvent);
     Logger.info('KEYBOARD', '🔥 Language detection test result', { result });
     return result;
   }
