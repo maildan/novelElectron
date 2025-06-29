@@ -198,7 +198,7 @@ export function AppSidebar({
       {/* 로고 */}
       <div className={collapsed ? SIDEBAR_STYLES.logoCollapsed : SIDEBAR_STYLES.logoSection}>
         {collapsed ? (
-          <div className="flex flex-col items-center gap-3 py-2">
+          <div className="flex flex-col items-center gap-4 py-3">
             <div className={SIDEBAR_STYLES.logoIcon}>L</div>
             
             {/* 축소 시 사용자 프로필 */}
@@ -212,10 +212,10 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
+              <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
                 U
               </div>
-              <div className="w-1 h-1 bg-green-500 rounded-full" />
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
             </div>
             
             <Button

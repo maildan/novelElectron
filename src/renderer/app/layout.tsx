@@ -37,8 +37,32 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps): React.ReactElement {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  // 🔥 localStorage를 사용한 사이드바 상태 지속성
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedState = localStorage.getItem('sidebar-collapsed');
+        return savedState ? JSON.parse(savedState) : false;
+      } catch (error) {
+        console.error('Failed to load sidebar state from localStorage', error);
+        return false;
+      }
+    }
+    return false;
+  });
+  
   const pathname = usePathname();
+
+  // 🔥 사이드바 상태 변경 시 localStorage에 저장
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed));
+      } catch (error) {
+        console.error('Failed to save sidebar state to localStorage', error);
+      }
+    }
+  }, [sidebarCollapsed]);
 
   // 🔥 localStorage에서 사이드바 상태 복원
   useEffect(() => {

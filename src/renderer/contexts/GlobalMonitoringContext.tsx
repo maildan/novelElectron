@@ -28,16 +28,47 @@ export const MonitoringContext = createContext<MonitoringContextType | undefined
 
 // 🔥 프로바이더 컴포넌트
 export function MonitoringProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  const [state, setState] = useState<MonitoringState>({
-    isMonitoring: false,
-    isAIOpen: false,
-    startTime: null,
-    sessionData: {
-      wpm: 0,
-      words: 0,
-      time: 0,
-    },
+  // 🔥 localStorage를 사용한 상태 지속성
+  const [state, setState] = useState<MonitoringState>(() => {
+    // 브라우저 환경에서만 localStorage 접근
+    if (typeof window !== 'undefined') {
+      try {
+        const savedState = localStorage.getItem('monitoring-state');
+        if (savedState) {
+          const parsed = JSON.parse(savedState);
+          return {
+            ...parsed,
+            startTime: parsed.startTime ? new Date(parsed.startTime) : null,
+          };
+        }
+      } catch (error) {
+        Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
+      }
+    }
+    
+    // 기본값
+    return {
+      isMonitoring: false,
+      isAIOpen: false,
+      startTime: null,
+      sessionData: {
+        wpm: 0,
+        words: 0,
+        time: 0,
+      },
+    };
   });
+
+  // 🔥 상태 변경 시 localStorage에 저장
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('monitoring-state', JSON.stringify(state));
+      } catch (error) {
+        Logger.error('MONITORING_CONTEXT', 'Failed to save state to localStorage', error);
+      }
+    }
+  }, [state]);
 
   const startMonitoring = useCallback(async (): Promise<void> => {
     try {
