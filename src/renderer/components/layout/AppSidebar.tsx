@@ -21,8 +21,8 @@ const SIDEBAR_STYLES = {
   container: 'flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300',
   collapsed: 'w-16',
   expanded: 'w-64',
-  logoSection: 'h-16 flex items-center justify-center border-b border-slate-200 dark:border-slate-700 px-6',
-  logoCollapsed: 'h-16 flex items-center justify-center border-b border-slate-200 dark:border-slate-700 px-3',
+  logoSection: 'h-auto min-h-[4rem] flex flex-col justify-center border-b border-slate-200 dark:border-slate-700 px-6 py-3',
+  logoCollapsed: 'h-auto min-h-[8rem] flex items-center justify-center border-b border-slate-200 dark:border-slate-700 px-3 py-4',
   logoText: 'text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent',
   logoIcon: 'w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm',
   profileSection: 'border-b border-slate-200 dark:border-slate-700 p-4',
@@ -198,8 +198,26 @@ export function AppSidebar({
       {/* 로고 */}
       <div className={collapsed ? SIDEBAR_STYLES.logoCollapsed : SIDEBAR_STYLES.logoSection}>
         {collapsed ? (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-3 py-2">
             <div className={SIDEBAR_STYLES.logoIcon}>L</div>
+            
+            {/* 축소 시 사용자 프로필 */}
+            <div 
+              className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+              onClick={() => {
+                Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
+                onNavigate?.('/settings');
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="사용자 프로필"
+            >
+              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
+                U
+              </div>
+              <div className="w-1 h-1 bg-green-500 rounded-full" />
+            </div>
+            
             <Button
               variant="ghost"
               size="sm"
@@ -211,58 +229,40 @@ export function AppSidebar({
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-between w-full">
-            <h1 className={SIDEBAR_STYLES.logoText}>Loop</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={SIDEBAR_STYLES.collapseButton}
-              onClick={handleToggleCollapse}
-              aria-label="사이드바 축소"
+          <div className="space-y-3">
+            <div className="flex items-center justify-between w-full">
+              <h1 className={SIDEBAR_STYLES.logoText}>Loop</h1>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={SIDEBAR_STYLES.collapseButton}
+                onClick={handleToggleCollapse}
+                aria-label="사이드바 축소"
+              >
+                <ChevronLeft className="w-3 h-3" />
+              </Button>
+            </div>
+            
+            {/* 확장 시 사용자 프로필 */}
+            <div 
+              className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+              onClick={() => {
+                Logger.info('SIDEBAR', 'User profile clicked');
+                onNavigate?.('/settings');
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label="사용자 프로필"
             >
-              <ChevronLeft className="w-3 h-3" />
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* 사용자 프로필 - 상단으로 이동 */}
-      <div className={collapsed ? "border-b border-slate-200 dark:border-slate-700 p-2 flex flex-col items-center gap-2" : "border-b border-slate-200 dark:border-slate-700 p-3"}>
-        {collapsed ? (
-          <div 
-            className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
-            onClick={() => {
-              Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
-              onNavigate?.('/settings');
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="사용자 프로필"
-          >
-            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
-              U
-            </div>
-            <div className="w-1 h-1 bg-green-500 rounded-full" />
-          </div>
-        ) : (
-          <div 
-            className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
-            onClick={() => {
-              Logger.info('SIDEBAR', 'User profile clicked');
-              onNavigate?.('/settings');
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="사용자 프로필"
-          >
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-              U
-            </div>
-            <div className="flex-1">
-              <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">Loop 사용자</div>
-              <div className="flex items-center gap-1 mt-0.5">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                <span className="text-xs text-slate-500 dark:text-slate-400">온라인</span>
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                U
+              </div>
+              <div className="flex-1">
+                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">Loop 사용자</div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400">온라인</span>
+                </div>
               </div>
             </div>
           </div>
