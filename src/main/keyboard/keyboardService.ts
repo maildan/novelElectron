@@ -130,6 +130,12 @@ export class KeyboardService extends EventEmitter {
         Logger.info('KEYBOARD', 'WindowTracker started with monitoring');
       }
 
+      // 🔥 LanguageDetector 시작
+      if (!this.languageDetector.isRunning()) {
+        await this.languageDetector.start();
+        Logger.info('KEYBOARD', 'LanguageDetector started with monitoring');
+      }
+
       // 키보드 이벤트 리스너 설정
       this.uiohook.on('keydown', (rawEvent: UiohookKeyboardEvent) => {
         this.handleKeyEvent('keydown', rawEvent).catch(error => {
@@ -195,6 +201,12 @@ export class KeyboardService extends EventEmitter {
       if (this.windowTracker && this.windowTracker.isRunning()) {
         await this.windowTracker.stop();
         Logger.info('KEYBOARD', 'WindowTracker stopped with monitoring');
+      }
+
+      // 🔥 LanguageDetector 중지
+      if (this.languageDetector && this.languageDetector.isRunning()) {
+        await this.languageDetector.stop();
+        Logger.info('KEYBOARD', 'LanguageDetector stopped with monitoring');
       }
 
       this.state.isActive = false;
