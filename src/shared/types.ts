@@ -181,7 +181,7 @@ export interface UiohookKeyboardEvent {
 export interface LanguageDetectionResult {
   language: string;
   confidence: number;
-  method: 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'fallback'; // 🔥 method 속성 확장
+  method: 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'fallback' | 'keycode' | 'special-char-mapping'; // 🔥 method 속성 확장
   isComposing: boolean;
   metadata?: {
     keySequence?: string[];

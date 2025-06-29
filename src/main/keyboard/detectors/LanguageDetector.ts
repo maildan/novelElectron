@@ -81,6 +81,26 @@ export class LanguageDetector extends BaseManager {
     32, 188, 190, 191, 186, 222, 219, 221, 220, 192, 189, 187
   ]);
 
+  // 🔥 기가차드 macOS IME 우회용 특수문자 역매핑 테이블
+  private readonly SPECIAL_CHAR_TO_HANGUL: Map<number, string> = new Map([
+    // macOS 한글 IME가 물리적 키를 이런 특수문자 keycode로 변조함
+    [33, 'ㄹ'],   // '!' → ㄹ (F키)
+    [34, 'ㅂ'],   // '"' → ㅂ (Q키 추정)
+    [18, 'ㅁ'],   // 제어문자 → ㅁ (A키 추정)  
+    [17, 'ㄴ'],   // 제어문자 → ㄴ (S키 추정)
+    [19, 'ㅇ'],   // 제어문자 → ㅇ (D키 추정)
+    [32, 'ㅣ'],   // 스페이스 → ㅣ (L키, 하지만 실제로는 스페이스)
+    [40, 'ㅐ'],   // '(' → ㅐ (O키 추정)
+    [41, 'ㅔ'],   // ')' → ㅔ (P키 추정)
+    [35, 'ㅈ'],   // '#' → ㅈ (W키 추정)
+    [36, 'ㄷ'],   // '$' → ㄷ (E키 추정)
+    [37, 'ㄱ'],   // '%' → ㄱ (R키 추정)
+    [94, 'ㅛ'],   // '^' → ㅛ (Y키 추정)
+    [38, 'ㅅ'],   // '&' → ㅅ (T키 추정)
+    [42, 'ㅕ'],   // '*' → ㅕ (U키 추정)
+    [95, 'ㅑ'],   // '_' → ㅑ (I키 추정)
+  ]);
+
   constructor() {
     super({
       name: 'LanguageDetector',
@@ -120,12 +140,14 @@ export class LanguageDetector extends BaseManager {
     const startTime = performance.now();
     
     try {
-      // 극한 디버깅
+      // 극한 디버깅 + rawcode 추가!
       Logger.debug(this.componentName, '🔥🔥🔥 RAW INPUT DATA 🔥🔥🔥', {
         keycode: rawEvent.keycode,
         keychar: rawEvent.keychar,
+        rawcode: (rawEvent as any).rawcode, // 🔥 rawcode 확인!
         keycodeHex: `0x${rawEvent.keycode.toString(16)}`,
         keycharHex: rawEvent.keychar ? `0x${rawEvent.keychar.toString(16)}` : 'null',
+        rawcodeHex: (rawEvent as any).rawcode ? `0x${(rawEvent as any).rawcode.toString(16)}` : 'null',
         keycharString: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'null',
         keycharUnicode: rawEvent.keychar ? `U+${rawEvent.keychar.toString(16).padStart(4, '0')}` : 'null',
         isShift: rawEvent.shiftKey,
@@ -136,8 +158,11 @@ export class LanguageDetector extends BaseManager {
       if (!rawEvent.keychar || rawEvent.keychar === 0) {
         Logger.debug(this.componentName, '❌ NO KEYCHAR - keycode 기반 처리', { 
           keycode: rawEvent.keycode,
+          rawcode: (rawEvent as any).rawcode,
           keycodeHex: `0x${rawEvent.keycode.toString(16)}`,
+          rawcodeHex: (rawEvent as any).rawcode ? `0x${(rawEvent as any).rawcode.toString(16)}` : 'null',
           isHangulKey: this.KEYCODE_TO_HANGUL.has(rawEvent.keycode),
+          isHangulKeyRawcode: (rawEvent as any).rawcode ? this.KEYCODE_TO_HANGUL.has((rawEvent as any).rawcode) : false,
           isEnglishKey: this.ENGLISH_KEYCODES.has(rawEvent.keycode)
         });
         return this.detectByKeycodeOnly(rawEvent, startTime);
@@ -169,31 +194,67 @@ export class LanguageDetector extends BaseManager {
   }
 
   /**
-   * 🔥 keycode만으로 감지 (macOS IME 우회)
+   * 🔥 keycode만으로 감지 (macOS IME 우회 + rawcode 활용!)
    */
   private detectByKeycodeOnly(rawEvent: UiohookKeyboardEvent, startTime: number): LanguageDetectionResult {
     const { keycode } = rawEvent;
     
-    // 한글 키매핑 확인
-    if (this.KEYCODE_TO_HANGUL.has(keycode)) {
-      const hangulChar = this.KEYCODE_TO_HANGUL.get(keycode);
+    // 🔥 최우선: macOS IME 우회 - 특수문자 역매핑 체크
+    if (this.SPECIAL_CHAR_TO_HANGUL.has(keycode)) {
+      const hangulChar = this.SPECIAL_CHAR_TO_HANGUL.get(keycode);
       this.currentLanguage = 'ko';
       
-      Logger.debug(this.componentName, '🔥 keycode 기반 한글 감지!', {
+      Logger.debug(this.componentName, '🔥🔥🔥 특수문자 역매핑으로 한글 감지! 🔥🔥🔥', {
         keycode,
+        keycodeHex: `0x${keycode.toString(16)}`,
+        mappedHangul: hangulChar,
+        confidence: 0.95
+      });
+      
+      return { 
+        language: 'ko', 
+        confidence: 0.95, 
+        method: 'keycode',
+        isComposing: true
+      };
+    }
+    
+    // 🔥 rawcode 우선 사용 (물리적 키 감지)
+    const rawcode = (rawEvent as any).rawcode;
+    const physicalKeycode = rawcode || keycode; // rawcode 있으면 우선 사용
+    
+    Logger.debug(this.componentName, '🔥 물리적 키코드 체크', {
+      keycode,
+      rawcode,
+      physicalKeycode,
+      isHangulKey: this.KEYCODE_TO_HANGUL.has(physicalKeycode),
+      hangulChar: this.KEYCODE_TO_HANGUL.get(physicalKeycode)
+    });
+    
+    // 한글 키매핑 확인 (물리적 키코드로!)
+    if (this.KEYCODE_TO_HANGUL.has(physicalKeycode)) {
+      const hangulChar = this.KEYCODE_TO_HANGUL.get(physicalKeycode);
+      this.currentLanguage = 'ko';
+      
+      Logger.debug(this.componentName, '🔥 물리적 키코드 기반 한글 감지!', {
+        keycode,
+        rawcode,
+        physicalKeycode,
         hangulChar,
-        keycodeHex: `0x${keycode.toString(16)}`
+        keycodeHex: `0x${physicalKeycode.toString(16)}`
       });
       
       return this.finalizeResult({
         language: 'ko',
         confidence: 0.95, // 높은 신뢰도
-        method: 'keycode',
+        method: 'keycode', // rawcode 기반이지만 method는 keycode로 유지
         isComposing: true,
         metadata: { 
           keycode,
+          rawcode,
+          physicalKeycode,
           hangulChar,
-          reason: 'keycode-hangul-mapping'
+          reason: 'rawcode-hangul-mapping'
         }
       }, startTime);
     }

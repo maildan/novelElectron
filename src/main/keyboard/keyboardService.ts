@@ -259,7 +259,7 @@ export class KeyboardService extends EventEmitter {
         });
         
         // 🔥 정확한 keycode -> 문자 변환 사용
-        const pressedKey = this.keycodeToChar(enhancedEvent.keycode || 0);
+        const pressedKey = String.fromCharCode(this.keycodeToKeychar(enhancedEvent.keycode || 0));
         const hangulChar = Object.entries(HANGUL_KEY_MAP).find(([_, english]) => 
           english.toLowerCase() === pressedKey
         )?.[0];
@@ -268,7 +268,7 @@ export class KeyboardService extends EventEmitter {
         hangulResult = await this.hangulComposer.processKey({
           key: pressedKey, // 실제 눌린 키 (q, w, e, r 등)
           code: `Key${enhancedEvent.keycode}`,
-          keychar: hangulChar || enhancedEvent.keychar, // 한글 문자 우선
+          keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar), // 한글 문자 우선, 아니면 유니코드 변환
           timestamp: Date.now(),
           windowTitle: '',
           type
@@ -301,7 +301,7 @@ export class KeyboardService extends EventEmitter {
       const processedEvent: ProcessedKeyboardEvent = {
         key: this.getDisplayKey(enhancedEvent, currentLanguage, composedChar, hangulResult), // 🔥 enhanced event 사용
         code: `Key${enhancedEvent.keycode}`,
-        keychar: composedChar || hangulResult?.completed || enhancedEvent.keychar, // 🔥 정확한 keychar 사용
+        keychar: composedChar || hangulResult?.completed || String.fromCharCode(enhancedEvent.keychar), // 🔥 유니코드를 문자로 변환
         timestamp: Date.now(),
         windowTitle,
         type: type === 'keydown' && (composedChar || hangulResult?.completed) ? 'input' : type, // 🔥 실제 입력 시 'input' 타입
@@ -497,42 +497,42 @@ export class KeyboardService extends EventEmitter {
     }
   }
   
-  // 🔥 기가차드 keycode를 정확한 문자로 변환하는 함수
-  private keycodeToChar(keycode: number): string {
-    // 🔥 QWERTY 키보드 레이아웃 기준 정확한 매핑
-    const KEYCODE_TO_CHAR_MAP: Record<number, string> = {
+  // 🔥 기가차드 keycode를 유니코드 숫자로 변환하는 함수
+  private keycodeToKeychar(keycode: number): number {
+    // 🔥 QWERTY 키보드 레이아웃 기준 keycode → 유니코드 매핑
+    const KEYCODE_TO_UNICODE_MAP: Record<number, number> = {
       // 숫자 키 (0-9)
-      48: '0', 49: '1', 50: '2', 51: '3', 52: '4',
-      53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
+      48: 48, 49: 49, 50: 50, 51: 51, 52: 52,  // '0'-'9'
+      53: 53, 54: 54, 55: 55, 56: 56, 57: 57,
       
-      // 영문자 키 (A-Z) -> 소문자
-      65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f',
-      71: 'g', 72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l',
-      77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r',
-      83: 's', 84: 't', 85: 'u', 86: 'v', 87: 'w', 88: 'x',
-      89: 'y', 90: 'z',
+      // 영문자 키 (A-Z) -> 소문자 유니코드
+      65: 97,  66: 98,  67: 99,  68: 100, 69: 101, 70: 102, // a-f
+      71: 103, 72: 104, 73: 105, 74: 106, 75: 107, 76: 108, // g-l
+      77: 109, 78: 110, 79: 111, 80: 112, 81: 113, 82: 114, // m-r
+      83: 115, 84: 116, 85: 117, 86: 118, 87: 119, 88: 120, // s-x
+      89: 121, 90: 122, // y-z
       
       // 특수문자 키
-      32: ' ',   // Space
-      188: ',',  // Comma
-      190: '.',  // Period
-      191: '/',  // Slash
-      186: ';',  // Semicolon
-      222: "'",  // Apostrophe
-      219: '[',  // Left bracket
-      221: ']',  // Right bracket
-      220: '\\', // Backslash
-      189: '-',  // Minus
-      187: '=',  // Equals
+      32: 32,   // Space
+      188: 44,  // Comma ','
+      190: 46,  // Period '.'
+      191: 47,  // Slash '/'
+      186: 59,  // Semicolon ';'
+      222: 39,  // Apostrophe "'"
+      219: 91,  // Left bracket '['
+      221: 93,  // Right bracket ']'
+      220: 92,  // Backslash '\'
+      189: 45,  // Minus '-'
+      187: 61,  // Equals '='
     };
     
-    return KEYCODE_TO_CHAR_MAP[keycode] || `Key${keycode}`;
+    return KEYCODE_TO_UNICODE_MAP[keycode] || keycode;
   }
 
   // 🔥 기가차드 rawEvent에 정확한 keychar 추가하는 함수
   private enhanceRawEvent(rawEvent: UiohookKeyboardEvent): any {
-    // 🔥 keycode를 정확한 문자로 변환
-    const keychar = this.keycodeToChar(rawEvent.keycode || 0);
+    // 🔥 keycode를 유니코드 숫자로 변환 (LanguageDetector 호환)
+    const keychar = this.keycodeToKeychar(rawEvent.keycode || 0);
     
     return {
       ...rawEvent,

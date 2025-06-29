@@ -299,10 +299,13 @@ export class KeyboardEngine extends BaseManager {
    */
   private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: import('uiohook-napi').UiohookKeyboardEvent): void {
     try {
+      // 🔥 기가차드 keychar 수정: 실제 유니코드 값 사용
+      const actualKeychar = rawEvent.keychar || rawEvent.keycode || 0;
+      
       const keyEvent: KeyboardEvent = {
         key: this.getKeyName(rawEvent.keycode || 0),
         code: `Key${this.getKeyName(rawEvent.keycode || 0).toUpperCase()}`,
-        keychar: this.getKeyName(rawEvent.keycode || 0),
+        keychar: String.fromCharCode(actualKeychar), // 🔥 수정: 숫자를 실제 문자로 변환
         timestamp: Date.now(),
         windowTitle: '',
         type,
