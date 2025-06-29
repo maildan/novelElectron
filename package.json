@@ -6,6 +6,7 @@
   "homepage": "./",
   "scripts": {
     "dev": "concurrently \"pnpm dev:main\" \"pnpm dev:renderer\" \"pnpm dev:db\" \"pnpm dev:electron\"",
+    "dev:renderer:turbopack": "cd src/renderer && next dev --turbo -p 4000",
     "dev:main": "cross-env NODE_ENV=development tsc -p tsconfig.main.json --watch",
     "dev:renderer": "cd src/renderer && next dev -p 4000",
     "dev:db": "prisma studio",

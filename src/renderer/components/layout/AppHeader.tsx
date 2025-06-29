@@ -1,12 +1,13 @@
 'use client';
 
-import { Bell, Search, User, Menu } from 'lucide-react';
+import { Bell, Search, User, Menu, Activity } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { SearchInput } from '../ui/Input';
 import { Avatar } from '../ui/Avatar';
 import { Badge } from '../ui/Badge';
 import { useState } from 'react';
 import { Logger } from '../../../shared/logger';
+import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - macOS 스타일
 const HEADER_STYLES = {
@@ -43,6 +44,8 @@ export function AppHeader({
   onUserClick,
 }: AppHeaderProps): React.ReactElement {
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { state } = useMonitoring();
+  const { isMonitoring } = state;
 
   const handleSearch = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -103,6 +106,14 @@ export function AppHeader({
 
       {/* 우측 섹션 */}
       <div className={HEADER_STYLES.rightSection}>
+        {/* 모니터링 상태 표시 */}
+        {isMonitoring && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full text-sm">
+            <Activity className="w-4 h-4 animate-pulse" />
+            <span className="font-medium">모니터링 중</span>
+          </div>
+        )}
+
         {/* 알림 버튼 */}
         <div className={HEADER_STYLES.notificationButton}>
           <Button

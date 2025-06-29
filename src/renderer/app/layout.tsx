@@ -6,7 +6,7 @@ if (typeof global === 'undefined') {
 }
 
 import { Inter } from 'next/font/google';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
@@ -40,13 +40,24 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const pathname = usePathname();
 
+  // 🔥 localStorage에서 사이드바 상태 복원
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(JSON.parse(savedState));
+    }
+  }, []);
+
   const handleNavigate = (href: string): void => {
     // Next.js App Router는 자동으로 네비게이션을 처리합니다
     window.location.href = href;
   };
 
   const handleToggleSidebar = (): void => {
-    setSidebarCollapsed(!sidebarCollapsed);
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    // 🔥 localStorage에 상태 저장
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
   };
 
   return (

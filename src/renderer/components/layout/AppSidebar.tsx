@@ -172,13 +172,17 @@ export function AppSidebar({
       </div>
     );
 
-    return collapsed ? (
-      <Tooltip key={item.id} content={item.label} side="right">
-        {navItemContent}
-      </Tooltip>
-    ) : (
+    return (
       <div key={item.id}>
-        {navItemContent}
+        {collapsed ? (
+          <Tooltip content={item.label} side="right">
+            <div>
+              {navItemContent}
+            </div>
+          </Tooltip>
+        ) : (
+          navItemContent
+        )}
       </div>
     );
   };
@@ -222,21 +226,30 @@ export function AppSidebar({
         )}
       </div>
 
-      {/* 네비게이션 */}
-      <nav className={SIDEBAR_STYLES.navSection} aria-label="메인 메뉴">
-        <div className={SIDEBAR_STYLES.navList}>
-          {SIDEBAR_ITEMS.map(renderNavItem)}
-        </div>
-      </nav>
-
-      {/* 사용자 프로필 */}
-      <div className={collapsed ? SIDEBAR_STYLES.profileCollapsed : SIDEBAR_STYLES.profileSection}>
+      {/* 사용자 프로필 - 상단으로 이동 */}
+      <div className={collapsed ? "border-b border-slate-200 dark:border-slate-700 p-2 flex flex-col items-center gap-2" : "border-b border-slate-200 dark:border-slate-700 p-3"}>
         {collapsed ? (
           <div 
-            className="flex flex-col items-center gap-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+            className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
             onClick={() => {
               Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
-              onNavigate?.('/settings'); // 설정 페이지로 이동
+              onNavigate?.('/settings');
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="사용자 프로필"
+          >
+            <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
+              U
+            </div>
+            <div className="w-1 h-1 bg-green-500 rounded-full" />
+          </div>
+        ) : (
+          <div 
+            className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
+            onClick={() => {
+              Logger.info('SIDEBAR', 'User profile clicked');
+              onNavigate?.('/settings');
             }}
             role="button"
             tabIndex={0}
@@ -245,32 +258,23 @@ export function AppSidebar({
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
               U
             </div>
-            <div className={SIDEBAR_STYLES.statusDot} />
-          </div>
-        ) : (
-          <div 
-            className={`${SIDEBAR_STYLES.profileContent} cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors`}
-            onClick={() => {
-              Logger.info('SIDEBAR', 'User profile clicked');
-              onNavigate?.('/settings'); // 설정 페이지로 이동
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="사용자 프로필"
-          >
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
-              U
-            </div>
-            <div className={SIDEBAR_STYLES.profileInfo}>
-              <div className={SIDEBAR_STYLES.profileName}>Loop 사용자</div>
-              <div className={SIDEBAR_STYLES.profileStatus}>
-                <div className={SIDEBAR_STYLES.statusDot} />
-                <span className={SIDEBAR_STYLES.statusText}>온라인</span>
+            <div className="flex-1">
+              <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">Loop 사용자</div>
+              <div className="flex items-center gap-1 mt-0.5">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                <span className="text-xs text-slate-500 dark:text-slate-400">온라인</span>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* 네비게이션 */}
+      <nav className={SIDEBAR_STYLES.navSection} aria-label="메인 메뉴">
+        <div className={SIDEBAR_STYLES.navList}>
+          {SIDEBAR_ITEMS.map(renderNavItem)}
+        </div>
+      </nav>
     </aside>
   );
 }
