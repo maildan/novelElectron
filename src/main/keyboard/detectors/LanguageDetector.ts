@@ -12,6 +12,7 @@ export interface LanguageDetectionResult {
   confidence: number;
   method: 'keycode' | 'pattern' | 'fallback';
   isComposing: boolean;
+  detectedChar?: string; // 🔥 감지된 문자 (한글 등)
   metadata?: Record<string, unknown>;
 }
 
@@ -229,7 +230,8 @@ export class LanguageDetector extends BaseManager {
         language: 'ko', 
         confidence: 0.95, 
         method: 'keycode',
-        isComposing: true
+        isComposing: true,
+        detectedChar: hangulChar // 🔥 감지된 한글 문자 추가
       };
     }
     
@@ -263,6 +265,7 @@ export class LanguageDetector extends BaseManager {
         confidence: 0.95, // 높은 신뢰도
         method: 'keycode', // rawcode 기반이지만 method는 keycode로 유지
         isComposing: true,
+        detectedChar: hangulChar, // 🔥 감지된 한글 문자 추가
         metadata: { 
           keycode,
           rawcode,
