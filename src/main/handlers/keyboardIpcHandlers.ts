@@ -91,6 +91,30 @@ export function setupKeyboardIpcHandlers(): void {
       )
     );
 
+    // 🔥 실시간 통계 조회
+    ipcMain.handle('keyboard:get-realtime-stats', createSafeAsyncIpcHandler(
+      async () => {
+        Logger.debug('KEYBOARD_IPC', 'IPC: Get realtime stats requested');
+        
+        try {
+          // TODO: 실제 실시간 통계 구현
+          const realtimeStats = {
+            currentWpm: 0,
+            charactersTyped: 0,
+            sessionTime: 0,
+            accuracy: 0,
+          };
+          
+          return realtimeStats;
+        } catch (error) {
+          Logger.error('KEYBOARD_IPC', 'Failed to get realtime stats', error);
+          throw error;
+        }
+      },
+      'KEYBOARD_IPC',
+      'Get realtime statistics'
+    ));
+
     // 🔥 키보드 이벤트 포워딩 설정
     keyboardService.on('keyboard-event', (event: unknown) => {
       // #DEBUG: Forwarding keyboard event to renderer
@@ -109,7 +133,7 @@ export function setupKeyboardIpcHandlers(): void {
 
     Logger.timeEnd('KEYBOARD_IPC_SETUP');
     Logger.info('KEYBOARD_IPC', 'Keyboard IPC handlers setup completed', {
-      handlersCount: 5,
+      handlersCount: 6,
       setupTime: 'measured'
     });
 
@@ -131,6 +155,7 @@ export function cleanupKeyboardIpcHandlers(): void {
     ipcMain.removeHandler(IPC_CHANNELS.KEYBOARD.GET_STATUS);
     ipcMain.removeHandler('keyboard:set-language');
     ipcMain.removeHandler('keyboard:get-recent-events');
+    ipcMain.removeHandler('keyboard:get-realtime-stats');
 
     // 키보드 서비스 이벤트 리스너 정리
     keyboardService.removeAllListeners();

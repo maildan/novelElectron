@@ -322,9 +322,32 @@ export function DashboardMain({
     return `${diffDays}일 전`;
   };
 
-  const handleToggleMonitoring = (): void => {
-    Logger.info('DASHBOARD', `Monitoring ${!isMonitoring ? 'started' : 'stopped'}`);
-    onToggleMonitoring?.();
+  const handleToggleMonitoring = async (): Promise<void> => {
+    try {
+      Logger.info('DASHBOARD', `Monitoring ${!isMonitoring ? 'start' : 'stop'} requested`);
+      
+      if (!isMonitoring) {
+        // 모니터링 시작
+        const result = await window.electronAPI.keyboard.startMonitoring();
+        if (result.success) {
+          Logger.info('DASHBOARD', 'Monitoring started successfully');
+          onToggleMonitoring?.();
+        } else {
+          Logger.error('DASHBOARD', 'Failed to start monitoring', result.error);
+        }
+      } else {
+        // 모니터링 중지
+        const result = await window.electronAPI.keyboard.stopMonitoring();
+        if (result.success) {
+          Logger.info('DASHBOARD', 'Monitoring stopped successfully');
+          onToggleMonitoring?.();
+        } else {
+          Logger.error('DASHBOARD', 'Failed to stop monitoring', result.error);
+        }
+      }
+    } catch (error) {
+      Logger.error('DASHBOARD', 'Error toggling monitoring', error);
+    }
   };
 
   const handleAIToggle = (): void => {
@@ -414,21 +437,47 @@ export function DashboardMain({
 
         {/* 빠른 시작 */}
         <QuickStartCard
-          onCreateProject={() => {
-            Logger.info('DASHBOARD', 'Create project from quick start');
-            // TODO: 새 프로젝트 생성 다이얼로그 또는 페이지로 이동
+          onCreateProject={async () => {
+            try {
+              Logger.info('DASHBOARD', 'Creating new project from quick start');
+              // TODO: 새 프로젝트 생성 다이얼로그 또는 페이지로 이동
+              const result = await window.electronAPI.projects.createSample();
+              if (result.success) {
+                Logger.info('DASHBOARD', 'Sample project created successfully');
+                // 프로젝트 목록 새로고침
+                loadDashboardData();
+              }
+            } catch (error) {
+              Logger.error('DASHBOARD', 'Failed to create sample project', error);
+            }
           }}
-          onImportProject={() => {
-            Logger.info('DASHBOARD', 'Import project from quick start');
-            // TODO: 프로젝트 가져오기 다이얼로그
+          onImportProject={async () => {
+            try {
+              Logger.info('DASHBOARD', 'Importing project from quick start');
+              const result = await window.electronAPI.projects.importFile();
+              if (result.success) {
+                Logger.info('DASHBOARD', 'Project import initiated');
+              }
+            } catch (error) {
+              Logger.error('DASHBOARD', 'Failed to import project', error);
+            }
           }}
-          onOpenSample={() => {
-            Logger.info('DASHBOARD', 'Open sample project');
-            // TODO: 샘플 프로젝트 열기
+          onOpenSample={async () => {
+            try {
+              Logger.info('DASHBOARD', 'Opening sample project');
+              const result = await window.electronAPI.projects.createSample();
+              if (result.success) {
+                Logger.info('DASHBOARD', 'Sample project opened');
+                // 프로젝트 목록 새로고침
+                loadDashboardData();
+              }
+            } catch (error) {
+              Logger.error('DASHBOARD', 'Failed to open sample project', error);
+            }
           }}
           onViewDocs={() => {
             Logger.info('DASHBOARD', 'View documentation');
-            // TODO: 문서 페이지로 이동
+            // TODO: 문서 페이지로 이동 또는 외부 링크 열기
           }}
         />
 

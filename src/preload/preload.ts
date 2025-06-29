@@ -6,7 +6,8 @@ import {
   TypingStats, 
   UserPreferences, 
   WindowInfo,
-  ElectronAPI
+  ElectronAPI,
+  Project
 } from '../shared/types';
 import type { 
   SettingsSchema, 
@@ -44,9 +45,11 @@ const electronAPI: ElectronAPI = {
   projects: {
     getAll: () => ipcRenderer.invoke('projects:get-all'),
     getById: (id: string) => ipcRenderer.invoke('projects:get-by-id', id),
-    create: (project: any) => ipcRenderer.invoke('projects:create', project),
-    update: (id: string, updates: any) => ipcRenderer.invoke('projects:update', id, updates),
+    create: (project: Omit<Project, 'id' | 'createdAt' | 'lastModified'>) => ipcRenderer.invoke('projects:create', project),
+    update: (id: string, updates: Partial<Project>) => ipcRenderer.invoke('projects:update', id, updates),
     delete: (id: string) => ipcRenderer.invoke('projects:delete', id),
+    createSample: () => ipcRenderer.invoke('projects:create-sample'),
+    importFile: () => ipcRenderer.invoke('projects:import-file'),
   },
 
   app: {

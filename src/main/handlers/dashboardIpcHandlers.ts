@@ -357,6 +357,53 @@ export function setupDashboardIpcHandlers(): void {
       )
     );
 
+    // 🔥 대시보드 통계 조회
+    ipcMain.handle('dashboard:get-stats', createSafeAsyncIpcHandler(
+      async () => {
+        Logger.debug('DASHBOARD_IPC', 'IPC: Get dashboard stats requested');
+        
+        try {
+          // TODO: 실제 통계 데이터 구현
+          const stats = {
+            todayWords: 0,
+            weekWords: 0,
+            avgWpm: 0,
+            activeProjects: 0,
+            dailyGrowth: 0,
+            weeklyGrowth: 0,
+            wpmImprovement: 0,
+            projectGrowth: 0,
+          };
+          
+          return stats;
+        } catch (error) {
+          Logger.error('DASHBOARD_IPC', 'Failed to get dashboard stats', error);
+          throw error;
+        }
+      },
+      'DASHBOARD_IPC',
+      'Get dashboard statistics'
+    ));
+
+    // 🔥 최근 세션 조회
+    ipcMain.handle('dashboard:get-recent-sessions', createSafeAsyncIpcHandler(
+      async () => {
+        Logger.debug('DASHBOARD_IPC', 'IPC: Get recent sessions requested');
+        
+        try {
+          // TODO: 실제 세션 데이터 구현
+          const sessions: unknown[] = [];
+          
+          return sessions;
+        } catch (error) {
+          Logger.error('DASHBOARD_IPC', 'Failed to get recent sessions', error);
+          throw error;
+        }
+      },
+      'DASHBOARD_IPC',
+      'Get recent sessions'
+    ));
+
     Logger.timeEnd('DASHBOARD_IPC_SETUP');
     Logger.info('DASHBOARD_IPC', 'Dashboard IPC handlers setup successfully', {
       handlerCount: 12,

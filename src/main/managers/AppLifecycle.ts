@@ -138,7 +138,7 @@ export class AppLifecycle extends BaseManager {
     });
 
     // 앱 종료 전
-    app.on('before-quit', async (event: any) => {
+    app.on('before-quit', async (event: Electron.Event) => {
       if (!this.isQuitting) {
         Logger.info(this.componentName, 'Before quit event received');
         event.preventDefault();

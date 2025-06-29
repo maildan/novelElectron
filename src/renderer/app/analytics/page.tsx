@@ -1,7 +1,13 @@
-import { ElectronAPI } from '../../../shared/types';
-import '../../../types/global'; // 🔥 global.d.ts 명시적 import
-
 'use client';
+
+import { ElectronAPI } from '../../../shared/types';
+
+// 🔥 Window 타입 확장
+declare global {
+  interface Window {
+    electronAPI: ElectronAPI;
+  }
+}
 
 import React from 'react';
 import { TrendingUp, TrendingDown, Activity, BarChart3, Clock, Target, BookOpen, Zap } from 'lucide-react';

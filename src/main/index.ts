@@ -20,8 +20,7 @@ import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
 import { errorHandler } from './core/error-handler';
 import { keyboardService } from './keyboard/keyboardService';
-import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
-import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
+import { setupAllIpcHandlers } from './ipc-handlers';
 import { initializeSettings, cleanupSettings } from './settings';
 import { getSettingsManager } from './settings';
 import type { SettingsChangeEvent, UISettingsSchema, AppSettingsSchema, KeyboardSettingsSchema, NotificationSettingsSchema, DataRetentionSettingsSchema } from './settings/types';
@@ -368,15 +367,10 @@ class LoopApplication {
     Logger.debug('MAIN_INDEX', 'Setting up IPC handlers');
 
     try {
-      // 키보드 IPC 핸들러
-      setupKeyboardIpcHandlers();
-      Logger.info('MAIN_INDEX', 'Keyboard IPC handlers registered');
+      // 🔥 모든 IPC 핸들러 통합 설정
+      setupAllIpcHandlers();
+      Logger.info('MAIN_INDEX', 'All IPC handlers registered successfully');
 
-      // 대시보드 IPC 핸들러 (이미 구현됨)
-      setupDashboardIpcHandlers();
-      Logger.info('MAIN_INDEX', 'Dashboard IPC handlers registered');
-
-      // 추가 IPC 핸들러들은 필요시 확장 가능
       Logger.debug('MAIN_INDEX', 'All IPC handlers setup completed');
 
     } catch (error) {

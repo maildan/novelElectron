@@ -61,7 +61,7 @@ export class HandlersManager extends BaseManager {
     Logger.info(this.componentName, 'Initializing handlers manager');
     
     // IPC 에러 처리
-    ipcMain.on('uncaught-exception', (event: any, error: any) => {
+    ipcMain.on('uncaught-exception', (event: Electron.IpcMainEvent, error: Error) => {
       Logger.error(this.componentName, 'Uncaught IPC exception', error);
       this.globalStats.errorCalls++;
     });

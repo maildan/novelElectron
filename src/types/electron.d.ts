@@ -13,8 +13,8 @@ declare module 'electron' {
 declare namespace NodeJS {
   interface Global {
     mainWindow?: import('electron').BrowserWindow;
-    keyboardEngine?: any;
-    loopApp?: any;
+    keyboardEngine?: import('../main/keyboard/KeyboardEngine').KeyboardEngine;
+    loopApp?: import('../main/index').LoopApplication;
   }
 }
 

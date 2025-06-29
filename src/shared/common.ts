@@ -328,8 +328,8 @@ export const Environment = {
   isDev: process.env.NODE_ENV === 'development',
   isProd: process.env.NODE_ENV === 'production',
   isTest: process.env.NODE_ENV === 'test',
-  isElectron: typeof globalThis !== 'undefined' && typeof (globalThis as any).electronAPI !== 'undefined',
-  isBrowser: typeof globalThis !== 'undefined' && typeof (globalThis as any).document !== 'undefined',
+  isElectron: typeof globalThis !== 'undefined' && 'electronAPI' in globalThis,
+  isBrowser: typeof globalThis !== 'undefined' && 'document' in globalThis,
   isNode: typeof process !== 'undefined',
 } as const;
 

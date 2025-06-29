@@ -100,6 +100,8 @@ export interface ElectronAPI {
     create: (project: Omit<Project, 'id' | 'createdAt' | 'lastModified'>) => Promise<IpcResponse<Project>>;
     update: (id: string, updates: Partial<Project>) => Promise<IpcResponse<Project>>;
     delete: (id: string) => Promise<IpcResponse<boolean>>;
+    createSample: () => Promise<IpcResponse<Project>>;
+    importFile: () => Promise<IpcResponse<{ success: boolean; message: string }>>;
   };
 
   // ⚙️ 설정 API

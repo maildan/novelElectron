@@ -65,6 +65,12 @@ describe('IPC Handlers', () => {
       
       expect(Logger.debug).toHaveBeenCalledWith('IPC_HANDLERS', 'Cleaning up all IPC handlers');
       expect(Logger.info).toHaveBeenCalledWith('IPC_HANDLERS', 'All IPC handlers cleanup completed');
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.any(String));
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.stringContaining('keyboard:'));
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.stringContaining('window:'));
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.stringContaining('database:'));
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.stringContaining('settings:'));
+      expect(mockIpcMain.removeHandler).toHaveBeenCalledWith(expect.stringContaining('app:'));
     });
   });
 
