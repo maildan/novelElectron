@@ -320,25 +320,31 @@ export class LanguageDetector extends BaseManager {
       // 키 버퍼에 추가
       this.addToBuffer(rawEvent);
       
-      // 🔥 1단계: keycode 기반 즉시 감지
-      const keycodeResult = this.detectByKeycode(rawEvent);
-      if (keycodeResult.confidence >= 0.8) {
-        return this.finalizeResult(keycodeResult, startTime);
+      // 🔥 1단계: 언어 컨텍스트를 고려한 키코드 감지 (새로운 방법!)
+      const contextKeycodeResult = this.detectByKeycodeWithLanguageContext(rawEvent);
+      if (contextKeycodeResult.confidence >= 0.8) {
+        return this.finalizeResult(contextKeycodeResult, startTime);
       }
       
-      // 🔥 1.5단계: 시스템 입력소스 기반 감지 (macOS HIToolbox)
+      // 🔥 2단계: 시스템 입력소스 기반 감지 (macOS HIToolbox)
       const systemResult = await this.detectBySystemInputSource(startTime);
       if (systemResult && systemResult.confidence >= 0.9) {
         return this.finalizeResult(systemResult, startTime);
       }
       
-      // 🔥 2단계: 패턴 분석 기반 감지
+      // 🔥 3단계: 기존 keycode 기반 감지 (백업용)
+      const keycodeResult = this.detectByKeycode(rawEvent);
+      if (keycodeResult.confidence >= 0.7) {
+        return this.finalizeResult(keycodeResult, startTime);
+      }
+      
+      // 🔥 4단계: 패턴 분석 기반 감지
       const patternResult = this.detectByPattern();
       if (patternResult.confidence >= 0.6) {
         return this.finalizeResult(patternResult, startTime);
       }
       
-      // 🔥 3단계: 스마트 fallback
+      // 🔥 최종: 스마트 fallback (현재 언어 유지)
       const fallbackResult = this.detectByFallback(rawEvent);
       return this.finalizeResult(fallbackResult, startTime);
       
@@ -923,6 +929,128 @@ export class LanguageDetector extends BaseManager {
         this.totalProcessingTime / this.detectionCount : 0,
       bufferSize: this.keyBuffer.length,
       currentLanguage: this.currentLanguage
+    };
+  }
+
+  /**
+   * 🔥 언어 컨텍스트를 고려한 키코드 감지 (영어일 때 한국어 매핑 방지!)
+   */
+  private detectByKeycodeWithLanguageContext(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
+    const { keycode, keychar } = rawEvent;
+    
+    // 🔥 1단계: 현재 언어가 영어이고 keychar가 영어 알파벳이면 영어 유지
+    if (this.currentLanguage === 'en' && keychar && keychar >= 97 && keychar <= 122) {
+      const char = String.fromCharCode(keychar);
+      Logger.debug(this.componentName, '🔥 영어 모드에서 알파벳 감지 - 영어 유지', {
+        keycode,
+        keychar,
+        char,
+        currentLanguage: this.currentLanguage
+      });
+      
+      return {
+        language: 'en',
+        confidence: 0.9,
+        method: 'keycode',
+        isComposing: false,
+        metadata: { 
+          keycode,
+          keychar,
+          char,
+          reason: 'english-mode-alphabet-maintain'
+        }
+      };
+    }
+    
+    // 🔥 2단계: 현재 언어가 한국어이고 한글 매핑이 있으면 한국어 유지
+    if (this.currentLanguage === 'ko') {
+      // 알파벳 키만 한글 매핑 허용
+      const isValidAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
+      
+      if (isValidAlphabetKey) {
+        // 대문자는 소문자로 변환
+        const normalizedKeycode = keycode >= 65 && keycode <= 90 ? keycode + 32 : keycode;
+        const hangulChar = this.VALID_HANGUL_KEYCODES.get(normalizedKeycode);
+        
+        if (hangulChar) {
+          Logger.debug(this.componentName, '🔥 한국어 모드에서 한글 매핑 키 감지', {
+            keycode,
+            normalizedKeycode,
+            hangulChar,
+            currentLanguage: this.currentLanguage
+          });
+          
+          return { 
+            language: 'ko', 
+            confidence: 0.95, 
+            method: 'keycode',
+            isComposing: true,
+            detectedChar: hangulChar,
+            metadata: { 
+              keycode,
+              keychar,
+              hangulChar,
+              reason: 'korean-mode-hangul-mapping'
+            }
+          };
+        }
+      }
+    }
+    
+    // 🔥 3단계: 물리적 키코드 기반 감지 (OS 입력소스와 관계없이)
+    const rawcode = (rawEvent as any).rawcode;
+    const physicalKeycode = rawcode || keycode;
+    
+    if (this.KEYCODE_TO_HANGUL.has(physicalKeycode)) {
+      const hangulChar = this.KEYCODE_TO_HANGUL.get(physicalKeycode);
+      
+      Logger.debug(this.componentName, '🔥 물리적 키코드로 한글 감지', {
+        keycode,
+        rawcode,
+        physicalKeycode,
+        hangulChar
+      });
+      
+      return {
+        language: 'ko',
+        confidence: 0.85, // 시스템 언어와 다를 수 있으므로 조금 낮춤
+        method: 'keycode',
+        isComposing: true,
+        detectedChar: hangulChar,
+        metadata: { 
+          keycode,
+          rawcode,
+          physicalKeycode,
+          hangulChar,
+          reason: 'physical-keycode-hangul-mapping'
+        }
+      };
+    }
+    
+    // 🔥 4단계: 영어 키 확인
+    if (this.ENGLISH_KEYCODES.has(keycode)) {
+      return {
+        language: 'en',
+        confidence: 0.8,
+        method: 'keycode',
+        isComposing: false,
+        metadata: { 
+          keycode,
+          reason: 'keycode-english-key'
+        }
+      };
+    }
+    
+    // 🔥 최종: 현재 언어 유지
+    return {
+      language: this.currentLanguage,
+      confidence: 0.7,
+      method: 'fallback',
+      isComposing: false,
+      metadata: { 
+        keycode,
+        reason: 'maintain-current-language-context'
+      }
     };
   }
 }

@@ -321,23 +321,55 @@ export class HangulComposer extends BaseManager {
       // 중성 처리
       if (this.compositionState.initial !== '') {
         if (this.compositionState.medial === '') {
+          // 첫 번째 중성
           this.compositionState.medial = char;
+          Logger.debug(this.componentName, '🔥 첫 번째 중성 설정', { 
+            initial: this.compositionState.initial, 
+            medial: char 
+          });
         } else {
-          // 복합 중성 시도
+          // 🔥 복합 중성 조합 시도
           const combined = this.combineMedials(this.compositionState.medial, char);
+          Logger.debug(this.componentName, '🔥 복합모음 조합 시도', { 
+            first: this.compositionState.medial, 
+            second: char, 
+            combined
+          });
+          
           if (combined) {
             this.compositionState.medial = combined;
+            Logger.debug(this.componentName, '🔥 복합모음 조합 성공!', { 
+              original: `${this.compositionState.medial} + ${char}`,
+              result: combined,
+              fullChar: `${this.compositionState.initial}${combined}${this.compositionState.final}`
+            });
           } else {
-            // 조합 불가 - 이전 글자 완성
+            // 조합 불가 - 이전 글자 완성하고 새 조합 시작
             completed = this.buildCharacter();
-            // 🔥 기가차드 개선: 중성으로 새로운 조합 시작
+            Logger.debug(this.componentName, '❌ 복합모음 조합 불가', { 
+              first: this.compositionState.medial, 
+              second: char,
+              completed
+            });
+            
+            // 🔥 중성으로 새로운 조합 시작 (ㅇ 없이도 가능)
             this.compositionState.isComposing = true;
-            this.compositionState.initial = '';
+            this.compositionState.initial = 'ㅇ'; // 묵음 초성 자동 추가
             this.compositionState.medial = char;
             this.compositionState.final = '';
             this.compositionState.composed = char;
           }
         }
+      } else {
+        // 초성 없이 중성만 입력된 경우 (ㅇ 자동 추가)
+        this.compositionState.isComposing = true;
+        this.compositionState.initial = 'ㅇ'; // 묵음 초성
+        this.compositionState.medial = char;
+        this.compositionState.final = '';
+        Logger.debug(this.componentName, '🔥 묵음 초성 자동 추가', { 
+          medial: char,
+          autoInitial: 'ㅇ'
+        });
       }
     } else if (isFinal) {
       // 종성 처리
@@ -442,8 +474,14 @@ export class HangulComposer extends BaseManager {
   private setupKeyMapping(): void {
     try {
       // 🔥 HANGUL_KEY_MAP을 역매핑하여 영어키 → 한글 매핑 생성
+      // 중요: Object.entries가 정의 순서를 보장하므로 기본 자음이 먼저 처리됨
       Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
-        this.keyMap.set(english.toLowerCase(), hangul);
+        const key = english.toLowerCase();
+        
+        // 🔥 소문자 키만 매핑 (대문자 Shift 조합은 별도 처리)
+        if (english === english.toLowerCase()) {
+          this.keyMap.set(key, hangul);
+        }
       });
 
       Logger.debug(this.componentName, 'Key mapping setup completed with HANGUL_KEY_MAP', {
@@ -536,17 +574,56 @@ export class HangulComposer extends BaseManager {
   }
 
   /**
-   * 종성 조합
+   * 🔥 완전한 종성 조합 (모든 한국어 복합종성 지원!)
    */
   private combineFinals(first: string, second: string): string | null {
     const combinations: Record<string, Record<string, string>> = {
-      'ㄱ': { 'ㅅ': 'ㄳ' },
-      'ㄴ': { 'ㅈ': 'ㄵ', 'ㅎ': 'ㄶ' },
-      'ㄹ': { 'ㄱ': 'ㄺ', 'ㅁ': 'ㄻ', 'ㅂ': 'ㄼ', 'ㅅ': 'ㄽ', 'ㅌ': 'ㄾ', 'ㅍ': 'ㄿ', 'ㅎ': 'ㅀ' },
-      'ㅂ': { 'ㅅ': 'ㅄ' }
+      // 🔥 ㄱ 계열 복합종성
+      'ㄱ': { 
+        'ㅅ': 'ㄳ'    // ㄱ + ㅅ = ㄳ (gs)
+      },
+      
+      // 🔥 ㄴ 계열 복합종성 (2개)
+      'ㄴ': { 
+        'ㅈ': 'ㄵ',   // ㄴ + ㅈ = ㄵ (nj)
+        'ㅎ': 'ㄶ'    // ㄴ + ㅎ = ㄶ (nh)
+      },
+      
+      // 🔥 ㄹ 계열 복합종성 (8개) - 가장 많은 조합!
+      'ㄹ': { 
+        'ㄱ': 'ㄺ',   // ㄹ + ㄱ = ㄺ (lg)
+        'ㅁ': 'ㄻ',   // ㄹ + ㅁ = ㄻ (lm)
+        'ㅂ': 'ㄼ',   // ㄹ + ㅂ = ㄼ (lb)
+        'ㅅ': 'ㄽ',   // ㄹ + ㅅ = ㄽ (ls)
+        'ㅌ': 'ㄾ',   // ㄹ + ㅌ = ㄾ (lt)
+        'ㅍ': 'ㄿ',   // ㄹ + ㅍ = ㄿ (lp)
+        'ㅎ': 'ㅀ'    // ㄹ + ㅎ = ㅀ (lh)
+      },
+      
+      // 🔥 ㅂ 계열 복합종성
+      'ㅂ': { 
+        'ㅅ': 'ㅄ'    // ㅂ + ㅅ = ㅄ (bs)
+      }
     };
 
-    return combinations[first]?.[second] || null;
+    const result = combinations[first]?.[second] || null;
+    
+    if (result) {
+      Logger.debug(this.componentName, '🔥 복합종성 조합 성공!', {
+        first,
+        second,
+        result,
+        composition: `${first} + ${second} = ${result}`
+      });
+    } else {
+      Logger.debug(this.componentName, '❌ 복합종성 조합 불가', {
+        first,
+        second,
+        availableCombinations: Object.keys(combinations[first] || {})
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -657,6 +734,14 @@ export class HangulComposer extends BaseManager {
       isComposing: this.compositionState.isComposing,
       keyMappingCount: this.keyMap.size,
     };
+  }
+
+  /**
+   * 쌍자음 확인
+   */
+  private isDoubleConsonant(char: string): boolean {
+    const doubleConsonants = ['ㄲ', 'ㄸ', 'ㅃ', 'ㅆ', 'ㅉ'];
+    return doubleConsonants.includes(char);
   }
 }
 
