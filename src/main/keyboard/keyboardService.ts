@@ -252,11 +252,15 @@ export class KeyboardService extends EventEmitter {
       let isComposing = false;
       let hangulResult: any = null; // 🔥 스코프 확장
       
-      if (detectedLanguage === 'ko' || this.isKoreanKeyEvent(enhancedEvent)) {
-        Logger.debug('KEYBOARD', 'Korean input detected, processing with HangulComposer', {
+      // ✅ 수정: LanguageDetector 결과를 우선 존중
+      const shouldProcessAsKorean = (detectedLanguage === 'ko') && this.isKoreanKeyEvent(enhancedEvent);
+      
+      if (shouldProcessAsKorean) {
+        Logger.debug('KEYBOARD', 'Korean input confirmed, processing with HangulComposer', {
           keycode: enhancedEvent.keycode,
           keychar: enhancedEvent.keychar,
-          detectedLanguage
+          detectedLanguage,
+          isKoreanKeyEvent: this.isKoreanKeyEvent(enhancedEvent)
         });
         
         // 🔥 LanguageDetector에서 감지된 한글 문자 우선 사용
@@ -363,9 +367,26 @@ export class KeyboardService extends EventEmitter {
           isComposing
         });
         
-        // 언어를 한글로 설정
-        this.state.language = 'ko';
-        this.state.inputMethod = 'composition';
+        // ✅ 수정: 언어 상태는 실제 감지 결과로만 업데이트
+        if (detectedLanguage === 'ko') {
+          this.state.language = 'ko';
+          this.state.inputMethod = 'composition';
+        }
+      } else {
+        // ✅ 영어/기타 언어 처리
+        Logger.debug('KEYBOARD', 'Non-Korean input detected', {
+          keycode: enhancedEvent.keycode,
+          keychar: enhancedEvent.keychar,
+          detectedLanguage
+        });
+        
+        // ✅ 언어 상태 업데이트
+        if (detectedLanguage === 'en') {
+          this.state.language = 'en';
+          this.state.inputMethod = 'direct';
+        }
+        
+        composedChar = enhancedEvent.keychar ? String.fromCharCode(enhancedEvent.keychar) : undefined;
       }
       
       const currentLanguage = detectedLanguage;
@@ -512,23 +533,34 @@ export class KeyboardService extends EventEmitter {
 
   private isKoreanKeyEvent(rawEvent: UiohookKeyboardEvent): boolean {
     try {
-      // 🔥 1. 이미 한글로 설정되어 있으면 true
-      if (this.state.language === 'ko') {
-        return true;
+      // ❌ 기존 문제 코드 제거: state.language 의존성 완전 제거
+      // if (this.state.language === 'ko') return true;
+      
+      // ✅ 1. 알파벳 키코드만 한글 매핑 허용 (65-90: A-Z, 97-122: a-z)
+      const keycode = rawEvent.keycode;
+      const isAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
+      
+      if (!isAlphabetKey) {
+        // 숫자, 특수문자, 제어문자는 무조건 한글이 아님
+        Logger.debug('KEYBOARD', '❌ 비알파벳 키는 한글 처리 안함', { 
+          keycode, 
+          keychar: rawEvent.keychar,
+          isControl: keycode <= 31,
+          isSpecial: (keycode >= 32 && keycode <= 47) || (keycode >= 58 && keycode <= 64)
+        });
+        return false;
       }
       
-      // 🔥 2. HANGUL_KEY_MAP 역매핑 생성
+      // ✅ 2. 한글 키 매핑 확인 (알파벳만)
       const reversedHangulMap = new Map<string, string>();
       Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
         reversedHangulMap.set(english.toLowerCase(), hangul);
       });
       
-      // 🔥 3. 현재 키가 한글 자판 키인지 확인
-      const keycode = rawEvent.keycode;
       const pressedKey = String.fromCharCode(keycode).toLowerCase();
       
       if (reversedHangulMap.has(pressedKey)) {
-        Logger.debug('KEYBOARD', 'Korean key event detected', { 
+        Logger.debug('KEYBOARD', '✅ 알파벳 키의 한글 매핑 확인됨', { 
           keycode, 
           pressedKey, 
           mappedHangul: reversedHangulMap.get(pressedKey),
@@ -537,15 +569,16 @@ export class KeyboardService extends EventEmitter {
         return true;
       }
       
-      // 🔥 4. 한글 유니코드 범위 확인
+      // ✅ 3. 한글 유니코드 범위 확인 (실제 한글 문자)
       if (rawEvent.keychar) {
         const isHangulChar = (rawEvent.keychar >= 0x3131 && rawEvent.keychar <= 0x318F) || // 자모
                             (rawEvent.keychar >= 0xAC00 && rawEvent.keychar <= 0xD7AF);   // 완성형
         
         if (isHangulChar) {
-          Logger.debug('KEYBOARD', 'Korean character detected in keychar', { 
+          Logger.debug('KEYBOARD', '✅ 한글 유니코드 문자 확인됨', {
+            keycode,
             keychar: rawEvent.keychar,
-            character: String.fromCharCode(rawEvent.keychar)
+            hangulChar: String.fromCharCode(rawEvent.keychar)
           });
           return true;
         }
@@ -554,7 +587,7 @@ export class KeyboardService extends EventEmitter {
       return false;
       
     } catch (error) {
-      Logger.error('KEYBOARD', 'Error in Korean key event detection', error);
+      Logger.error('KEYBOARD', 'Error in isKoreanKeyEvent', error);
       return false;
     }
   }
