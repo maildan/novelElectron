@@ -183,26 +183,70 @@ export class HangulComposer extends BaseManager {
   }
 
   /**
-   * 직접 키 처리 (문자열 입력)
+   * 직접 키 처리 (문자열 입력) - 🔥 기가차드 개선!
    */
   public processKeyString(key: string): HangulCompositionResult {
     try {
+      Logger.debug(this.componentName, '🔍 키 문자열 처리 시작', { 
+        inputKey: key,
+        keyLength: key.length,
+        keyCode: key.charCodeAt(0),
+        isComposing: this.compositionState.isComposing
+      });
+      
       // 백스페이스 처리
       if (key === 'backspace' || key === '\b') {
+        Logger.debug(this.componentName, '🔧 백스페이스 처리');
         return this.handleBackspace();
       }
       
       // 스페이스나 엔터 처리
       if (key === ' ' || key === '\n') {
+        Logger.debug(this.componentName, '🔧 조합 완료 (스페이스/엔터)');
         return this.finishComposition();
       }
       
-      // 한글 키 확인
-      const hangulChar = this.keyMap.get(key) || key;
+      // 🔥 기가차드 개선: 영어 키 → 한글 매핑 확인
+      let hangulChar = key;
+      
+      // 1. 직접 한글 문자인지 확인
+      if (this.isHangulChar(key)) {
+        Logger.debug(this.componentName, '🔥 이미 한글 문자 감지됨', { key });
+        hangulChar = key;
+      } 
+      // 2. 영어 키보드 → 한글 매핑 확인
+      else if (this.keyMap.has(key.toLowerCase())) {
+        hangulChar = this.keyMap.get(key.toLowerCase())!;
+        Logger.debug(this.componentName, '🔄 영어→한글 매핑 성공', { 
+          englishKey: key, 
+          hangulChar,
+          mappingType: 'keyMap'
+        });
+      }
+      // 3. HANGUL_KEY_MAP 역매핑 확인 (영어 키 → 한글)
+      else {
+        const reversedKey = this.findHangulByEnglishKey(key);
+        if (reversedKey) {
+          hangulChar = reversedKey;
+          Logger.debug(this.componentName, '🔄 HANGUL_KEY_MAP 역매핑 성공', { 
+            englishKey: key, 
+            hangulChar,
+            mappingType: 'reversed'
+          });
+        }
+      }
+      
+      // 4. 최종 한글 문자 검증
       if (!this.isHangulChar(hangulChar)) {
-        // 한글이 아닌 경우 조합 완료
+        Logger.debug(this.componentName, '❌ 한글이 아님 - 조합 완료', { 
+          originalKey: key,
+          mappedChar: hangulChar,
+          isHangul: false
+        });
         return this.finishComposition();
       }
+      
+      Logger.debug(this.componentName, '✅ 한글 조합 시작', { hangulChar });
       
       // 한글 조합 처리
       return this.composeHangul(hangulChar);
@@ -210,6 +254,31 @@ export class HangulComposer extends BaseManager {
     } catch (error) {
       Logger.error(this.componentName, 'Error processing key string', error as Error);
       return { completed: '', composing: '' };
+    }
+  }
+
+  /**
+   * 🔥 영어 키로 한글 찾기 (HANGUL_KEY_MAP 역매핑)
+   */
+  private findHangulByEnglishKey(englishKey: string): string | null {
+    try {
+      // 대소문자 모두 확인
+      const keys = [englishKey, englishKey.toLowerCase(), englishKey.toUpperCase()];
+      
+      for (const key of keys) {
+        for (const [hangul, english] of Object.entries(HANGUL_KEY_MAP)) {
+          if (english === key) {
+            Logger.debug(this.componentName, '🔍 영어→한글 매핑 시도', { englishKey: key, hangulChar: hangul });
+            return hangul;
+          }
+        }
+      }
+      
+      Logger.debug(this.componentName, '🔍 영어→한글 매핑 시도', { englishKey, hangulChar: 'undefined' });
+      return null;
+    } catch (error) {
+      Logger.error(this.componentName, 'Error in findHangulByEnglishKey', error as Error);
+      return null;
     }
   }
 
@@ -553,24 +622,21 @@ export class HangulComposer extends BaseManager {
    * 🔥 기가차드 개선: 새로운 조합으로 완전히 리셋
    */
   private resetToNewComposition(initialChar: string): void {
-    // 기존 타이머 정리
-    if (this.compositionTimeout) {
-      clearTimeout(this.compositionTimeout);
-      this.compositionTimeout = null;
-    }
+    this.compositionState.isComposing = true;
+    this.compositionState.initial = initialChar;
+    this.compositionState.medial = '';
+    this.compositionState.final = '';
+    this.compositionState.composed = initialChar;
     
-    // 새로운 조합 상태로 완전 초기화
-    this.compositionState = {
-      isComposing: true,
-      initial: initialChar,
-      medial: '',
-      final: '',
-      composed: initialChar
-    };
-    
-    Logger.debug(this.componentName, '🔥 새로운 조합 시작', { 
+    Logger.debug(this.componentName, '🔥 새로운 조합 시작', {
       initialChar,
-      newState: this.compositionState 
+      newState: {
+        isComposing: this.compositionState.isComposing,
+        initial: this.compositionState.initial,
+        medial: this.compositionState.medial,
+        final: this.compositionState.final,
+        composed: this.compositionState.composed
+      }
     });
   }
 
