@@ -78,6 +78,7 @@ export const mockKeyboardEvent: KeyboardEvent = {
   type: 'keydown',
   key: 'a',
   code: 'KeyA',
+  keycode: 65,
   keychar: 'a',
   timestamp: Date.now(),
   windowTitle: 'Test Application'

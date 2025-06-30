@@ -161,6 +161,7 @@ describe('🔥 Stress & Edge Case 테스트', () => {
         const event: KeyboardEvent = {
           key: String.fromCharCode(65 + (i % 26)), // A-Z 순환
           code: `Key${String.fromCharCode(65 + (i % 26))}`,
+          keycode: 65 + (i % 26),
           keychar: String.fromCharCode(65 + (i % 26)),
           type: 'keydown',
           timestamp: Date.now() + i,
@@ -199,6 +200,7 @@ describe('🔥 Stress & Edge Case 테스트', () => {
         const event: KeyboardEvent = {
           key: 'a',
           code: 'KeyA',
+          keycode: 65,
           keychar: 'a',
           type: 'keydown',
           timestamp: Date.now(),

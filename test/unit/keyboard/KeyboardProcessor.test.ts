@@ -49,6 +49,7 @@ describe('KeyboardEventProcessor', () => {
       const mockEvent: KeyboardEvent = {
         key: 'a',
         code: 'KeyA',
+        keycode: 65,
         timestamp: Date.now(),
         windowTitle: 'Test Window',
         keychar: 'a',
@@ -122,6 +123,7 @@ describe('KeyboardEventProcessor', () => {
       const events: KeyboardEvent[] = Array.from({ length: 10 }, (_, i) => ({
         key: String.fromCharCode(97 + i), // a-j
         code: `Key${String.fromCharCode(65 + i)}`, // KeyA-KeyJ
+        keycode: 65 + i,
         timestamp: Date.now() + i,
         windowTitle: 'Test Window',
         keychar: String.fromCharCode(97 + i),

@@ -4,19 +4,13 @@
 import type { ElectronAPI } from '../shared/types';
 import type { AppCategory } from '../main/keyboard/appCategories';
 
-// 🔥 uiohook-napi 타입 정의 (완전 타입 안전 - 모든 any 제거)
+// 🔥 uiohook-napi 타입 정의 (shared/types.ts 기반으로 통합)
 declare module 'uiohook-napi' {
-  // 🔥 기가차드 키보드 이벤트 타입 (실제 사용 패턴과 100% 일치)
-  export interface UiohookKeyboardEvent {
-    keychar: number;
-    keycode: number;
-    rawcode: number;
-    type: number;
-    shiftKey?: boolean;
-    ctrlKey?: boolean;
-    altKey?: boolean;
-    metaKey?: boolean;
-  }
+  // shared/types.ts에서 import
+  import type { UiohookKeyboardEvent } from '../shared/types';
+  
+  // 기본 export
+  export { UiohookKeyboardEvent };
 
   // 🔥 기가차드 마우스 이벤트 타입
   export interface UiohookMouseEvent {

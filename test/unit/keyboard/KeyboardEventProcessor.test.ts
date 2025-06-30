@@ -20,6 +20,7 @@ function createValidKeyboardEvent(overrides?: Partial<KeyboardEvent>): KeyboardE
     key: 'a',
     code: 'KeyA',
     keychar: 'a',
+    keycode: overrides?.keycode !== undefined ? overrides.keycode : 65,
     timestamp: Date.now(),
     windowTitle: 'Test Window',
     type: 'keydown',

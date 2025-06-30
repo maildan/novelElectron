@@ -1,16 +1,10 @@
 // src/types/uiohook.d.ts
 declare module 'uiohook-napi' {
-  // 기존 타입 확장
-  export interface UiohookKeyEvent {
-    keychar: number;
-    keycode: number;
-    rawcode: number;
-    type: number;
-    shiftKey?: boolean;
-    ctrlKey?: boolean;
-    altKey?: boolean;
-    metaKey?: boolean;
-    
+  // 🔥 shared/types.ts에서 import해서 사용
+  import type { UiohookKeyboardEvent } from '../shared/types';
+  
+  // 기존 타입을 Loop 전용으로 확장
+  export interface UiohookKeyEvent extends UiohookKeyboardEvent {
     // Loop 전용 확장
     loopTimestamp?: number;
     loopProcessed?: boolean;
@@ -57,14 +51,14 @@ declare module 'uiohook-napi' {
     start(): void;
     stop(): void;
     
-    // 기본 이벤트 리스너 (실제 uiohook API 반영)
+    // shared/types.ts의 UiohookKeyboardEvent 사용
     on(event: 'keydown' | 'keyup', listener: (event: UiohookKeyboardEvent) => void): this;
     on(event: 'mousedown' | 'mouseup' | 'mousemove', listener: (event: UiohookMouseEvent) => void): this;
     on(event: 'wheel', listener: (event: UiohookWheelEvent) => void): this;
     on(event: string, listener: Function): this; // 범용 이벤트 오버로드
     
-    // Loop 전용 이벤트
-    on(event: 'loop:keystroke', listener: (event: UiohookKeyboardEvent) => void): this;
+    // Loop 전용 이벤트 (UiohookKeyEvent 확장 타입 사용)
+    on(event: 'loop:keystroke', listener: (event: UiohookKeyEvent) => void): this;
     on(event: 'loop:session-start', listener: () => void): this;
     on(event: 'loop:session-end', listener: () => void): this;
     

@@ -22,6 +22,7 @@ function createValidKeyboardEvent(overrides?: Partial<KeyboardEvent>): KeyboardE
     key: 'a',
     code: 'KeyA',
     keychar: 'a',
+    keycode: overrides?.keycode ?? 65,
     timestamp: Date.now(),
     windowTitle: 'Test Window',
     type: 'keydown',
@@ -291,15 +292,16 @@ describe('StatsManager', () => {
       await statsManager.initialize();
       await statsManager.start();
       
-      // 🔥 null 대신 완전한 KeyboardEvent 객체 사용 - 타입 안전성 준수
       const invalidEvent: KeyboardEvent = {
         key: '',
         code: '',
         keychar: '',
         timestamp: Date.now(),
         windowTitle: '',
-        type: 'keydown'
+        type: 'keydown',
+        keycode: 0,
       };
+
       await expect(statsManager.processKeyEvent(invalidEvent)).resolves.not.toThrow();
     });
 

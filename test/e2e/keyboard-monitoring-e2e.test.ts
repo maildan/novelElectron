@@ -2,6 +2,8 @@
 
 import type { KeyboardEvent } from '../../src/shared/types';
 
+
+
 describe('🔥 Keyboard Monitoring E2E 테스트', () => {
   describe('키보드 이벤트 라이프사이클', () => {
     test('키보드 모니터링 시작 → 이벤트 수집 → 통계 계산 → 저장 과정 시뮬레이션', async () => {
@@ -11,6 +13,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
           key: 'h',
           code: 'KeyH',
           keychar: 'h',
+          keycode: 72,
           timestamp: Date.now(),
           windowTitle: 'Test Editor',
           type: 'keydown'
@@ -18,7 +21,8 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
         {
           key: 'e',
           code: 'KeyE',
-          keychar: 'e', 
+          keychar: 'e',
+          keycode: 69,
           timestamp: Date.now() + 100,
           windowTitle: 'Test Editor',
           type: 'keydown'
@@ -27,6 +31,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
           key: 'l',
           code: 'KeyL',
           keychar: 'l',
+          keycode: 76,
           timestamp: Date.now() + 200,
           windowTitle: 'Test Editor',
           type: 'keydown'
@@ -35,6 +40,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
           key: 'l',
           code: 'KeyL',
           keychar: 'l',
+          keycode: 76,
           timestamp: Date.now() + 300,
           windowTitle: 'Test Editor',
           type: 'keydown'
@@ -43,6 +49,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
           key: 'o',
           code: 'KeyO',
           keychar: 'o',
+          keycode: 79,
           timestamp: Date.now() + 400,
           windowTitle: 'Test Editor',
           type: 'keydown'
@@ -99,6 +106,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
           key: String.fromCharCode(97 + (i % 26)), // a-z 순환
           code: `Key${String.fromCharCode(65 + (i % 26))}`, // KeyA-KeyZ
           keychar: String.fromCharCode(97 + (i % 26)),
+          keycode: 97 + (i % 26),
           timestamp: startTime + i * 10, // 10ms 간격
           windowTitle: 'Performance Test',
           type: 'keydown'
@@ -182,6 +190,7 @@ describe('🔥 Keyboard Monitoring E2E 테스트', () => {
             key: char,
             code: `Key${char.toUpperCase()}`,
             keychar: char,
+            keycode: char.charCodeAt(0),
             timestamp: timestamp,
             windowTitle: 'Typing Test',
             type: 'keydown'
