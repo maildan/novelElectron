@@ -252,15 +252,14 @@ export class KeyboardService extends EventEmitter {
       let isComposing = false;
       let hangulResult: any = null; // 🔥 스코프 확장
       
-      // ✅ 수정: LanguageDetector 결과를 우선 존중
-      const shouldProcessAsKorean = (detectedLanguage === 'ko') && this.isKoreanKeyEvent(enhancedEvent);
+      // 🔥 기가차드 수정: LanguageDetector 결과를 절대적으로 존중
+      const shouldProcessAsKorean = detectedLanguage === 'ko';
       
       if (shouldProcessAsKorean) {
         Logger.debug('KEYBOARD', 'Korean input confirmed, processing with HangulComposer', {
           keycode: enhancedEvent.keycode,
           keychar: enhancedEvent.keychar,
-          detectedLanguage,
-          isKoreanKeyEvent: this.isKoreanKeyEvent(enhancedEvent)
+          detectedLanguage
         });
         
         // 🔥 LanguageDetector에서 감지된 한글 문자 우선 사용
@@ -488,36 +487,68 @@ export class KeyboardService extends EventEmitter {
     }
   }
   
-  // 🔥 기가차드 keycode를 유니코드 숫자로 변환하는 함수
+  // 🔥 기가차드 keycode를 유니코드 숫자로 변환하는 함수 (macOS uIOhook 전용)
   private keycodeToKeychar(keycode: number): number {
-    // 🔥 QWERTY 키보드 레이아웃 기준 keycode → 유니코드 매핑
-    const KEYCODE_TO_UNICODE_MAP: Record<number, number> = {
-      // 숫자 키 (0-9)
-      48: 48, 49: 49, 50: 50, 51: 51, 52: 52,  // '0'-'9'
-      53: 53, 54: 54, 55: 55, 56: 56, 57: 57,
+    // 🔥 macOS uIOhook 실제 키코드 → 유니코드 매핑
+    const MACOS_UIOHOOK_KEYCODE_MAP: Record<number, number> = {
+      // ===== macOS uIOhook 실제 키코드 매핑 =====
+      // 숫자 키 (실제 uIOhook 키코드)
+      29: 49,  // '1'
       
-      // 영문자 키 (A-Z) -> 소문자 유니코드
-      65: 97,  66: 98,  67: 99,  68: 100, 69: 101, 70: 102, // a-f
-      71: 103, 72: 104, 73: 105, 74: 106, 75: 107, 76: 108, // g-l
-      77: 109, 78: 110, 79: 111, 80: 112, 81: 113, 82: 114, // m-r
-      83: 115, 84: 116, 85: 117, 86: 118, 87: 119, 88: 120, // s-x
-      89: 121, 90: 122, // y-z
+      // 첫 번째 줄 (QWERTY) - uIOhook 키코드 → ASCII
+      16: 113, // q → 'ㅂ'/'ㅃ'
+      17: 119, // w → 'ㅈ'/'ㅉ'  
+      18: 101, // e → 'ㄷ'/'ㄸ'
+      19: 114, // r → 'ㄱ'/'ㄲ'
+      20: 116, // t → 'ㅅ'/'ㅆ'
+      21: 121, // y → 'ㅛ'
+      22: 117, // u → 'ㅕ'
+      23: 105, // i → 'ㅑ'
+      24: 111, // o → 'ㅐ'/'ㅒ'
+      25: 112, // p → 'ㅔ'/'ㅖ'
+
+      // 두 번째 줄 (ASDF...) - uIOhook 키코드 → ASCII  
+      30: 97,  // a → 'ㅁ'
+      31: 115, // s → 'ㄴ'
+      32: 100, // d → 'ㅇ'
+      33: 102, // f → 'ㄹ'
+      34: 103, // g → 'ㅎ'
+      35: 104, // h → 'ㅗ'/'ㅚ'/'ㅢ'
+      36: 106, // j → 'ㅓ'/'ㅝ'
+      37: 107, // k → 'ㅏ'/'ㅘ'
+      38: 108, // l → 'ㅣ'
       
-      // 특수문자 키
-      32: 32,   // Space
-      188: 44,  // Comma ','
-      190: 46,  // Period '.'
-      191: 47,  // Slash '/'
-      186: 59,  // Semicolon ';'
-      222: 39,  // Apostrophe "'"
-      219: 91,  // Left bracket '['
-      221: 93,  // Right bracket ']'
-      220: 92,  // Backslash '\'
-      189: 45,  // Minus '-'
-      187: 61,  // Equals '='
+      // 세 번째 줄 (ZXCV...) - uIOhook 키코드 → ASCII
+      44: 122, // z → 'ㅋ'
+      45: 120, // x → 'ㅌ'
+      46: 99,  // c → 'ㅊ'
+      47: 118, // v → 'ㅍ'
+      48: 98,  // b → 'ㅠ'
+      49: 110, // n → 'ㅜ'/'ㅟ'
+      50: 109, // m → 'ㅡ'
+      
+      // 특수키들
+      57: 32,   // Space
+      43: 44,   // Comma ','
+      53: 47,   // Slash '/'
+      39: 59,   // Semicolon ';'
+      40: 39,   // Apostrophe "'"
+      26: 91,   // Left bracket '['
+      27: 93,   // Right bracket ']'
+      42: 92,   // Backslash '\'
+      12: 45,   // Minus '-'
+      13: 61,   // Equal '='
     };
     
-    return KEYCODE_TO_UNICODE_MAP[keycode] || keycode;
+    const result = MACOS_UIOHOOK_KEYCODE_MAP[keycode] || keycode;
+    
+    Logger.debug('KEYBOARD', '🔧 macOS uIOhook 키코드 변환', {
+      originalKeycode: keycode,
+      mappedUnicode: result,
+      mappedChar: String.fromCharCode(result)
+    });
+    
+    return result;
   }
 
   // 🔥 기가차드 rawEvent에 정확한 keychar 추가하는 함수
