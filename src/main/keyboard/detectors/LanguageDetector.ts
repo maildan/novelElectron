@@ -938,28 +938,30 @@ export class LanguageDetector extends BaseManager {
   private detectByKeycodeWithLanguageContext(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     const { keycode, keychar } = rawEvent;
     
-    // 🔥 1단계: 현재 언어가 영어이고 keychar가 영어 알파벳이면 영어 유지
-    if (this.currentLanguage === 'en' && keychar && keychar >= 97 && keychar <= 122) {
+    // 🔥 1단계: 현재 언어가 영어이고 keychar가 영어 알파벳이면 영어 강제 유지
+    if (this.currentLanguage === 'en' && keychar) {
       const char = String.fromCharCode(keychar);
-      Logger.debug(this.componentName, '🔥 영어 모드에서 알파벳 감지 - 영어 유지', {
-        keycode,
-        keychar,
-        char,
-        currentLanguage: this.currentLanguage
-      });
+      const isEnglishAlphabet = /^[a-zA-Z]$/.test(char);
       
-      return {
-        language: 'en',
-        confidence: 0.9,
-        method: 'keycode',
-        isComposing: false,
-        metadata: { 
-          keycode,
-          keychar,
-          char,
-          reason: 'english-mode-alphabet-maintain'
-        }
-      };
+      if (isEnglishAlphabet) {
+        Logger.debug(this.componentName, '🔥 영어 모드에서 영어 문자 감지 - 영어 강제 유지!', {
+          keycode, keychar, char,
+          currentLanguage: this.currentLanguage,
+          reason: 'english-mode-force-english'
+        });
+        
+        return {
+          language: 'en',
+          confidence: 0.99, // 매우 높은 신뢰도로 영어 고정
+          method: 'keycode',
+          isComposing: false,
+          detectedChar: char,
+          metadata: { 
+            keycode, keychar, char,
+            reason: 'english-mode-locked'
+          }
+        };
+      }
     }
     
     // 🔥 2단계: 현재 언어가 한국어이고 한글 매핑이 있으면 한국어 유지

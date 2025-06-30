@@ -16,7 +16,7 @@ import { EventEmitter } from 'events';
 import type { UiohookInstance } from 'uiohook-napi';
 import { WindowTracker } from './WindowTracker';
 import { HangulComposer } from './HangulComposer';
-import { LanguageDetector } from './detectors/LanguageDetector';
+import { UnifiedLanguageDetector } from './detectors/UnifiedLanguageDetector';
 import { HANGUL_KEY_MAP } from './constants';
 
 // #DEBUG: Keyboard service entry point
@@ -39,7 +39,7 @@ export class KeyboardService extends EventEmitter {
   private windowTracker: WindowTracker | null = null; // 🔥 지연 초기화로 변경
   private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
   private hangulComposer: HangulComposer; // 🔥 한글 조합기 추가
-  private languageDetector: LanguageDetector; // 🔥 새로운 언어 감지 시스템
+  private languageDetector: UnifiedLanguageDetector; // 🔥 통합 언어 감지 시스템
   
   // 🔥 영어 키 시퀀스 감지를 위한 배열
   private englishKeySequence: string[] = [];
@@ -49,8 +49,8 @@ export class KeyboardService extends EventEmitter {
     super();
     // 🔥 HangulComposer 초기화
     this.hangulComposer = new HangulComposer();
-    // 🔥 LanguageDetector 초기화
-    this.languageDetector = new LanguageDetector();
+    // 🔥 UnifiedLanguageDetector 초기화
+    this.languageDetector = new UnifiedLanguageDetector();
     // 🔥 WindowTracker는 권한 확인 후 지연 초기화
     this.initializeUiohook();
   }

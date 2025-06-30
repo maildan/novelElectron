@@ -197,13 +197,13 @@ export interface UiohookKeyboardEvent {
   shiftKey?: boolean;
 }
 
-// 🔥 기가차드 언어 감지 결과
+// 🔥 기가차드 언어 감지 결과 인터페이스
 export interface LanguageDetectionResult {
-  language: string;
-  confidence: number;
-  method: 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'fallback' | 'keycode' | 'special-char-mapping'; // 🔥 method 속성 확장
+  language: 'ko' | 'en' | 'ja' | 'zh';
+  confidence: number; // 0.0 ~ 1.0
+  method: 'fallback' | 'keycode' | 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'special-char-mapping' | 'system' | 'macos-maintain-current' | 'macos-error-fallback' | 'windows-layout' | 'linux-input-method';
   isComposing: boolean;
-  detectedChar?: string; // 🔥 감지된 문자 추가
+  detectedChar?: string;
   metadata?: {
     keySequence?: string[];
     switchReason?: string;
@@ -212,6 +212,28 @@ export interface LanguageDetectionResult {
     keycode?: number;
     keychar?: number;
     reason?: string;
+    // 🔥 통합 감지기 메타데이터
+    usedFallback?: boolean;
+    primaryConfidence?: number;
+    fallbackConfidence?: number;
+    primaryError?: string;
+    error?: string;
+    // 🔥 macOS 전용 메타데이터
+    char?: string;
+    charCode?: number;
+    rawcode?: number;
+    source?: string;
+    processingTime?: string;
+    hangulKeyCount?: number;
+    totalKeys?: number;
+    hangulRatio?: number;
+    unifiedDetector?: {
+      platform: string;
+      detectorType: string;
+      processingTime: string;
+      detectionCount: number;
+      fallbackCount: number;
+    };
   };
 }
 
