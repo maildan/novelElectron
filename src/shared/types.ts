@@ -157,14 +157,31 @@ export interface ElectronAPI {
   };
 }
 
-// 🔥 기가차드 키보드 이벤트 인터페이스
+// 🔥 기가차드 키보드 이벤트 인터페이스 (최종 통합 버전)
 export interface KeyboardEvent {
   readonly key: string;
-  readonly code: string;
+  readonly code: string; // 🔥 KeyboardEvent.code 표준 속성 추가
+  readonly keycode: number; // 🔥 uIOhook keycode
   readonly keychar: string;
   readonly timestamp: number;
   readonly windowTitle: string;
   readonly type: 'keydown' | 'keyup' | 'input'; // 🔥 'input' 타입 추가 (실제 문자 입력)
+}
+
+// 🔥 기가차드 처리된 키보드 이벤트 (keyboardService 처리 후)
+export interface ProcessedKeyboardEvent {
+  readonly key: string;
+  readonly code: string; // 🔥 Key${keycode} 형태
+  readonly keycode: number; // 🔥 uIOhook keycode 추가
+  readonly keychar: string;
+  readonly timestamp: number;
+  readonly windowTitle: string;
+  readonly type: 'keydown' | 'keyup' | 'input';
+  readonly language: string; // 🔥 감지된 언어
+  readonly composedChar?: string; // 🔥 조합된 문자 (한글 등)
+  readonly isComposing: boolean; // 🔥 조합 중 여부
+  readonly inputMethod: string; // 🔥 입력 방식
+  readonly processingTime: number; // 🔥 처리 시간 (ms)
 }
 
 // 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer)
@@ -183,12 +200,42 @@ export interface LanguageDetectionResult {
   confidence: number;
   method: 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'fallback' | 'keycode' | 'special-char-mapping'; // 🔥 method 속성 확장
   isComposing: boolean;
+  detectedChar?: string; // 🔥 감지된 문자 추가
   metadata?: {
     keySequence?: string[];
     switchReason?: string;
     hangulChar?: string;
     detectionTime?: number;
+    keycode?: number;
+    keychar?: number;
+    reason?: string;
   };
+}
+
+// 🔥 기가차드 한글 조합 결과
+export interface HangulCompositionResult {
+  completed: string; // 완성된 한글 (예: "가")
+  composing: string; // 조합 중인 한글 (예: "ㄱ")
+}
+
+// 🔥 기가차드 키보드 상태
+export interface KeyboardState {
+  isActive: boolean;
+  language: string; // 🔥 더 유연한 string 타입
+  inputMethod: string; // 🔥 더 유연한 string 타입
+  startTime?: Date;
+  totalEvents: number;
+  eventsPerSecond?: number; // 🔥 선택적 속성 추가
+}
+
+// 🔥 기가차드 키보드 모니터링 상태 (하위 호환성)
+export interface KeyboardMonitorState {
+  isActive: boolean;
+  language: string;
+  inputMethod: string;
+  eventsPerSecond: number;
+  totalEvents: number;
+  startTime: Date | null;
 }
 
 // 🔥 기가차드 윈도우 정보 통합 타입 (모든 기능 포함)

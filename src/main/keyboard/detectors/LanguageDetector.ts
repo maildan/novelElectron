@@ -283,6 +283,23 @@ export class LanguageDetector extends BaseManager {
   private detectByKeycodeOnly(rawEvent: UiohookKeyboardEvent, startTime: number): LanguageDetectionResult {
     const { keycode } = rawEvent;
     
+    // 🔥 macOS IME 조합 결과 우선 확인
+    if (process.platform === 'darwin' && rawEvent.keychar) {
+      const char = String.fromCharCode(rawEvent.keychar);
+      
+      // 한글 완성형 문자 감지
+      if (char.charCodeAt(0) >= 0xAC00 && char.charCodeAt(0) <= 0xD7AF) {
+        Logger.debug(this.componentName, '🔥 macOS IME 한글 조합 감지', { char, charCode: char.charCodeAt(0).toString(16) });
+        return {
+          language: 'ko',
+          confidence: 0.98, // 시스템이 조합했으니 확실함
+          method: 'keycode',
+          isComposing: false, // 이미 완성됨
+          detectedChar: char
+        };
+      }
+    }
+    
     // 🔥 알파벳 키만 한글 매핑 허용
     const isValidAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
     

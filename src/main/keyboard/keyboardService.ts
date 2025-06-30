@@ -1,47 +1,35 @@
 // 🔥 기가차드 키보드 모니터링 서비스 - 다국어 지원 전문!
 
 import { Logger } from '../../shared/logger';
-import { IpcResponse, KeyboardEvent } from '../../shared/types';
+import { 
+  IpcResponse, 
+  KeyboardEvent, 
+  ProcessedKeyboardEvent,
+  KeyboardState,
+  KeyboardMonitorState,
+  HangulCompositionResult,
+  LanguageDetectionResult 
+} from '../../shared/types';
 import { KEYBOARD_LANGUAGES, perf } from '../../shared/common';
 import { EventEmitter } from 'events';
 import type { UiohookKeyboardEvent, UiohookInstance } from 'uiohook-napi';
 import { WindowTracker } from './WindowTracker';
 import { HangulComposer } from './HangulComposer';
-import { LanguageDetector, LanguageDetectionResult } from './detectors/LanguageDetector';
+import { LanguageDetector } from './detectors/LanguageDetector';
 import { HANGUL_KEY_MAP } from './constants';
 
 // #DEBUG: Keyboard service entry point
 Logger.debug('KEYBOARD', 'Keyboard service initialization started');
 Logger.debug('KEYBOARD', 'Keyboard service module loaded');
 
-// 🔥 기가차드 키보드 모니터링 상태
-export interface KeyboardMonitorState {
-  isActive: boolean;
-  language: string;
-  inputMethod: 'direct' | 'composition' | 'complex';
-  eventsPerSecond: number;
-  totalEvents: number;
-  startTime: Date | null;
-}
-
-// 🔥 기가차드 키보드 이벤트 타입
-export interface ProcessedKeyboardEvent extends KeyboardEvent {
-  language: string;
-  composedChar?: string; // 조합된 문자 (한글 등)
-  isComposing: boolean;
-  inputMethod: string;
-  processingTime: number; // 처리 시간 (ms)
-}
-
 // 🔥 기가차드 키보드 서비스 클래스
 export class KeyboardService extends EventEmitter {
-  private state: KeyboardMonitorState = {
+  private state: KeyboardState = {
     isActive: false,
     language: 'ko', // 🔥 기본값을 한글로 설정
     inputMethod: 'composition', // 🔥 조합형으로 설정
-    eventsPerSecond: 0,
     totalEvents: 0,
-    startTime: null,
+    startTime: new Date(),
   };
 
   private uiohook: UiohookInstance | null = null;
@@ -211,7 +199,7 @@ export class KeyboardService extends EventEmitter {
       }
 
       this.state.isActive = false;
-      this.state.startTime = null;
+      this.state.startTime = undefined;
       
       const stopTime = this.performanceTracker.end('MONITORING_STOP');
       Logger.info('KEYBOARD', 'Keyboard monitoring stopped', {
@@ -348,6 +336,7 @@ export class KeyboardService extends EventEmitter {
         hangulResult = await this.hangulComposer.processKey({
           key: hangulChar || pressedKey, // 한글 문자 우선 사용
           code: `Key${enhancedEvent.keycode}`,
+          keycode: enhancedEvent.keycode, // 🔥 keycode 추가
           keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar), // 한글 문자 우선, 아니면 유니코드 변환
           timestamp: Date.now(),
           windowTitle: '',
@@ -398,6 +387,7 @@ export class KeyboardService extends EventEmitter {
       const processedEvent: ProcessedKeyboardEvent = {
         key: this.getDisplayKey(enhancedEvent, currentLanguage, composedChar, hangulResult), // 🔥 enhanced event 사용
         code: `Key${enhancedEvent.keycode}`,
+        keycode: enhancedEvent.keycode, // 🔥 keycode 추가
         keychar: composedChar || hangulResult?.completed || String.fromCharCode(enhancedEvent.keychar), // 🔥 유니코드를 문자로 변환
         timestamp: Date.now(),
         windowTitle,
@@ -656,6 +646,7 @@ export class KeyboardService extends EventEmitter {
       const keyboardEvent: KeyboardEvent = {
         key: this.mapKeyToString(rawEvent.keycode),
         code: `Key${rawEvent.keycode}`,
+        keycode: rawEvent.keycode, // 🔥 keycode 추가
         keychar: String.fromCharCode(rawEvent.keychar || 0),
         timestamp: Date.now(),
         windowTitle: this.windowTracker?.getCurrentWindow()?.title || 'Unknown',
@@ -857,9 +848,18 @@ export class KeyboardService extends EventEmitter {
   public getStatus(): IpcResponse<KeyboardMonitorState> {
     try {
       // #DEBUG: Getting keyboard status
+      const monitorState: KeyboardMonitorState = {
+        isActive: this.state.isActive,
+        language: this.state.language,
+        inputMethod: this.state.inputMethod,
+        eventsPerSecond: this.state.eventsPerSecond || 0,
+        totalEvents: this.state.totalEvents,
+        startTime: this.state.startTime || null,
+      };
+      
       return {
         success: true,
-        data: { ...this.state },
+        data: monitorState,
         timestamp: new Date(),
       };
     } catch (error) {
@@ -983,6 +983,44 @@ export class KeyboardService extends EventEmitter {
       Logger.error('KEYBOARD', 'Error in English sequence detection', error);
       return false;
     }
+  }
+
+  // 🔥 기가차드 macOS IME 완성형 한글 감지
+  private isCompleteHangul(keychar: number): boolean {
+    // 한글 완성형 유니코드 범위: AC00-D7AF
+    return keychar >= 0xAC00 && keychar <= 0xD7AF;
+  }
+
+  // 🔥 기가차드 macOS IME 완성형 한글 직접 처리
+  private async processCompletedHangul(completedChar: string, rawEvent: UiohookKeyboardEvent): Promise<void> {
+    const currentWindow = this.windowTracker?.getCurrentWindow();
+    
+    const keyboardEvent: ProcessedKeyboardEvent = {
+      key: completedChar,
+      code: `Key${rawEvent.keycode || 0}`, // 🔥 code 추가
+      keycode: rawEvent.keycode || 0,
+      keychar: completedChar,
+      type: 'keydown',
+      timestamp: Date.now(),
+      windowTitle: currentWindow?.title || '',
+      language: 'ko',
+      composedChar: completedChar,
+      isComposing: false, // 이미 완성됨
+      inputMethod: 'system-ime',
+      processingTime: 0.1
+    };
+
+    this.emit('keystroke', keyboardEvent);
+    this.emit('keyboard-event', {
+      eventType: 'input',
+      data: keyboardEvent,
+      language: 'ko'
+    });
+
+    Logger.debug('KEYBOARD', '🎯 macOS IME 완성형 한글 처리 완료', {
+      completedChar,
+      keycode: rawEvent.keycode
+    });
   }
 }
 

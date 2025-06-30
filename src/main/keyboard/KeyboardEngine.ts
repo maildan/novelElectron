@@ -299,13 +299,59 @@ export class KeyboardEngine extends BaseManager {
    */
   private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: import('uiohook-napi').UiohookKeyboardEvent): void {
     try {
-      // 🔥 기가차드 keychar 수정: 실제 유니코드 값 사용
+      // 🔥 macOS IME 우회 - 조합된 문자 우선 사용 (개선 버전)
+      if (process.platform === 'darwin' && rawEvent.keychar && type === 'keydown') {
+        const composedChar = String.fromCharCode(rawEvent.keychar);
+        
+        // 🔥 한글 완성형 문자 범위 체크 (AC00-D7AF)
+        const charCode = composedChar.charCodeAt(0);
+        if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
+          // 🔥 이미 조합된 한글! HangulComposer 우회하고 바로 사용
+          const keyEvent: KeyboardEvent = {
+            key: composedChar,
+            code: `Hangul${charCode.toString(16)}`, // 16진수로 고유 식별
+            keychar: composedChar,
+            keycode: rawEvent.keycode || 0,
+            timestamp: Date.now(),
+            windowTitle: '',
+            type,
+          };
+
+          this.processComposedHangul(keyEvent);
+          return;
+        }
+        
+        // 🔥 한글 자모 범위 체크 (3130-318F: 한글 호환 자모)
+        if ((charCode >= 0x3130 && charCode <= 0x318F) || 
+            (charCode >= 0x1100 && charCode <= 0x11FF)) {
+          // 🔥 조합 중인 한글 자모 - LanguageDetector로 전달
+          const keyEvent: KeyboardEvent = {
+            key: composedChar,
+            code: `HangulJamo${charCode.toString(16)}`,
+            keychar: composedChar,
+            keycode: rawEvent.keycode || 0,
+            timestamp: Date.now(),
+            windowTitle: '',
+            type,
+          };
+          
+          // 🔥 조합 중인 한글 처리
+          this.emit('hangul-composing', keyEvent);
+          Logger.debug(this.componentName, '🔥 macOS IME 한글 자모 감지', {
+            char: composedChar,
+            charCode: charCode.toString(16)
+          });
+        }
+      }
+
+      // 🔥 기존 로직: 영어나 미조합 문자 처리
       const actualKeychar = rawEvent.keychar || rawEvent.keycode || 0;
       
       const keyEvent: KeyboardEvent = {
         key: this.getKeyName(rawEvent.keycode || 0),
         code: `Key${this.getKeyName(rawEvent.keycode || 0).toUpperCase()}`,
-        keychar: String.fromCharCode(actualKeychar), // 🔥 수정: 숫자를 실제 문자로 변환
+        keychar: String.fromCharCode(actualKeychar),
+        keycode: rawEvent.keycode || 0,
         timestamp: Date.now(),
         windowTitle: '',
         type,
@@ -327,6 +373,33 @@ export class KeyboardEngine extends BaseManager {
     } catch (error) {
       Logger.error(this.componentName, 'Error handling key event', error as Error);
     }
+  }
+
+  /**
+   * 🔥 조합된 한글 문자 처리 (macOS IME 결과)
+   */
+  private processComposedHangul(keyEvent: KeyboardEvent): void {
+    // 키 버퍼에 추가 (recording 중인 경우)
+    if (this.keyboardState.isRecording) {
+      this.keyBuffer.push(keyEvent);
+      this.keyboardState.totalKeystrokes++;
+      this.keyboardState.lastKeystroke = new Date();
+    }
+
+    // 실시간 통계 업데이트
+    this.updateRealtimeStats();
+
+    // 🔥 한글 조합 완료 이벤트 발생
+    this.emit('keystroke', keyEvent);
+    this.emit('hangul-composed', {
+      char: keyEvent.keychar,
+      timestamp: keyEvent.timestamp
+    });
+
+    Logger.debug(this.componentName, '🔥 macOS IME 한글 조합 완료', {
+      char: keyEvent.keychar,
+      charCode: keyEvent.keychar.charCodeAt(0).toString(16)
+    });
   }
 
   /**

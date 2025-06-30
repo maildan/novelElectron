@@ -3,7 +3,7 @@
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import activeWin from 'active-win';
+import getActiveWindow from 'active-win';
 import { Result, WindowInfo, AppCategory } from '../../shared/types';
 import { Platform } from '../utils/platform';
 import { getAppCategory, APP_CATEGORIES, APP_CATEGORY_MAPPING } from './appCategories';
@@ -205,7 +205,7 @@ export class WindowTracker extends BaseManager {
       
       // 🔥 접근성 권한이 있으면 더 정확한 정보 가져오기
       // 🔥 active-win 8.x 호환: 옵션 객체로 권한 우회
-      const activeWinResult = await activeWin({
+      const activeWinResult = await getActiveWindow({
         accessibilityPermission: false,   // macOS 접근성 권한 우회
         screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
       });
@@ -527,7 +527,7 @@ export class WindowTracker extends BaseManager {
       Logger.warn(this.componentName, '⚠️ active-win은 모든 윈도우 조회를 지원하지 않음');
       
       // 🔥 현재 활성 윈도우만 배열로 반환 (active-win 8.x 호환)
-      const activeWinResult = await activeWin({
+      const activeWinResult = await getActiveWindow({
         accessibilityPermission: false,   // macOS 접근성 권한 우회
         screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
       });
@@ -587,7 +587,7 @@ export class WindowTracker extends BaseManager {
       }
 
       // 🔥 active-win 8.x 호환: 옵션 객체로 권한 우회
-      const activeWinResult = await activeWin({
+      const activeWinResult = await getActiveWindow({
         accessibilityPermission: false,   // macOS 접근성 권한 우회
         screenRecordingPermission: false  // macOS 화면 녹화 권한 우회
       });
