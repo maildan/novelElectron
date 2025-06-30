@@ -443,9 +443,11 @@ export class LanguageDetector extends BaseManager {
       };
     }
     
+    // 🔥 알 수 없는 keycode는 영어로 분류 (fallback 수정!)
+    // currentLanguage를 그대로 사용하면 이전 상태에 영향받음
     return {
-      language: this.currentLanguage,
-      confidence: 0.4,
+      language: 'en', // 🔥 무조건 영어로! (currentLanguage 대신)
+      confidence: 0.3, // 🔥 낮은 신뢰도
       method: 'keycode',
       isComposing: false,
       metadata: { reason: 'keycode-no-match' }
