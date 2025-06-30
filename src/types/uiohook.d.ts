@@ -55,7 +55,7 @@ declare module 'uiohook-napi' {
     on(event: 'keydown' | 'keyup', listener: (event: UiohookKeyboardEvent) => void): this;
     on(event: 'mousedown' | 'mouseup' | 'mousemove', listener: (event: UiohookMouseEvent) => void): this;
     on(event: 'wheel', listener: (event: UiohookWheelEvent) => void): this;
-    on(event: string, listener: Function): this; // 범용 이벤트 오버로드
+    on(event: string, listener: (...args: any[]) => void): this; // 🔥 구체적 함수 타입
     
     // Loop 전용 이벤트 (UiohookKeyEvent 확장 타입 사용)
     on(event: 'loop:keystroke', listener: (event: UiohookKeyEvent) => void): this;
@@ -63,7 +63,7 @@ declare module 'uiohook-napi' {
     on(event: 'loop:session-end', listener: () => void): this;
     
     // 제거 메서드
-    off(event: UiohookEventType, listener?: Function): this;
+    off(event: UiohookEventType, listener?: (...args: any[]) => void): this; // 🔥 구체적 함수 타입
     removeAllListeners(event?: UiohookEventType): this;
     
     // 상태 메서드

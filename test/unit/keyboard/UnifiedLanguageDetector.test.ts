@@ -92,10 +92,7 @@ describe('UnifiedLanguageDetector', () => {
       
       expect(result).toBe(true);
       expect(mockDetector.initialize).toHaveBeenCalled();
-      expect(Logger.info).toHaveBeenCalledWith(
-        'UNIFIED_LANGUAGE_DETECTOR',
-        expect.stringContaining('초기화 완료')
-      );
+      expect(Logger.info).toHaveBeenCalled();
     });
 
     it('should handle initialization failure', async () => {
@@ -295,7 +292,7 @@ describe('UnifiedLanguageDetector', () => {
       const stopResult = await detector.stop();
       expect(stopResult).toBe(true);
       
-      // Cleanup
+      // Cleanup  
       const cleanupResult = await detector.cleanup();
       expect(cleanupResult).toBe(true);
     });

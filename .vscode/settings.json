@@ -1,4 +1,10 @@
 {
   "copilot.chat.summarizeAgentConversationHistory.enabled": false,
-  "github.copilot.chat.summarizeAgentConversationHistory.enabled": false
+  "github.copilot.chat.summarizeAgentConversationHistory.enabled": false,
+   "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "eslint.packageManager": "pnpm" 
 }

@@ -574,7 +574,7 @@ class LoopApplication {
       const hasAccessibility = permissionsToRequest.some(p => p.type === 'accessibility');
       const hasScreenRecording = permissionsToRequest.some(p => p.type === 'screenRecording');
       
-      let message = 'Loop에서 다음 기능을 사용하기 위해 시스템 권한이 필요합니다:';
+      const message = 'Loop에서 다음 기능을 사용하기 위해 시스템 권한이 필요합니다:';
       let detail = '';
       
       if (hasAccessibility && hasScreenRecording) {

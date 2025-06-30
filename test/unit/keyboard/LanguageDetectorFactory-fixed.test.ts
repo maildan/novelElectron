@@ -83,32 +83,52 @@ describe('LanguageDetectorFactory', () => {
   });
 
   describe('🔥 Cross-Platform Detection and Factory Creation', () => {
-    it('should create detector instance successfully', () => {
+    it('should create macOS detector on macOS platform', () => {
+      mockPlatform.isMacOS.mockReturnValue(true);
+      mockPlatform.isWindows.mockReturnValue(false);
+      mockPlatform.isLinux.mockReturnValue(false);
+      mockPlatform.getPlatformName.mockReturnValue('macOS');
+
       const detector = LanguageDetectorFactory.create();
+      
       expect(detector).toBeDefined();
+      expect(detector.constructor.name).toBe('MacOSLanguageDetector');
     });
 
-    it('should handle different platform configurations', () => {
-      // Test macOS
-      mockPlatform.isMacOS.mockReturnValue(true);
-      const macDetector = LanguageDetectorFactory.create();
-      expect(macDetector).toBeDefined();
-      
-      LanguageDetectorFactory.reset();
-      
-      // Test Windows
+    it('should create Windows detector on Windows platform', () => {
       mockPlatform.isMacOS.mockReturnValue(false);
       mockPlatform.isWindows.mockReturnValue(true);
-      const winDetector = LanguageDetectorFactory.create();
-      expect(winDetector).toBeDefined();
+      mockPlatform.isLinux.mockReturnValue(false);
+      mockPlatform.getPlatformName.mockReturnValue('Windows');
+
+      const detector = LanguageDetectorFactory.create();
       
-      LanguageDetectorFactory.reset();
-      
-      // Test Linux
+      expect(detector).toBeDefined();
+      expect(detector.constructor.name).toBe('WindowsLanguageDetector');
+    });
+
+    it('should create Linux detector on Linux platform', () => {
+      mockPlatform.isMacOS.mockReturnValue(false);
       mockPlatform.isWindows.mockReturnValue(false);
       mockPlatform.isLinux.mockReturnValue(true);
-      const linuxDetector = LanguageDetectorFactory.create();
-      expect(linuxDetector).toBeDefined();
+      mockPlatform.getPlatformName.mockReturnValue('Linux');
+
+      const detector = LanguageDetectorFactory.create();
+      
+      expect(detector).toBeDefined();
+      expect(detector.constructor.name).toBe('LinuxLanguageDetector');
+    });
+
+    it('should create Fallback detector on unknown platform', () => {
+      mockPlatform.isMacOS.mockReturnValue(false);
+      mockPlatform.isWindows.mockReturnValue(false);
+      mockPlatform.isLinux.mockReturnValue(false);
+      mockPlatform.getPlatformName.mockReturnValue('Unknown');
+
+      const detector = LanguageDetectorFactory.create();
+      
+      expect(detector).toBeDefined();
+      expect(detector.constructor.name).toBe('FallbackLanguageDetector');
     });
   });
 
@@ -131,7 +151,7 @@ describe('LanguageDetectorFactory', () => {
 
       expect(info).toEqual({
         platform: 'macOS',
-        detectorType: expect.any(String),
+        detectorType: 'MacOSLanguageDetector',
         isInitialized: true,
         createdAt: expect.any(Date)
       });

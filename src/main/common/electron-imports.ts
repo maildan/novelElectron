@@ -91,13 +91,14 @@ export class ElectronImportManager {
       return null;
     }
 
-    const module = this.electronModules[moduleName];
-    if (!module) {
+    // 🔥 기가차드 수정: module 변수명 변경으로 Next.js 경고 해결
+    const electronModule = this.electronModules[moduleName];
+    if (!electronModule) {
       Logger.warn('ELECTRON_IMPORTS', `Module ${moduleName} not loaded`);
       return null;
     }
 
-    return module as ElectronModules[K];
+    return electronModule as ElectronModules[K];
   }
 
   // 🔥 안전한 앱 모듈 가져오기

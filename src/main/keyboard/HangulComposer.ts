@@ -412,7 +412,7 @@ export class HangulComposer extends BaseManager {
       return { completed: '', composing: '' };
     }
 
-    let completed = '';
+    const completed = '';
     let composing = '';
 
     // 종성 → 중성 → 초성 순으로 제거

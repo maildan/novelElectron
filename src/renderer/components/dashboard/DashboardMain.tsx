@@ -95,8 +95,9 @@ interface RecentFile {
   readonly status: string;
 }
 
+// 🔥 기가차드 수정: 빈 인터페이스 대신 구체적 타입 정의
 export interface DashboardMainProps {
-  // props는 더 이상 필요하지 않음 - 글로벌 상태 사용
+  readonly className?: string; // 선택적 스타일링 지원
 }
 
 function formatTime(seconds: number): string {
