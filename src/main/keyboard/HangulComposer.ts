@@ -402,16 +402,68 @@ export class HangulComposer extends BaseManager {
   }
 
   /**
-   * 중성 조합
+   * 🔥 완전한 중성 조합 (모든 한국어 복합모음 지원)
    */
   private combineMedials(first: string, second: string): string | null {
     const combinations: Record<string, Record<string, string>> = {
-      'ㅗ': { 'ㅏ': 'ㅘ', 'ㅐ': 'ㅙ', 'ㅣ': 'ㅚ' },
-      'ㅜ': { 'ㅓ': 'ㅝ', 'ㅔ': 'ㅞ', 'ㅣ': 'ㅟ' },
-      'ㅡ': { 'ㅣ': 'ㅢ' }
-    };
+      // 🔥 ㅗ 계열 복합모음 (3개)
+      'ㅗ': { 
+        'ㅏ': 'ㅘ',   // ㅗ + ㅏ = ㅘ (wa)
+        'ㅐ': 'ㅙ',   // ㅗ + ㅐ = ㅙ (wae)  
+        'ㅣ': 'ㅚ'    // ㅗ + ㅣ = ㅚ (oe)
+      },
+      
+      // 🔥 ㅜ 계열 복합모음 (3개)
+      'ㅜ': { 
+        'ㅓ': 'ㅝ',   // ㅜ + ㅓ = ㅝ (wo)
+        'ㅔ': 'ㅞ',   // ㅜ + ㅔ = ㅞ (we)
+        'ㅣ': 'ㅟ'    // ㅜ + ㅣ = ㅟ (wi)
+      },
+      
+      // 🔥 ㅡ 계열 복합모음 (1개)
+      'ㅡ': { 
+        'ㅣ': 'ㅢ'    // ㅡ + ㅣ = ㅢ (ui)
+      },
+      
+      // 🔥 추가: ㅑ, ㅕ 계열 복합모음 (표준 확장)
+      'ㅑ': { 
+        'ㅣ': 'ㅒ'    // ㅑ + ㅣ = ㅒ (yae) - 실제로는 단일키지만 조합 지원
+      },
+      
+      'ㅕ': { 
+        'ㅣ': 'ㅖ'    // ㅕ + ㅣ = ㅖ (ye) - 실제로는 단일키지만 조합 지원
+      },
 
-    return combinations[first]?.[second] || null;
+      // 🔥 기본 모음 + ㅣ 조합 지원 (표준 한글 조합 규칙)
+      'ㅏ': { 
+        'ㅣ': 'ㅐ'    // ㅏ + ㅣ = ㅐ (ae) - 실제로는 단일키지만 조합 지원
+      },
+      
+      'ㅓ': { 
+        'ㅣ': 'ㅔ'    // ㅓ + ㅣ = ㅔ (e) - 실제로는 단일키지만 조합 지원
+      }
+    };
+    
+    const result = combinations[first]?.[second] || null;
+    
+    if (result) {
+      Logger.debug(this.componentName, '🔥 복합모음 조합 성공!', {
+        first,
+        second, 
+        result,
+        unicodeFirst: `U+${first.charCodeAt(0).toString(16).toUpperCase()}`,
+        unicodeSecond: `U+${second.charCodeAt(0).toString(16).toUpperCase()}`,
+        unicodeResult: `U+${result.charCodeAt(0).toString(16).toUpperCase()}`
+      });
+    } else {
+      Logger.debug(this.componentName, '❌ 복합모음 조합 불가', {
+        first,
+        second,
+        availableCombinations: Object.keys(combinations[first] || {})
+      });
+    }
+    
+    return result;
   }
 
   /**
