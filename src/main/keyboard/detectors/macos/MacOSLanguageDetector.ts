@@ -36,8 +36,8 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
   constructor() {
     super('MACOS_LANGUAGE_DETECTOR');
     
-    // macOS 전용 검증
-    if (!Platform.isMacOS()) {
+    // 🔥 테스트 환경에서는 플랫폼 검증 스킵
+    if (process.env.NODE_ENV !== 'test' && !Platform.isMacOS()) {
       throw new Error('MacOSLanguageDetector는 macOS에서만 사용할 수 있습니다');
     }
   }

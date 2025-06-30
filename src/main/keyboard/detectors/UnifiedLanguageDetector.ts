@@ -1,412 +1,242 @@
-// 🔥 기가차드 통합 언어 감지기 - 플랫폼 자동 감지 및 최적 감지기 선택!
+// 🔥 기가차드 통합 언어 감지기 - 팩토리 기반 단순화!
 
 import { BaseManager } from '../../common/BaseManager';
 import { Logger } from '../../../shared/logger';
-import { Platform } from '../../utils/platform';
 import type { UiohookKeyboardEvent, LanguageDetectionResult } from '../../../shared/types';
+import type { SupportedLanguage } from './types/CommonTypes';
 
-// 🔥 플랫폼별 감지기들 import
+// 🔥 팩토리 import
 import { LanguageDetectorFactory } from './factory/LanguageDetectorFactory';
-import { BaseLanguageDetector } from './base/BaseLanguageDetector';
-
-// 🔥 플랫폼별 구체적 감지기들 import
-import { MacOSLanguageDetector } from './macos/MacOSLanguageDetector';
-import { WindowsLanguageDetector } from './windows/WindowsLanguageDetector';
-import { LinuxLanguageDetector } from './linux/LinuxLanguageDetector';
-import { FallbackLanguageDetector } from './FallbackLanguageDetector';
+import type { BaseLanguageDetector } from './base/BaseLanguageDetector';
 
 /**
- * 🔥 기가차드 통합 언어 감지기 - Smart Platform Detection!
+ * 🔥 통합 언어 감지기 - 팩토리 패턴 기반 단순화
  * 
- * 플랫폼 자동 감지 후 최적의 언어 감지기를 선택하여 사용
- * - macOS: HIToolbox 기반 네이티브 감지
- * - Windows: Win32 API 기반 키보드 레이아웃 감지  
- * - Linux: IBus/XIM 기반 입력 메서드 감지
- * - 기타: 키코드 패턴 분석 기반 Fallback 감지
+ * 복잡한 플랫폼 분기 로직을 팩토리로 이관하고
+ * 단순한 프록시 역할만 수행
  */
 export class UnifiedLanguageDetector extends BaseManager {
   private readonly componentName = 'UNIFIED_LANGUAGE_DETECTOR';
   
-  // 🔥 플랫폼별 감지기 인스턴스 (팩토리에서 생성)
-  private languageDetector: BaseLanguageDetector;
-  
-  // 🔥 Primary & Fallback 감지기
-  private primaryDetector: BaseLanguageDetector;
-  private fallbackDetector: BaseLanguageDetector;
-  
-  // 🔥 현재 플랫폼 정보
-  private readonly currentPlatform: string;
-  private readonly detectorType: 'macos' | 'windows' | 'linux' | 'fallback';
+  // 🔥 팩토리에서 생성된 실제 감지기
+  private detector: BaseLanguageDetector;
   
   // 🔥 통합 성능 추적
   private detectionCount = 0;
-  private fallbackCount = 0;
   private totalProcessingTime = 0;
-  private lastError: string | null = null;
-  
+  private lastError: string | undefined = undefined;
+  private startTime = Date.now();
+
   constructor() {
     super();
     
-    // 🔥 플랫폼 감지 및 최적 감지기 선택 (팩토리 패턴)
-    this.currentPlatform = Platform.getPlatformName();
-    
-    if (Platform.isMacOS()) {
-      this.detectorType = 'macos';
-      this.primaryDetector = new MacOSLanguageDetector();
-      Logger.info(this.componentName, '🔥 macOS 전용 HIToolbox 감지기 선택됨');
-    } else if (Platform.isWindows()) {
-      this.detectorType = 'windows';  
-      this.primaryDetector = new WindowsLanguageDetector();
-      Logger.info(this.componentName, '🔥 Windows 전용 Win32 API 감지기 선택됨');
-    } else if (Platform.isLinux()) {
-      this.detectorType = 'linux';
-      this.primaryDetector = new LinuxLanguageDetector();
-      Logger.info(this.componentName, '🔥 Linux 전용 IBus/XIM 감지기 선택됨');
-    } else {
-      this.detectorType = 'fallback';
-      this.primaryDetector = new FallbackLanguageDetector();
-      Logger.info(this.componentName, '🔥 범용 Fallback 감지기 선택됨', { 
-        platform: this.currentPlatform 
+    try {
+      // 🔥 팩토리에서 플랫폼별 최적 감지기 자동 생성
+      this.detector = LanguageDetectorFactory.create();
+      
+      if (!this.detector) {
+        throw new Error('LanguageDetectorFactory가 null을 반환했습니다');
+      }
+      
+      Logger.info(this.componentName, '통합 언어 감지기 초기화 완료', {
+        detectorType: this.detector?.constructor?.name || 'Unknown',
+        factoryInfo: LanguageDetectorFactory.getInfo()
       });
+    } catch (error) {
+      Logger.error(this.componentName, '감지기 초기화 실패', error);
+      throw error;
     }
-    
-    // 🔥 Fallback 감지기는 항상 준비
-    this.fallbackDetector = new FallbackLanguageDetector();
-    
-    // 🔥 언어 감지기는 primary detector로 설정
-    this.languageDetector = this.primaryDetector;
   }
 
+  /**
+   * 🔥 BaseManager 추상 메서드 구현
+   */
   protected async doInitialize(): Promise<void> {
+    Logger.info(this.componentName, '통합 언어 감지기 초기화 시작');
+    
     try {
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 초기화 시작', {
-        platform: this.currentPlatform,
-        detectorType: this.detectorType
-      });
-      
-      // 🔥 Primary 감지기 초기화
-      await this.primaryDetector.initialize();
-      Logger.info(this.componentName, 'Primary 감지기 초기화 완료');
-      
-      // 🔥 Fallback 감지기 초기화
-      await this.fallbackDetector.initialize();
-      Logger.info(this.componentName, 'Fallback 감지기 초기화 완료');
-      
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 초기화 완료!');
-      
+      await this.detector.initialize();
+      Logger.info(this.componentName, '하위 감지기 초기화 완료');
     } catch (error) {
-      this.lastError = `Initialize failed: ${error}`;
-      Logger.error(this.componentName, '통합 언어 감지기 초기화 실패', error);
+      Logger.error(this.componentName, '하위 감지기 초기화 실패', error);
+      this.lastError = String(error);
       throw error;
     }
   }
 
   protected async doStart(): Promise<void> {
-    try {
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 시작');
-      
-      // 🔥 Primary 감지기 시작
-      await this.primaryDetector.start();
-      Logger.info(this.componentName, 'Primary 감지기 시작됨');
-      
-      // 🔥 Fallback 감지기 시작  
-      await this.fallbackDetector.start();
-      Logger.info(this.componentName, 'Fallback 감지기 시작됨');
-      
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 시작 완료!', {
-        platform: this.currentPlatform,
-        primaryDetector: this.detectorType
-      });
-      
-    } catch (error) {
-      this.lastError = `Start failed: ${error}`;
-      Logger.error(this.componentName, '통합 언어 감지기 시작 실패', error);
-      throw error;
-    }
+    Logger.info(this.componentName, '통합 언어 감지기 시작');
+    await this.detector.start();
   }
 
   protected async doStop(): Promise<void> {
-    try {
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 중지 시작');
-      
-      // 🔥 Primary 감지기 중지
-      await this.primaryDetector.stop();
-      Logger.info(this.componentName, 'Primary 감지기 중지됨');
-      
-      // 🔥 Fallback 감지기 중지
-      await this.fallbackDetector.stop();
-      Logger.info(this.componentName, 'Fallback 감지기 중지됨');
-      
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 중지 완료');
-      
-    } catch (error) {
-      this.lastError = `Stop failed: ${error}`;
-      Logger.error(this.componentName, '통합 언어 감지기 중지 실패', error);
-      throw error;
-    }
+    Logger.info(this.componentName, '통합 언어 감지기 중지');
+    await this.detector.stop();
   }
 
   protected async doCleanup(): Promise<void> {
-    try {
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 정리 시작');
-      
-      // 🔥 Primary 감지기 정리
-      await this.primaryDetector.cleanup();
-      Logger.info(this.componentName, 'Primary 감지기 정리됨');
-      
-      // 🔥 Fallback 감지기 정리
-      await this.fallbackDetector.cleanup();
-      Logger.info(this.componentName, 'Fallback 감지기 정리됨');
-      
-      // 🔥 통계 초기화
-      this.detectionCount = 0;
-      this.fallbackCount = 0;
-      this.totalProcessingTime = 0;
-      this.lastError = null;
-      
-      Logger.info(this.componentName, '🔥 통합 언어 감지기 정리 완료');
-      
-    } catch (error) {
-      this.lastError = `Cleanup failed: ${error}`;
-      Logger.error(this.componentName, '통합 언어 감지기 정리 실패', error);
-      throw error;
-    }
+    Logger.info(this.componentName, '통합 언어 감지기 정리');
+    await this.detector.cleanup();
   }
 
   /**
-   * 🔥 메인 언어 감지 엔트리포인트 - Smart Detection!
+   * 🔥 메인 언어 감지 메서드 (프록시)
    */
   public async detectLanguage(rawEvent: UiohookKeyboardEvent): Promise<LanguageDetectionResult> {
     const startTime = performance.now();
     this.detectionCount++;
-    
+
     try {
-      // 🔥 Primary 감지기로 시도
-      let result = await this.primaryDetector.detectLanguage(rawEvent);
+      // 🔥 실제 감지기에 위임
+      const result = await this.detector.detectLanguage(rawEvent);
       
-      // 🔥 Primary 감지기 결과가 불안정하면 Fallback 사용
-      if (result.confidence < 0.7 && this.detectorType !== 'fallback') {
-        Logger.debug(this.componentName, '🔥 Primary 감지기 신뢰도 낮음 - Fallback 사용', {
-          primaryConfidence: result.confidence,
-          primaryLanguage: result.language
-        });
-        
-        const fallbackResult = await this.fallbackDetector.detectLanguage(rawEvent);
-        this.fallbackCount++;
-        
-        // 🔥 더 높은 신뢰도 결과 선택
-        if (fallbackResult.confidence > result.confidence) {
-          result = {
-            ...fallbackResult,
-            metadata: {
-              ...fallbackResult.metadata,
-              usedFallback: true,
-              primaryConfidence: result.confidence,
-              fallbackConfidence: fallbackResult.confidence
-            }
-          };
-        }
-      }
-      
-      // 🔥 성능 추적
+      // 🔥 성능 추적 업데이트
       const processingTime = performance.now() - startTime;
       this.totalProcessingTime += processingTime;
       
-      // 🔥 결과에 통합 정보 추가
+      Logger.debug(this.componentName, '언어 감지 완료', {
+        language: result.language,
+        confidence: result.confidence,
+        method: result.method,
+        processingTime: `${processingTime.toFixed(2)}ms`
+      });
+
+      return result;
+
+    } catch (error) {
+      const processingTime = performance.now() - startTime;
+      this.totalProcessingTime += processingTime;
+      this.lastError = String(error);
+      
+      Logger.error(this.componentName, '언어 감지 에러', error);
+      
+      // 🔥 에러 시 안전한 기본값 반환
       return {
-        ...result,
+        language: 'en',
+        confidence: 0.1,
+        method: 'fallback',
+        isComposing: false,
         metadata: {
-          ...result.metadata,
-          unifiedDetector: {
-            platform: this.currentPlatform,
-            detectorType: this.detectorType,
-            processingTime: `${processingTime.toFixed(3)}ms`,
-            detectionCount: this.detectionCount,
-            fallbackCount: this.fallbackCount
-          }
+          error: String(error),
+          processingTime: `${processingTime.toFixed(2)}ms`
         }
       };
-      
-    } catch (error) {
-      this.lastError = `Detection failed: ${error}`;
-      Logger.error(this.componentName, '언어 감지 실패 - Fallback으로 전환', error);
-      
-      // 🔥 에러 시 Fallback 감지기 사용
-      try {
-        const fallbackResult = await this.fallbackDetector.detectLanguage(rawEvent);
-        this.fallbackCount++;
-        
-        return {
-          ...fallbackResult,
-          metadata: {
-            ...fallbackResult.metadata,
-            usedFallback: true,
-            primaryError: String(error),
-            unifiedDetector: {
-              platform: this.currentPlatform,
-              detectorType: 'fallback-error',
-              processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
-              detectionCount: this.detectionCount,
-              fallbackCount: this.fallbackCount
-            }
-          }
-        };
-        
-      } catch (fallbackError) {
-        this.lastError = `Both detectors failed: ${fallbackError}`;
-        Logger.error(this.componentName, 'Fallback 감지기도 실패', fallbackError);
-        
-        // 🔥 최종 에러 결과
-        return {
-          language: 'en',
-          confidence: 0.1,
-          method: 'fallback',
-          isComposing: false,
-          metadata: {
-            error: String(fallbackError),
-            primaryError: String(error),
-            unifiedDetector: {
-              platform: this.currentPlatform,
-              detectorType: 'error',
-              processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
-              detectionCount: this.detectionCount,
-              fallbackCount: this.fallbackCount
-            }
-          }
-        };
-      }
     }
   }
 
   /**
-   * 🔥 현재 언어 조회 - Primary 감지기 기준
+   * 🔥 현재 언어 반환 (프록시)
    */
-  public getCurrentLanguage(): 'ko' | 'en' | 'ja' | 'zh' {
-    return this.primaryDetector.getCurrentLanguage();
+  public getCurrentLanguage(): SupportedLanguage {
+    if (!this.detector) {
+      Logger.warn(this.componentName, '감지기가 초기화되지 않음, 기본값 반환');
+      return 'en';
+    }
+    return this.detector.getCurrentLanguage();
   }
 
   /**
-   * 🔥 언어 수동 설정 - 모든 감지기에 적용
+   * 🔥 언어 설정 (프록시)
    */
-  public setLanguage(language: 'ko' | 'en' | 'ja' | 'zh'): void {
-    this.primaryDetector.setLanguage(language);
-    this.fallbackDetector.setLanguage(language);
-    Logger.info(this.componentName, '🔥 통합 언어 설정 완료', { language });
+  public setLanguage(language: SupportedLanguage): void {
+    if (!this.detector) {
+      Logger.warn(this.componentName, '감지기가 초기화되지 않음, 언어 설정 무시');
+      return;
+    }
+    this.detector.setLanguage(language);
+    Logger.info(this.componentName, `언어 설정 변경: ${language}`);
   }
 
   /**
-   * 🔥 통합 성능 통계 조회
+   * 🔥 통합 성능 통계
    */
-  public getPerformanceStats(): {
-    platform: string;
-    detectorType: 'macos' | 'windows' | 'linux' | 'fallback';
-    detectionCount: number;
-    fallbackCount: number;
-    fallbackRate: number;
-    averageProcessingTime: number;
-    currentLanguage: 'ko' | 'en' | 'ja' | 'zh';
-    primaryStats: any;
-    fallbackStats: any;
-  } {
+  public getPerformanceStats() {
+    const detectorStats = this.detector?.getPerformanceStats?.() || undefined;
+    const factoryInfo = LanguageDetectorFactory.getInfo();
+    
     return {
-      platform: this.currentPlatform,
-      detectorType: this.detectorType,
-      detectionCount: this.detectionCount,
-      fallbackCount: this.fallbackCount,
-      fallbackRate: this.detectionCount > 0 ? (this.fallbackCount / this.detectionCount) * 100 : 0,
-      averageProcessingTime: this.detectionCount > 0 ? 
-        this.totalProcessingTime / this.detectionCount : 0,
-      currentLanguage: this.getCurrentLanguage(),
-      primaryStats: this.primaryDetector.getPerformanceStats(),
-      fallbackStats: this.fallbackDetector.getPerformanceStats()
+      // 🔥 통합 레이어 통계
+      unified: {
+        detectionCount: this.detectionCount,
+        averageProcessingTime: this.detectionCount > 0 ? 
+          this.totalProcessingTime / this.detectionCount : 0,
+        lastError: this.lastError,
+        uptime: Date.now() - this.startTime
+      },
+      
+      // 🔥 실제 감지기 통계
+      detector: detectorStats,
+      
+      // 🔥 팩토리 정보
+      factory: factoryInfo
     };
   }
 
   /**
-   * 🔥 통합 헬스체크
+   * 🔥 헬스체크 (BaseManager 인터페이스 구현)
    */
   public async healthCheck(): Promise<{
     healthy: boolean;
     uptime?: number;
     lastError?: string;
-    platform: string;
-    detectorType: 'macos' | 'windows' | 'linux' | 'fallback';
-    primaryHealth: any;
-    fallbackHealth: any;
-    performance: ReturnType<UnifiedLanguageDetector['getPerformanceStats']>;
   }> {
     try {
-      const [primaryHealth, fallbackHealth] = await Promise.all([
-        this.primaryDetector.healthCheck(),
-        this.fallbackDetector.healthCheck()
-      ]);
-      
-      const healthy = primaryHealth.healthy && fallbackHealth.healthy;
-      
+      if (!this.detector) {
+        return {
+          healthy: false,
+          lastError: '감지기가 초기화되지 않음'
+        };
+      }
+
+      const detectorHealth = typeof this.detector.healthCheck === 'function' 
+        ? await this.detector.healthCheck() 
+        : { healthy: true };
+
+      const uptime = Date.now() - this.startTime;
+      const isHealthy = detectorHealth.healthy && this.lastError === undefined;
+
       return {
-        healthy,
-        lastError: this.lastError || undefined,
-        platform: this.currentPlatform,
-        detectorType: this.detectorType,
-        primaryHealth,
-        fallbackHealth,
-        performance: this.getPerformanceStats()
+        healthy: isHealthy,
+        uptime,
+        lastError: this.lastError
       };
-      
+
     } catch (error) {
-      this.lastError = `Health check failed: ${error}`;
+      Logger.error(this.componentName, '헬스체크 실패', error);
       return {
         healthy: false,
-        lastError: this.lastError || undefined,
-        platform: this.currentPlatform,
-        detectorType: this.detectorType,
-        primaryHealth: { healthy: false, lastError: String(error) },
-        fallbackHealth: { healthy: false, lastError: String(error) },
-        performance: this.getPerformanceStats()
+        lastError: String(error)
       };
     }
   }
 
   /**
-   * 🔥 Primary 감지기 강제 재시작
+   * 🔥 감지기 재시작 (BaseManager 인터페이스 구현)
    */
-  public async restartPrimaryDetector(): Promise<void> {
+  public async restart(): Promise<boolean> {
+    Logger.info(this.componentName, '감지기 재시작 시작');
+    
     try {
-      Logger.info(this.componentName, '🔥 Primary 감지기 재시작 시작');
+      await this.detector.stop();
+      await this.detector.cleanup();
       
-      await this.primaryDetector.stop();
-      await this.primaryDetector.cleanup();
-      await this.primaryDetector.initialize();
-      await this.primaryDetector.start();
+      // 🔥 새로운 감지기 생성
+      this.detector = LanguageDetectorFactory.create();
+      await this.detector.initialize();
+      await this.detector.start();
       
-      Logger.info(this.componentName, '🔥 Primary 감지기 재시작 완료');
+      this.lastError = undefined;
+      Logger.info(this.componentName, '감지기 재시작 완료');
       
+      return true;
     } catch (error) {
-      this.lastError = `Primary detector restart failed: ${error}`;
-      Logger.error(this.componentName, 'Primary 감지기 재시작 실패', error);
-      throw error;
+      this.lastError = String(error);
+      Logger.error(this.componentName, '감지기 재시작 실패', error);
+      return false;
     }
-  }
-
-  /**
-   * 🔥 감지기 유형 정보 조회
-   */
-  public getDetectorInfo(): {
-    platform: string;
-    detectorType: 'macos' | 'windows' | 'linux' | 'fallback';
-    primaryDetectorName: string;
-    fallbackDetectorName: string;
-    isNativeDetection: boolean;
-  } {
-    return {
-      platform: this.currentPlatform,
-      detectorType: this.detectorType,
-      primaryDetectorName: this.primaryDetector.constructor.name,
-      fallbackDetectorName: this.fallbackDetector.constructor.name,
-      isNativeDetection: this.detectorType === 'macos' || this.detectorType === 'windows' || this.detectorType === 'linux'
-    };
   }
 }
 
+// 🔥 싱글톤 인스턴스 export
 export const unifiedLanguageDetector = new UnifiedLanguageDetector();
 export default unifiedLanguageDetector;

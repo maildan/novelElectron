@@ -197,45 +197,14 @@ export interface UiohookKeyboardEvent {
   shiftKey?: boolean;
 }
 
-// 🔥 기가차드 언어 감지 결과 인터페이스
-export interface LanguageDetectionResult {
-  language: 'ko' | 'en' | 'ja' | 'zh';
-  confidence: number; // 0.0 ~ 1.0
-  method: 'fallback' | 'keycode' | 'character' | 'ime' | 'pattern' | 'switch' | 'validation' | 'special-char-mapping' | 'system' | 'macos-maintain-current' | 'macos-error-fallback' | 'windows-layout' | 'linux-input-method';
-  isComposing: boolean;
-  detectedChar?: string;
-  metadata?: {
-    keySequence?: string[];
-    switchReason?: string;
-    hangulChar?: string;
-    detectionTime?: number;
-    keycode?: number;
-    keychar?: number;
-    reason?: string;
-    // 🔥 통합 감지기 메타데이터
-    usedFallback?: boolean;
-    primaryConfidence?: number;
-    fallbackConfidence?: number;
-    primaryError?: string;
-    error?: string;
-    // 🔥 macOS 전용 메타데이터
-    char?: string;
-    charCode?: number;
-    rawcode?: number;
-    source?: string;
-    processingTime?: string;
-    hangulKeyCount?: number;
-    totalKeys?: number;
-    hangulRatio?: number;
-    unifiedDetector?: {
-      platform: string;
-      detectorType: string;
-      processingTime: string;
-      detectionCount: number;
-      fallbackCount: number;
-    };
-  };
-}
+// 🔥 언어 감지 관련 타입들은 중앙화된 모듈에서 re-export
+export type { 
+  SupportedLanguage,
+  DetectionMethod,
+  LanguageDetectionResult,
+  DetectionMetadata,
+  PerformanceStats
+} from '../main/keyboard/detectors/types/CommonTypes';
 
 // 🔥 기가차드 한글 조합 결과
 export interface HangulCompositionResult {

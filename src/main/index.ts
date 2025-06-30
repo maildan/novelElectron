@@ -11,7 +11,7 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
-console.log(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
+Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
 
 import { app, BrowserWindow } from 'electron';
 import { Logger } from '../shared/logger';

@@ -66,6 +66,7 @@ export interface DetectionMetadata {
   engineName?: string;
   xkbLayout?: string;
   environmentLang?: string;
+  inputMethod?: string;
 }
 
 /**
