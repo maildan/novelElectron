@@ -46,7 +46,25 @@ export class LanguageDetector extends BaseManager {
   
   // 🔥 기가차드 물리적 keycode → 한글자모 매핑 (소문자 기준!)
   private readonly KEYCODE_TO_HANGUL: Map<number, string> = new Map([
-    // 상단 행 (소문자)
+    // 🔥 물리적 keycode 매핑 (macOS uiohook 기준)
+    [12, 'ㅂ'],   // q키 물리적 keycode → ㅂ
+    [13, 'ㅈ'],   // w키 물리적 keycode → ㅈ
+    [14, 'ㄷ'],   // e키 물리적 keycode → ㄷ
+    [15, 'ㄱ'],   // r키 물리적 keycode → ㄱ
+    [17, 'ㅅ'],   // t키 물리적 keycode → ㅅ
+    [16, 'ㅛ'],   // y키 물리적 keycode → ㅛ
+    [32, 'ㅇ'],   // 🔥 d키 물리적 keycode → ㅇ (긴급 추가!)
+    [33, 'ㄹ'],   // f키 물리적 keycode → ㄹ
+    [34, 'ㅎ'],   // g키 물리적 keycode → ㅎ
+    [35, 'ㅗ'],   // h키 물리적 keycode → ㅗ
+    [38, 'ㅣ'],   // l키 물리적 keycode → ㅣ
+    [37, 'ㅏ'],   // k키 물리적 keycode → ㅏ
+    [31, 'ㄴ'],   // s키 물리적 keycode → ㄴ
+    [0, 'ㅁ'],    // a키 물리적 keycode → ㅁ
+    [46, 'ㅊ'],   // c키 물리적 keycode → ㅊ
+    [50, 'ㅡ'],   // m키 물리적 keycode → ㅡ
+    
+    // 상단 행 문자코드 (기존 방식과 호환)
     [113, 'ㅂ'],  // q → ㅂ
     [119, 'ㅈ'],  // w → ㅈ  
     [101, 'ㄷ'],  // e → ㄷ
@@ -117,35 +135,76 @@ export class LanguageDetector extends BaseManager {
     32, 188, 190, 191, 186, 222, 219, 221, 220, 192, 189, 187
   ]);
 
-  // 🔥 올바른 한글 매핑 - 알파벳 keycode만 허용!
+  // 🔥 올바른 한글 매핑 - 알파벳 keycode와 물리적 keycode 모두 허용!
   private readonly VALID_HANGUL_KEYCODES: Map<number, string> = new Map([
-    // 알파벳 키만 한글로 매핑 (두벌식 기준)
+    // 🔥 물리적 keycode (macOS uiohook 실제 값) - 핵심!
+    [32, 'ㅇ'],   // d키 물리적 keycode → ㅇ (긴급 추가!)
+    [31, 'ㄴ'],   // s키 물리적 keycode → ㄴ
+    [37, 'ㅏ'],   // k키 물리적 keycode → ㅏ
+    [38, 'ㅣ'],   // l키 물리적 keycode → ㅣ
+    [19, 'ㄱ'],   // r키 물리적 keycode → ㄱ
+    [17, 'ㅈ'],   // w키 물리적 keycode → ㅈ
+    [46, 'ㅊ'],   // c키 물리적 keycode → ㅊ
+    
+    // 🔥 완전한 두벌식 한글 매핑 (모든 키 포함!)
     [113, 'ㅂ'], // q → ㅂ
     [119, 'ㅈ'], // w → ㅈ  
     [101, 'ㄷ'], // e → ㄷ
     [114, 'ㄱ'], // r → ㄱ
     [116, 'ㅅ'], // t → ㅅ
-    [97, 'ㅁ'],  // a → ㅁ
-    [115, 'ㄴ'], // s → ㄴ
-    [100, 'ㅇ'], // d → ㅇ  🔥 누락된 키 추가!
-    [102, 'ㄹ'], // f → ㄹ
-    [103, 'ㅎ'], // g → ㅎ
-    [122, 'ㅋ'], // z → ㅋ
-    [120, 'ㅌ'], // x → ㅌ
-    [99, 'ㅊ'],  // c → ㅊ
-    [118, 'ㅍ'], // v → ㅍ
     [121, 'ㅛ'], // y → ㅛ
     [117, 'ㅕ'], // u → ㅕ
     [105, 'ㅑ'], // i → ㅑ
     [111, 'ㅐ'], // o → ㅐ
     [112, 'ㅔ'], // p → ㅔ
+    
+    // 중단 행 (완전 매핑!)
+    [97, 'ㅁ'],  // a → ㅁ
+    [115, 'ㄴ'], // s → ㄴ
+    [100, 'ㅇ'], // d → ㅇ  🔥 핵심 수정!
+    [102, 'ㄹ'], // f → ㄹ
+    [103, 'ㅎ'], // g → ㅎ
     [104, 'ㅗ'], // h → ㅗ
     [106, 'ㅓ'], // j → ㅓ
     [107, 'ㅏ'], // k → ㅏ
     [108, 'ㅣ'], // l → ㅣ
+    
+    // 하단 행 (완전 매핑!)
+    [122, 'ㅋ'], // z → ㅋ
+    [120, 'ㅌ'], // x → ㅌ
+    [99, 'ㅊ'],  // c → ㅊ
+    [118, 'ㅍ'], // v → ㅍ
     [98, 'ㅠ'],  // b → ㅠ
     [110, 'ㅜ'], // n → ㅜ
-    [109, 'ㅡ']  // m → ㅡ  🔥 누락된 키 추가!
+    [109, 'ㅡ'], // m → ㅡ  🔥 핵심 수정!
+    
+    // 🔥 대문자 매핑 (Shift+키 지원)
+    [81, 'ㅂ'],  // Q → ㅂ
+    [87, 'ㅈ'],  // W → ㅈ
+    [69, 'ㄷ'],  // E → ㄷ
+    [82, 'ㄱ'],  // R → ㄱ
+    [84, 'ㅅ'],  // T → ㅅ
+    [89, 'ㅛ'],  // Y → ㅛ
+    [85, 'ㅕ'],  // U → ㅕ
+    [73, 'ㅑ'],  // I → ㅑ
+    [79, 'ㅐ'],  // O → ㅐ
+    [80, 'ㅔ'],  // P → ㅔ
+    [65, 'ㅁ'],  // A → ㅁ
+    [83, 'ㄴ'],  // S → ㄴ
+    [68, 'ㅇ'],  // D → ㅇ  🔥 대문자도 추가!
+    [70, 'ㄹ'],  // F → ㄹ
+    [71, 'ㅎ'],  // G → ㅎ
+    [72, 'ㅗ'],  // H → ㅗ
+    [74, 'ㅓ'],  // J → ㅓ
+    [75, 'ㅏ'],  // K → ㅏ
+    [76, 'ㅣ'],  // L → ㅣ
+    [90, 'ㅋ'],  // Z → ㅋ
+    [88, 'ㅌ'],  // X → ㅌ
+    [67, 'ㅊ'],  // C → ㅊ
+    [86, 'ㅍ'],  // V → ㅍ
+    [66, 'ㅠ'],  // B → ㅠ
+    [78, 'ㅜ'],  // N → ㅜ
+    [77, 'ㅡ']   // M → ㅡ  🔥 대문자도 추가!
   ]);
 
   // 🔥 더 이상 특수문자는 한글로 매핑하지 않음 - 완전히 비움
@@ -155,7 +214,7 @@ export class LanguageDetector extends BaseManager {
   ]);
 
   // 🔥 제외할 특수 키들 정의 (macOS 키코드 기준)
-  private readonly EXCLUDED_KEYS = new Set([
+  private readonly EXCLUDED_KEYS: Set<number> = new Set([
     8, 9, 13, 16, 17, 18, 19, 20, 27,      // Backspace, Tab, Enter, Shift, Ctrl, Alt, Pause, CapsLock, Escape
     33, 34, 35, 36, 37, 38, 39, 40,        // Page Up/Down, End, Home, Arrow keys
     45, 46,                                // Insert, Delete
@@ -294,6 +353,27 @@ export class LanguageDetector extends BaseManager {
    */
   private detectByKeycodeOnly(rawEvent: UiohookKeyboardEvent, startTime: number): LanguageDetectionResult {
     const { keycode } = rawEvent;
+    
+    // 🔥 제어문자와 특수키는 영어로 강제 분류 (한글 모드여도)
+    if (keycode <= 31 || keycode === 127) {  // 제어문자들 (0x00-0x1F, DEL)
+      Logger.debug(this.componentName, '🔥 제어문자 감지 - 영어로 강제 분류', {
+        keycode,
+        keycodeHex: `0x${keycode.toString(16)}`,
+        keycharString: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'null'
+      });
+      
+      return {
+        language: 'en',
+        confidence: 0.95,
+        method: 'keycode',
+        isComposing: false,
+        metadata: { 
+          keycode,
+          keychar: rawEvent.keychar,
+          reason: 'control-character-forced-english'
+        }
+      };
+    }
     
     // 🔥 macOS IME 조합 결과 우선 확인
     if (process.platform === 'darwin' && rawEvent.keychar) {

@@ -1,9 +1,9 @@
 // src/types/uiohook.d.ts
 declare module 'uiohook-napi' {
-  // 🔥 shared/types.ts에서 import해서 사용
+  // 🔥 shared/types.ts에서 import해서 사용 (중복 제거!)
   import type { UiohookKeyboardEvent } from '../shared/types';
   
-  // 기존 타입을 Loop 전용으로 확장
+  // Loop 전용 확장 타입들만 여기에 정의
   export interface UiohookKeyEvent extends UiohookKeyboardEvent {
     // Loop 전용 확장
     loopTimestamp?: number;
@@ -35,7 +35,7 @@ declare module 'uiohook-napi' {
     loopTimestamp?: number;
   }
 
-  // 이벤트 타입 확장
+  // 이벤트 타입 정의
   export type UiohookEventType = 
     | 'keydown' 
     | 'keyup' 
@@ -80,13 +80,13 @@ declare module 'uiohook-napi' {
   export const uIOhook: UiohookInstance;
   export default uIOhook;
 
-  // 키코드 상수
+  // 키코드 상수들
   export const VC_ESCAPE: number;
   export const VC_F1: number;
   export const VC_F2: number;
   // ... 더 많은 키코드들
 
-  // Mouse 버튼 상수  
+  // Mouse 버튼 상수들
   export const MOUSE_BUTTON1: number;
   export const MOUSE_BUTTON2: number;
   export const MOUSE_BUTTON3: number;
