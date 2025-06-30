@@ -89,46 +89,41 @@ export class LanguageDetector extends BaseManager {
     32, 188, 190, 191, 186, 222, 219, 221, 220, 192, 189, 187
   ]);
 
-  // 🔥 기가차드 macOS IME 우회용 특수문자 역매핑 테이블
+  // 🔥 올바른 한글 매핑 - 알파벳 keycode만 허용!
+  private readonly VALID_HANGUL_KEYCODES: Map<number, string> = new Map([
+    // 알파벳 키만 한글로 매핑 (두벌식 기준)
+    [113, 'ㅂ'], // q → ㅂ
+    [119, 'ㅈ'], // w → ㅈ  
+    [101, 'ㄷ'], // e → ㄷ
+    [114, 'ㄱ'], // r → ㄱ
+    [116, 'ㅅ'], // t → ㅅ
+    [97, 'ㅁ'],  // a → ㅁ
+    [115, 'ㄴ'], // s → ㄴ
+    [100, 'ㅇ'], // d → ㅇ
+    [102, 'ㄹ'], // f → ㄹ
+    [103, 'ㅎ'], // g → ㅎ
+    [122, 'ㅋ'], // z → ㅋ
+    [120, 'ㅌ'], // x → ㅌ
+    [99, 'ㅊ'],  // c → ㅊ
+    [118, 'ㅍ'], // v → ㅍ
+    [121, 'ㅛ'], // y → ㅛ
+    [117, 'ㅕ'], // u → ㅕ
+    [105, 'ㅑ'], // i → ㅑ
+    [111, 'ㅐ'], // o → ㅐ
+    [112, 'ㅔ'], // p → ㅔ
+    [104, 'ㅗ'], // h → ㅗ
+    [106, 'ㅓ'], // j → ㅓ
+    [107, 'ㅏ'], // k → ㅏ
+    [108, 'ㅣ'], // l → ㅣ
+    [98, 'ㅠ'],  // b → ㅠ
+    [110, 'ㅜ'], // n → ㅜ
+    [109, 'ㅡ']  // m → ㅡ
+  ]);
+
+  // 🔥 더 이상 특수문자는 한글로 매핑하지 않음 - 완전히 비움
   private readonly SPECIAL_CHAR_TO_HANGUL: Map<number, string> = new Map([
-    // macOS 한글 IME가 물리적 키를 이런 특수문자 keycode로 변조함
-    
-    // 🔥 자음 매핑 (성공 확인된 것들)
-    [33, 'ㄹ'],   // '!' → ㄹ (F키) ✅ 성공 확인
-    [35, 'ㅈ'],   // '#' → ㅈ (W키) ✅ 성공 확인
-    [37, 'ㄱ'],   // '%' → ㄱ (R키) ✅ 성공 확인
-    [38, 'ㅅ'],   // '&' → ㅅ (T키) ✅ 성공 확인
-    [34, 'ㅂ'],   // '"' → ㅂ (Q키)
-    [36, 'ㄷ'],   // '$' → ㄷ (E키)
-    [94, 'ㅛ'],   // '^' → ㅛ (Y키)
-    [42, 'ㅕ'],   // '*' → ㅕ (U키)
-    [95, 'ㅑ'],   // '_' → ㅑ (I키)
-    [40, 'ㅐ'],   // '(' → ㅐ (O키)
-    [41, 'ㅔ'],   // ')' → ㅔ (P키)
-    
-    // 🔥 제어문자 → 자음 매핑
-    [18, 'ㅁ'],   // 제어문자 → ㅁ (A키)  
-    [17, 'ㄴ'],   // 제어문자 → ㄴ (S키)
-    [19, 'ㅇ'],   // 제어문자 → ㅇ (D키)
-    [20, 'ㄷ'],   // 제어문자 → ㄷ ('3' 키코드)
-    [32, 'ㅣ'],   // 스페이스 → ㅣ (L키)
-    
-    // 🔥 누락된 키코드 추가 (로그에서 발견된 것들)
-    [25, 'ㅋ'],   // 제어문자 → ㅋ (Z키 추정)
-    [29, 'ㅌ'],   // 제어문자 → ㅌ (X키 추정)
-    [21, 'ㅊ'],   // 제어문자 → ㅊ (C키 추정)
-    [22, 'ㅍ'],   // 제어문자 → ㅍ (V키 추정)
-    [23, 'ㅠ'],   // 제어문자 → ㅠ (B키 추정)
-    [24, 'ㅜ'],   // 제어문자 → ㅜ (N키 추정)
-    [26, 'ㅡ'],   // 제어문자 → ㅡ (M키 추정)
-    
-    // 🔥 추가 모음들
-    [39, 'ㅓ'],   // "'" → ㅓ (J키)
-    [59, 'ㅏ'],   // ';' → ㅏ (K키)
-    [58, 'ㅣ'],   // ':' → ㅣ (L키, Shift)
-    [44, 'ㅜ'],   // ',' → ㅜ (N키)
-    [46, 'ㅡ'],   // '.' → ㅡ (M키)
-    [47, 'ㅗ'],   // '/' → ㅗ (H키)
+    // ❌ 기존의 엉터리 매핑 완전 제거됨
+    // ✅ 이제 빈 맵으로 시작 - 특수문자/제어문자/숫자는 한글로 매핑 안됨
   ]);
 
   constructor() {
@@ -255,29 +250,60 @@ export class LanguageDetector extends BaseManager {
   }
 
   /**
-   * 🔥 keycode만으로 감지 (macOS IME 우회 + rawcode 활용!)
+   * 🔥 keycode만으로 감지 (알파벳 키만 한글 매핑 허용!)
    */
   private detectByKeycodeOnly(rawEvent: UiohookKeyboardEvent, startTime: number): LanguageDetectionResult {
     const { keycode } = rawEvent;
     
-    // 🔥 최우선: macOS IME 우회 - 특수문자 역매핑 체크
-    if (this.SPECIAL_CHAR_TO_HANGUL.has(keycode)) {
-      const hangulChar = this.SPECIAL_CHAR_TO_HANGUL.get(keycode);
-      this.currentLanguage = 'ko';
+    // 🔥 알파벳 키만 한글 매핑 허용
+    const isValidAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
+    
+    if (isValidAlphabetKey) {
+      // 대문자는 소문자로 변환
+      const normalizedKeycode = keycode >= 65 && keycode <= 90 ? keycode + 32 : keycode;
+      const hangulChar = this.VALID_HANGUL_KEYCODES.get(normalizedKeycode);
       
-      Logger.debug(this.componentName, '🔥🔥🔥 특수문자 역매핑으로 한글 감지! 🔥🔥🔥', {
-        keycode,
-        keycodeHex: `0x${keycode.toString(16)}`,
-        mappedHangul: hangulChar,
-        confidence: 0.95
-      });
-      
+      if (hangulChar) {
+        this.currentLanguage = 'ko';
+        
+        Logger.debug(this.componentName, '🔥🔥🔥 알파벳 키로 한글 감지! 🔥🔥🔥', {
+          keycode,
+          normalizedKeycode,
+          keycodeHex: `0x${keycode.toString(16)}`,
+          mappedHangul: hangulChar,
+          confidence: 0.95
+        });
+        
+        return { 
+          language: 'ko', 
+          confidence: 0.95, 
+          method: 'keycode',
+          isComposing: true,
+          detectedChar: hangulChar
+        };
+      }
+    }
+    
+    // 🔥 특수문자, 제어문자, 숫자는 영어 또는 other로 분류
+    if (keycode >= 48 && keycode <= 57) {
+      // 숫자는 영어로 분류
+      this.currentLanguage = 'en';
       return { 
-        language: 'ko', 
+        language: 'en', 
+        confidence: 0.85, 
+        method: 'keycode',
+        isComposing: false 
+      };
+    }
+    
+    if (keycode <= 31 || (keycode >= 32 && keycode <= 47) || (keycode >= 58 && keycode <= 64)) {
+      // 제어문자, 특수문자는 영어로 분류
+      this.currentLanguage = 'en';
+      return { 
+        language: 'en', 
         confidence: 0.95, 
         method: 'keycode',
-        isComposing: true,
-        detectedChar: hangulChar // 🔥 감지된 한글 문자 추가
+        isComposing: false 
       };
     }
     
@@ -350,12 +376,39 @@ export class LanguageDetector extends BaseManager {
   }
 
   /**
-   * 🔥 1단계: keycode 기반 즉시 감지
+   * 🔥 1단계: keycode 기반 즉시 감지 (알파벳 키만 한글 매핑!)
    */
   private detectByKeycode(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     const { keycode, keychar } = rawEvent;
     
-    // 한글 키매핑 확인 (keycode 우선)
+    // 🔥 알파벳 키만 한글 매핑 허용
+    const isValidAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
+    
+    if (isValidAlphabetKey) {
+      // 대문자는 소문자로 변환
+      const normalizedKeycode = keycode >= 65 && keycode <= 90 ? keycode + 32 : keycode;
+      const hangulChar = this.VALID_HANGUL_KEYCODES.get(normalizedKeycode);
+      
+      if (hangulChar) {
+        this.currentLanguage = 'ko';
+        
+        return {
+          language: 'ko',
+          confidence: 0.95,
+          method: 'keycode',
+          isComposing: true,
+          detectedChar: hangulChar,
+          metadata: { 
+            keycode,
+            keychar,
+            hangulChar,
+            reason: 'alphabet-hangul-mapping'
+          }
+        };
+      }
+    }
+    
+    // 기존 한글 키매핑 확인 (기존 KEYCODE_TO_HANGUL)
     if (this.KEYCODE_TO_HANGUL.has(keycode)) {
       const hangulChar = this.KEYCODE_TO_HANGUL.get(keycode);
       this.currentLanguage = 'ko';
@@ -365,6 +418,7 @@ export class LanguageDetector extends BaseManager {
         confidence: 0.95,
         method: 'keycode',
         isComposing: true,
+        detectedChar: hangulChar,
         metadata: { 
           keycode,
           keychar,

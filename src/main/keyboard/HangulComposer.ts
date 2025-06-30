@@ -150,14 +150,30 @@ export class HangulComposer extends BaseManager {
         return this.finishComposition();
       }
       
-      // 한글 키 확인
-      const hangulChar = this.keyMap.get(event.key);
+      // 🔥 한글 키 확인 (개선된 로직)
+      let hangulChar: string | undefined;
+      
+      // 1. 이미 한글 문자인지 확인
+      if (this.isHangulChar(event.key)) {
+        hangulChar = event.key; // 이미 한글이면 그대로 사용
+        Logger.debug(this.componentName, '🔥 이미 한글 문자 감지됨', { key: event.key });
+      } else {
+        // 2. 영어 키를 한글로 매핑
+        hangulChar = this.keyMap.get(event.key);
+        Logger.debug(this.componentName, '🔍 영어→한글 매핑 시도', { 
+          englishKey: event.key, 
+          hangulChar: hangulChar || 'undefined' 
+        });
+      }
+      
       if (!hangulChar) {
         // 한글이 아닌 경우 조합 완료
+        Logger.debug(this.componentName, '❌ 한글이 아님 - 조합 완료', { key: event.key });
         return this.finishComposition();
       }
       
       // 한글 조합 처리
+      Logger.debug(this.componentName, '✅ 한글 조합 시작', { hangulChar });
       return this.composeHangul(hangulChar);
       
     } catch (error) {
