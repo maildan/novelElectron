@@ -3,8 +3,8 @@
 import { Logger } from '../../../shared/logger';
 import { BaseManager } from '../../common/BaseManager';
 import { KEYBOARD_LANGUAGES } from '../../../shared/common';
+import { UiohookKeyboardEvent } from '../../../shared/types';
 import { exec } from 'child_process';
-import type { UiohookKeyboardEvent } from 'uiohook-napi';
 
 // 🔥 언어 감지 결과 인터페이스
 export interface LanguageDetectionResult {
@@ -152,6 +152,17 @@ export class LanguageDetector extends BaseManager {
   private readonly SPECIAL_CHAR_TO_HANGUL: Map<number, string> = new Map([
     // ❌ 기존의 엉터리 매핑 완전 제거됨
     // ✅ 이제 빈 맵으로 시작 - 특수문자/제어문자/숫자는 한글로 매핑 안됨
+  ]);
+
+  // 🔥 제외할 특수 키들 정의 (macOS 키코드 기준)
+  private readonly EXCLUDED_KEYS = new Set([
+    8, 9, 13, 16, 17, 18, 19, 20, 27,      // Backspace, Tab, Enter, Shift, Ctrl, Alt, Pause, CapsLock, Escape
+    33, 34, 35, 36, 37, 38, 39, 40,        // Page Up/Down, End, Home, Arrow keys
+    45, 46,                                // Insert, Delete
+    91, 92, 93,                            // Windows/Cmd keys
+    112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, // F1-F12
+    144, 145,                              // Num Lock, Scroll Lock
+    21, 25, 28, 29                         // IME 관련 키들
   ]);
 
   constructor() {
@@ -324,9 +335,40 @@ export class LanguageDetector extends BaseManager {
           confidence: 0.95, 
           method: 'keycode',
           isComposing: true,
-          detectedChar: hangulChar
+          detectedChar: hangulChar,
+          metadata: { 
+            keycode,
+            keychar: rawEvent.keychar,
+            hangulChar,
+            reason: 'alphabet-hangul-mapping'
+          }
         };
       }
+    }
+    
+    // 🔥 기가차드 개선: 숫자 키와 특수 키는 현재 언어 유지
+    const isNumberKey = (keycode >= 48 && keycode <= 57);  // 0-9
+    const isSpecialKey = this.EXCLUDED_KEYS.has(keycode);   // 특수키들
+    
+    if (isNumberKey || isSpecialKey) {
+      Logger.debug(this.componentName, '🔥 숫자/특수키 감지 - 현재 언어 유지', {
+        keycode,
+        currentLanguage: this.currentLanguage,
+        isNumber: isNumberKey,
+        isSpecial: isSpecialKey
+      });
+      
+      return {
+        language: this.currentLanguage, // 🔥 현재 언어 그대로 유지
+        confidence: 0.8,
+        method: 'keycode',
+        isComposing: false, // 숫자/특수키는 조합하지 않음
+        metadata: { 
+          keycode,
+          keychar: rawEvent.keychar,
+          reason: isNumberKey ? 'number-key-maintain-lang' : 'special-key-maintain-lang'
+        }
+      };
     }
     
     // 🔥 특수문자, 제어문자, 숫자는 영어 또는 other로 분류

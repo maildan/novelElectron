@@ -3,9 +3,9 @@
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import { KeyboardEvent, TypingSession, Result } from '../../shared/types';
+import { KeyboardEvent, TypingSession, Result, UiohookKeyboardEvent } from '../../shared/types';
 import KEYBOARD_CONSTANTS from './constants';
-import type { UiohookKeyboardEvent, UiohookInstance, UiohookEventType } from 'uiohook-napi';
+import type { UiohookInstance, UiohookEventType } from 'uiohook-napi';
 
 // #DEBUG: Keyboard engine entry point
 Logger.debug('KEYBOARD_ENGINE', 'Keyboard engine module loaded');
@@ -287,8 +287,8 @@ export class KeyboardEngine extends BaseManager {
     });
 
     // 키업 이벤트
-    this.uiohook.on('keyup', (event: import('uiohook-napi').UiohookKeyboardEvent) => {
-      this.handleKeyEvent('keyup', event);
+    this.uiohook.on('keyup', (event: any) => {
+      this.handleKeyEvent('keyup', event as UiohookKeyboardEvent);
     });
 
     Logger.debug(this.componentName, 'Event listeners registered');
@@ -297,7 +297,7 @@ export class KeyboardEngine extends BaseManager {
   /**
    * 키보드 이벤트 처리
    */
-  private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: import('uiohook-napi').UiohookKeyboardEvent): void {
+  private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): void {
     try {
       // 🔥 macOS IME 우회 - 조합된 문자 우선 사용 (개선 버전)
       if (process.platform === 'darwin' && rawEvent.keychar && type === 'keydown') {
@@ -389,16 +389,40 @@ export class KeyboardEngine extends BaseManager {
     // 실시간 통계 업데이트
     this.updateRealtimeStats();
 
-    // 🔥 한글 조합 완료 이벤트 발생
-    this.emit('keystroke', keyEvent);
+    // 🔥 한글 조합 완료 이벤트 발생 (completed 타입으로 구분)
+    this.emit('keystroke', {
+      ...keyEvent,
+      type: 'completed' as const  // 완성된 문자임을 명시
+    });
+    
     this.emit('hangul-composed', {
       char: keyEvent.keychar,
-      timestamp: keyEvent.timestamp
+      timestamp: keyEvent.timestamp,
+      isCompleted: true
     });
 
     Logger.debug(this.componentName, '🔥 macOS IME 한글 조합 완료', {
       char: keyEvent.keychar,
-      charCode: keyEvent.keychar.charCodeAt(0).toString(16)
+      charCode: keyEvent.keychar.charCodeAt(0).toString(16),
+      type: 'completed'
+    });
+  }
+
+  /**
+   * 🔥 기가차드 신규: 한글 조합 중 문자 처리
+   */
+  private processComposingHangul(keyEvent: KeyboardEvent, composingChar: string): void {
+    // 조합 중인 문자는 별도 이벤트로 발생
+    this.emit('hangul-composing', {
+      ...keyEvent,
+      keychar: composingChar,
+      type: 'composing' as const  // 조합 중임을 명시
+    });
+
+    Logger.debug(this.componentName, '🔥 한글 조합 중', {
+      originalChar: keyEvent.keychar,
+      composingChar,
+      type: 'composing'
     });
   }
 

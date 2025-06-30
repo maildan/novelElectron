@@ -8,11 +8,12 @@ import {
   KeyboardState,
   KeyboardMonitorState,
   HangulCompositionResult,
-  LanguageDetectionResult 
+  LanguageDetectionResult,
+  UiohookKeyboardEvent
 } from '../../shared/types';
 import { KEYBOARD_LANGUAGES, perf } from '../../shared/common';
 import { EventEmitter } from 'events';
-import type { UiohookKeyboardEvent, UiohookInstance } from 'uiohook-napi';
+import type { UiohookInstance } from 'uiohook-napi';
 import { WindowTracker } from './WindowTracker';
 import { HangulComposer } from './HangulComposer';
 import { LanguageDetector } from './detectors/LanguageDetector';

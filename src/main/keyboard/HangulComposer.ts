@@ -235,9 +235,8 @@ export class HangulComposer extends BaseManager {
       } else if (this.compositionState.medial === '') {
         // 초성 다음에 초성이 온 경우 (이전 글자 완성)
         completed = this.buildCharacter();
-        this.compositionState.initial = char;
-        this.compositionState.medial = '';
-        this.compositionState.final = '';
+        // 🔥 기가차드 개선: 새로운 조합 상태로 완전히 리셋
+        this.resetToNewComposition(char);
       } else {
         // 종성 자리에 초성이 온 경우
         if (this.compositionState.final === '') {
@@ -245,9 +244,8 @@ export class HangulComposer extends BaseManager {
         } else {
           // 이전 글자 완성하고 새 글자 시작
           completed = this.buildCharacter();
-          this.compositionState.initial = char;
-          this.compositionState.medial = '';
-          this.compositionState.final = '';
+          // 🔥 기가차드 개선: 새로운 조합 상태로 완전히 리셋
+          this.resetToNewComposition(char);
         }
       }
     } else if (isMedial) {
@@ -263,9 +261,12 @@ export class HangulComposer extends BaseManager {
           } else {
             // 조합 불가 - 이전 글자 완성
             completed = this.buildCharacter();
+            // 🔥 기가차드 개선: 중성으로 새로운 조합 시작
+            this.compositionState.isComposing = true;
             this.compositionState.initial = '';
             this.compositionState.medial = char;
             this.compositionState.final = '';
+            this.compositionState.composed = char;
           }
         }
       }
@@ -494,6 +495,31 @@ export class HangulComposer extends BaseManager {
       this.compositionTimeout = null;
     }
     Logger.debug(this.componentName, 'Composition state reset');
+  }
+
+  /**
+   * 🔥 기가차드 개선: 새로운 조합으로 완전히 리셋
+   */
+  private resetToNewComposition(initialChar: string): void {
+    // 기존 타이머 정리
+    if (this.compositionTimeout) {
+      clearTimeout(this.compositionTimeout);
+      this.compositionTimeout = null;
+    }
+    
+    // 새로운 조합 상태로 완전 초기화
+    this.compositionState = {
+      isComposing: true,
+      initial: initialChar,
+      medial: '',
+      final: '',
+      composed: initialChar
+    };
+    
+    Logger.debug(this.componentName, '🔥 새로운 조합 시작', { 
+      initialChar,
+      newState: this.compositionState 
+    });
   }
 
   /**

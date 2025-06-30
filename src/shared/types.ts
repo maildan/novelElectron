@@ -165,7 +165,7 @@ export interface KeyboardEvent {
   readonly keychar: string;
   readonly timestamp: number;
   readonly windowTitle: string;
-  readonly type: 'keydown' | 'keyup' | 'input'; // 🔥 'input' 타입 추가 (실제 문자 입력)
+  readonly type: 'keydown' | 'keyup' | 'input' | 'completed' | 'composing'; // 🔥 한글 조합 타입 추가
 }
 
 // 🔥 기가차드 처리된 키보드 이벤트 (keyboardService 처리 후)
@@ -184,10 +184,13 @@ export interface ProcessedKeyboardEvent {
   readonly processingTime: number; // 🔥 처리 시간 (ms)
 }
 
-// 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer)
+// 🔥 기가차드 Uiohook 키보드 이벤트 타입 (native layer) - uiohook-napi 1.5.4 호환
 export interface UiohookKeyboardEvent {
+  type?: number;  // EventType.EVENT_KEY_PRESSED | EventType.EVENT_KEY_RELEASED
+  time?: number;  // timestamp
   keycode: number;
   keychar?: number;
+  rawcode?: number;  // macOS 물리적 키코드
   altKey?: boolean;
   ctrlKey?: boolean;
   metaKey?: boolean;
