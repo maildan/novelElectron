@@ -15,7 +15,7 @@ import { Button } from '../ui/Button';
 import { Tooltip } from '../ui/Tooltip';
 import { Badge } from '../ui/Badge';
 import { Logger } from '../../../shared/logger';
-
+    
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const SIDEBAR_STYLES = {
   container: 'flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300',

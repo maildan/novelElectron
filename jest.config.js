@@ -17,7 +17,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: 'tsconfig.json',
-      isolatedModules: true
+      useESM: false
     }]
   },
   
@@ -80,12 +80,5 @@ module.exports = {
   // Electron 관련 설정
   testEnvironmentOptions: {
     url: 'http://localhost'
-  },
-  
-  // 글로벌 설정
-  globals: {
-    'ts-jest': {
-      useESM: false
-    }
   }
 };

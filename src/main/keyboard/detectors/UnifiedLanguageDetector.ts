@@ -34,6 +34,7 @@ export class UnifiedLanguageDetector extends BaseManager {
       // 🔥 팩토리에서 플랫폼별 최적 감지기 자동 생성
       this.detector = LanguageDetectorFactory.create();
       
+      // null 체크 추가
       if (!this.detector) {
         throw new Error('LanguageDetectorFactory가 null을 반환했습니다');
       }
@@ -66,17 +67,23 @@ export class UnifiedLanguageDetector extends BaseManager {
 
   protected async doStart(): Promise<void> {
     Logger.info(this.componentName, '통합 언어 감지기 시작');
-    await this.detector.start();
+    if (this.detector) {
+      await this.detector.start();
+    }
   }
 
   protected async doStop(): Promise<void> {
     Logger.info(this.componentName, '통합 언어 감지기 중지');
-    await this.detector.stop();
+    if (this.detector) {
+      await this.detector.stop();
+    }
   }
 
   protected async doCleanup(): Promise<void> {
     Logger.info(this.componentName, '통합 언어 감지기 정리');
-    await this.detector.cleanup();
+    if (this.detector) {
+      await this.detector.cleanup();
+    }
   }
 
   /**
@@ -87,6 +94,11 @@ export class UnifiedLanguageDetector extends BaseManager {
     this.detectionCount++;
 
     try {
+      // 🔥 감지기 초기화 확인
+      if (!this.detector) {
+        throw new Error('언어 감지기가 초기화되지 않았습니다');
+      }
+
       // 🔥 실제 감지기에 위임
       const result = await this.detector.detectLanguage(rawEvent);
       
@@ -237,6 +249,5 @@ export class UnifiedLanguageDetector extends BaseManager {
   }
 }
 
-// 🔥 싱글톤 인스턴스 export
-export const unifiedLanguageDetector = new UnifiedLanguageDetector();
-export default unifiedLanguageDetector;
+// 🔥 기본 export만 유지 (테스트 시 singleton 문제 방지)
+export default UnifiedLanguageDetector;

@@ -4,10 +4,13 @@ import { Platform } from '../../../utils/platform';
 import { Logger } from '../../../../shared/logger';
 import { BaseLanguageDetector } from '../base/BaseLanguageDetector';
 
-// 🔥 플랫폼별 언어 감지기 Import (동적 로딩)
-import { MacOSLanguageDetector } from '../macos/MacOSLanguageDetector';
-import { WindowsLanguageDetector } from '../windows/WindowsLanguageDetector';
-import { LinuxLanguageDetector } from '../linux/LinuxLanguageDetector';
+// 🔥 플랫폼별 언어 감지기 Import (조건부 로딩)
+// macOS에서는 MacOS만, Windows에서는 Windows만 로드
+let MacOSLanguageDetector: any;
+let WindowsLanguageDetector: any;
+let LinuxLanguageDetector: any;
+
+// Fallback은 항상 로드
 import { FallbackLanguageDetector } from '../FallbackLanguageDetector';
 
 /**
@@ -25,7 +28,7 @@ export class LanguageDetectorFactory {
   private static createdAt: Date | undefined;
 
   /**
-   * 🔥 플랫폼별 최적 언어 감지기 생성 (Singleton)
+   * 🔥 플랫폼별 최적 언어 감지기 생성 (동기화 버전)
    */
   public static create(): BaseLanguageDetector {
     if (this.instance) {
@@ -38,15 +41,15 @@ export class LanguageDetectorFactory {
     });
 
     try {
-      // 🔥 플랫폼별 최적 감지기 선택
+      // 🔥 플랫폼별 최적 감지기 선택 (동기화 import 사용)
       if (Platform.isMacOS()) {
-        this.instance = new MacOSLanguageDetector();
+        this.instance = this.createMacOSDetector();
         Logger.info(this.componentName, '✅ macOS HIToolbox 언어 감지기 생성됨');
       } else if (Platform.isWindows()) {
-        this.instance = new WindowsLanguageDetector();
+        this.instance = this.createWindowsDetector();
         Logger.info(this.componentName, '✅ Windows Win32 API 언어 감지기 생성됨');
       } else if (Platform.isLinux()) {
-        this.instance = new LinuxLanguageDetector();
+        this.instance = this.createLinuxDetector();
         Logger.info(this.componentName, '✅ Linux IBus/XIM 언어 감지기 생성됨');
       } else {
         this.instance = new FallbackLanguageDetector();
@@ -57,6 +60,11 @@ export class LanguageDetectorFactory {
 
       this.createdAt = new Date();
       
+      // 타입 안전성 체크
+      if (!this.instance) {
+        throw new Error('언어 감지기 생성에 실패했습니다');
+      }
+
       Logger.info(this.componentName, '🎯 언어 감지기 생성 완료', {
         detectorType: this.instance.constructor.name,
         platform: Platform.getPlatformName(),
@@ -73,7 +81,59 @@ export class LanguageDetectorFactory {
       // 실패 시 Fallback 감지기 사용
       this.instance = new FallbackLanguageDetector();
       this.createdAt = new Date();
+      
       return this.instance;
+    }
+  }
+
+  /**
+   * 🔥 macOS 전용 감지기 생성
+   */
+  private static createMacOSDetector(): BaseLanguageDetector {
+    try {
+      if (!MacOSLanguageDetector) {
+        // 동기 require 사용 (테스트 환경 호환성)
+        const macOSModule = require('../macos/MacOSLanguageDetector');
+        MacOSLanguageDetector = macOSModule.MacOSLanguageDetector;
+      }
+      return new MacOSLanguageDetector();
+    } catch (error) {
+      Logger.warn(this.componentName, 'macOS 감지기 로드 실패, Fallback 사용', error);
+      return new FallbackLanguageDetector();
+    }
+  }
+
+  /**
+   * 🔥 Windows 전용 감지기 생성
+   */
+  private static createWindowsDetector(): BaseLanguageDetector {
+    try {
+      if (!WindowsLanguageDetector) {
+        // 동기 require 사용 (테스트 환경 호환성)
+        const windowsModule = require('../windows/WindowsLanguageDetector');
+        WindowsLanguageDetector = windowsModule.WindowsLanguageDetector;
+      }
+      return new WindowsLanguageDetector();
+    } catch (error) {
+      Logger.warn(this.componentName, 'Windows 감지기 로드 실패, Fallback 사용', error);
+      return new FallbackLanguageDetector();
+    }
+  }
+
+  /**
+   * 🔥 Linux 전용 감지기 생성
+   */
+  private static createLinuxDetector(): BaseLanguageDetector {
+    try {
+      if (!LinuxLanguageDetector) {
+        // 동기 require 사용 (테스트 환경 호환성)
+        const linuxModule = require('../linux/LinuxLanguageDetector');
+        LinuxLanguageDetector = linuxModule.LinuxLanguageDetector;
+      }
+      return new LinuxLanguageDetector();
+    } catch (error) {
+      Logger.warn(this.componentName, 'Linux 감지기 로드 실패, Fallback 사용', error);
+      return new FallbackLanguageDetector();
     }
   }
 
@@ -81,7 +141,10 @@ export class LanguageDetectorFactory {
    * 🔥 현재 언어 감지기 인스턴스 반환 (생성되지 않았으면 생성)
    */
   public static getInstance(): BaseLanguageDetector {
-    return this.instance || this.create();
+    if (!this.instance) {
+      return this.create();
+    }
+    return this.instance;
   }
 
   /**

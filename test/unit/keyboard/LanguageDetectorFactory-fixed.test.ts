@@ -21,51 +21,64 @@ jest.mock('../../../src/main/utils/platform', () => ({
 }));
 
 // 🔥 실제 감지기 클래스들을 Mock으로 교체
-const mockMacOSDetector = {
-  constructor: { name: 'MacOSLanguageDetector' },
-  initialize: jest.fn().mockResolvedValue(undefined),
-  start: jest.fn().mockResolvedValue(undefined),
-  stop: jest.fn().mockResolvedValue(undefined),
-  cleanup: jest.fn().mockResolvedValue(undefined),
-  detectLanguage: jest.fn().mockResolvedValue({
-    language: 'ko',
-    confidence: 0.95,
-    method: 'native',
-    isComposing: true
-  }),
-  getCurrentLanguage: jest.fn().mockReturnValue('ko'),
-  setLanguage: jest.fn(),
-  getPerformanceStats: jest.fn().mockReturnValue({
-    platform: 'macOS',
-    detectionCount: 5,
-    averageProcessingTime: 2.5
-  }),
-  healthCheck: jest.fn().mockResolvedValue({ healthy: true })
+const createMockDetector = (name: string) => {
+  const mockInstance = {
+    initialize: jest.fn().mockResolvedValue(undefined),
+    start: jest.fn().mockResolvedValue(undefined),
+    stop: jest.fn().mockResolvedValue(undefined),
+    cleanup: jest.fn().mockResolvedValue(undefined),
+    detectLanguage: jest.fn().mockResolvedValue({
+      language: 'ko',
+      confidence: 0.95,
+      method: 'native',
+      isComposing: true
+    }),
+    getCurrentLanguage: jest.fn().mockReturnValue('ko'),
+    setLanguage: jest.fn(),
+    getPerformanceStats: jest.fn().mockReturnValue({
+      platform: name,
+      detectionCount: 5,
+      averageProcessingTime: 2.5
+    }),
+    healthCheck: jest.fn().mockResolvedValue({ healthy: true })
+  };
+
+  const MockConstructor = jest.fn().mockImplementation(() => mockInstance);
+  
+  // constructor.name을 직접 설정
+  Object.defineProperty(MockConstructor, 'name', {
+    value: name,
+    configurable: true
+  });
+  
+  // mockInstance의 constructor도 설정
+  Object.defineProperty(mockInstance, 'constructor', {
+    value: MockConstructor,
+    configurable: true
+  });
+
+  return { MockConstructor, mockInstance };
 };
 
+const { MockConstructor: MacOSMock } = createMockDetector('MacOSLanguageDetector');
+const { MockConstructor: WindowsMock } = createMockDetector('WindowsLanguageDetector');
+const { MockConstructor: LinuxMock } = createMockDetector('LinuxLanguageDetector');
+const { MockConstructor: FallbackMock } = createMockDetector('FallbackLanguageDetector');
+
 jest.mock('../../../src/main/keyboard/detectors/macos/MacOSLanguageDetector', () => ({
-  MacOSLanguageDetector: jest.fn().mockImplementation(() => mockMacOSDetector)
+  MacOSLanguageDetector: MacOSMock
 }));
 
 jest.mock('../../../src/main/keyboard/detectors/windows/WindowsLanguageDetector', () => ({
-  WindowsLanguageDetector: jest.fn().mockImplementation(() => ({
-    ...mockMacOSDetector,
-    constructor: { name: 'WindowsLanguageDetector' }
-  }))
+  WindowsLanguageDetector: WindowsMock
 }));
 
 jest.mock('../../../src/main/keyboard/detectors/linux/LinuxLanguageDetector', () => ({
-  LinuxLanguageDetector: jest.fn().mockImplementation(() => ({
-    ...mockMacOSDetector,
-    constructor: { name: 'LinuxLanguageDetector' }
-  }))
+  LinuxLanguageDetector: LinuxMock
 }));
 
 jest.mock('../../../src/main/keyboard/detectors/FallbackLanguageDetector', () => ({
-  FallbackLanguageDetector: jest.fn().mockImplementation(() => ({
-    ...mockMacOSDetector,
-    constructor: { name: 'FallbackLanguageDetector' }
-  }))
+  FallbackLanguageDetector: FallbackMock
 }));
 
 // Import after mocks

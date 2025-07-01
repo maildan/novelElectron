@@ -11,10 +11,12 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
-Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
+// 🔥 로거 import (환경변수 로딩 후)
+import { Logger } from '../shared/logger';
 
 import { app, BrowserWindow } from 'electron';
-import { Logger } from '../shared/logger';
+
+
 import { windowManager } from './core/window';
 import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
@@ -36,6 +38,7 @@ import { WindowTracker } from './keyboard/WindowTracker';
 
 // #DEBUG: Main index module entry point
 Logger.debug('MAIN_INDEX', 'Main index module loaded');
+Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
 
 // 🔥 기가차드 메인 애플리케이션 클래스
 class LoopApplication {
@@ -52,6 +55,7 @@ class LoopApplication {
   private shortcutsManager: import('./managers/ShortcutsManager').ShortcutsManager | null = null;
   private trayManager: import('./managers/TrayManager').TrayManager | null = null;
 
+  
   constructor() {
     Logger.info('MAIN_INDEX', 'Loop application instance created');
     this.setupEventHandlers();
