@@ -1,7 +1,7 @@
 import { BaseManager } from '../common/BaseManager';
 import { Logger } from '../../shared/logger';
 import { HealthCheckResult, HealthStatus, SystemHealth } from '../../shared/types';
-import uIOhook from 'uiohook-napi';
+import { uIOhook } from 'uiohook-napi';
 import { app } from 'electron';
 import * as os from 'os';
 import * as fs from 'fs/promises';
@@ -209,8 +209,16 @@ export class HealthCheckManager extends BaseManager {
    */
   private async checkKeyboardHook(): Promise<HealthCheckResult> {
     try {
-      // uIOhook 상태 확인 (실제 구현에서는 더 정교한 체크 필요)
-      const isRegistered = Boolean(uIOhook) && true; // 간단한 존재 확인
+      // 🔥 uIOhook 상태 안전하게 확인
+      let isRegistered = false;
+      
+      try {
+        // uIOhook 모듈이 로드 가능한지 확인
+        isRegistered = Boolean(uIOhook) && typeof uIOhook === 'object';
+      } catch (error) {
+        Logger.warn(this.componentName, 'uIOhook 접근 불가', error);
+        isRegistered = false;
+      }
       
       if (!isRegistered) {
         return {

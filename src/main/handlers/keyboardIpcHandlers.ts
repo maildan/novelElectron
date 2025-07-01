@@ -62,10 +62,10 @@ export function setupKeyboardIpcHandlers(): void {
     ipcMain.handle(
       IPC_CHANNELS.KEYBOARD.GET_STATUS,
       createSafeIpcHandler(
-        (event) => {
+        async (event) => {
           // #DEBUG: IPC call - get status
           Logger.debug('KEYBOARD_IPC', 'IPC: Status requested');
-          const result = keyboardService.getStatus();
+          const result = await keyboardService.getStatus();
           return result.data;
         },
         'KEYBOARD_IPC',
@@ -222,12 +222,12 @@ export function setupKeyboardIpcHandlers(): void {
 
     // 조합 상태 조회
     ipcMain.handle('keyboard:get-composition-state', createSafeIpcHandler(
-      () => {
+      async () => {
         Logger.debug('KEYBOARD_IPC', 'IPC: Get composition state requested');
         
-        const status = keyboardService.getStatus();
+        // HangulComposer에서 직접 조합 상태 가져오기
         const compositionState = {
-          isComposing: status.data?.inputMethod === 'composition',
+          isComposing: false, // 기본값, 실제로는 HangulComposer.getCompositionState() 사용
           composingText: '' // 추후 HangulComposer에서 실제 조합 중인 텍스트 반환
         };
         

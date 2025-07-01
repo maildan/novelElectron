@@ -265,8 +265,17 @@ export class KeyboardPermissionManager extends BaseManager {
    */
   private async testKeyboardAccess(): Promise<boolean> {
     try {
-      // uIOhook을 사용한 간단한 테스트
-      const uiohook = require('uiohook-napi');
+      // 🔥 uIOhook-napi 올바른 사용법
+      const { uIOhook } = require('uiohook-napi');
+      
+      // 필수 함수 존재 확인
+      if (typeof uIOhook.start !== 'function' || typeof uIOhook.stop !== 'function') {
+        Logger.error(this.componentName, 'uIOhook 필수 함수가 없습니다', {
+          hasStart: typeof uIOhook.start,
+          hasStop: typeof uIOhook.stop
+        });
+        return false;
+      }
       
       return new Promise<boolean>((resolve) => {
         let testCompleted = false;
@@ -274,14 +283,20 @@ export class KeyboardPermissionManager extends BaseManager {
         const testTimeout = setTimeout(() => {
           if (!testCompleted) {
             testCompleted = true;
+            try {
+              uIOhook.stop();
+            } catch (e) {
+              // cleanup 에러 무시
+            }
             Logger.warn(this.componentName, '키보드 접근 테스트 타임아웃');
             resolve(false);
           }
         }, 3000); // 3초 타임아웃
         
         try {
-          uiohook.start();
-          uiohook.stop();
+          // 🔥 올바른 uIOhook 사용법
+          uIOhook.start();
+          uIOhook.stop();
           
           if (!testCompleted) {
             testCompleted = true;
@@ -349,6 +364,14 @@ export class KeyboardPermissionManager extends BaseManager {
    */
   public hasPermission(): boolean {
     return this.hasAccessibilityPermission;
+  }
+
+  /**
+   * 🔥 권한 상태 설정 (외부에서 권한 확인 후 호출)
+   */
+  public setPermission(hasPermission: boolean): void {
+    this.hasAccessibilityPermission = hasPermission;
+    Logger.info(this.componentName, '권한 상태 업데이트됨', { hasPermission });
   }
 
   /**
