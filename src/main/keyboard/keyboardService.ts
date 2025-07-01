@@ -227,6 +227,65 @@ export class KeyboardService extends EventEmitter {
   // 🔥 키보드 이벤트 처리 (다국어 지원 + HANGUL_KEY_MAP 활용)
   private async handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
     try {
+      // 🔥 macOS에서는 시스템 IME 우선 처리
+      if (Platform.isMacOS()) {
+        return this.handleMacOSKeyEvent(type, rawEvent);
+      }
+      
+      // 🔥 다른 플랫폼에서는 기존 로직 사용
+      return this.handleWithComposer(type, rawEvent);
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to handle key event', error);
+    }
+  }
+
+  // 🔥 macOS 전용 키 이벤트 처리 (시스템 IME 우선)
+  private async handleMacOSKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
+    try {
+      const keychar = rawEvent.keychar || 0;
+      const char = String.fromCharCode(keychar);
+      
+      // keydown 이벤트만 처리 (중복 방지)
+      if (type !== 'keydown') {
+        return;
+      }
+      
+      // 🔥 완성된 한글 문자 처리
+      if (this.isCompletedHangul(keychar)) {
+        Logger.debug('KEYBOARD', 'macOS IME completed Hangul detected', { 
+          keychar, 
+          char,
+          keycode: rawEvent.keycode 
+        });
+        await this.processCompletedCharacter(char, type, rawEvent);
+        return;
+      }
+      
+      // 🔥 영어/숫자 등 직접 입력 문자 처리
+      if (this.isDirectInputCharacter(keychar)) {
+        Logger.debug('KEYBOARD', 'macOS direct input character', { 
+          keychar, 
+          char,
+          keycode: rawEvent.keycode 
+        });
+        await this.processCompletedCharacter(char, type, rawEvent);
+        return;
+      }
+      
+      // 🔥 조합 중인 자모나 제어 문자는 무시
+      Logger.debug('KEYBOARD', 'macOS ignoring composition/control character', { 
+        keychar: keychar.toString(16),
+        keycode: rawEvent.keycode 
+      });
+      
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to handle macOS key event', error);
+    }
+  }
+
+  // 🔥 다른 플랫폼용 기존 로직 (HangulComposer 사용)
+  private async handleWithComposer(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
+    try {
       // 🔥 rawEvent를 enhanced event로 변환 (정확한 keychar 포함)
       const enhancedEvent = this.enhanceRawEvent(rawEvent);
       
@@ -1038,6 +1097,111 @@ export class KeyboardService extends EventEmitter {
       completedChar,
       keycode: rawEvent.keycode
     });
+  }
+
+  // 🔥 완성된 한글 문자인지 판별 (macOS용)
+  private isCompletedHangul(keychar: number): boolean {
+    // 한글 완성형 범위 (가-힣): U+AC00 ~ U+D7AF
+    return keychar >= 0xAC00 && keychar <= 0xD7AF;
+  }
+
+  // 🔥 영어/숫자 등 직접 입력 문자인지 판별 (macOS용)
+  private isDirectInputCharacter(keychar: number): boolean {
+    // ASCII 인쇄 가능 문자 (스페이스~틸드)
+    return keychar >= 32 && keychar <= 126;
+  }
+
+  // 🔥 완성된 문자 처리 (macOS용)
+  private async processCompletedCharacter(char: string, type: string, rawEvent: UiohookKeyboardEvent): Promise<void> {
+    try {
+      // 언어 감지
+      const language = this.detectLanguageFromChar(char);
+      
+      // 윈도우 정보 가져오기
+      const windowInfo = this.windowTracker?.getCurrentWindow() || {
+        title: 'Unknown',
+        processName: 'Unknown'
+      };
+
+      const processedEvent: ProcessedKeyboardEvent = {
+        key: char,
+        code: `Key${rawEvent.keycode}`,
+        keycode: rawEvent.keycode,
+        keychar: char,
+        timestamp: Date.now(),
+        type: type as 'keydown' | 'keyup' | 'input',
+        windowTitle: windowInfo.title || 'Unknown',
+        language,
+        composedChar: char,
+        isComposing: false,    // 🔥 완성된 상태
+        inputMethod: 'direct',
+        processingTime: 0
+      };
+
+      // 🔥 통계 업데이트
+      this.updateTypingStats(processedEvent);
+      
+      // 🔥 이벤트 발송
+      this.emit('keyboard-event', processedEvent);
+      
+      Logger.debug('KEYBOARD', 'macOS completed character processed', {
+        char,
+        language,
+        isComposing: false
+      });
+      
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to process completed character', error);
+    }
+  }
+
+  // 🔥 문자로부터 언어 감지 (macOS용)
+  private detectLanguageFromChar(char: string): string {
+    if (!char || char.length !== 1) return 'en';
+    
+    const charCode = char.charCodeAt(0);
+    
+    // 한글 완성형
+    if (charCode >= 0xAC00 && charCode <= 0xD7AF) return 'ko';
+    
+    // 한글 자모
+    if ((charCode >= 0x1100 && charCode <= 0x11FF) || 
+        (charCode >= 0x3130 && charCode <= 0x318F)) return 'ko';
+    
+    // 일본어
+    if ((charCode >= 0x3040 && charCode <= 0x309F) || // 히라가나
+        (charCode >= 0x30A0 && charCode <= 0x30FF)) return 'ja'; // 가타카나
+    
+    // 중국어 (한자)
+    if (charCode >= 0x4E00 && charCode <= 0x9FFF) return 'zh';
+    
+    // 기본값: 영어
+    return 'en';
+  }
+
+  // 🔥 타이핑 통계 업데이트 (macOS용)
+  private updateTypingStats(event: ProcessedKeyboardEvent): void {
+    try {
+      // 이벤트 버퍼에 추가
+      this.eventBuffer.push(event);
+      
+      // 버퍼 크기 제한 (메모리 보호)
+      if (this.eventBuffer.length > 1000) {
+        this.eventBuffer = this.eventBuffer.slice(-500);
+      }
+      
+      // 상태 업데이트
+      this.state.totalEvents++;
+      
+      Logger.debug('KEYBOARD', 'Typing stats updated', {
+        totalEvents: this.state.totalEvents,
+        bufferSize: this.eventBuffer.length,
+        language: event.language
+      });
+      
+    } catch (error) {
+      Logger.error('KEYBOARD', 'Failed to update typing stats', error);
+    }
   }
 }
 

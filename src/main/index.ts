@@ -11,10 +11,12 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
-Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
-
 import { app, BrowserWindow } from 'electron';
 import { Logger } from '../shared/logger';
+
+// 로거 초기화 후 환경 정보 출력
+Logger.info('MAIN_INDEX', `🔥 Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
+
 import { windowManager } from './core/window';
 import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
@@ -36,7 +38,6 @@ import { WindowTracker } from './keyboard/WindowTracker';
 
 // #DEBUG: Main index module entry point
 Logger.debug('MAIN_INDEX', 'Main index module loaded');
-Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
 
 // 🔥 기가차드 메인 애플리케이션 클래스
 class LoopApplication {
