@@ -17,6 +17,10 @@ import { KeyboardPermissionManager } from '../managers/KeyboardPermissionManager
 import { KeyboardStatsManager } from '../managers/KeyboardStatsManager';
 import { SessionManager } from '../managers/SessionManager';
 import { WindowTracker } from './WindowTracker';
+import { UnifiedLanguageDetector } from './detectors/UnifiedLanguageDetector';
+
+// 🔥 앱 카테고리 매핑 import
+import { APP_CATEGORY_MAPPING, APP_CATEGORIES } from './appCategories';
 
 /**
  * 🔥 KeyboardService - 완전히 새로 작성된 키보드 서비스
@@ -40,6 +44,7 @@ export class KeyboardService extends BaseManager {
   private statsManager: KeyboardStatsManager;
   private sessionManager: SessionManager;
   private windowTracker: WindowTracker;
+  private languageDetector: UnifiedLanguageDetector;
 
   constructor() {
     super({
@@ -54,6 +59,7 @@ export class KeyboardService extends BaseManager {
     this.statsManager = new KeyboardStatsManager();
     this.sessionManager = new SessionManager();
     this.windowTracker = new WindowTracker();
+    this.languageDetector = new UnifiedLanguageDetector();
     
     Logger.info(this.componentName, '키보드 서비스 생성됨');
   }
@@ -69,6 +75,7 @@ export class KeyboardService extends BaseManager {
     await this.statsManager.initialize();
     await this.sessionManager.initialize();
     await this.windowTracker.initialize();
+    await this.languageDetector.initialize();
     
     // uIOhook 초기화
     await this.initializeUiohook();
@@ -83,6 +90,7 @@ export class KeyboardService extends BaseManager {
     await this.statsManager.start();
     await this.sessionManager.start();
     await this.windowTracker.start();
+    await this.languageDetector.start();
   }
 
   protected async doStop(): Promise<void> {
@@ -115,6 +123,7 @@ export class KeyboardService extends BaseManager {
     await this.sessionManager.cleanup();
     await this.statsManager.cleanup();
     await this.permissionManager.cleanup();
+    await this.languageDetector.cleanup();
   }
 
   /**
@@ -328,17 +337,42 @@ export class KeyboardService extends BaseManager {
       // 현재 윈도우 정보 가져오기
       const currentWindow = this.windowTracker.getCurrentWindow();
       
-      // 기본 윈도우 정보 생성 (윈도우 정보가 없을 때)
-      const windowInfo: WindowInfo = currentWindow || {
-        id: 0,
-        title: 'Unknown Window',
-        owner: {
-          name: 'Unknown App',
-          processId: 0
-        },
-        bounds: { x: 0, y: 0, width: 0, height: 0 },
-        memoryUsage: 0
-      };
+      // 🔥 윈도우 정보 개선 및 앱 카테고리 매핑
+      let windowInfo: WindowInfo;
+      let appCategory = 'unknown';
+      let appName = 'Unknown App';
+      
+      if (currentWindow) {
+        appName = currentWindow.owner?.name || currentWindow.title || 'Unknown App';
+        appCategory = APP_CATEGORY_MAPPING[appName] || APP_CATEGORIES.UNKNOWN;
+        
+        windowInfo = currentWindow;
+        
+        Logger.debug(this.componentName, `🔥 앱 정보 감지됨`, {
+          appName,
+          appCategory,
+          windowTitle: currentWindow.title,
+          processId: currentWindow.owner?.processId
+        });
+      } else {
+        // 권한이 없을 때 fallback 윈도우 정보
+        windowInfo = {
+          id: 0,
+          title: 'Loop Typing Analytics',
+          owner: {
+            name: 'Loop',
+            processId: process.pid,
+            bundleId: 'com.loop.typing-analytics'
+          },
+          bounds: { x: 0, y: 0, width: 0, height: 0 },
+          memoryUsage: 0
+        };
+        
+        Logger.warn(this.componentName, `⚠️  윈도우 감지 실패 - fallback 사용`, {
+          reason: '접근성 권한 없음 또는 WindowTracker 오류',
+          fallbackApp: windowInfo.owner.name
+        });
+      }
 
       // 문자 추출 - keychar 대신 keycode 기반 변환 시도
       const keychar = rawEvent.keychar || 0;
@@ -363,7 +397,11 @@ export class KeyboardService extends BaseManager {
 
       // 유효한 문자만 처리 (공백, 문자, 숫자, 한글 등)
       if (char && this.isValidCharacter(char)) {
-        Logger.info(this.componentName, `✅ 유효한 키 입력 감지!`, { char });
+        Logger.info(this.componentName, `✅ 유효한 키 입력 감지!`, { 
+          char: char.charCodeAt(0) > 127 ? '[한글]' : char,
+          appName,
+          appCategory 
+        });
         
         // 세션에 키 입력 기록
         this.sessionManager.recordKeyboardInput({
@@ -387,17 +425,31 @@ export class KeyboardService extends BaseManager {
           }
         });
 
-        Logger.debug(this.componentName, '키 입력 처리됨', {
+        Logger.debug(this.componentName, `🔥 키 입력 완료 처리됨`, {
           char: char.charCodeAt(0) > 127 ? '[한글]' : char,
           keycode: rawEvent.keycode,
-          window: windowInfo.title
+          appName,
+          appCategory,
+          windowTitle: windowInfo.title,
+          language: this.detectLanguage(char)
         });
 
         // 외부 이벤트 발송
         this.eventEmitter.emit('key-input', {
           character: char,
           windowTitle: windowInfo.title,
+          appName,
+          appCategory,
           timestamp: Date.now()
+        });
+      } else {
+        // 무효한 키 입력에 대한 디버그 정보
+        Logger.debug(this.componentName, `⚠️  무효한 키 입력`, {
+          keycode: rawEvent.keycode,
+          keychar: rawEvent.keychar,
+          extractedChar: char,
+          isValid: char ? this.isValidCharacter(char) : false,
+          reason: !char ? '문자 추출 실패' : '유효하지 않은 문자'
         });
       }
 
@@ -424,18 +476,35 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 언어 감지
+   * 🔥 언어 감지 - UnifiedLanguageDetector 사용
    */
   private detectLanguage(char: string): string {
-    const charCode = char.charCodeAt(0);
-    
-    // 한글 (가-힣)
-    if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
-      return 'ko';
+    try {
+      // UnifiedLanguageDetector가 초기화되어 있는지 확인
+      if (this.languageDetector) {
+        const currentLanguage = this.languageDetector.getCurrentLanguage();
+        return currentLanguage || 'en';
+      }
+      
+      // Fallback: 간단한 유니코드 기반 감지
+      const charCode = char.charCodeAt(0);
+      
+      // 한글 (가-힣)
+      if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
+        return 'ko';
+      }
+      
+      // 한글 자모 (ㄱ-ㅣ)
+      if (charCode >= 0x3131 && charCode <= 0x318E) {
+        return 'ko';
+      }
+      
+      // 영어 및 기타
+      return 'en';
+    } catch (error) {
+      Logger.warn(this.componentName, '언어 감지 실패, fallback 사용', error);
+      return 'en';
     }
-    
-    // 영어 및 기타
-    return 'en';
   }
 
   /**
@@ -509,9 +578,19 @@ export class KeyboardService extends BaseManager {
    * 🔥 권한 관련 API
    */
   public setAccessibilityPermission(hasPermission: boolean): void {
-    this.permissionManager.setPermission(hasPermission);
-    this.windowTracker.setAccessibilityPermission(hasPermission);
     Logger.info(this.componentName, '접근성 권한 상태 설정됨', { hasPermission });
+    
+    // 🔥 WindowTracker에 권한 상태 전달
+    if (this.windowTracker) {
+      this.windowTracker.setAccessibilityPermission(hasPermission);
+      
+      // 권한이 활성화되면 윈도우 추적 시작
+      if (hasPermission) {
+        this.windowTracker.start().catch(error => {
+          Logger.error(this.componentName, 'WindowTracker 시작 실패', error);
+        });
+      }
+    }
   }
 
   /**
@@ -611,9 +690,62 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 키코드를 문자로 변환
+   * 🔥 키코드를 문자로 변환 - 한글 키보드 매핑 포함
    */
   private convertKeycodeToChar(keycode: number): string {
+    // 🔥 한글 키보드 매핑 (macOS 기준 정확한 매핑)
+    const hangulMapping: Record<number, string> = {
+      // 자음 (왼쪽 영역)
+      16: 'ㅂ',  // Q
+      17: 'ㅈ',  // W  
+      18: 'ㄷ',  // E
+      19: 'ㄱ',  // R
+      20: 'ㅅ',  // T
+      
+      0: 'ㅁ',   // A
+      1: 'ㄴ',   // S
+      2: 'ㅇ',   // D
+      3: 'ㄹ',   // F
+      5: 'ㅎ',   // G
+      
+      6: 'ㅋ',   // Z
+      7: 'ㅌ',   // X
+      8: 'ㅊ',   // C
+      9: 'ㅍ',   // V
+      
+      // 모음 (오른쪽 영역)
+      23: 'ㅛ',  // Y
+      22: 'ㅕ',  // U
+      34: 'ㅑ',  // I
+      31: 'ㅐ',  // O
+      35: 'ㅔ',  // P
+      
+      4: 'ㅗ',   // H
+      38: 'ㅓ',  // J
+      29: 'ㅏ',  // K - 수정된 매핑
+      37: 'ㅣ',  // L
+      
+      11: 'ㅠ',  // B
+      45: 'ㅜ',  // N
+      46: 'ㅡ',  // M - 수정된 매핑
+      
+      // 🔥 한글 조합 중간 키코드 추가
+      3675: 'ㅇ',  // 한글 조합 과정 중 'ㅇ'
+      15: 'ㅎ',    // 한글 조합 과정 중 'ㅎ'
+      33: 'ㅓ',    // 한글 조합 과정 중 'ㅓ'
+      
+      // 추가 한글 조합키 매핑
+      14: 'ㄱ',    // 한글 'ㄱ' 조합
+      21: 'ㅅ',    // 한글 'ㅅ' 조합
+      30: 'ㅑ',    // 한글 'ㅑ' 조합
+      32: 'ㅛ',    // 한글 'ㅛ' 조합
+    };
+
+    // 한글 매핑 우선 확인
+    if (hangulMapping[keycode]) {
+      return hangulMapping[keycode];
+    }
+    
     // 일반 문자 키 (A-Z) - keycode 65-90
     if (keycode >= 65 && keycode <= 90) {
       return String.fromCharCode(keycode).toLowerCase();
@@ -624,56 +756,25 @@ export class KeyboardService extends BaseManager {
       return String.fromCharCode(keycode);
     }
     
-    // 특수 키들
-    switch (keycode) {
-      case 32: return ' '; // 스페이스
-      case 13: return '\n'; // 엔터
-      case 9: return '\t'; // 탭
-      case 46: return '.'; // 마침표
-      case 44: return ','; // 쉼표
-      case 59: return ';'; // 세미콜론
-      case 39: return "'"; // 아포스트로피
-      case 91: return '['; // 열린 대괄호
-      case 93: return ']'; // 닫힌 대괄호
-      case 45: return '-'; // 하이픈
-      case 61: return '='; // 등호
-      case 47: return '/'; // 슬래시
-      case 92: return '\\'; // 백슬래시
-      
-      // 한글 키보드 관련 키코드들 (macOS 기준)
-      case 31: return 'ㅏ'; // ㅏ
-      case 33: return 'ㅓ'; // ㅓ  
-      case 32: return 'ㅡ'; // ㅡ
-      case 37: return 'ㅜ'; // ㅜ
-      case 38: return 'ㅠ'; // ㅠ
-      case 35: return 'ㅗ'; // ㅗ
-      case 30: return 'ㅛ'; // ㅛ
-      case 57: return 'ㅕ'; // ㅕ
-      case 45: return 'ㅣ'; // ㅣ
-      case 19: return 'ㄱ'; // ㄱ
-      case 20: return 'ㄴ'; // ㄴ
-      case 21: return 'ㄷ'; // ㄷ
-      case 23: return 'ㄹ'; // ㄹ
-      case 24: return 'ㅁ'; // ㅁ
-      case 25: return 'ㅂ'; // ㅂ
-      case 26: return 'ㅅ'; // ㅅ
-      case 18: return 'ㅇ'; // ㅇ
-      case 17: return 'ㅈ'; // ㅈ
-      case 46: return 'ㅊ'; // ㅊ
-      case 22: return 'ㅋ'; // ㅋ
-      case 15: return 'ㅌ'; // ㅌ
-      case 16: return 'ㅍ'; // ㅍ
-      case 14: return 'ㅎ'; // ㅎ
-      case 42: return 'ㅗ'; // ㅗ (조합)
-      case 29: return 'ㅏ'; // ㅏ (조합)
-      case 58: return 'ㅁ'; // ㅁ (대문자)
-      case 3675: return 'ㅇ'; // ㅇ (cmd 키 조합)
-      
-      default:
-        // 알 수 없는 키코드는 빈 문자열 반환
-        Logger.debug(this.componentName, `알 수 없는 키코드: ${keycode}`);
-        return '';
+    // 일반적인 특수 문자들
+    const specialChars: Record<number, string> = {
+      32: ' ',    // Space
+      188: ',',   // Comma
+      190: '.',   // Period
+      186: ';',   // Semicolon
+      222: "'",   // Apostrophe
+      219: '[',   // Left bracket
+      221: ']',   // Right bracket
+      220: '\\',  // Backslash
+      191: '/',   // Forward slash
+      192: '`',   // Backtick
+    };
+    
+    if (specialChars[keycode]) {
+      return specialChars[keycode];
     }
+    
+    return '';
   }
 }
 

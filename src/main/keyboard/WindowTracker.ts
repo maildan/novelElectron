@@ -686,8 +686,8 @@ export class WindowTracker extends BaseManager {
    */
   private async fallbackWindowDetection(): Promise<WindowInfo | null> {
     if (!Platform.isMacOS()) {
-      Logger.debug(this.componentName, '⚠️ macOS가 아님 - fallback 불가');
-      return null;
+      Logger.debug(this.componentName, '⚠️ macOS가 아님 - 기본 윈도우 정보 사용');
+      return this.createBasicWindowInfo();
     }
     
     try {
@@ -779,6 +779,26 @@ export class WindowTracker extends BaseManager {
         return null;
       }
     }
+  }
+
+  /**
+   * 🔥 기본 윈도우 정보 생성 (권한 없을 때 사용)
+   */
+  private createBasicWindowInfo(): WindowInfo {
+    const appName = Platform.isMacOS() ? 'macOS App' : 
+                   Platform.isWindows() ? 'Windows App' : 'Linux App';
+    
+    return {
+      id: Date.now(),
+      title: `${appName} - Active Window`,
+      owner: {
+        name: appName,
+        processId: process.pid,
+        bundleId: `com.loop.fallback.${Platform.getPlatformName().toLowerCase()}`
+      },
+      bounds: { x: 0, y: 0, width: 1200, height: 800 },
+      memoryUsage: 0
+    };
   }
 
   /**
