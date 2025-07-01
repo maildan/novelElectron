@@ -159,19 +159,37 @@ export class KeyboardPermissionManager extends BaseManager {
   }
 
   /**
-   * 🔥 macOS 권한 요청
+   * 🔥 macOS 권한 요청 - 시스템 환경설정 안내
    */
   private async requestMacOSPermissions(): Promise<boolean> {
     try {
-      // macOS에서는 시스템 환경설정으로 안내
-      Logger.info(this.componentName, 'macOS 접근성 권한 안내 표시');
+      Logger.info(this.componentName, '🔐 macOS 접근성 권한 요청 시작');
       
-      // TODO: 실제 구현에서는 Electron dialog로 사용자 안내
-      // const { shell } = require('electron');
-      // await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
+      // 먼저 현재 권한 상태 확인
+      const currentPermission = await this.checkMacOSPermissions();
+      if (currentPermission) {
+        Logger.info(this.componentName, '✅ 이미 접근성 권한이 있습니다');
+        return true;
+      }
       
-      // 권한 확인 (실제로는 네이티브 모듈 필요)
-      return await this.checkMacOSPermissions();
+      // 권한이 없으면 시스템 환경설정 열기
+      Logger.warn(this.componentName, '❌ 접근성 권한이 필요합니다. 시스템 환경설정을 엽니다.');
+      
+      try {
+        const { shell } = require('electron');
+        await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
+        
+        Logger.info(this.componentName, '📖 시스템 환경설정 > 보안 및 개인 정보 보호 > 접근성 열림');
+        Logger.info(this.componentName, '👆 Electron 또는 Code 앱에 체크박스를 활성화해주세요');
+        
+        // 사용자가 권한을 설정할 시간을 주고 다시 확인
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return await this.checkMacOSPermissions();
+        
+      } catch (shellError) {
+        Logger.error(this.componentName, '시스템 환경설정 열기 실패', shellError);
+        return false;
+      }
       
     } catch (error) {
       Logger.error(this.componentName, 'macOS 권한 요청 실패', error);
@@ -180,20 +198,59 @@ export class KeyboardPermissionManager extends BaseManager {
   }
 
   /**
-   * 🔥 macOS 권한 확인
+   * 🔥 macOS 권한 확인 - 실제 접근성 권한 체크
    */
   private async checkMacOSPermissions(): Promise<boolean> {
     try {
-      // TODO: 실제 구현에서는 네이티브 모듈로 접근성 권한 확인
-      // const nativeModule = require('./native/macos');
-      // return nativeModule.checkAccessibilityPermission();
+      // 🔥 1순위: 시스템 접근성 권한 확인
+      const { execSync } = require('child_process');
       
-      // 임시: uIOhook 테스트로 권한 확인
-      const testResult = await this.testKeyboardAccess();
-      return testResult;
+      try {
+        const result = execSync('defaults read com.apple.Accessibility ApplicationAccessibilityEnabled', {
+          encoding: 'utf8',
+          timeout: 5000
+        }).trim();
+        
+        const isGloballyEnabled = result === '1';
+        
+        if (!isGloballyEnabled) {
+          Logger.warn(this.componentName, '⚠️ macOS 접근성 권한이 전체적으로 비활성화됨', {
+            globalSetting: result,
+            needsSystemPreferences: true
+          });
+          return false;
+        }
+        
+        Logger.info(this.componentName, '✅ macOS 글로벌 접근성 권한 확인됨');
+        
+      } catch (globalCheckError) {
+        Logger.error(this.componentName, '글로벌 접근성 권한 확인 실패', globalCheckError);
+        return false;
+      }
+      
+      // 🔥 2순위: AppleScript 실행 테스트 (실제 권한 동작 확인)
+      try {
+        const testScript = `
+          tell application "System Events"
+            return (count of processes) > 0
+          end tell
+        `;
+        
+        execSync(`osascript -e '${testScript}'`, {
+          encoding: 'utf8',
+          timeout: 3000
+        });
+        
+        Logger.info(this.componentName, '✅ AppleScript 접근성 권한 테스트 성공');
+        return true;
+        
+      } catch (scriptError) {
+        Logger.error(this.componentName, '❌ AppleScript 접근성 권한 테스트 실패', scriptError);
+        return false;
+      }
       
     } catch (error) {
-      Logger.error(this.componentName, 'macOS 권한 확인 실패', error);
+      Logger.error(this.componentName, 'macOS 권한 확인 중 치명적 오류', error);
       return false;
     }
   }

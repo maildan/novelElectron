@@ -23,7 +23,7 @@ import { UnifiedLanguageDetector } from './detectors/UnifiedLanguageDetector';
 import { APP_CATEGORY_MAPPING, APP_CATEGORIES } from './appCategories';
 
 // 🔥 macOS 한글 키코드 매핑 import
-import { MACOS_HANGUL_KEYCODES, getHangulKeycodes } from './detectors/types/KeycodeMappings';
+import { MACOS_HANGUL_KEYCODES, EXTENDED_HANGUL_KEYCODES, getHangulKeycodes } from './detectors/types/KeycodeMappings';
 
 /**
  * 🔥 KeyboardService - 완전히 새로 작성된 키보드 서비스
@@ -319,23 +319,29 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 키 이벤트 처리
+   * 🔥 키 이벤트 처리 - IME 최적화
    */
   private async handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): Promise<void> {
     try {
-      // 🔥 디버그: 모든 키 이벤트 로깅
-      Logger.debug(this.componentName, `🔥 키 이벤트 감지!`, {
+      // keydown만 처리 (IME와 중복 방지)
+      if (type !== 'keydown') {
+        // keyup은 로깅만 하고 처리하지 않음
+        Logger.debug(this.componentName, `🔥 키 이벤트 감지! (무시됨)`, {
+          type,
+          keycode: rawEvent.keycode,
+          keychar: rawEvent.keychar,
+          reason: 'keyup 이벤트는 IME 처리로 인해 무시됨'
+        });
+        return;
+      }
+
+      // 🔥 디버그: keydown 이벤트만 상세 로깅
+      Logger.debug(this.componentName, `🔥 키 이벤트 감지! (처리 시작)`, {
         type,
         keycode: rawEvent.keycode,
         keychar: rawEvent.keychar,
-        char: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'none'
+        char: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'keycode로 변환 시도'
       });
-
-      // keydown만 처리 (중복 방지)
-      if (type !== 'keydown') {
-        Logger.debug(this.componentName, `keyup 이벤트 무시`, { type });
-        return;
-      }
 
       // 현재 윈도우 정보 가져오기
       const currentWindow = this.windowTracker.getCurrentWindow();
@@ -479,30 +485,50 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 언어 감지 - UnifiedLanguageDetector 사용
+   * 🔥 언어 감지 - 실시간 입력 소스 기반 정확한 감지
    */
   private detectLanguage(char: string): string {
     try {
-      // UnifiedLanguageDetector가 초기화되어 있는지 확인
-      if (this.languageDetector) {
-        const currentLanguage = this.languageDetector.getCurrentLanguage();
-        return currentLanguage || 'en';
+      // 🔥 1순위: 실시간 입력 소스 확인 (가장 정확)
+      const realTimeInputSource = this.getCurrentInputSource();
+      if (realTimeInputSource === 'ko') {
+        Logger.debug(this.componentName, '실시간 한글 입력 소스 감지됨', { 
+          char, 
+          inputSource: realTimeInputSource 
+        });
+        return 'ko';
       }
       
-      // Fallback: 간단한 유니코드 기반 감지
+      // 🔥 2순위: 문자 기반 즉시 감지 (한글 문자가 실제로 입력된 경우)
+      if (char && /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(char)) {
+        Logger.debug(this.componentName, '한글 문자 감지됨', { char, charCode: char.charCodeAt(0) });
+        return 'ko';
+      }
+      
+      // 🔥 3순위: 유니코드 범위 검사 (이중 확인)
       const charCode = char.charCodeAt(0);
       
-      // 한글 (가-힣)
+      // Hangul Syllables (가-힣): U+AC00-D7AF
       if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
         return 'ko';
       }
       
-      // 한글 자모 (ㄱ-ㅣ)
-      if (charCode >= 0x3131 && charCode <= 0x318E) {
+      // Hangul Compatibility Jamo (ㄱ-ㅎ, ㅏ-ㅣ): U+3130-318F
+      if (charCode >= 0x3130 && charCode <= 0x318F) {
+        return 'ko';
+      }
+      
+      // Hangul Jamo (조합용): U+1100-11FF
+      if (charCode >= 0x1100 && charCode <= 0x11FF) {
         return 'ko';
       }
       
       // 영어 및 기타
+      if ((charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122)) {
+        return 'en';
+      }
+      
+      // 기본값
       return 'en';
     } catch (error) {
       Logger.warn(this.componentName, '언어 감지 실패, fallback 사용', error);
@@ -693,31 +719,63 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 키코드를 문자로 변환 - KeycodeMappings.ts 활용
+   * 🔥 키코드를 문자로 변환 - 입력 소스 기반 조건부 매핑
    */
   private convertKeycodeToChar(keycode: number): string {
-    // 🔥 1순위: macOS 한글 키코드 매핑 (KeycodeMappings.ts에서 import)
-    if (process.platform === 'darwin' && MACOS_HANGUL_KEYCODES.has(keycode)) {
+    // 🔥 0순위: 실시간 입력 소스 확인 (정확한 감지)
+    const currentInputSource = this.getCurrentInputSource();
+    const isKoreanInputSource = currentInputSource === 'ko';
+    
+    Logger.debug(this.componentName, '🔍 실시간 입력 소스 확인', {
+      keycode,
+      currentInputSource,
+      isKoreanInputSource,
+      method: 'AppleScript'
+    });
+    
+    // 🔥 1순위: 한글 입력 소스일 때만 한글 매핑 적용
+    if (process.platform === 'darwin' && isKoreanInputSource && MACOS_HANGUL_KEYCODES.has(keycode)) {
       const hangulChar = MACOS_HANGUL_KEYCODES.get(keycode);
-      Logger.debug(this.componentName, '🔥 macOS 한글 키코드 매핑 성공', {
+      Logger.debug(this.componentName, '🔥 기본 한글 매핑 성공', {
         keycode,
         char: hangulChar,
-        source: 'MACOS_HANGUL_KEYCODES'
+        source: 'MACOS_HANGUL_KEYCODES',
+        inputSource: currentInputSource
       });
       return hangulChar || '';
     }
     
-    // 🔥 2순위: 일반 문자 키 (A-Z) - keycode 65-90
+    // 🔥 2순위: 한글 입력 소스일 때만 확장 한글 매핑 적용  
+    if (process.platform === 'darwin' && isKoreanInputSource && EXTENDED_HANGUL_KEYCODES.has(keycode)) {
+      const extendedChar = EXTENDED_HANGUL_KEYCODES.get(keycode);
+      Logger.debug(this.componentName, '🔥 확장 한글 매핑 성공', {
+        keycode,
+        char: extendedChar,
+        source: 'EXTENDED_HANGUL_KEYCODES',
+        inputSource: currentInputSource
+      });
+      return extendedChar || '';
+    }
+    
+    // 🔥 3순위: 일반 문자 키 (A-Z) - keycode 65-90
     if (keycode >= 65 && keycode <= 90) {
-      return String.fromCharCode(keycode).toLowerCase();
+      const char = String.fromCharCode(keycode).toLowerCase();
+      Logger.debug(this.componentName, '🔤 ASCII 매핑 사용', { 
+        keycode, 
+        char,
+        inputSource: currentInputSource 
+      });
+      return char;
     }
     
-    // 🔥 3순위: 숫자 키 (0-9) - keycode 48-57
+    // 🔥 4순위: 숫자 키 (0-9) - keycode 48-57
     if (keycode >= 48 && keycode <= 57) {
-      return String.fromCharCode(keycode);
+      const char = String.fromCharCode(keycode);
+      Logger.debug(this.componentName, '숫자 매핑 사용', { keycode, char });
+      return char;
     }
     
-    // 🔥 4순위: 일반적인 특수 문자들
+    // 🔥 5순위: 일반적인 특수 문자들
     const specialChars: Record<number, string> = {
       32: ' ',    // Space
       188: ',',   // Comma
@@ -732,18 +790,158 @@ export class KeyboardService extends BaseManager {
     };
     
     if (specialChars[keycode]) {
-      return specialChars[keycode];
+      const char = specialChars[keycode];
+      Logger.debug(this.componentName, '특수문자 매핑 사용', { keycode, char });
+      return char;
     }
     
-    Logger.warn(this.componentName, '🔍 매핑되지 않은 키코드 발견!', { 
+    // 🔥 매핑되지 않은 키코드 상세 로깅 (개발용)
+    Logger.warn(this.componentName, '🔍 새로운 키코드 발견! 매핑 추가 필요', { 
       keycode,
       hex: `0x${keycode.toString(16)}`,
       binary: keycode.toString(2),
-      needsMapping: true,
-      suggestedAction: 'MACOS_HANGUL_KEYCODES에 추가 필요'
+      platform: process.platform,
+      timestamp: new Date().toISOString(),
+      actionNeeded: '이 키코드를 EXTENDED_HANGUL_KEYCODES에 추가하세요'
     });
+    
     return '';
   }
+
+  /**
+   * 🔥 실시간 macOS 입력 소스 확인 - 권한 에러 처리 강화
+   */
+  private getCurrentInputSource(): string {
+    try {
+      if (process.platform !== 'darwin') {
+        return 'en'; // macOS가 아니면 영어로 기본값
+      }
+
+      // 🔥 1순위: AppleScript로 현재 입력 소스 확인
+      const { execSync } = require('child_process');
+      const script = `
+        tell application "System Events"
+          tell process "SystemUIServer"
+            tell (menu bar item 1 of menu bar 1 whose description contains "text input")
+              get value of attribute "AXTitle"
+            end tell
+          end tell
+        end tell
+      `;
+      
+      const result = execSync(`osascript -e '${script}'`, { encoding: 'utf8', timeout: 2000 });
+      const inputSource = result.trim();
+      
+      // 🔥 한글 입력기 감지 (2벌식, 3벌식 등)
+      if (inputSource.includes('한글') || 
+          inputSource.includes('Korean') || 
+          inputSource.includes('2-Set') || 
+          inputSource.includes('3-Set')) {
+        Logger.debug(this.componentName, '✅ 한글 입력 소스 감지됨', { inputSource });
+        return 'ko';
+      }
+      
+      Logger.debug(this.componentName, '✅ 영어 입력 소스 감지됨', { inputSource });
+      return 'en';
+      
+    } catch (error) {
+      // 🔥 권한 에러 감지 및 처리
+      const errorMessage = String(error);
+      
+      if (errorMessage.includes('-1719') || 
+          errorMessage.includes('유효하지 않은 인덱스') ||
+          errorMessage.includes('invalid index')) {
+        Logger.warn(this.componentName, '🔐 접근성 권한 필요: SystemUIServer 접근 거부됨', {
+          error: errorMessage,
+          solution: '시스템 환경설정 > 보안 및 개인 정보 보호 > 접근성에서 Electron 허용 필요'
+        });
+        
+        // 권한 요청 트리거 (비동기)
+        this.requestAccessibilityPermissionAsync();
+        
+      } else {
+        Logger.warn(this.componentName, '⚠️ 입력 소스 확인 실패 (기타 오류)', {
+          error: errorMessage,
+          platform: process.platform
+        });
+      }
+      
+      // 🔥 2순위: 대안적 방법 시도 (키보드 레이아웃 확인)
+      try {
+        const alternativeInputSource = this.getInputSourceAlternative();
+        if (alternativeInputSource !== 'unknown') {
+          Logger.info(this.componentName, '🔄 대안적 입력 소스 감지 성공', { 
+            inputSource: alternativeInputSource 
+          });
+          return alternativeInputSource;
+        }
+      } catch (altError) {
+        Logger.debug(this.componentName, '대안적 입력 소스 감지도 실패', altError);
+      }
+      
+      // 🔥 최종 fallback: 영어
+      Logger.debug(this.componentName, '🔄 최종 fallback: 영어 입력 소스 사용');
+      return 'en';
+    }
+  }
+
+  /**
+   * 🔥 대안적 입력 소스 감지 (권한 없을 때 사용)
+   */
+  private getInputSourceAlternative(): string {
+    try {
+      // 방법 1: 키보드 레이아웃 확인
+      const { execSync } = require('child_process');
+      const layoutResult = execSync('defaults read -g AppleCurrentKeyboardLayoutInputSourceID', {
+        encoding: 'utf8',
+        timeout: 1000
+      }).trim();
+      
+      if (layoutResult.includes('Korean') || layoutResult.includes('2Set') || layoutResult.includes('3Set')) {
+        return 'ko';
+      }
+      
+      return 'en';
+      
+    } catch {
+      // 방법 2: 언어 감지기에서 추론
+      try {
+        const detectedLanguage = this.languageDetector?.getCurrentLanguage();
+        return detectedLanguage || 'unknown';
+      } catch {
+        return 'unknown';
+      }
+    }
+  }
+
+  /**
+   * 🔥 접근성 권한 요청 (비동기)
+   */
+  private async requestAccessibilityPermissionAsync(): Promise<void> {
+    try {
+      // 권한 요청은 한 번만 실행 (중복 방지)
+      if (this.isRequestingPermission) return;
+      this.isRequestingPermission = true;
+      
+      Logger.info(this.componentName, '🔐 접근성 권한 요청 시작...');
+      
+      const permissionResult = await this.permissionManager.requestPermissions();
+      if (permissionResult.success && permissionResult.data) {
+        Logger.info(this.componentName, '✅ 접근성 권한 획득 완료');
+        // WindowTracker에도 권한 상태 전달
+        this.setAccessibilityPermission(true);
+      } else {
+        Logger.warn(this.componentName, '❌ 접근성 권한 획득 실패');
+      }
+      
+    } catch (error) {
+      Logger.error(this.componentName, '접근성 권한 요청 중 오류', error);
+    } finally {
+      this.isRequestingPermission = false;
+    }
+  }
+
+  private isRequestingPermission = false;  // 중복 요청 방지
 }
 
 // 🔥 싱글톤 인스턴스
