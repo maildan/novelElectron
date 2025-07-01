@@ -1,10 +1,18 @@
 {
-  "copilot.chat.summarizeAgentConversationHistory.enabled": false,
-  "github.copilot.chat.summarizeAgentConversationHistory.enabled": false,
-   "eslint.workingDirectories": [
-    {
-      "mode": "auto"
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false
+  },
+  "github.copilot.advanced": {
+    "length": 500,
+    "temperature": 0.1,
+    "top_p": 1,
+    "stops": {
+      "*": ["\n\n\n"]
     }
-  ],
-  "eslint.packageManager": "pnpm" 
+  },
+  "github.copilot.chat.localeOverride": "ko",
+  "github.copilot.chat.welcomeMessage": "disabled",
+  "github.copilot.chat.summarizeAgentConversationHistory.enabled": false,
 }

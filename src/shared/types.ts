@@ -45,7 +45,7 @@ export interface DashboardStats {
   streakDays: number;
 }
 
-// 🎯 세션 데이터 - Main ↔ Renderer 공통
+// 🎯 세션 데이터 - Main ↔ Renderer 공통 (Prisma 스키마와 일치)
 export interface TypingSession {
   id: string;
   userId: string;
@@ -60,6 +60,13 @@ export interface TypingSession {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // 🔥 세션 매니저에서 사용하는 추가 필드들
+  totalKeystrokes?: number;
+  charactersTyped?: number;
+  wordsTyped?: number;
+  errorsCount?: number;
+  applicationName?: string;
+  language?: string;
 }
 
 // 🎯 프로젝트 데이터 - Main ↔ Renderer 공통
@@ -206,6 +213,39 @@ export type {
   PerformanceStats
 } from '../main/keyboard/detectors/types/CommonTypes';
 
+// 🔥 키 입력 데이터 인터페이스 (어댑터용)
+export interface KeyInputData {
+  /** 입력된 문자 (IME 완성 문자 포함) */
+  character: string;
+  
+  /** 입력 시각 (타임스탬프) */
+  timestamp: number;
+  
+  /** 감지된 언어 (ko, en, ja, zh 등) */
+  language: string;
+  
+  /** 현재 활성 윈도우 정보 */
+  windowInfo: {
+    title: string;
+    bundleId?: string;
+    processName?: string;
+  };
+  
+  /** 입력 방식 (직접 입력 vs IME 조합 vs 완성형) */
+  inputMethod: 'direct' | 'ime' | 'composition' | 'complete';
+  
+  /** 원본 키 코드 정보 (디버깅용) */
+  rawKeyInfo?: {
+    keycode: number;
+    keychar: number;
+    key: string;
+    shiftKey: boolean;
+    ctrlKey: boolean;
+    altKey: boolean;
+    metaKey: boolean;
+  };
+}
+
 // 🔥 기가차드 한글 조합 결과
 export interface HangulCompositionResult {
   completed: string; // 완성된 한글 (예: "가")
@@ -297,6 +337,18 @@ export type AppCategory =
   | 'system'
   | 'unknown';
 
+// 🔥 키보드 엔진 설정 타입
+export interface KeyboardEngineConfig {
+  enableBuffering: boolean;
+  bufferSize: number;
+  enableLanguageDetection: boolean;
+  enableWindowTracking: boolean;
+  enableSessionRecording: boolean; // 필수 속성으로 변경
+  inputDelay: number;
+  debugMode: boolean;
+}
+
+// 🔥 타이핑 통계 인터페이스
 export interface TypingStats {
   totalKeystrokes: number;
   wpm: number;

@@ -4,14 +4,13 @@ import { Platform } from '../../../utils/platform';
 import { Logger } from '../../../../shared/logger';
 import { BaseLanguageDetector } from '../base/BaseLanguageDetector';
 
-// 🔥 플랫폼별 언어 감지기 Import (조건부 로딩)
-// macOS에서는 MacOS만, Windows에서는 Windows만 로드
-let MacOSLanguageDetector: any;
-let WindowsLanguageDetector: any;
-let LinuxLanguageDetector: any;
-
 // Fallback은 항상 로드
 import { FallbackLanguageDetector } from '../FallbackLanguageDetector';
+
+// 🔥 플랫폼별 감지기 클래스 변수 선언 (동적 로딩용)
+let MacOSLanguageDetector: new () => BaseLanguageDetector;
+let WindowsLanguageDetector: new () => BaseLanguageDetector;
+let LinuxLanguageDetector: new () => BaseLanguageDetector;
 
 /**
  * 🔥 LanguageDetectorFactory - 플랫폼별 최적 언어 감지기 자동 선택

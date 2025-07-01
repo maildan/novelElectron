@@ -140,6 +140,29 @@ export class HangulComposer extends BaseManager {
     try {
       this.lastProcessedTime = Date.now();
       
+      // 🔥 macOS IME 완성형 한글 우선 처리
+      if (process.platform === 'darwin' && event.keychar && this.isCompleteHangul(event.keychar)) {
+        Logger.debug(this.componentName, '🎯 macOS IME 완성형 한글 감지 - 직접 반환', {
+          keychar: event.keychar,
+          charCode: event.keychar.charCodeAt(0).toString(16)
+        });
+        
+        // 기존 조합 완료 후 완성형 한글 반환
+        if (this.compositionState.isComposing) {
+          const previousCompleted = this.buildCharacter();
+          this.compositionState = this.createEmptyState();
+          return { 
+            completed: previousCompleted + event.keychar, 
+            composing: '' 
+          };
+        }
+        
+        return { 
+          completed: event.keychar, 
+          composing: '' 
+        };
+      }
+      
       // 백스페이스 처리
       if (event.key === 'backspace') {
         return this.handleBackspace();
@@ -742,6 +765,16 @@ export class HangulComposer extends BaseManager {
   private isDoubleConsonant(char: string): boolean {
     const doubleConsonants = ['ㄲ', 'ㄸ', 'ㅃ', 'ㅆ', 'ㅉ'];
     return doubleConsonants.includes(char);
+  }
+
+  /**
+   * 🔥 완성형 한글 문자 확인 (macOS IME 처리용)
+   */
+  private isCompleteHangul(char: string): boolean {
+    if (!char || char.length !== 1) return false;
+    const charCode = char.charCodeAt(0);
+    // 한글 완성형 유니코드 범위: AC00-D7AF
+    return charCode >= 0xAC00 && charCode <= 0xD7AF;
   }
 }
 

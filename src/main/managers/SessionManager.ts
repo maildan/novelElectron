@@ -2,7 +2,7 @@
 
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
-import { Result, TypingSession } from '../../shared/types';
+import { Result, TypingSession, KeyInputData } from '../../shared/types';
 import { EventEmitter } from 'events';
 
 // #DEBUG: Session manager entry point
@@ -62,6 +62,11 @@ export class SessionManager extends BaseManager {
   private idleCheckTimer: NodeJS.Timeout | null = null;
   private autoSaveTimer: NodeJS.Timeout | null = null;
   private sessionCounter = 0;
+
+  // 🔥 키보드 전용 추가 속성들
+  private keyboardCurrentSession: TypingSession | null = null;
+  private keyboardSessionData: KeyInputData[] = [];
+  private keyboardSessionId = 0;
 
   constructor() {
     super({ name: 'SessionManager', autoStart: true });
@@ -483,6 +488,221 @@ export class SessionManager extends BaseManager {
   public getSessionStats(sessionId: string): SessionStats | null {
     const session = this.activeSessions.get(sessionId);
     return session ? this.calculateSessionStats(session) : null;
+  }
+
+  // 🔥 기가차드 키보드 세션 관리 추가 기능들 (keyboard/managers에서 통합)
+
+  /**
+   * 🔥 키보드 전용 새 세션 시작
+   */
+  public async startKeyboardSession(): Promise<TypingSession> {
+    // 기존 세션이 있으면 종료
+    if (this.keyboardCurrentSession) {
+      await this.endKeyboardCurrentSession();
+    }
+
+    const now = new Date();
+    this.keyboardSessionId++;
+
+    this.keyboardCurrentSession = {
+      id: `keyboard_session_${this.keyboardSessionId}_${now.getTime()}`,
+      userId: 'default_user', // Prisma 필수 필드
+      content: '',
+      startTime: now,
+      endTime: null, // 시작 시에는 null
+      keyCount: 0, // Prisma 필수 필드
+      wpm: 0,
+      accuracy: 100,
+      windowTitle: null, // nullable
+      appName: null, // nullable
+      isActive: true, // Prisma 필수 필드
+      createdAt: now, // Prisma 필수 필드
+      updatedAt: now, // Prisma 필수 필드
+    };
+
+    this.keyboardSessionData = [];
+
+    Logger.info(this.componentName, '새 키보드 타이핑 세션 시작됨', {
+      sessionId: this.keyboardCurrentSession.id,
+      startTime: this.keyboardCurrentSession.startTime
+    });
+
+    return this.keyboardCurrentSession;
+  }
+
+  /**
+   * 🔥 키보드 전용 현재 세션 종료
+   */
+  public async endKeyboardCurrentSession(): Promise<TypingSession | null> {
+    if (!this.keyboardCurrentSession) {
+      Logger.warn(this.componentName, '종료할 키보드 활성 세션이 없음');
+      return null;
+    }
+
+    const now = new Date();
+    const sessionDuration = now.getTime() - this.keyboardCurrentSession.startTime.getTime();
+
+    // 세션 데이터 업데이트
+    this.keyboardCurrentSession.endTime = now;
+    this.keyboardCurrentSession.isActive = false;
+    this.keyboardCurrentSession.updatedAt = now;
+    
+    this.keyboardCurrentSession.content = this.keyboardSessionData.map(d => d.character).join('');
+    this.keyboardCurrentSession.keyCount = this.keyboardSessionData.length;
+    
+    // WPM 계산
+    const durationMinutes = sessionDuration / 60000;
+    const charactersTyped = this.keyboardSessionData.filter(d => this.isKeyboardValidCharacter(d.character)).length;
+    if (durationMinutes > 0) {
+      const wordsTyped = charactersTyped / 5; // 평균 단어 길이 5
+      this.keyboardCurrentSession.wpm = Math.round(wordsTyped / durationMinutes);
+    }
+
+    // 마지막 윈도우 정보 설정
+    if (this.keyboardSessionData.length > 0) {
+      const lastInput = this.keyboardSessionData[this.keyboardSessionData.length - 1];
+      this.keyboardCurrentSession.windowTitle = lastInput.windowInfo.title || 'Unknown';
+      this.keyboardCurrentSession.appName = lastInput.windowInfo.processName || null;
+    }
+
+    const finalSession = { ...this.keyboardCurrentSession };
+
+    Logger.info(this.componentName, '키보드 타이핑 세션 종료됨', {
+      sessionId: finalSession.id,
+      duration: sessionDuration,
+      keystrokes: finalSession.keyCount,
+      wpm: finalSession.wpm,
+      accuracy: finalSession.accuracy
+    });
+
+    // 세션 저장
+    await this.saveKeyboardSession(finalSession);
+
+    // 현재 세션 초기화
+    this.keyboardCurrentSession = null;
+    this.keyboardSessionData = [];
+
+    return finalSession;
+  }
+
+  /**
+   * 🔥 키보드 전용 키 입력 기록
+   */
+  public recordKeyboardInput(input: KeyInputData): void {
+    if (!this.keyboardCurrentSession) {
+      Logger.warn(this.componentName, '키보드 활성 세션이 없어서 입력을 기록할 수 없음');
+      return;
+    }
+
+    this.keyboardSessionData.push(input);
+
+    // 실시간 통계 업데이트
+    this.updateKeyboardSessionStats();
+
+    Logger.debug(this.componentName, '키보드 키 입력 기록됨', {
+      sessionId: this.keyboardCurrentSession.id,
+      character: input.character,
+      language: input.language,
+      totalInputs: this.keyboardSessionData.length
+    });
+  }
+
+  /**
+   * 🔥 키보드 전용 현재 세션 정보 반환
+   */
+  public getKeyboardCurrentSession(): TypingSession | null {
+    return this.keyboardCurrentSession ? { ...this.keyboardCurrentSession } : null;
+  }
+
+  /**
+   * 🔥 키보드 전용 세션 통계 업데이트
+   */
+  private updateKeyboardSessionStats(): void {
+    if (!this.keyboardCurrentSession || this.keyboardSessionData.length === 0) return;
+
+    const now = new Date();
+    const sessionDuration = now.getTime() - this.keyboardCurrentSession.startTime.getTime();
+    const durationMinutes = sessionDuration / 60000;
+
+    // 기본 통계 업데이트
+    this.keyboardCurrentSession.keyCount = this.keyboardSessionData.length;
+    const charactersTyped = this.keyboardSessionData.filter(d => this.isKeyboardValidCharacter(d.character)).length;
+
+    // WPM 업데이트 (최소 1초 이상 경과했을 때만)
+    if (durationMinutes > 0.0167) { // 1초 = 0.0167분
+      const wordsTyped = charactersTyped / 5;
+      this.keyboardCurrentSession.wpm = Math.round(wordsTyped / durationMinutes);
+    }
+
+    // 정확도 계산 (백스페이스나 수정 키 감지 시 정확도 조정)
+    const errorInputs = this.keyboardSessionData.filter(d => this.isKeyboardErrorInput(d.character)).length;
+    
+    if (this.keyboardCurrentSession.keyCount > 0) {
+      this.keyboardCurrentSession.accuracy = Math.round(
+        ((this.keyboardCurrentSession.keyCount - errorInputs) / this.keyboardCurrentSession.keyCount) * 100
+      );
+    }
+  }
+
+  /**
+   * 🔥 키보드 전용 유효한 문자인지 확인
+   */
+  private isKeyboardValidCharacter(char: string): boolean {
+    if (char.length !== 1) return false;
+    const charCode = char.charCodeAt(0);
+    
+    // 제어 문자 제외
+    if (charCode < 32) return false;
+    
+    // 백스페이스, 삭제 키 제외
+    if (char === '\b' || char === '\x08' || char === '\x7f') return false;
+    
+    return true;
+  }
+
+  /**
+   * 🔥 키보드 전용 오류 입력인지 확인 (백스페이스, 삭제 등)
+   */
+  private isKeyboardErrorInput(char: string): boolean {
+    return char === '\b' || char === '\x08' || char === '\x7f';
+  }
+
+  /**
+   * 🔥 키보드 전용 세션 저장 (실제 구현에서는 데이터베이스 연동)
+   */
+  private async saveKeyboardSession(session: TypingSession): Promise<void> {
+    try {
+      // TODO: 실제 구현에서는 Prisma를 통한 데이터베이스 저장
+      const duration = session.endTime ? 
+        session.endTime.getTime() - session.startTime.getTime() : 0;
+      
+      Logger.info(this.componentName, '키보드 세션 저장됨 (임시 로그)', {
+        sessionId: session.id,
+        duration,
+        keystrokes: session.keyCount
+      });
+    } catch (error) {
+      Logger.error(this.componentName, '키보드 세션 저장 실패', error);
+    }
+  }
+
+  /**
+   * 🔥 키보드 전용 헬스 체크
+   */
+  public async keyboardHealthCheck(): Promise<{
+    healthy: boolean;
+    uptime?: number;
+    lastError?: string;
+    activeSession: boolean;
+    totalSessions: number;
+  }> {
+    const baseHealth = await super.healthCheck();
+    
+    return {
+      ...baseHealth,
+      activeSession: this.keyboardCurrentSession !== null,
+      totalSessions: this.keyboardSessionId
+    };
   }
 }
 

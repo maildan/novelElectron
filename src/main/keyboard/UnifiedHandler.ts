@@ -8,6 +8,7 @@ import { KeyboardEngine } from './KeyboardEngine';
 import { StatsManager } from './StatsManager';
 import { HangulComposer } from './HangulComposer';
 import { WindowTracker } from './WindowTracker';
+import { SessionManager } from '../managers/SessionManager';
 
 // #DEBUG: Unified handler entry point
 Logger.debug('UNIFIED_HANDLER', 'Unified handler module loaded');
@@ -51,6 +52,7 @@ export class UnifiedHandler extends BaseManager {
   private statsManager: StatsManager;
   private hangulComposer: HangulComposer;
   private windowTracker: WindowTracker; // 🔥 윈도우 추적기 추가
+  private sessionManager: SessionManager; // 🔥 세션 매니저 추가
   private eventQueue: KeyboardEvent[] = [];
   private processingLock = false;
 
@@ -76,6 +78,7 @@ export class UnifiedHandler extends BaseManager {
     this.statsManager = new StatsManager();
     this.hangulComposer = new HangulComposer();
     this.windowTracker = new WindowTracker(); // 🔥 윈도우 추적기 인스턴스 생성
+    this.sessionManager = new SessionManager(); // 🔥 세션 매니저 인스턴스 생성
 
     this.setupInternalHandlers();
     Logger.info(this.componentName, 'Unified handler instance created');
@@ -91,6 +94,7 @@ export class UnifiedHandler extends BaseManager {
       await this.statsManager.initialize();
       await this.hangulComposer.initialize();
       await this.windowTracker.initialize(); // 🔥 윈도우 추적기 초기화 추가
+      await this.sessionManager.initialize(); // 🔥 세션 매니저 초기화 추가
 
       // 이벤트 리스너 설정
       this.setupEventListeners();
@@ -256,11 +260,9 @@ export class UnifiedHandler extends BaseManager {
    */
   public async startKeyboardMonitoring(): Promise<Result<void>> {
     try {
-      const result = await this.keyboardEngine.startMonitoring();
-      if (result.success) {
-        Logger.info(this.componentName, 'Keyboard monitoring started via unified handler');
-      }
-      return result;
+      await this.keyboardEngine.start();
+      Logger.info(this.componentName, 'Keyboard monitoring started via unified handler');
+      return { success: true };
     } catch (error) {
       const err = error as Error;
       return { success: false, error: err.message };
@@ -272,11 +274,9 @@ export class UnifiedHandler extends BaseManager {
    */
   public async stopKeyboardMonitoring(): Promise<Result<void>> {
     try {
-      const result = await this.keyboardEngine.stopMonitoring();
-      if (result.success) {
-        Logger.info(this.componentName, 'Keyboard monitoring stopped via unified handler');
-      }
-      return result;
+      await this.keyboardEngine.stop();
+      Logger.info(this.componentName, 'Keyboard monitoring stopped via unified handler');
+      return { success: true };
     } catch (error) {
       const err = error as Error;
       return { success: false, error: err.message };
@@ -288,13 +288,11 @@ export class UnifiedHandler extends BaseManager {
    */
   public async startTypingSession(): Promise<Result<TypingSession>> {
     try {
-      const result = await this.keyboardEngine.startSession();
-      if (result.success && result.data) {
-        // 통계 매니저에도 알림
-        await this.statsManager.startSession(result.data);
-        Logger.info(this.componentName, 'Typing session started via unified handler');
-      }
-      return result;
+      const session = await this.sessionManager.startKeyboardSession();
+      // 통계 매니저에도 알림
+      await this.statsManager.startSession(session);
+      Logger.info(this.componentName, 'Typing session started via unified handler');
+      return { success: true, data: session };
     } catch (error) {
       const err = error as Error;
       return { success: false, error: err.message };
@@ -306,13 +304,14 @@ export class UnifiedHandler extends BaseManager {
    */
   public async endTypingSession(): Promise<Result<TypingSession>> {
     try {
-      const result = await this.keyboardEngine.endSession();
-      if (result.success && result.data) {
+      const session = await this.sessionManager.endKeyboardCurrentSession();
+      if (session) {
         // 통계 매니저에도 알림
-        await this.statsManager.endSession(result.data);
+        await this.statsManager.endSession(session);
         Logger.info(this.componentName, 'Typing session ended via unified handler');
+        return { success: true, data: session };
       }
-      return result;
+      return { success: false, error: 'No active session to end' };
     } catch (error) {
       const err = error as Error;
       return { success: false, error: err.message };
@@ -384,22 +383,22 @@ export class UnifiedHandler extends BaseManager {
    */
   private setupEventListeners(): void {
     // 키보드 엔진 이벤트들
-    this.keyboardEngine.on('keystroke', (event: KeyboardEvent) => {
-      this.processKeyboardEvent(event).catch((error) => {
+    this.keyboardEngine.on('keystroke', (event: unknown) => {
+      this.processKeyboardEvent(event as KeyboardEvent).catch((error) => {
         Logger.error(this.componentName, 'Error processing keyboard event', error);
       });
     });
 
-    this.keyboardEngine.on('session-start', (session: TypingSession) => {
-      this.emit('session-start', session);
+    this.keyboardEngine.on('session-start', (session: unknown) => {
+      this.emit('session-start', session as TypingSession);
     });
 
-    this.keyboardEngine.on('session-end', (session: TypingSession) => {
-      this.emit('session-end', session);
+    this.keyboardEngine.on('session-end', (session: unknown) => {
+      this.emit('session-end', session as TypingSession);
     });
 
-    this.keyboardEngine.on('wpm-update', (wpm: number) => {
-      this.emit('wpm-update', wpm);
+    this.keyboardEngine.on('wpm-update', (wpm: unknown) => {
+      this.emit('wpm-update', wpm as number);
     });
 
     Logger.debug(this.componentName, 'Event listeners setup completed');

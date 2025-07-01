@@ -1,6 +1,7 @@
 // 🔥 기가차드 키보드 모니터링 서비스 - 다국어 지원 전문!
 
 import { Logger } from '../../shared/logger';
+import { Platform } from '../utils/platform';
 import { 
   IpcResponse, 
   KeyboardEvent, 
@@ -240,6 +241,21 @@ export class KeyboardService extends EventEmitter {
       let composedChar: string | undefined;
       let isComposing = false;
       let hangulResult: any = null; // 🔥 스코프 확장
+      
+      // 🔥 macOS IME 완성형 한글 우선 처리 (이중 조합 방지)
+      if (Platform.isMacOS() && rawEvent.keychar && type === 'keydown') {
+        const possibleHangul = String.fromCharCode(rawEvent.keychar);
+        if (this.isCompleteHangul(rawEvent.keychar)) {
+          Logger.debug('KEYBOARD', '🎯 macOS IME 완성형 한글 감지 - HangulComposer 우회', {
+            keycode: rawEvent.keycode,
+            keychar: rawEvent.keychar,
+            completedHangul: possibleHangul
+          });
+          
+          await this.processCompletedHangul(possibleHangul, rawEvent);
+          return; // 🔥 여기서 종료하여 이중 처리 방지
+        }
+      }
       
       // 🔥 기가차드 수정: LanguageDetector 결과를 절대적으로 존중
       const shouldProcessAsKorean = detectedLanguage === 'ko';

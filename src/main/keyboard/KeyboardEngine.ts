@@ -1,33 +1,55 @@
-// 🔥 기가차드 키보드 엔진 - 통합 키보드 시스템!
+// 🔥 기가차드 키보드 엔진 - 어댑터 패턴 기반 통합 시스템!
 
 import { Logger } from '../../shared/logger';
 import { EventEmitter } from 'events';
 import { BaseManager } from '../common/BaseManager';
-import { KeyboardEvent, TypingSession, Result, UiohookKeyboardEvent } from '../../shared/types';
-import KEYBOARD_CONSTANTS from './constants';
+import { TypingSession, TypingStats, Result, UiohookKeyboardEvent, KeyboardEvent } from '../../shared/types';
+import type { IKeyboardInputAdapter, KeyInputData, AdapterOptions } from './adapters/IKeyboardInputAdapter';
+import { KeyboardAdapterFactory } from './factories/KeyboardAdapterFactory';
+import { uIOhook } from 'uiohook-napi';
 import type { UiohookInstance, UiohookEventType } from 'uiohook-napi';
 
 // #DEBUG: Keyboard engine entry point
 Logger.debug('KEYBOARD_ENGINE', 'Keyboard engine module loaded');
 
-// 🔥 기가차드 키보드 엔진 상태 인터페이스
-export interface KeyboardEngineState {
+// 🔥 기가차드 키보드 상수 정의
+const KEYBOARD_CONSTANTS = {
+  WPM_CONSTANTS: {
+    CALCULATION_INTERVAL: 1000, // 1초
+    WORDS_PER_MINUTE_DIVISOR: 5, // 평균 단어 길이
+  },
+  SESSION_CONSTANTS: {
+    MIN_DURATION: 5000, // 5초
+    AUTO_SAVE_INTERVAL: 30000, // 30초
+  },
+  PERFORMANCE_CONSTANTS: {
+    EVENT_BATCH_SIZE: 100,
+    MAX_MEMORY_MB: 200,
+  }
+} as const;
+
+// 🔥 키보드 엔진 상태 인터페이스
+interface KeyboardEngineState {
   totalKeystrokes: number;
   wpm: number;
   accuracy: number;
-  lastKeystroke: Date | null;
+  lastKeystroke: KeyInputData | null;
   currentSession: TypingSession | null;
   isMonitoring: boolean;
   isRecording: boolean;
+  adapterType: string;
+  hasPermissions: boolean;
 }
 
-// 🔥 기가차드 키보드 엔진 설정 인터페이스  
-export interface KeyboardEngineConfig {
-  enableGlobalMonitoring: boolean;
+// 🔥 키보드 엔진 설정 인터페이스
+interface KeyboardEngineConfig {
+  enableBuffering: boolean;
+  bufferSize: number;
+  enableLanguageDetection: boolean;
+  enableWindowTracking: boolean;
   enableSessionRecording: boolean;
-  wpmCalculationInterval: number;
-  accuracyThreshold: number;
-  minSessionDuration: number;
+  inputDelay: number;
+  debugMode: boolean;
 }
 
 /**
@@ -36,560 +58,449 @@ export interface KeyboardEngineConfig {
  */
 export class KeyboardEngine extends BaseManager {
   private readonly componentName = 'KEYBOARD_ENGINE';
+  
+  // 🔥 기가차드 상태 관리
   private keyboardState: KeyboardEngineState;
   private engineConfig: KeyboardEngineConfig;
-  private uiohook: UiohookInstance | null = null; // uiohook-napi 인스턴스
-  private wpmTimer: NodeJS.Timeout | null = null;
-  private sessionStartTime: Date | null = null;
-  private keyBuffer: KeyboardEvent[] = [];
-  private errorBuffer: string[] = [];
+  
+  // 🔥 어댑터 패턴: OS별 입력 처리기
+  private inputAdapter: IKeyboardInputAdapter | null = null;
+  
+  // 🔥 통계 계산기들 (나중에 분리될 예정)
+  private wpmCalculator: unknown = null;
+  private accuracyCalculator: unknown = null;
+  private sessionManager: unknown = null;
+  
+  // 🔥 이벤트 발송기
+  private eventEmitter: EventEmitter;
+  
+  // 🔥 성능 추적
+  private performanceStats = {
+    totalEvents: 0,
+    lastEventTime: Date.now(),
+    processingTimeSum: 0,
+    memoryUsage: process.memoryUsage()
+  };
 
-  constructor(config: Partial<KeyboardEngineConfig> = {}) {
+  constructor(adapter?: IKeyboardInputAdapter, config?: Partial<KeyboardEngineConfig>) {
     super({
       name: 'KeyboardEngine',
       autoStart: false,
       retryOnError: true,
       maxRetries: 3,
-      retryDelay: 2000,
+      retryDelay: 1000
     });
-
+    
+    this.eventEmitter = new EventEmitter();
+    
+    // 🔥 기본 설정 적용
     this.engineConfig = {
-      enableGlobalMonitoring: true,
-      enableSessionRecording: true,
-      wpmCalculationInterval: KEYBOARD_CONSTANTS.WPM_CONSTANTS.CALCULATION_INTERVAL,
-      accuracyThreshold: 0.95,
-      minSessionDuration: 5000, // 5초
-      ...config,
+      enableBuffering: true,
+      bufferSize: 100,
+      enableLanguageDetection: true,
+      enableWindowTracking: true,
+      enableSessionRecording: config?.enableSessionRecording ?? true,
+      inputDelay: 0,
+      debugMode: false,
+      ...config
     };
-
+    
+    // 🔥 초기 상태 설정
     this.keyboardState = {
       totalKeystrokes: 0,
       wpm: 0,
-      accuracy: 1.0,
+      accuracy: 0,
       lastKeystroke: null,
       currentSession: null,
       isMonitoring: false,
       isRecording: false,
+      adapterType: adapter?.constructor.name || 'Universal',
+      hasPermissions: false
     };
-
-    Logger.info(this.componentName, 'Keyboard engine instance created');
+    
+    // 🔥 어댑터 설정 (나중에 팩토리에서 생성)
+    if (adapter) {
+      this.inputAdapter = adapter;
+      this.setupAdapterEvents();
+    }
+    
+    Logger.info(this.componentName, '키보드 엔진 초기화 완료', {
+      adapterType: this.keyboardState.adapterType,
+      config: this.config
+    });
   }
 
   /**
-   * BaseManager 추상 메서드 구현 - 초기화
+   * 🔥 BaseManager 인터페이스 구현
    */
   protected async doInitialize(): Promise<void> {
+    Logger.info(this.componentName, '키보드 엔진 초기화 시작');
+    
     try {
-      // uiohook-napi 모듈 동적 로드
-      const uiohookModule = await import('uiohook-napi');
+      // 어댑터가 없으면 기본 어댑터 생성 (나중에 팩토리 사용)
+      if (!this.inputAdapter) {
+        // TODO: KeyboardAdapterFactory.createAdapter() 사용
+        Logger.warn(this.componentName, '어댑터가 설정되지 않음, uIOhook 사용');
+      }
       
-      // 🔥 타입 안전한 어댑터 패턴으로 UiohookInstance 생성
-      const rawUiohook = uiohookModule.uIOhook;
-      this.uiohook = this.createUiohookAdapter(rawUiohook);
-
-      // 키보드 이벤트 리스너 등록
-      this.setupEventListeners();
-
-      Logger.info(this.componentName, 'Keyboard engine initialized successfully');
+      // 어댑터 초기화 (인터페이스 확인 후)
+      if (this.inputAdapter && 'initialize' in this.inputAdapter && typeof this.inputAdapter.initialize === 'function') {
+        await this.inputAdapter.initialize();
+      }
+      
+      Logger.info(this.componentName, '키보드 엔진 초기화 완료');
     } catch (error) {
-      const err = error as Error;
-      Logger.error(this.componentName, 'Failed to initialize keyboard engine', err);
-      throw err;
+      Logger.error(this.componentName, '키보드 엔진 초기화 실패', error);
+      throw error;
     }
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 시작
-   */
   protected async doStart(): Promise<void> {
+    Logger.info(this.componentName, '키보드 모니터링 시작');
+    
     try {
-      // uiohook 시작
-      if (this.uiohook) {
-        this.uiohook.start();
-        this.keyboardState.isMonitoring = true;
-        
-        // WPM 계산 타이머 시작
-        this.startWpmCalculation();
-        
-        this.emit('monitoring-started');
-        Logger.info(this.componentName, 'Keyboard monitoring started');
+      if (this.inputAdapter) {
+        await this.inputAdapter.startListening();
+      } else {
+        // 폴백: uIOhook 직접 사용
+        await this.startUIOhookFallback();
       }
+      
+      this.keyboardState.isMonitoring = true;
+      this.emit('monitoring-started', this.keyboardState);
+      
+      Logger.info(this.componentName, '키보드 모니터링 시작됨');
     } catch (error) {
-      const err = error as Error;
-      Logger.error(this.componentName, 'Failed to start keyboard engine', err);
-      throw err;
+      Logger.error(this.componentName, '키보드 모니터링 시작 실패', error);
+      throw error;
     }
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 중지
-   */
   protected async doStop(): Promise<void> {
+    Logger.info(this.componentName, '키보드 모니터링 중지');
+    
     try {
-      // 현재 세션 종료
-      if (this.keyboardState.isRecording) {
-        await this.endSession();
+      if (this.inputAdapter) {
+        await this.inputAdapter.stopListening();
+      } else {
+        // 폴백: uIOhook 직접 중지
+        uIOhook.stop();
       }
-
-      // uiohook 중지
-      if (this.uiohook) {
-        this.uiohook.stop();
-        this.keyboardState.isMonitoring = false;
-      }
-
-      // 타이머 정리
-      this.stopWpmCalculation();
-
-      this.emit('monitoring-stopped');
-      Logger.info(this.componentName, 'Keyboard monitoring stopped');
+      
+      this.keyboardState.isMonitoring = false;
+      this.emit('monitoring-stopped', this.keyboardState);
+      
+      Logger.info(this.componentName, '키보드 모니터링 중지됨');
     } catch (error) {
-      const err = error as Error;
-      Logger.error(this.componentName, 'Failed to stop keyboard engine', err);
-      throw err;
+      Logger.error(this.componentName, '키보드 모니터링 중지 실패', error);
+      throw error;
     }
   }
 
-  /**
-   * BaseManager 추상 메서드 구현 - 정리
-   */
   protected async doCleanup(): Promise<void> {
-    this.stopWpmCalculation();
+    Logger.info(this.componentName, '키보드 엔진 정리');
     
-    if (this.uiohook) {
-      this.uiohook.stop();
-      this.uiohook = null;
-    }
-
-    this.keyBuffer = [];
-    this.errorBuffer = [];
-    this.sessionStartTime = null;
-
-    Logger.info(this.componentName, 'Keyboard engine cleaned up');
-  }
-
-  /**
-   * 키보드 모니터링 시작 (공개 메서드)
-   */
-  public async startMonitoring(): Promise<Result<void>> {
     try {
-      const started = await this.start();
-      return { success: started };
-    } catch (error) {
-      const err = error as Error;
-      return { success: false, error: err.message };
-    }
-  }
-
-  /**
-   * 키보드 모니터링 중지 (공개 메서드)
-   */
-  public async stopMonitoring(): Promise<Result<void>> {
-    try {
-      const stopped = await this.stop();
-      return { success: stopped };
-    } catch (error) {
-      const err = error as Error;
-      return { success: false, error: err.message };
-    }
-  }
-
-  /**
-   * 타이핑 세션 시작
-   */
-  public async startSession(): Promise<Result<TypingSession>> {
-    try {
-      if (this.keyboardState.isRecording) {
-        Logger.warn(this.componentName, 'Session already recording');
-        return { success: false, error: 'Session already in progress' };
-      }
-
-      const session: TypingSession = {
-        id: `session_${Date.now()}`,
-        userId: 'default',
-        startTime: new Date(),
-        endTime: null,
-        content: '',
-        keyCount: 0,
-        wpm: 0,
-        accuracy: 1.0,
-        windowTitle: null,
-        appName: null,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      this.keyboardState.currentSession = session;
-      this.keyboardState.isRecording = true;
-      this.sessionStartTime = new Date();
-      this.keyBuffer = [];
-      this.errorBuffer = [];
-
-      this.emit('session-start', session);
-      Logger.info(this.componentName, 'Typing session started', { sessionId: session.id });
+      await this.doStop();
       
-      return { success: true, data: session };
-    } catch (error) {
-      const err = error as Error;
-      Logger.error(this.componentName, 'Failed to start session', err);
-      return { success: false, error: err.message };
-    }
-  }
-
-  /**
-   * 타이핑 세션 종료
-   */
-  public async endSession(): Promise<Result<TypingSession>> {
-    try {
-      if (!this.keyboardState.isRecording || !this.keyboardState.currentSession) {
-        return { success: false, error: 'No active session' };
+      if (this.inputAdapter?.cleanup) {
+        await this.inputAdapter.cleanup();
       }
-
-      const session = this.keyboardState.currentSession;
-      const endTime = new Date();
-      const duration = endTime.getTime() - session.startTime.getTime();
-
-      // 세션 데이터 완성
-      session.endTime = endTime;
-      session.keyCount = this.keyBuffer.length;
-      const errorCount = this.errorBuffer.length;
-      session.wpm = this.calculateWpm(this.keyBuffer.length, duration);
-      session.accuracy = this.calculateAccuracy(session.keyCount, errorCount);
-
-      this.keyboardState.isRecording = false;
-      this.keyboardState.currentSession = null;
-
-      this.emit('session-end', session);
-      Logger.info(this.componentName, 'Typing session ended', {
-        sessionId: session.id,
-        duration,
-        wpm: session.wpm,
-        accuracy: session.accuracy,
-      });
-
-      return { success: true, data: session };
-    } catch (error) {
-      const err = error as Error;
-      Logger.error(this.componentName, 'Failed to end session', err);
-      return { success: false, error: err.message };
-    }
-  }
-
-  /**
-   * 이벤트 리스너 설정
-   */
-  private setupEventListeners(): void {
-    if (!this.uiohook) return;
-
-    // 키다운 이벤트
-    this.uiohook.on('keydown', (event: UiohookKeyboardEvent) => {
-      this.handleKeyEvent('keydown', event);
-    });
-
-    // 키업 이벤트
-    this.uiohook.on('keyup', (event: any) => {
-      this.handleKeyEvent('keyup', event as UiohookKeyboardEvent);
-    });
-
-    Logger.debug(this.componentName, 'Event listeners registered');
-  }
-
-  /**
-   * 키보드 이벤트 처리
-   */
-  private handleKeyEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): void {
-    try {
-      // 🔥 macOS IME 우회 - 조합된 문자 우선 사용 (개선 버전)
-      if (process.platform === 'darwin' && rawEvent.keychar && type === 'keydown') {
-        const composedChar = String.fromCharCode(rawEvent.keychar);
-        
-        // 🔥 한글 완성형 문자 범위 체크 (AC00-D7AF)
-        const charCode = composedChar.charCodeAt(0);
-        if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
-          // 🔥 이미 조합된 한글! HangulComposer 우회하고 바로 사용
-          const keyEvent: KeyboardEvent = {
-            key: composedChar,
-            code: `Hangul${charCode.toString(16)}`, // 16진수로 고유 식별
-            keychar: composedChar,
-            keycode: rawEvent.keycode || 0,
-            timestamp: Date.now(),
-            windowTitle: '',
-            type,
-          };
-
-          this.processComposedHangul(keyEvent);
-          return;
-        }
-        
-        // 🔥 한글 자모 범위 체크 (3130-318F: 한글 호환 자모)
-        if ((charCode >= 0x3130 && charCode <= 0x318F) || 
-            (charCode >= 0x1100 && charCode <= 0x11FF)) {
-          // 🔥 조합 중인 한글 자모 - LanguageDetector로 전달
-          const keyEvent: KeyboardEvent = {
-            key: composedChar,
-            code: `HangulJamo${charCode.toString(16)}`,
-            keychar: composedChar,
-            keycode: rawEvent.keycode || 0,
-            timestamp: Date.now(),
-            windowTitle: '',
-            type,
-          };
-          
-          // 🔥 조합 중인 한글 처리
-          this.emit('hangul-composing', keyEvent);
-          Logger.debug(this.componentName, '🔥 macOS IME 한글 자모 감지', {
-            char: composedChar,
-            charCode: charCode.toString(16)
-          });
-        }
-      }
-
-      // 🔥 기존 로직: 영어나 미조합 문자 처리
-      const actualKeychar = rawEvent.keychar || rawEvent.keycode || 0;
       
-      const keyEvent: KeyboardEvent = {
-        key: this.getKeyName(rawEvent.keycode || 0),
-        code: `Key${this.getKeyName(rawEvent.keycode || 0).toUpperCase()}`,
-        keychar: String.fromCharCode(actualKeychar),
-        keycode: rawEvent.keycode || 0,
-        timestamp: Date.now(),
-        windowTitle: '',
-        type,
-      };
-
-      // 키 버퍼에 추가 (recording 중인 경우)
-      if (this.keyboardState.isRecording && type === 'keydown') {
-        this.keyBuffer.push(keyEvent);
-        this.keyboardState.totalKeystrokes++;
-        this.keyboardState.lastKeystroke = new Date();
-      }
-
-      // 실시간 통계 업데이트
-      this.updateRealtimeStats();
-
-      // 이벤트 발생
-      this.emit('keystroke', keyEvent);
-
+      this.eventEmitter.removeAllListeners();
+      
+      Logger.info(this.componentName, '키보드 엔진 정리 완료');
     } catch (error) {
-      Logger.error(this.componentName, 'Error handling key event', error as Error);
+      Logger.error(this.componentName, '키보드 엔진 정리 실패', error);
     }
   }
 
   /**
-   * 🔥 조합된 한글 문자 처리 (macOS IME 결과)
+   * 🔥 권한 관리
    */
-  private processComposedHangul(keyEvent: KeyboardEvent): void {
-    // 키 버퍼에 추가 (recording 중인 경우)
-    if (this.keyboardState.isRecording) {
-      this.keyBuffer.push(keyEvent);
-      this.keyboardState.totalKeystrokes++;
-      this.keyboardState.lastKeystroke = new Date();
-    }
-
-    // 실시간 통계 업데이트
-    this.updateRealtimeStats();
-
-    // 🔥 한글 조합 완료 이벤트 발생 (completed 타입으로 구분)
-    this.emit('keystroke', {
-      ...keyEvent,
-      type: 'completed' as const  // 완성된 문자임을 명시
-    });
-    
-    this.emit('hangul-composed', {
-      char: keyEvent.keychar,
-      timestamp: keyEvent.timestamp,
-      isCompleted: true
-    });
-
-    Logger.debug(this.componentName, '🔥 macOS IME 한글 조합 완료', {
-      char: keyEvent.keychar,
-      charCode: keyEvent.keychar.charCodeAt(0).toString(16),
-      type: 'completed'
-    });
-  }
-
-  /**
-   * 🔥 기가차드 신규: 한글 조합 중 문자 처리
-   */
-  private processComposingHangul(keyEvent: KeyboardEvent, composingChar: string): void {
-    // 조합 중인 문자는 별도 이벤트로 발생
-    this.emit('hangul-composing', {
-      ...keyEvent,
-      keychar: composingChar,
-      type: 'composing' as const  // 조합 중임을 명시
-    });
-
-    Logger.debug(this.componentName, '🔥 한글 조합 중', {
-      originalChar: keyEvent.keychar,
-      composingChar,
-      type: 'composing'
-    });
-  }
-
-  /**
-   * WPM 계산 시작
-   */
-  private startWpmCalculation(): void {
-    this.wpmTimer = setInterval(() => {
-      if (this.keyboardState.isRecording) {
-        const wpm = this.calculateCurrentWpm();
-        this.keyboardState.wpm = wpm;
-        this.emit('wpm-update', wpm);
+  public async requestPermissions(): Promise<Result<boolean>> {
+    try {
+      if (this.inputAdapter?.requestPermissions) {
+        const hasPermission = await this.inputAdapter.requestPermissions();
+        this.keyboardState.hasPermissions = hasPermission;
+        return { success: true, data: hasPermission };
       }
-    }, this.engineConfig.wpmCalculationInterval);
+      
+      return { success: true, data: true }; // 폴백의 경우 권한 없이 동작
+    } catch (error) {
+      Logger.error(this.componentName, '권한 요청 실패', error);
+      return { success: false, error: String(error) };
+    }
   }
 
-  /**
-   * WPM 계산 중지
-   */
-  private stopWpmCalculation(): void {
-    if (this.wpmTimer) {
-      clearInterval(this.wpmTimer);
-      this.wpmTimer = null;
+  public async checkPermissions(): Promise<Result<boolean>> {
+    try {
+      if (this.inputAdapter?.checkPermissions) {
+        const hasPermission = await this.inputAdapter.checkPermissions();
+        this.keyboardState.hasPermissions = hasPermission;
+        return { success: true, data: hasPermission };
+      }
+      
+      return { success: true, data: true }; // 폴백의 경우 권한 없이 동작
+    } catch (error) {
+      Logger.error(this.componentName, '권한 확인 실패', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  public setPermissions(hasPermissions: boolean): Result<void> {
+    try {
+      this.keyboardState.hasPermissions = hasPermissions;
+      Logger.info(this.componentName, `권한 상태 업데이트: ${hasPermissions}`);
+      return { success: true };
+    } catch (error) {
+      Logger.error(this.componentName, '권한 설정 실패', error);
+      return { success: false, error: String(error) };
     }
   }
 
   /**
-   * 현재 WPM 계산
-   */
-  private calculateCurrentWpm(): number {
-    if (!this.sessionStartTime || this.keyBuffer.length === 0) {
-      return 0;
-    }
-
-    const elapsed = Date.now() - this.sessionStartTime.getTime();
-    return this.calculateWpm(this.keyBuffer.length, elapsed);
-  }
-
-  /**
-   * WPM 계산 (키 수와 시간 기반)
-   */
-  private calculateWpm(keyCount: number, durationMs: number): number {
-    if (durationMs <= 0) return 0;
-    
-    const minutes = durationMs / 60000;
-    const words = keyCount / 5; // 평균 단어 길이 5문자
-    return Math.round(words / minutes);
-  }
-
-  /**
-   * 정확도 계산
-   */
-  private calculateAccuracy(totalKeys: number, errors: number): number {
-    if (totalKeys === 0) return 1.0;
-    return Math.max(0, (totalKeys - errors) / totalKeys);
-  }
-
-  /**
-   * 실시간 통계 업데이트
-   */
-  private updateRealtimeStats(): void {
-    if (this.keyboardState.currentSession) {
-      const accuracy = this.calculateAccuracy(
-        this.keyBuffer.length,
-        this.errorBuffer.length
-      );
-      this.keyboardState.accuracy = accuracy;
-      this.emit('accuracy-update', accuracy);
-    }
-  }
-
-  /**
-   * 키코드를 키 이름으로 변환
-   */
-  private getKeyName(keycode: number): string {
-    // 기본적인 키코드 매핑
-    const keyMap: Record<number, string> = {
-      65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g',
-      72: 'h', 73: 'i', 74: 'j', 75: 'k', 76: 'l', 77: 'm', 78: 'n',
-      79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't', 85: 'u',
-      86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z',
-      32: 'space', 13: 'enter', 8: 'backspace', 9: 'tab',
-      16: 'shift', 17: 'ctrl', 18: 'alt', 27: 'escape',
-    };
-
-    return keyMap[keycode] || `key_${keycode}`;
-  }
-
-  /**
-   * 키보드 엔진 상태 반환
+   * 🔥 상태 조회 (BaseManager와 구분)
    */
   public getKeyboardState(): KeyboardEngineState {
     return { ...this.keyboardState };
   }
 
-  /**
-   * 설정 업데이트
-   */
-  public updateConfig(newConfig: Partial<KeyboardEngineConfig>): void {
-    this.engineConfig = { ...this.engineConfig, ...newConfig };
-    Logger.info(this.componentName, 'Configuration updated', newConfig);
+  public getEngineConfig(): KeyboardEngineConfig {
+    return { ...this.engineConfig };
+  }
+
+  public getStats(): TypingStats {
+    const sessionDuration = this.keyboardState.currentSession ? 
+      Date.now() - this.keyboardState.currentSession.startTime.getTime() : 0;
+    
+    return {
+      totalKeystrokes: this.keyboardState.totalKeystrokes,
+      wpm: this.keyboardState.wpm,
+      accuracy: this.keyboardState.accuracy,
+      sessionDuration,
+      charactersTyped: this.keyboardState.currentSession?.content.length || 0,
+      wordsTyped: Math.floor((this.keyboardState.currentSession?.content.length || 0) / KEYBOARD_CONSTANTS.WPM_CONSTANTS.WORDS_PER_MINUTE_DIVISOR),
+      errorsCount: 0 // TODO: 에러 계산기 연동
+    };
   }
 
   /**
-   * 헬스 체크 (BaseManager 오버라이드)
+   * 🔥 이벤트 처리 - 어댑터로부터 받은 입력 데이터 처리
+   */
+  private handleKeyInput(inputData: KeyInputData): void {
+    const startTime = performance.now();
+    
+    try {
+      // 🔥 통계 업데이트
+      this.updateTypingStats(inputData);
+      
+      // 🔥 세션 기록
+      if (this.engineConfig.enableSessionRecording) {
+        this.updateSession(inputData);
+      }
+      
+      // 🔥 이벤트 발송
+      this.emit('keyboard-event', {
+        ...inputData,
+        stats: this.getStats()
+      });
+      
+      // 🔥 성능 추적
+      const processingTime = performance.now() - startTime;
+      this.updatePerformanceStats(processingTime);
+      
+    } catch (error) {
+      Logger.error(this.componentName, '키 입력 처리 실패', error);
+    }
+  }
+
+  /**
+   * 🔥 uIOhook 폴백 처리 (어댑터가 없을 때)
+   */
+  private async startUIOhookFallback(): Promise<void> {
+    Logger.warn(this.componentName, 'uIOhook 폴백 모드로 시작');
+    
+    // uIOhook 이벤트 핸들러 등록
+    uIOhook.on('keydown', (event: UiohookKeyboardEvent) => {
+      this.handleUIOhookEvent('keydown', event);
+    });
+    
+    uIOhook.on('keyup', (event: UiohookKeyboardEvent) => {
+      this.handleUIOhookEvent('keyup', event);
+    });
+    
+    // uIOhook 시작
+    uIOhook.start();
+  }
+
+  /**
+   * 🔥 uIOhook 이벤트를 KeyInputData로 변환
+   */
+  private handleUIOhookEvent(type: 'keydown' | 'keyup', rawEvent: UiohookKeyboardEvent): void {
+    try {
+      const char = String.fromCharCode(rawEvent.keychar || 0);
+      
+      // 기본 변환
+      const inputData: KeyInputData = {
+        character: char,
+        timestamp: Date.now(),
+        language: 'ko', // TODO: 언어 감지기 연동
+        windowInfo: {
+          title: 'Unknown',
+          processName: 'Unknown'
+        },
+        inputMethod: 'direct'
+      };
+      
+      this.handleKeyInput(inputData);
+      
+    } catch (error) {
+      Logger.error(this.componentName, 'uIOhook 이벤트 처리 실패', error);
+    }
+  }
+
+  /**
+   * 🔥 통계 업데이트
+   */
+  private updateTypingStats(inputData: KeyInputData): void {
+    // 키스트로크 카운트
+    this.keyboardState.totalKeystrokes++;
+    this.keyboardState.lastKeystroke = inputData;
+    
+    // TODO: 실제 WPM/정확도 계산기 연동
+    // 임시 계산
+    if (this.keyboardState.currentSession) {
+      const elapsed = Date.now() - this.keyboardState.currentSession.startTime.getTime();
+      const minutes = elapsed / 60000;
+      if (minutes > 0) {
+        this.keyboardState.wpm = Math.round(
+          (this.keyboardState.totalKeystrokes / KEYBOARD_CONSTANTS.WPM_CONSTANTS.WORDS_PER_MINUTE_DIVISOR) / minutes
+        );
+      }
+    }
+  }
+
+  /**
+   * 🔥 세션 업데이트
+   */
+  private updateSession(inputData: KeyInputData): void {
+    // TODO: SessionManager 연동
+    if (!this.keyboardState.currentSession) {
+      this.keyboardState.currentSession = {
+        id: `session_${Date.now()}`,
+        userId: 'default',
+        content: '',
+        startTime: new Date(),
+        endTime: null,
+        keyCount: 0,
+        wpm: 0,
+        accuracy: 0,
+        windowTitle: inputData.windowInfo.title,
+        appName: inputData.windowInfo.processName || 'Unknown',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
+    // 세션 데이터 업데이트
+    if (this.keyboardState.currentSession) {
+      this.keyboardState.currentSession.keyCount++;
+      this.keyboardState.currentSession.content += inputData.character;
+      this.keyboardState.currentSession.updatedAt = new Date();
+    }
+  }
+
+  /**
+   * 🔥 성능 통계 업데이트
+   */
+  private updatePerformanceStats(processingTime: number): void {
+    this.performanceStats.totalEvents++;
+    this.performanceStats.processingTimeSum += processingTime;
+    this.performanceStats.lastEventTime = Date.now();
+    
+    // 주기적으로 메모리 사용량 체크
+    if (this.performanceStats.totalEvents % 1000 === 0) {
+      this.performanceStats.memoryUsage = process.memoryUsage();
+      
+      // 메모리 경고
+      const memoryMB = this.performanceStats.memoryUsage.heapUsed / 1024 / 1024;
+      if (memoryMB > KEYBOARD_CONSTANTS.PERFORMANCE_CONSTANTS.MAX_MEMORY_MB) {
+        Logger.warn(this.componentName, `높은 메모리 사용량: ${memoryMB.toFixed(2)}MB`);
+      }
+    }
+  }
+
+  /**
+   * 🔥 어댑터 이벤트 설정
+   */
+  private setupAdapterEvents(): void {
+    if (!this.inputAdapter) return;
+    
+    // 입력 이벤트 연결
+    this.inputAdapter.on('input', (inputData: KeyInputData) => {
+      this.handleKeyInput(inputData);
+    });
+    
+    // 에러 이벤트 연결
+    this.inputAdapter.on('error', (error: Error) => {
+      Logger.error(this.componentName, '어댑터 에러', error);
+      this.emit('error', error);
+    });
+  }
+
+  /**
+   * 🔥 이벤트 발송 (EventEmitter 래핑)
+   */
+  public on(event: string, listener: (...args: unknown[]) => void): this {
+    this.eventEmitter.on(event, listener);
+    return this;
+  }
+
+  public emit(event: string, ...args: unknown[]): boolean {
+    return this.eventEmitter.emit(event, ...args);
+  }
+
+  public off(event: string, listener?: (...args: unknown[]) => void): this {
+    if (listener) {
+      this.eventEmitter.off(event, listener);
+    } else {
+      this.eventEmitter.removeAllListeners(event);
+    }
+    return this;
+  }
+
+  /**
+   * 🔥 헬스체크
    */
   public async healthCheck(): Promise<{
     healthy: boolean;
     uptime?: number;
     lastError?: string;
-    monitoring: boolean;
-    recording: boolean;
-    keystrokesCount: number;
+    stats?: object;
   }> {
-    const baseHealth = await super.healthCheck();
-    
-    return {
-      ...baseHealth,
-      monitoring: this.keyboardState.isMonitoring,
-      recording: this.keyboardState.isRecording,
-      keystrokesCount: this.keyboardState.totalKeystrokes,
-    };
-  }
-
-  /**
-   * 🔥 타입 안전한 uiohook 어댑터 생성
-   * any/unknown을 사용하지 않고 완벽한 타입 호환성 확보
-   */
-  private createUiohookAdapter(rawUiohook: typeof import('uiohook-napi').uIOhook): UiohookInstance {
-    const adapter: UiohookInstance = {
-      start: (): void => rawUiohook.start(),
-      stop: (): void => rawUiohook.stop(),
+    try {
+      const baseHealth = await super.healthCheck();
       
-      // 타입 안전한 이벤트 리스너 어댑터 (오버로드 함수 구현)
-      on: ((event: string, listener: Function): UiohookInstance => {
-        // 실제 uiohook의 on 메서드 호출 
-        // uiohook-napi의 내부 타입 정의와 호환성을 위해 unknown을 통한 안전한 타입 변환
-        (rawUiohook as unknown as { on: (event: string, listener: Function) => void }).on(event, listener);
-        return adapter;
-      }) as UiohookInstance['on'],
-      
-      // 제거 메서드
-      off: ((event: UiohookEventType, listener?: Function): UiohookInstance => {
-        // Loop 전용 구현 (필요시)
-        return adapter;
-      }) as UiohookInstance['off'],
-      
-      removeAllListeners: ((event?: UiohookEventType): UiohookInstance => {
-        if (event) {
-          // 특정 이벤트 리스너만 제거
-        } else {
-          rawUiohook.removeAllListeners();
+      return {
+        ...baseHealth,
+        stats: {
+          totalEvents: this.performanceStats.totalEvents,
+          averageProcessingTime: this.performanceStats.totalEvents > 0 ? 
+            this.performanceStats.processingTimeSum / this.performanceStats.totalEvents : 0,
+          memoryUsage: this.performanceStats.memoryUsage,
+          state: this.keyboardState
         }
-        return adapter;
-      }) as UiohookInstance['removeAllListeners'],
-      
-      // Loop 전용 메서드들 (기본 구현)
-      isRunning: (): boolean => true,
-      getEventCount: (): number => 0,
-      enableLoopMode: (): void => {},
-      disableLoopMode: (): void => {},
-      setLanguage: (lang: 'ko' | 'en' | 'ja' | 'zh'): void => {},
-    };
-    
-    return adapter;
+      };
+    } catch (error) {
+      Logger.error(this.componentName, '헬스체크 실패', error);
+      return {
+        healthy: false,
+        lastError: String(error)
+      };
+    }
   }
 }
 
-export const keyboardEngine = new KeyboardEngine();
-export default keyboardEngine;
+export default KeyboardEngine;

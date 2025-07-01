@@ -11,12 +11,10 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
-// 🔥 로거 import (환경변수 로딩 후)
-import { Logger } from '../shared/logger';
+Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
 
 import { app, BrowserWindow } from 'electron';
-
-
+import { Logger } from '../shared/logger';
 import { windowManager } from './core/window';
 import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
