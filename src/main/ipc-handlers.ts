@@ -54,7 +54,7 @@ export function cleanupAllIpcHandlers(): void {
 }
 
 // 🔥 기가차드 모든 IPC 핸들러 설정
-export function setupAllIpcHandlers(): void {
+export async function setupAllIpcHandlers(): Promise<void> {
   try {
     // 먼저 기존 핸들러들 정리
     cleanupAllIpcHandlers();
@@ -64,7 +64,7 @@ export function setupAllIpcHandlers(): void {
 
     // 키보드 IPC 핸들러
     if (!registeredHandlers.has('keyboard')) {
-      setupKeyboardIpcHandlers();
+      await setupKeyboardIpcHandlers();
       registeredHandlers.add('keyboard');
       Logger.info('IPC_HANDLERS', 'Keyboard IPC handlers setup complete');
     }

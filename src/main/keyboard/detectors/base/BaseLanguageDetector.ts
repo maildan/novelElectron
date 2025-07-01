@@ -6,6 +6,7 @@ import type {
   UiohookKeyboardEvent, 
   LanguageDetectionResult 
 } from '../../../../shared/types';
+import type { SupportedLanguage } from '../types/CommonTypes';
 
 /**
  * 🔥 BaseLanguageDetector - 모든 플랫폼 언어 감지기의 공통 인터페이스
@@ -17,7 +18,7 @@ import type {
  */
 export abstract class BaseLanguageDetector extends BaseManager {
   protected readonly componentName: string;
-  protected currentLanguage: 'ko' | 'en' | 'ja' | 'zh' = 'en';
+  protected currentLanguage: SupportedLanguage = 'en';
   protected detectionCount = 0;
   protected totalProcessingTime = 0;
   
@@ -34,14 +35,14 @@ export abstract class BaseLanguageDetector extends BaseManager {
   /**
    * 🔥 현재 언어 반환
    */
-  public getCurrentLanguage(): 'ko' | 'en' | 'ja' | 'zh' {
+  public getCurrentLanguage(): SupportedLanguage {
     return this.currentLanguage;
   }
 
   /**
    * 🔥 언어 수동 설정
    */
-  public setLanguage(language: 'ko' | 'en' | 'ja' | 'zh'): void {
+  public setLanguage(language: SupportedLanguage): void {
     this.currentLanguage = language;
     Logger.info(this.componentName, 'Language manually set', { language });
   }
@@ -53,7 +54,7 @@ export abstract class BaseLanguageDetector extends BaseManager {
     platform: string;
     detectionCount: number;
     averageProcessingTime: number;
-    currentLanguage: 'ko' | 'en' | 'ja' | 'zh';
+    currentLanguage: SupportedLanguage;
   } {
     return {
       platform: this.getPlatformName(),

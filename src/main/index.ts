@@ -122,96 +122,62 @@ class LoopApplication {
     }
   }
 
-  // 🔥 macOS 권한 체크 및 요청 (단일 다이얼로그 보장) - Electron 내장 API 사용
+  // 🔥 통합 권한 체크 및 요청 - UnifiedPermissionManager 사용
   private async checkAndRequestPermissions(): Promise<boolean> {
     try {
-      Logger.debug('MAIN_INDEX', 'Checking macOS permissions');
+      Logger.debug('MAIN_INDEX', 'Checking macOS permissions with UnifiedPermissionManager');
 
-      // macOS가 아니면 권한 체크 건너뛰기
-      if (!Platform.isMacOS()) {
-        Logger.info('MAIN_INDEX', 'Non-macOS platform, skipping permission check');
-        return true;
-      }
-
+      // 🔥 통합 권한 관리자 사용
+      const { unifiedPermissionManager } = await import('./utils/UnifiedPermissionManager');
+      
       // 🔥 중복 요청 방지
       if (this.isRequestingPermissions) {
         Logger.debug('MAIN_INDEX', '권한 요청이 이미 진행 중 - 건너뛰기');
         return false;
       }
 
-      // 🔥 Electron 내장 API 사용 (안정적)
-      const { systemPreferences } = await import('electron');
+      // 🔥 현재 권한 상태 확인
+      const permissions = await unifiedPermissionManager.checkAllPermissions();
       
-      // 🔥 현재 권한 상태 확인 (다이얼로그 트리거 안함)
-      const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
-      let hasScreenRecordingPermission = false;
-      
-      try {
-        // Screen Recording 권한 체크
-        const mediaAccessStatus = systemPreferences.getMediaAccessStatus('screen');
-        hasScreenRecordingPermission = mediaAccessStatus === 'granted';
-        
-        Logger.debug('MAIN_INDEX', 'Screen recording permission checked', { 
-          status: mediaAccessStatus,
-          hasPermission: hasScreenRecordingPermission
-        });
-      } catch (error) {
-        Logger.warn('MAIN_INDEX', 'Failed to check screen recording permission', error);
-        hasScreenRecordingPermission = false;
-      }
-      
-      Logger.info('MAIN_INDEX', '🔍 권한 상태 체크', {
-        accessibility: hasAccessibilityPermission ? '✅ 허용됨' : '❌ 거부됨',
-        screenRecording: hasScreenRecordingPermission ? '✅ 허용됨' : '❌ 거부됨'
+      Logger.info('MAIN_INDEX', '� 권한 상태 체크', {
+        accessibility: permissions.accessibility ? '✅ 허용됨' : '❌ 거부됨',
+        screenRecording: permissions.screenRecording ? '✅ 허용됨' : '❌ 거부됨'
       });
       
       // 🔥 권한 상태 저장
-      this.hasAccessibilityPermission = hasAccessibilityPermission;
+      this.hasAccessibilityPermission = permissions.accessibility;
 
-      // 🔥 모든 권한이 있으면 OK
-      if (hasAccessibilityPermission && hasScreenRecordingPermission) {
-        Logger.info('MAIN_INDEX', '✅ 모든 권한이 허용됨');
-        return true;
-      }
-
-      // 🔥 권한이 없으면 단일 다이얼로그 표시
-      const permissionsToRequest = [];
-      if (!hasAccessibilityPermission) {
-        permissionsToRequest.push({
-          type: 'accessibility',
-          name: '접근성 (키보드 입력 감지)',
-          hasPermission: false
-        });
-      }
-      if (!hasScreenRecordingPermission) {
-        permissionsToRequest.push({
-          type: 'screenRecording', 
-          name: '화면 기록 (활성 창 감지)',
-          hasPermission: false
-        });
-      }
-
-      if (permissionsToRequest.length > 0) {
+      // 🔥 접근성 권한이 없으면 자동 요청
+      if (!permissions.accessibility) {
         this.isRequestingPermissions = true;
-        Logger.info('MAIN_INDEX', '🚀 단일 권한 다이얼로그 표시');
+        Logger.info('MAIN_INDEX', '� 접근성 권한 자동 요청 시작');
 
-        const permissionGranted = await this.showSinglePermissionDialog(permissionsToRequest);
+        const accessibilityResult = await unifiedPermissionManager.requestAccessibilityPermission();
         this.isRequestingPermissions = false;
 
-        if (permissionGranted) {
-          Logger.info('MAIN_INDEX', '🎉 사용자가 권한 설정을 승인함');
-          this.startQuietPermissionMonitoring();
-          return hasAccessibilityPermission; // 현재 허용된 accessibility 권한 상태 반환
+        if (accessibilityResult.success && accessibilityResult.data) {
+          this.hasAccessibilityPermission = true;
+          Logger.info('MAIN_INDEX', '✅ 접근성 권한 허용됨!');
+          
+          // 권한 허용 후 재확인
+          const updatedPermissions = await unifiedPermissionManager.checkAllPermissions();
+          return updatedPermissions.accessibility;
         } else {
-          Logger.info('MAIN_INDEX', '⏭️ 사용자가 권한 설정을 나중으로 연기함');
-          return hasAccessibilityPermission; // 현재 허용된 accessibility 권한 상태 반환
+          Logger.warn('MAIN_INDEX', '⚠️ 접근성 권한 거부됨');
+          return false;
         }
       }
 
-      return hasAccessibilityPermission;
+      // 🔥 화면 기록 권한도 체크 (필요한 경우)
+      if (!permissions.screenRecording) {
+        Logger.info('MAIN_INDEX', '� 화면 기록 권한 요청');
+        await unifiedPermissionManager.requestScreenRecordingPermission();
+      }
+
+      return permissions.accessibility;
 
     } catch (error) {
-      Logger.error('MAIN_INDEX', 'Failed to check permissions', error);
+      Logger.error('MAIN_INDEX', 'Permission check/request failed', error);
       this.isRequestingPermissions = false;
       return false;
     }
@@ -249,7 +215,7 @@ class LoopApplication {
       }
 
       // IPC 핸들러 설정
-      this.setupIpcHandlers();
+      await this.setupIpcHandlers();
       Logger.info('MAIN_INDEX', 'IPC handlers setup complete');
 
       this.isInitialized = true;
@@ -366,13 +332,13 @@ class LoopApplication {
   }
 
   // 🔥 IPC 핸들러 설정
-  private setupIpcHandlers(): void {
+  private async setupIpcHandlers(): Promise<void> {
     // #DEBUG: Setting up IPC handlers
     Logger.debug('MAIN_INDEX', 'Setting up IPC handlers');
 
     try {
       // 🔥 모든 IPC 핸들러 통합 설정
-      setupAllIpcHandlers();
+      await setupAllIpcHandlers();
       Logger.info('MAIN_INDEX', 'All IPC handlers registered successfully');
 
       Logger.debug('MAIN_INDEX', 'All IPC handlers setup completed');

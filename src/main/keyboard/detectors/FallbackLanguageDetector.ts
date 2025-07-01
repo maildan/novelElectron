@@ -3,6 +3,7 @@
 import { BaseLanguageDetector } from './base/BaseLanguageDetector';
 import { Logger } from '../../../shared/logger';
 import { UiohookKeyboardEvent, LanguageDetectionResult } from '../../../shared/types';
+import { SupportedLanguage } from './types/CommonTypes';
 
 // 🔥 중앙화된 키코드 매핑 import
 import { 
@@ -342,11 +343,11 @@ export class FallbackLanguageDetector extends BaseLanguageDetector {
   }
 
   // 🔥 공개 메서드들
-  public getCurrentLanguage(): 'ko' | 'en' | 'ja' | 'zh' {
+  public getCurrentLanguage(): SupportedLanguage {
     return this.currentLanguage;
   }
 
-  public setLanguage(language: 'ko' | 'en' | 'ja' | 'zh'): void {
+  public setLanguage(language: SupportedLanguage): void {
     this.currentLanguage = language;
     this.keyBuffer = [];
     Logger.info(this.componentName, '범용 언어 수동 설정', { language });
@@ -357,7 +358,7 @@ export class FallbackLanguageDetector extends BaseLanguageDetector {
     detectionCount: number;
     averageProcessingTime: number;
     bufferSize: number;
-    currentLanguage: 'ko' | 'en' | 'ja' | 'zh';
+    currentLanguage: SupportedLanguage;
   } {
     return {
       platform: 'fallback',

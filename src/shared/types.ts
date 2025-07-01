@@ -400,6 +400,12 @@ export const IPC_CHANNELS = {
     SET: 'settings:set',
     RESET: 'settings:reset',
   },
+  PERMISSIONS: {
+    REQUEST_ALL: 'permissions:request-all',
+    CHECK_STATUS: 'permissions:check-status',
+    REQUEST_ACCESSIBILITY: 'permissions:request-accessibility',
+    REQUEST_SCREEN_RECORDING: 'permissions:request-screen-recording',
+  },
   APP: {
     GET_VERSION: 'app:get-version',
     QUIT: 'app:quit',
@@ -436,6 +442,20 @@ export interface SystemHealth {
   uptime: number;
   version: string;
 }
+
+// 🔥 권한 관련 타입들
+export interface PermissionStatus {
+  accessibility: boolean;
+  screenRecording: boolean;
+}
+
+export interface PermissionRequestResult {
+  accessibility: boolean;
+  screenRecording: boolean;
+  allGranted: boolean;
+}
+
+export type IpcChannelType = typeof IPC_CHANNELS;
 
 // 🔥 이 파일을 모듈로 만들기 위한 export
 export {};

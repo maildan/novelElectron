@@ -3,6 +3,7 @@
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
 import { Platform } from '../utils/platform';
+import { DialogManager } from '../dialog-manager';
 import type { Result } from '../../shared/types';
 
 /**
@@ -67,7 +68,7 @@ export class KeyboardPermissionManager extends BaseManager {
   }
 
   /**
-   * 🔥 권한 요청 (플랫폼별 처리)
+   * 🔥 권한 요청 - UnifiedPermissionManager 사용
    */
   public async requestPermissions(): Promise<Result<boolean>> {
     if (this.isRequestingPermissions) {
@@ -80,21 +81,19 @@ export class KeyboardPermissionManager extends BaseManager {
     this.isRequestingPermissions = true;
     
     try {
-      Logger.info(this.componentName, '키보드 접근 권한 요청 시작', {
+      Logger.info(this.componentName, '키보드 접근 권한 요청 시작 (UnifiedPermissionManager)', {
         platform: Platform.getPlatformName()
       });
 
+      // 🔥 통합 권한 관리자 사용
+      const { unifiedPermissionManager } = await import('../utils/UnifiedPermissionManager');
+      
+      // 🔥 접근성 권한 요청 (macOS 시스템 다이얼로그 자동 표시)
+      const result = await unifiedPermissionManager.requestAccessibilityPermission();
+      
       let hasPermission = false;
-
-      if (Platform.isMacOS()) {
-        hasPermission = await this.requestMacOSPermissions();
-      } else if (Platform.isWindows()) {
-        hasPermission = await this.requestWindowsPermissions();
-      } else if (Platform.isLinux()) {
-        hasPermission = await this.requestLinuxPermissions();
-      } else {
-        Logger.warn(this.componentName, '알 수 없는 플랫폼, 권한 체크 스킵');
-        hasPermission = true; // 폴백으로 허용
+      if (result.success && result.data !== undefined) {
+        hasPermission = result.data;
       }
 
       this.hasAccessibilityPermission = hasPermission;
@@ -125,21 +124,15 @@ export class KeyboardPermissionManager extends BaseManager {
   }
 
   /**
-   * 🔥 권한 상태 확인
+   * 🔥 권한 상태 확인 - UnifiedPermissionManager 사용
    */
   public async checkPermissions(): Promise<Result<boolean>> {
     try {
-      let hasPermission = false;
-
-      if (Platform.isMacOS()) {
-        hasPermission = await this.checkMacOSPermissions();
-      } else if (Platform.isWindows()) {
-        hasPermission = await this.checkWindowsPermissions();
-      } else if (Platform.isLinux()) {
-        hasPermission = await this.checkLinuxPermissions();
-      } else {
-        hasPermission = true; // 폴백으로 허용
-      }
+      // 🔥 통합 권한 관리자 사용
+      const { unifiedPermissionManager } = await import('../utils/UnifiedPermissionManager');
+      
+      // 🔥 접근성 권한 확인
+      const hasPermission = await unifiedPermissionManager.checkAccessibilityPermission();
 
       this.hasAccessibilityPermission = hasPermission;
 
