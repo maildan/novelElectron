@@ -22,6 +22,9 @@ import { UnifiedLanguageDetector } from './detectors/UnifiedLanguageDetector';
 // 🔥 앱 카테고리 매핑 import
 import { APP_CATEGORY_MAPPING, APP_CATEGORIES } from './appCategories';
 
+// 🔥 macOS 한글 키코드 매핑 import
+import { MACOS_HANGUL_KEYCODES, getHangulKeycodes } from './detectors/types/KeycodeMappings';
+
 /**
  * 🔥 KeyboardService - 완전히 새로 작성된 키보드 서비스
  * 
@@ -396,11 +399,11 @@ export class KeyboardService extends BaseManager {
       });
 
       // 유효한 문자만 처리 (공백, 문자, 숫자, 한글 등)
-      if (char && this.isValidCharacter(char)) {
-        Logger.info(this.componentName, `✅ 유효한 키 입력 감지!`, { 
-          char: char.charCodeAt(0) > 127 ? '[한글]' : char,
+      if (char && this.isValidCharacter(char)) {        Logger.info(this.componentName, `✅ 유효한 키 입력 감지!`, {
+          char: char, // 실제 문자 표시 (플레이스홀더 제거)
+          keycode: rawEvent.keycode,
           appName,
-          appCategory 
+          appCategory
         });
         
         // 세션에 키 입력 기록
@@ -426,7 +429,7 @@ export class KeyboardService extends BaseManager {
         });
 
         Logger.debug(this.componentName, `🔥 키 입력 완료 처리됨`, {
-          char: char.charCodeAt(0) > 127 ? '[한글]' : char,
+          char: char, // 실제 문자 표시 (플레이스홀더 제거)
           keycode: rawEvent.keycode,
           appName,
           appCategory,
@@ -690,73 +693,31 @@ export class KeyboardService extends BaseManager {
   }
 
   /**
-   * 🔥 키코드를 문자로 변환 - 한글 키보드 매핑 포함
+   * 🔥 키코드를 문자로 변환 - KeycodeMappings.ts 활용
    */
   private convertKeycodeToChar(keycode: number): string {
-    // 🔥 한글 키보드 매핑 (macOS 기준 정확한 매핑)
-    const hangulMapping: Record<number, string> = {
-      // 자음 (왼쪽 영역)
-      16: 'ㅂ',  // Q
-      17: 'ㅈ',  // W  
-      18: 'ㄷ',  // E
-      19: 'ㄱ',  // R
-      20: 'ㅅ',  // T
-      
-      0: 'ㅁ',   // A
-      1: 'ㄴ',   // S
-      2: 'ㅇ',   // D
-      3: 'ㄹ',   // F
-      5: 'ㅎ',   // G
-      
-      6: 'ㅋ',   // Z
-      7: 'ㅌ',   // X
-      8: 'ㅊ',   // C
-      9: 'ㅍ',   // V
-      
-      // 모음 (오른쪽 영역)
-      23: 'ㅛ',  // Y
-      22: 'ㅕ',  // U
-      34: 'ㅑ',  // I
-      31: 'ㅐ',  // O
-      35: 'ㅔ',  // P
-      
-      4: 'ㅗ',   // H
-      38: 'ㅓ',  // J
-      29: 'ㅏ',  // K - 수정된 매핑
-      37: 'ㅣ',  // L
-      
-      11: 'ㅠ',  // B
-      45: 'ㅜ',  // N
-      46: 'ㅡ',  // M - 수정된 매핑
-      
-      // 🔥 한글 조합 중간 키코드 추가
-      3675: 'ㅇ',  // 한글 조합 과정 중 'ㅇ'
-      15: 'ㅎ',    // 한글 조합 과정 중 'ㅎ'
-      33: 'ㅓ',    // 한글 조합 과정 중 'ㅓ'
-      
-      // 추가 한글 조합키 매핑
-      14: 'ㄱ',    // 한글 'ㄱ' 조합
-      21: 'ㅅ',    // 한글 'ㅅ' 조합
-      30: 'ㅑ',    // 한글 'ㅑ' 조합
-      32: 'ㅛ',    // 한글 'ㅛ' 조합
-    };
-
-    // 한글 매핑 우선 확인
-    if (hangulMapping[keycode]) {
-      return hangulMapping[keycode];
+    // 🔥 1순위: macOS 한글 키코드 매핑 (KeycodeMappings.ts에서 import)
+    if (process.platform === 'darwin' && MACOS_HANGUL_KEYCODES.has(keycode)) {
+      const hangulChar = MACOS_HANGUL_KEYCODES.get(keycode);
+      Logger.debug(this.componentName, '🔥 macOS 한글 키코드 매핑 성공', {
+        keycode,
+        char: hangulChar,
+        source: 'MACOS_HANGUL_KEYCODES'
+      });
+      return hangulChar || '';
     }
     
-    // 일반 문자 키 (A-Z) - keycode 65-90
+    // 🔥 2순위: 일반 문자 키 (A-Z) - keycode 65-90
     if (keycode >= 65 && keycode <= 90) {
       return String.fromCharCode(keycode).toLowerCase();
     }
     
-    // 숫자 키 (0-9) - keycode 48-57
+    // 🔥 3순위: 숫자 키 (0-9) - keycode 48-57
     if (keycode >= 48 && keycode <= 57) {
       return String.fromCharCode(keycode);
     }
     
-    // 일반적인 특수 문자들
+    // 🔥 4순위: 일반적인 특수 문자들
     const specialChars: Record<number, string> = {
       32: ' ',    // Space
       188: ',',   // Comma
@@ -774,6 +735,13 @@ export class KeyboardService extends BaseManager {
       return specialChars[keycode];
     }
     
+    Logger.warn(this.componentName, '🔍 매핑되지 않은 키코드 발견!', { 
+      keycode,
+      hex: `0x${keycode.toString(16)}`,
+      binary: keycode.toString(2),
+      needsMapping: true,
+      suggestedAction: 'MACOS_HANGUL_KEYCODES에 추가 필요'
+    });
     return '';
   }
 }
