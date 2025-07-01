@@ -265,14 +265,16 @@ export class KeyboardPermissionManager extends BaseManager {
    */
   private async testKeyboardAccess(): Promise<boolean> {
     try {
-      // 🔥 uIOhook-napi 올바른 사용법
-      const { uIOhook } = require('uiohook-napi');
+      // 🔥 uIOhook-napi 올바른 사용법 - uIOhook 객체에서 접근
+      const uiohookModule = require('uiohook-napi');
+      const uIOhook = uiohookModule.uIOhook;
       
       // 필수 함수 존재 확인
       if (typeof uIOhook.start !== 'function' || typeof uIOhook.stop !== 'function') {
         Logger.error(this.componentName, 'uIOhook 필수 함수가 없습니다', {
           hasStart: typeof uIOhook.start,
-          hasStop: typeof uIOhook.stop
+          hasStop: typeof uIOhook.stop,
+          availableMethods: Object.getOwnPropertyNames(Object.getPrototypeOf(uIOhook))
         });
         return false;
       }
