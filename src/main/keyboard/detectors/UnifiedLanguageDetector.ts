@@ -155,7 +155,9 @@ export class UnifiedLanguageDetector extends BaseManager {
       Logger.warn(this.componentName, '감지기가 초기화되지 않음, 언어 설정 무시');
       return;
     }
-    this.detector.setLanguage(language);
+    // 🔥 확장된 언어를 기본 언어로 매핑
+    const mappedLanguage = this.mapToSupportedLanguage(language);
+    this.detector.setLanguage(mappedLanguage);
     Logger.info(this.componentName, `언어 설정 변경: ${language}`);
   }
 
@@ -245,6 +247,25 @@ export class UnifiedLanguageDetector extends BaseManager {
       this.lastError = String(error);
       Logger.error(this.componentName, '감지기 재시작 실패', error);
       return false;
+    }
+  }
+
+  /**
+   * 🔥 확장된 언어를 기본 지원 언어로 매핑
+   */
+  private mapToSupportedLanguage(language: SupportedLanguage): 'ko' | 'en' | 'ja' | 'zh' {
+    // 기본 지원 언어는 그대로 반환
+    if (['ko', 'en', 'ja', 'zh'].includes(language)) {
+      return language as 'ko' | 'en' | 'ja' | 'zh';
+    }
+    
+    // 확장 언어들을 기본 언어로 매핑
+    switch (language) {
+      case 'es': // 스페인어 → 영어
+      case 'fr': // 프랑스어 → 영어  
+      case 'de': // 독일어 → 영어
+      default:
+        return 'en';
     }
   }
 }

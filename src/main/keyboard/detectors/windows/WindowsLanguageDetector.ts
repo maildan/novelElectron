@@ -7,6 +7,7 @@ import type {
   UiohookKeyboardEvent, 
   LanguageDetectionResult 
 } from '../../../../shared/types';
+import type { SupportedLanguage } from '../types/CommonTypes';
 
 // 🔥 중앙화된 키코드 매핑 import
 import { 
@@ -186,8 +187,9 @@ export class WindowsLanguageDetector extends BaseLanguageDetector {
       const layout = await this.getCurrentKeyboardLayout();
       
       if (layout !== null) {
-        const language = WINDOWS_KEYBOARD_LAYOUTS[layout as keyof typeof WINDOWS_KEYBOARD_LAYOUTS] || 'en';
-        this.currentLanguage = language;
+        const language = (WINDOWS_KEYBOARD_LAYOUTS[layout as keyof typeof WINDOWS_KEYBOARD_LAYOUTS] || 'en') as SupportedLanguage;
+        const mappedLanguage = this.mapToSupportedLanguage(language);
+        this.currentLanguage = mappedLanguage;
         
         Logger.debug(this.componentName, '🔥 Windows 키보드 레이아웃 감지 성공', {
           layout: `0x${layout.toString(16)}`,

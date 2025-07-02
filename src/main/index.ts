@@ -11,12 +11,10 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
+
+
 import { app, BrowserWindow } from 'electron';
 import { Logger } from '../shared/logger';
-
-// 로거 초기화 후 환경 정보 출력
-Logger.info('MAIN_INDEX', `🔥 Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
-
 import { windowManager } from './core/window';
 import { securityManager } from './core/security';
 import { autoLaunchManager } from './core/autoLaunch';
@@ -38,7 +36,7 @@ import { WindowTracker } from './keyboard/WindowTracker';
 
 // #DEBUG: Main index module entry point
 Logger.debug('MAIN_INDEX', 'Main index module loaded');
-
+Logger.time(`🔥 [ENV] Environment loaded: ${process.env.NODE_ENV}, LOG_LEVEL: ${process.env.LOG_LEVEL}, DEBUG: ${process.env.DEBUG}`);
 // 🔥 기가차드 메인 애플리케이션 클래스
 class LoopApplication {
   private isInitialized = false;
@@ -54,7 +52,6 @@ class LoopApplication {
   private shortcutsManager: import('./managers/ShortcutsManager').ShortcutsManager | null = null;
   private trayManager: import('./managers/TrayManager').TrayManager | null = null;
 
-  
   constructor() {
     Logger.info('MAIN_INDEX', 'Loop application instance created');
     this.setupEventHandlers();
@@ -122,62 +119,96 @@ class LoopApplication {
     }
   }
 
-  // 🔥 통합 권한 체크 및 요청 - UnifiedPermissionManager 사용
+  // 🔥 macOS 권한 체크 및 요청 (단일 다이얼로그 보장) - Electron 내장 API 사용
   private async checkAndRequestPermissions(): Promise<boolean> {
     try {
-      Logger.debug('MAIN_INDEX', 'Checking macOS permissions with UnifiedPermissionManager');
+      Logger.debug('MAIN_INDEX', 'Checking macOS permissions');
 
-      // 🔥 통합 권한 관리자 사용
-      const { unifiedPermissionManager } = await import('./utils/UnifiedPermissionManager');
-      
+      // macOS가 아니면 권한 체크 건너뛰기
+      if (!Platform.isMacOS()) {
+        Logger.info('MAIN_INDEX', 'Non-macOS platform, skipping permission check');
+        return true;
+      }
+
       // 🔥 중복 요청 방지
       if (this.isRequestingPermissions) {
         Logger.debug('MAIN_INDEX', '권한 요청이 이미 진행 중 - 건너뛰기');
         return false;
       }
 
-      // 🔥 현재 권한 상태 확인
-      const permissions = await unifiedPermissionManager.checkAllPermissions();
+      // 🔥 Electron 내장 API 사용 (안정적)
+      const { systemPreferences } = await import('electron');
       
-      Logger.info('MAIN_INDEX', '� 권한 상태 체크', {
-        accessibility: permissions.accessibility ? '✅ 허용됨' : '❌ 거부됨',
-        screenRecording: permissions.screenRecording ? '✅ 허용됨' : '❌ 거부됨'
+      // 🔥 현재 권한 상태 확인 (다이얼로그 트리거 안함)
+      const hasAccessibilityPermission = systemPreferences.isTrustedAccessibilityClient(false);
+      let hasScreenRecordingPermission = false;
+      
+      try {
+        // Screen Recording 권한 체크
+        const mediaAccessStatus = systemPreferences.getMediaAccessStatus('screen');
+        hasScreenRecordingPermission = mediaAccessStatus === 'granted';
+        
+        Logger.debug('MAIN_INDEX', 'Screen recording permission checked', { 
+          status: mediaAccessStatus,
+          hasPermission: hasScreenRecordingPermission
+        });
+      } catch (error) {
+        Logger.warn('MAIN_INDEX', 'Failed to check screen recording permission', error);
+        hasScreenRecordingPermission = false;
+      }
+      
+      Logger.info('MAIN_INDEX', '🔍 권한 상태 체크', {
+        accessibility: hasAccessibilityPermission ? '✅ 허용됨' : '❌ 거부됨',
+        screenRecording: hasScreenRecordingPermission ? '✅ 허용됨' : '❌ 거부됨'
       });
       
       // 🔥 권한 상태 저장
-      this.hasAccessibilityPermission = permissions.accessibility;
+      this.hasAccessibilityPermission = hasAccessibilityPermission;
 
-      // 🔥 접근성 권한이 없으면 자동 요청
-      if (!permissions.accessibility) {
+      // 🔥 모든 권한이 있으면 OK
+      if (hasAccessibilityPermission && hasScreenRecordingPermission) {
+        Logger.info('MAIN_INDEX', '✅ 모든 권한이 허용됨');
+        return true;
+      }
+
+      // 🔥 권한이 없으면 단일 다이얼로그 표시
+      const permissionsToRequest = [];
+      if (!hasAccessibilityPermission) {
+        permissionsToRequest.push({
+          type: 'accessibility',
+          name: '접근성 (키보드 입력 감지)',
+          hasPermission: false
+        });
+      }
+      if (!hasScreenRecordingPermission) {
+        permissionsToRequest.push({
+          type: 'screenRecording', 
+          name: '화면 기록 (활성 창 감지)',
+          hasPermission: false
+        });
+      }
+
+      if (permissionsToRequest.length > 0) {
         this.isRequestingPermissions = true;
-        Logger.info('MAIN_INDEX', '� 접근성 권한 자동 요청 시작');
+        Logger.info('MAIN_INDEX', '🚀 단일 권한 다이얼로그 표시');
 
-        const accessibilityResult = await unifiedPermissionManager.requestAccessibilityPermission();
+        const permissionGranted = await this.showSinglePermissionDialog(permissionsToRequest);
         this.isRequestingPermissions = false;
 
-        if (accessibilityResult.success && accessibilityResult.data) {
-          this.hasAccessibilityPermission = true;
-          Logger.info('MAIN_INDEX', '✅ 접근성 권한 허용됨!');
-          
-          // 권한 허용 후 재확인
-          const updatedPermissions = await unifiedPermissionManager.checkAllPermissions();
-          return updatedPermissions.accessibility;
+        if (permissionGranted) {
+          Logger.info('MAIN_INDEX', '🎉 사용자가 권한 설정을 승인함');
+          this.startQuietPermissionMonitoring();
+          return hasAccessibilityPermission; // 현재 허용된 accessibility 권한 상태 반환
         } else {
-          Logger.warn('MAIN_INDEX', '⚠️ 접근성 권한 거부됨');
-          return false;
+          Logger.info('MAIN_INDEX', '⏭️ 사용자가 권한 설정을 나중으로 연기함');
+          return hasAccessibilityPermission; // 현재 허용된 accessibility 권한 상태 반환
         }
       }
 
-      // 🔥 화면 기록 권한도 체크 (필요한 경우)
-      if (!permissions.screenRecording) {
-        Logger.info('MAIN_INDEX', '� 화면 기록 권한 요청');
-        await unifiedPermissionManager.requestScreenRecordingPermission();
-      }
-
-      return permissions.accessibility;
+      return hasAccessibilityPermission;
 
     } catch (error) {
-      Logger.error('MAIN_INDEX', 'Permission check/request failed', error);
+      Logger.error('MAIN_INDEX', 'Failed to check permissions', error);
       this.isRequestingPermissions = false;
       return false;
     }
@@ -215,7 +246,7 @@ class LoopApplication {
       }
 
       // IPC 핸들러 설정
-      await this.setupIpcHandlers();
+      this.setupIpcHandlers();
       Logger.info('MAIN_INDEX', 'IPC handlers setup complete');
 
       this.isInitialized = true;
@@ -332,13 +363,13 @@ class LoopApplication {
   }
 
   // 🔥 IPC 핸들러 설정
-  private async setupIpcHandlers(): Promise<void> {
+  private setupIpcHandlers(): void {
     // #DEBUG: Setting up IPC handlers
     Logger.debug('MAIN_INDEX', 'Setting up IPC handlers');
 
     try {
       // 🔥 모든 IPC 핸들러 통합 설정
-      await setupAllIpcHandlers();
+      setupAllIpcHandlers();
       Logger.info('MAIN_INDEX', 'All IPC handlers registered successfully');
 
       Logger.debug('MAIN_INDEX', 'All IPC handlers setup completed');

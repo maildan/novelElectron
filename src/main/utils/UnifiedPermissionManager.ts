@@ -4,11 +4,11 @@ import { Logger } from '../../shared/logger';
 import { Platform } from './platform';
 import { Result } from '../../shared/types';
 
-// 🔥 node-mac-permissions 타입 정의 (실제 API 기준)
+// 🔥 node-mac-permissions 타입 정의 (정확한 API)
 interface NodeMacPermissions {
   getAuthStatus(type: string): string;
-  askForAccessibilityAccess(): Promise<boolean>;
-  askForScreenCaptureAccess(): Promise<boolean>;
+  askForAccessibilityAccess(): void; // 🔥 동기 함수, void 반환 (다이얼로그만 표시)
+  askForScreenCaptureAccess(): void; // 🔥 동기 함수, void 반환
 }
 
 // 🔥 안전한 동적 import 변수
@@ -101,17 +101,17 @@ export class UnifiedPermissionManager {
 
       let hasPermission = false;
 
-      // 1순위: Electron systemPreferences 사용
-      if (systemPreferences) {
-        hasPermission = systemPreferences.isTrustedAccessibilityClient(false);
-        Logger.debug(this.componentName, 'Electron systemPreferences 권한 체크', { hasPermission });
-      }
-      
-      // 2순위: node-mac-permissions 사용 (보조 검증)
-      if (macPermissions && !hasPermission) {
+      // 🔥 1순위: node-mac-permissions 사용 (정확한 API)
+      if (macPermissions && typeof macPermissions.getAuthStatus === 'function') {
         const status = macPermissions.getAuthStatus('accessibility');
         hasPermission = status === 'authorized';
-        Logger.debug(this.componentName, 'node-mac-permissions 권한 체크', { status, hasPermission });
+        Logger.debug(this.componentName, '✅ node-mac-permissions 권한 상태', { status, hasPermission });
+      }
+      
+      // 🔥 2순위: Electron systemPreferences 사용 (보조 검증)
+      if (!hasPermission && systemPreferences) {
+        hasPermission = systemPreferences.isTrustedAccessibilityClient(false);
+        Logger.debug(this.componentName, '🔧 Electron systemPreferences 권한 체크', { hasPermission });
       }
 
       this.permissions.accessibility = hasPermission;
@@ -158,18 +158,24 @@ export class UnifiedPermissionManager {
 
       let permissionGranted = false;
 
-      // 🔥 Method 1: node-mac-permissions 사용 (더 안정적)
-      if (macPermissions) {
+      // 🔥 Method 1: node-mac-permissions 사용 (올바른 동기 방식)
+      if (macPermissions && typeof macPermissions.askForAccessibilityAccess === 'function') {
         try {
           Logger.info(this.componentName, '📱 node-mac-permissions로 권한 요청 시도');
           
-          // askForAccessibilityAccess는 시스템 다이얼로그를 자동으로 띄움
-          const result = await macPermissions.askForAccessibilityAccess();
-          permissionGranted = result;
+          // 🔥 올바른 API 사용: 동기적으로 호출하고 시스템 다이얼로그를 띄움
+          macPermissions.askForAccessibilityAccess();
           
-          Logger.info(this.componentName, `node-mac-permissions 결과: ${permissionGranted}`);
+          // 요청 후 잠시 대기하고 상태 재확인
+          await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
+          
+          if (typeof macPermissions.getAuthStatus === 'function') {
+            const status = macPermissions.getAuthStatus('accessibility');
+            permissionGranted = status === 'authorized';
+            Logger.info(this.componentName, `📱 node-mac-permissions 결과: ${status} (${permissionGranted})`);
+          }
         } catch (error) {
-          Logger.warn(this.componentName, 'node-mac-permissions 권한 요청 실패', error);
+          Logger.warn(this.componentName, '❌ node-mac-permissions 권한 요청 실패', error);
         }
       }
 

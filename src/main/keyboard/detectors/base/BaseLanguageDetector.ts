@@ -81,7 +81,9 @@ export abstract class BaseLanguageDetector extends BaseManager {
     
     // 신뢰도 임계값 (0.6 이상일 때만 언어 변경)
     if (result.confidence >= 0.6) {
-      this.currentLanguage = result.language;
+      // 🔥 지원하는 언어만 허용 (확장된 언어는 기본 4개로 매핑)
+      const supportedLang = this.mapToSupportedLanguage(result.language);
+      this.currentLanguage = supportedLang;
     }
     
     Logger.debug(this.componentName, 'Language detection completed', {
@@ -111,6 +113,25 @@ export abstract class BaseLanguageDetector extends BaseManager {
   public async cleanup(): Promise<void> {
     await super.cleanup();
     Logger.info(this.componentName, `${this.getPlatformName()} language detector cleaned up`);
+  }
+
+  /**
+   * 🔥 확장된 언어를 기본 지원 언어로 매핑
+   */
+  protected mapToSupportedLanguage(language: SupportedLanguage): 'ko' | 'en' | 'ja' | 'zh' {
+    // 기본 지원 언어는 그대로 반환
+    if (['ko', 'en', 'ja', 'zh'].includes(language)) {
+      return language as 'ko' | 'en' | 'ja' | 'zh';
+    }
+    
+    // 확장 언어들을 기본 언어로 매핑
+    switch (language) {
+      case 'es': // 스페인어 → 영어
+      case 'fr': // 프랑스어 → 영어  
+      case 'de': // 독일어 → 영어
+      default:
+        return 'en';
+    }
   }
 }
 

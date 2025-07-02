@@ -75,6 +75,27 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
         currentLanguage: this.currentLanguage
       });
 
+      // 🔥 0순위: 특수 문자 및 제어 문자 사전 필터링
+      if (this.isSpecialOrControlKey(rawEvent.keycode, rawEvent.keychar)) {
+        Logger.debug(this.componentName, '🔥 특수/제어 문자 감지 - 현재 언어 유지', {
+          keycode: rawEvent.keycode,
+          keychar: rawEvent.keychar,
+          reason: 'special-control-char-filtered'
+        });
+        
+        return this.finalizeResult({
+          language: this.currentLanguage,
+          confidence: 0.95,
+          method: 'special-char-mapping',
+          isComposing: false,
+          metadata: {
+            keycode: rawEvent.keycode,
+            keychar: rawEvent.keychar,
+            reason: 'special-control-char-filtered'
+          }
+        }, startTime);
+      }
+
       // 🔥 1순위: 실시간 TIS API 키코드 변환 (가장 정확)
       const translationResult = await this.detectByRealtimeTranslation(rawEvent, startTime);
       if (translationResult && translationResult.confidence >= 0.9) {
@@ -184,9 +205,11 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
     try {
       const systemLanguage = await this.getCurrentInputSourceFromSystem();
       
-      // 🔥 유효한 언어만 설정
+      // 🔥 유효한 언어만 설정 (타입 안전성 보장)
       if (systemLanguage && systemLanguage !== null) {
-        this.currentLanguage = systemLanguage;
+        // MacOSInputSourceType를 기본 지원 언어로 매핑
+        const mappedLanguage = this.mapMacOSLanguageToSupported(systemLanguage);
+        this.currentLanguage = mappedLanguage;
         
         Logger.debug(this.componentName, '🔥 macOS 시스템 입력소스 감지 성공', {
           systemLanguage,
@@ -278,21 +301,22 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
   }
 
   /**
-   * 🔥 macOS 키코드 기반 감지 (IME 우회)
+   * 🔥 macOS 키코드 기반 감지 (IME 우회) + 특수 문자 필터링
    */
   private detectByMacOSKeycode(rawEvent: UiohookKeyboardEvent): LanguageDetectionResult {
     const { keycode, keychar } = rawEvent;
 
-    // 제어문자는 언어 변경하지 않음
-    if (keycode <= 31 || keycode === 127) {
+    // 🔥 제어문자 및 특수문자 필터링
+    if (this.isSpecialOrControlKey(keycode, keychar)) {
       return {
         language: this.currentLanguage,
         confidence: 0.8,
         method: 'keycode',
         isComposing: false,
         metadata: { 
-          keycode, 
-          reason: 'macos-control-key-maintain-current' 
+          keycode,
+          keychar,
+          reason: 'macos-special-control-key-filtered'
         }
       };
     }
@@ -735,6 +759,105 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
     }
     
     return undefined;
+  }
+
+  /**
+   * 🔥 특수 문자 및 제어 키 필터링 (강화 버전)
+   */
+  private isSpecialOrControlKey(keycode: number, keychar?: number): boolean {
+    // 🔥 제어 문자 키코드
+    if (keycode <= 31 || keycode === 127) {
+      return true;
+    }
+    
+    // 🔥 macOS 시스템 키 (Fn, Command, Option 등)
+    const systemKeyCodes = [
+      58, 59, 60, 61, 62, 63, 64, 65, // F1-F8
+      67, 69, 70, 71, 72, 73, 74, 75, // F9-F16
+      55, 54, 58, 61, // Command, Option keys
+      56, 60, // Shift keys  
+      59, 62, // Control keys
+      122, 120, 99, 118, 96, 97, 98, // Special function keys
+    ];
+    
+    if (systemKeyCodes.includes(keycode)) {
+      return true;
+    }
+    
+    // 🔥 keychar 기반 특수 문자 필터링 (강화)
+    if (keychar) {
+      const char = String.fromCharCode(keychar);
+      
+      // 🔥 태국, 아랍, 힌두 등 다른 언어 문자 필터링
+      const unicodeValue = keychar;
+      
+      // 태국어 범위 (U+0E00-U+0E7F)
+      if (unicodeValue >= 0x0E00 && unicodeValue <= 0x0E7F) {
+        Logger.debug(this.componentName, '🔥 태국어 문자 필터링', { char, charCode: unicodeValue.toString(16) });
+        return true;
+      }
+      
+      // 아랍어 범위 (U+0600-U+06FF)
+      if (unicodeValue >= 0x0600 && unicodeValue <= 0x06FF) {
+        Logger.debug(this.componentName, '🔥 아랍어 문자 필터링', { char, charCode: unicodeValue.toString(16) });
+        return true;
+      }
+      
+      // 힌두어 범위 (U+0900-U+097F)
+      if (unicodeValue >= 0x0900 && unicodeValue <= 0x097F) {
+        Logger.debug(this.componentName, '🔥 힌두어 문자 필터링', { char, charCode: unicodeValue.toString(16) });
+        return true;
+      }
+      
+      // 🔥 특수 기호 및 제어 문자
+      const specialChars = [
+        '๛', // U+0E5B (태국 문자)
+        '‍', '‌', '​', '﻿', // Zero-width characters
+        '', // 빈 문자
+        '\u0000', '\u0001', '\u0002', '\u0003', // NULL, SOH, STX, ETX
+        '\u0004', '\u0005', '\u0006', '\u0007', // EOT, ENQ, ACK, BEL
+        '\u0008', '\u0009', '\u000A', '\u000B', // BS, HT, LF, VT
+        '\u000C', '\u000D', '\u000E', '\u000F', // FF, CR, SO, SI
+      ];
+      
+      if (specialChars.includes(char)) {
+        return true;
+      }
+      
+      // Unicode 제어 문자 범위
+      const charCode = char.charCodeAt(0);
+      if (charCode <= 0x1F || (charCode >= 0x7F && charCode <= 0x9F)) {
+        return true;
+      }
+      
+      // 유효하지 않은 Unicode 범위
+      if (charCode >= 0xFDD0 && charCode <= 0xFDEF) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  /**
+   * 🔥 macOS 언어를 기본 지원 언어로 매핑
+   */
+  private mapMacOSLanguageToSupported(language: MacOSInputSourceType): 'ko' | 'en' | 'ja' | 'zh' {
+    if (!language) return 'en';
+    
+    // 기본 지원 언어는 그대로 반환
+    if (['ko', 'en', 'ja', 'zh'].includes(language)) {
+      return language as 'ko' | 'en' | 'ja' | 'zh';
+    }
+    
+    // 확장 언어들을 기본 언어로 매핑
+    switch (language) {
+      case 'es': // 스페인어 → 영어
+      case 'fr': // 프랑스어 → 영어
+      case 'de': // 독일어 → 영어
+      default:
+        return 'en';
+    }
   }
 }
 
