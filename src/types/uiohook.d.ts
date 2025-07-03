@@ -1,7 +1,17 @@
 // src/types/uiohook.d.ts
 declare module 'uiohook-napi' {
-  // 🔥 shared/types.ts에서 import해서 사용 (중복 제거!)
-  import type { UiohookKeyboardEvent } from '../shared/types';
+  // 🔥 공식 uiohook-napi 타입 정의 (keychar, rawcode 포함)
+  export interface UiohookKeyboardEvent {
+    type?: number;
+    time?: number;
+    keycode: number;
+    keychar?: number;  // 🔥 실제 입력된 문자의 Unicode 값
+    rawcode?: number;  // 🔥 macOS 물리적 키코드
+    altKey?: boolean;
+    ctrlKey?: boolean;
+    metaKey?: boolean;
+    shiftKey?: boolean;
+  }
   
   // Loop 전용 확장 타입들만 여기에 정의
   export interface UiohookKeyEvent extends UiohookKeyboardEvent {

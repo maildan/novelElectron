@@ -72,7 +72,12 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
         keycode: rawEvent.keycode,
         keychar: rawEvent.keychar,
         isShift: rawEvent.shiftKey,
-        currentLanguage: this.currentLanguage
+        currentLanguage: this.currentLanguage,
+        // 🔥 A번 접근법 테스트 정보 추가
+        hasKeychar: !!rawEvent.keychar,
+        keycharString: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'null',
+        isHangulRange: rawEvent.keychar ? (rawEvent.keychar >= 0xAC00 && rawEvent.keychar <= 0xD7AF) : false,
+        isLatinRange: rawEvent.keychar ? ((rawEvent.keychar >= 32 && rawEvent.keychar <= 126) || (rawEvent.keychar >= 160 && rawEvent.keychar <= 255)) : false
       });
 
       // 🔥 0순위: 특수 문자 및 제어 문자 사전 필터링
@@ -145,55 +150,189 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
   }
 
   /**
-   * 🔥 실시간 TIS API 기반 키코드 변환
+   * 🔥 keychar 우선 활용 기반 언어 감지 (A번 접근법)
    */
   private async detectByRealtimeTranslation(
     rawEvent: UiohookKeyboardEvent, 
     startTime: number
   ): Promise<LanguageDetectionResult | null> {
     try {
-      const translationResult = await this.keycodeTranslator.translateKeycode(
-        rawEvent.keycode,
-        {
-          shift: rawEvent.shiftKey,
-          command: rawEvent.metaKey,
-          option: rawEvent.altKey,
-          control: rawEvent.ctrlKey
-        }
-      );
-
-      if (translationResult.isSuccess && translationResult.character) {
-        Logger.debug(this.componentName, '🔥 실시간 TIS API 변환 성공', {
-          keycode: rawEvent.keycode,
-          character: translationResult.character,
-          language: translationResult.language,
-          inputSource: translationResult.inputSource,
-          processingTime: translationResult.processingTime
-        });
-
-        // 언어 매핑 ('unknown' → 'en' 변환)
-        const language = translationResult.language === 'unknown' ? 'en' : translationResult.language;
+      // 🔥 1순위: keychar 직접 활용 (85-90% 케이스, 1ms 속도)
+      if (rawEvent.keychar && rawEvent.keychar > 0) {
+        const char = String.fromCharCode(rawEvent.keychar);
         
-        this.currentLanguage = language;
-
-        return {
-          language,
-          confidence: 0.95, // TIS API 기반이므로 높은 신뢰도
-          method: 'native',
-          isComposing: language === 'ko',
-          detectedChar: translationResult.character || undefined,
-          metadata: {
-            source: 'TIS-API',
-            systemInputSource: (translationResult.inputSource as MacOSInputSourceType) || undefined,
-            processingTime: `${translationResult.processingTime.toFixed(3)}ms`,
-            translationMethod: translationResult.method
+        // 유효한 문자인지 확인
+        if (char && char.trim().length > 0) {
+          const charCode = rawEvent.keychar;
+          
+          // 🔥 macOS IME 조합 중 상태 체크 (keychar가 ASCII인데 시스템 입력소스가 다른 언어인 경우)
+          const isIMEComposing = await this.checkIMEComposingState(charCode);
+          if (isIMEComposing.isComposing) {
+            Logger.debug(this.componentName, '🎌 macOS IME 조합 중 감지', {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              character: char,
+              expectedLanguage: isIMEComposing.language,
+              reason: 'ime-composing-detected'
+            });
+            
+            // IME 조합 중이면 예상 언어로 설정하되 낮은 신뢰도
+            return {
+              language: isIMEComposing.language as SupportedLanguage,
+              confidence: 0.7, // 조합 중이므로 낮은 신뢰도
+              method: 'ime',
+              isComposing: true,
+              detectedChar: char, // 현재 입력된 문자 (변환 전)
+              metadata: {
+                source: 'ime-composing',
+                keycode: rawEvent.keycode,
+                keychar: rawEvent.keychar,
+                processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
+                reason: 'ime-composing-state',
+                detectedLanguage: isIMEComposing.language
+              }
+            };
           }
-        };
+          
+          // 🔥 한글 완성형 범위 체크 (AC00-D7AF)
+          if (charCode >= 0xAC00 && charCode <= 0xD7AF) {
+            Logger.debug(this.componentName, '✅ keychar 기반 한글 즉시 감지', {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              character: char,
+              method: 'keychar-direct'
+            });
+            
+            this.currentLanguage = 'ko';
+            
+            return {
+              language: 'ko',
+              confidence: 0.98, // keychar 기반이므로 매우 높은 신뢰도
+              method: 'native',
+              isComposing: false, // 완성형 한글은 조합 완료 상태
+              detectedChar: char,
+              metadata: {
+                source: 'keychar-direct',
+                keycode: rawEvent.keycode,
+                keychar: rawEvent.keychar,
+                processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
+                reason: 'keychar-hangul-complete'
+              }
+            };
+          }
+          
+          // 🔥 일본어 문자 범위 체크 (히라가나, 카타카나)
+          if ((charCode >= 0x3040 && charCode <= 0x309F) || // ひらがな (Hiragana)
+              (charCode >= 0x30A0 && charCode <= 0x30FF) || // カタカナ (Katakana)
+              (charCode >= 0xFF65 && charCode <= 0xFF9F)) { // Half-width Katakana
+            Logger.debug(this.componentName, '✅ keychar 기반 일본어 즉시 감지', {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              character: char,
+              charCode: charCode.toString(16),
+              method: 'keychar-direct'
+            });
+            
+            this.currentLanguage = 'ja';
+            
+            return {
+              language: 'ja',
+              confidence: 0.98,
+              method: 'native',
+              isComposing: false,
+              detectedChar: char,
+              metadata: {
+                source: 'keychar-direct',
+                keycode: rawEvent.keycode,
+                keychar: rawEvent.keychar,
+                processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
+                reason: 'keychar-japanese-hiragana-katakana'
+              }
+            };
+          }
+          
+          // 🔥 중국어 문자 범위 체크 (CJK 통합 한자)
+          if ((charCode >= 0x4E00 && charCode <= 0x9FFF) || // CJK Unified Ideographs
+              (charCode >= 0x3400 && charCode <= 0x4DBF) || // CJK Extension A
+              (charCode >= 0xF900 && charCode <= 0xFAFF)) { // CJK Compatibility Ideographs
+            Logger.debug(this.componentName, '✅ keychar 기반 중국어 즉시 감지', {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              character: char,
+              charCode: charCode.toString(16),
+              method: 'keychar-direct'
+            });
+            
+            this.currentLanguage = 'zh';
+            
+            return {
+              language: 'zh',
+              confidence: 0.98,
+              method: 'native',
+              isComposing: false,
+              detectedChar: char,
+              metadata: {
+                source: 'keychar-direct',
+                keycode: rawEvent.keycode,
+                keychar: rawEvent.keychar,
+                processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
+                reason: 'keychar-chinese-cjk'
+              }
+            };
+          }
+          
+          // 🔥 영어/라틴 문자 범위 체크 (마지막 우선순위)
+          if ((charCode >= 32 && charCode <= 126) || // ASCII
+              (charCode >= 160 && charCode <= 255)) { // Latin-1
+            Logger.debug(this.componentName, '✅ keychar 기반 영어 즉시 감지', {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              character: char,
+              method: 'keychar-direct'
+            });
+            
+            this.currentLanguage = 'en';
+            
+            return {
+              language: 'en',
+              confidence: 0.95,
+              method: 'native',
+              isComposing: false,
+              detectedChar: char,
+              metadata: {
+                source: 'keychar-direct',
+                keycode: rawEvent.keycode,
+                keychar: rawEvent.keychar,
+                processingTime: `${(performance.now() - startTime).toFixed(3)}ms`,
+                reason: 'keychar-latin-ascii'
+              }
+            };
+          }
+          
+          Logger.debug(this.componentName, '� keychar 감지됨 (기타 문자)', {
+            keycode: rawEvent.keycode,
+            keychar: rawEvent.keychar,
+            character: char,
+            charCode: charCode.toString(16)
+          });
+        }
+      }
+      
+      // 🔥 2순위: 간소화된 TIS API (keychar 실패 시에만, 10-15% 케이스)
+      Logger.debug(this.componentName, '⚠️ keychar 없음 - 간소화된 fallback 사용', {
+        keycode: rawEvent.keycode,
+        keychar: rawEvent.keychar
+      });
+      
+      // TIS API 대신 기존 키코드 매핑 활용
+      const fallbackResult = this.detectByMacOSKeycode(rawEvent);
+      if (fallbackResult.confidence >= 0.7) {
+        return fallbackResult;
       }
 
       return null;
     } catch (error) {
-      Logger.warn(this.componentName, '실시간 TIS API 변환 실패', error);
+      Logger.warn(this.componentName, 'keychar 기반 언어 감지 실패', error);
       return null;
     }
   }
@@ -273,18 +412,25 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
 
           const inputSourceId = stdout.trim();
           
-          // 입력소스 ID를 언어로 변환
-          let detectedLanguage: 'ko' | 'en' | null = null;
+          // 입력소스 ID를 언어로 변환 (확장된 다국어 지원)
+          let detectedLanguage: 'ko' | 'en' | 'ja' | 'zh' | null = null;
           for (const [sourceId, lang] of Object.entries(MACOS_INPUT_SOURCES)) {
             if (inputSourceId.includes(sourceId) || inputSourceId.includes(lang)) {
-              detectedLanguage = lang as 'ko' | 'en';
+              detectedLanguage = lang as 'ko' | 'en' | 'ja' | 'zh';
               break;
             }
           }
 
-          // 특별 처리: hangul이 포함되면 무조건 한글
-          if (inputSourceId.toLowerCase().includes('hangul')) {
+          // 🔥 특별 처리: 다국어 키워드 감지
+          const inputSourceLower = inputSourceId.toLowerCase();
+          if (inputSourceLower.includes('hangul') || inputSourceLower.includes('korean') || inputSourceLower.includes('2set') || inputSourceLower.includes('3set')) {
             detectedLanguage = 'ko';
+          } else if (inputSourceLower.includes('japanese') || inputSourceLower.includes('hiragana') || inputSourceLower.includes('katakana') || inputSourceLower.includes('romaji')) {
+            detectedLanguage = 'ja';
+          } else if (inputSourceLower.includes('chinese') || inputSourceLower.includes('pinyin') || inputSourceLower.includes('simplified') || inputSourceLower.includes('traditional')) {
+            detectedLanguage = 'zh';
+          } else if (inputSourceLower.includes('abc') || inputSourceLower.includes('us') || inputSourceLower.includes('british') || inputSourceLower.includes('english')) {
+            detectedLanguage = 'en';
           }
 
           this.systemInputSourceCache = detectedLanguage;
@@ -857,6 +1003,32 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
       case 'de': // 독일어 → 영어
       default:
         return 'en';
+    }
+  }
+
+  /**
+   * 🔥 macOS IME 조합 중 상태 체크
+   * ASCII 문자가 입력되었지만 시스템 입력소스가 다른 언어인 경우 IME 조합 중으로 판단
+   */
+  private async checkIMEComposingState(charCode: number): Promise<{ isComposing: boolean; language: string }> {
+    try {
+      // ASCII 범위가 아니면 조합 중이 아님
+      if (charCode < 32 || charCode > 126) {
+        return { isComposing: false, language: 'en' };
+      }
+      
+      // 현재 시스템 입력소스 확인
+      const systemLanguage = this.systemInputSourceCache || await this.getCurrentInputSourceFromSystem();
+      
+      // 시스템 입력소스가 영어가 아닌 경우 IME 조합 중으로 판단
+      if (systemLanguage && systemLanguage !== 'en') {
+        return { isComposing: true, language: systemLanguage };
+      }
+      
+      return { isComposing: false, language: 'en' };
+    } catch (error) {
+      Logger.debug(this.componentName, 'IME 조합 상태 체크 실패', error);
+      return { isComposing: false, language: 'en' };
     }
   }
 }
