@@ -96,6 +96,12 @@ const electronAPI: ElectronAPI = {
     getAll: () => ipcRenderer.invoke('settings:get-all'),
     reset: () => ipcRenderer.invoke('settings:reset'),
   },
+
+  // 🔥 기가차드 Shell API 추가 (외부 링크 열기)
+  shell: {
+    openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
+    showItemInFolder: (fullPath: string) => ipcRenderer.invoke('shell:show-item-in-folder', fullPath),
+  },
 };
 
 // 🔥 안전한 API 노출

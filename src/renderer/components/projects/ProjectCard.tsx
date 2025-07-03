@@ -88,6 +88,12 @@ export function ProjectCard({
     callback?.(project);
   };
 
+  // 🔥 카드 클릭 핸들러 추가 - 프로젝트 상세 보기
+  const handleCardClick = (): void => {
+    Logger.info('PROJECT_CARD', 'Card clicked', { projectId: project.id });
+    onView?.(project);
+  };
+
   const getStatusColor = (status: ProjectData['status']): 'success' | 'warning' | 'primary' | 'default' => {
     switch (status) {
       case 'completed': return 'success';
@@ -157,9 +163,10 @@ export function ProjectCard({
 
   return (
     <Card 
-      className={PROJECT_CARD_STYLES.container}
+      className={`${PROJECT_CARD_STYLES.container} cursor-pointer`}
       role="article"
       aria-label={`프로젝트: ${project.title}`}
+      onClick={handleCardClick}
     >
       {/* 헤더 */}
       <div className={PROJECT_CARD_STYLES.header}>

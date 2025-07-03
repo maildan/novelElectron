@@ -85,6 +85,7 @@ export interface DetectionMetadata {
   detectionTime?: number; // 🔥 추가: 감지 시간 (timestamp)
   translationMethod?: string; // 🔥 추가: 번역 방법
   mappedBy?: string; // 🔥 추가: 매핑 방법 (keycode/keychar)
+  systemLanguage?: string; // 🔥 추가: 시스템 언어 정보
 }
 
 /**

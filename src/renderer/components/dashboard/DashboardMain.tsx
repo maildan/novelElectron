@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Target, 
   Clock, 
@@ -107,6 +108,7 @@ function formatTime(seconds: number): string {
 }
 
 export function DashboardMain(): React.ReactElement {
+  const router = useRouter(); // 🔥 Navigation 훅 추가
   // 🔥 글로벌 모니터링 상태 사용
   const { state, startMonitoring, stopMonitoring, toggleAI, updateSessionData } = useMonitoring();
   const { isMonitoring, isAIOpen, sessionData } = state;
@@ -451,16 +453,11 @@ export function DashboardMain(): React.ReactElement {
         <QuickStartCard
           onCreateProject={async () => {
             try {
-              Logger.info('DASHBOARD', 'Creating new project from quick start');
-              // TODO: 새 프로젝트 생성 다이얼로그 또는 페이지로 이동
-              const result = await window.electronAPI.projects.createSample();
-              if (result.success) {
-                Logger.info('DASHBOARD', 'Sample project created successfully');
-                // 프로젝트 목록 새로고침
-                loadDashboardData();
-              }
+              Logger.info('DASHBOARD', '🚀 Creating new project from dashboard');
+              // 🔥 프로젝트 페이지로 이동하여 새 프로젝트 생성 플로우 시작
+              router.push('/projects?create=true');
             } catch (error) {
-              Logger.error('DASHBOARD', 'Failed to create sample project', error);
+              Logger.error('DASHBOARD', 'Failed to navigate to project creation', error);
             }
           }}
           onImportProject={async () => {

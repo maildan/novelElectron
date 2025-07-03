@@ -22,8 +22,34 @@ model User {
   // Relations
   sessions  TypingSession[]
   settings  UserSettings?
+  projects  Project[]        // 🔥 프로젝트 관계 추가
   
   @@map("users")
+}
+
+// 📝 프로젝트 모델 - 사용자 문서/글 프로젝트
+model Project {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  content      String?  // 프로젝트 내용
+  genre        String   @default("기타")
+  status       String   @default("active") // 'active' | 'completed' | 'paused'
+  progress     Int      @default(0)       // 진행률 (0-100)
+  wordCount    Int      @default(0)       // 단어 수
+  author       String   @default("사용자")
+  platform     String   @default("loop")  // 'loop' | 'google-docs' | 'import'
+  userId       String?  // Optional: 다중 사용자 지원 대비
+  createdAt    DateTime @default(now())
+  lastModified DateTime @updatedAt
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("projects")
+  @@index([userId])
+  @@index([status])
+  @@index([lastModified])
 }
 
 // 📊 타이핑 세션 모델 - 핵심 데이터

@@ -1,8 +1,9 @@
 // 🔥 기가차드 macOS 키보드 핸들러 - macOS 전용 IME 처리 최적화
 
 import { Logger } from '../../shared/logger';
-import { ProcessedKeyboardEvent, UiohookKeyboardEvent } from '../../shared/types';
+import { ProcessedKeyboardEvent, UiohookKeyboardEvent, LanguageDetectionResult } from '../../shared/types';
 import { WindowTracker } from '../keyboard/WindowTracker';
+import { MacOSLanguageDetector } from '../keyboard/detectors/macos/MacOSLanguageDetector';
 
 /**
  * 🔥 MacOSKeyboardHandler - macOS 전용 키보드 이벤트 처리
@@ -15,9 +16,11 @@ import { WindowTracker } from '../keyboard/WindowTracker';
 export class MacOSKeyboardHandler {
   private readonly componentName = 'MACOS_KEYBOARD_HANDLER';
   private windowTracker: WindowTracker | null = null;
+  private languageDetector: MacOSLanguageDetector;
 
   constructor(windowTracker: WindowTracker | null) {
     this.windowTracker = windowTracker;
+    this.languageDetector = new MacOSLanguageDetector();
     Logger.info(this.componentName, 'macOS 키보드 핸들러 초기화됨');
   }
 
@@ -32,19 +35,48 @@ export class MacOSKeyboardHandler {
       const keychar = rawEvent.keychar || 0;
       const char = String.fromCharCode(keychar);
       
-      // 🔥 완성된 한글만 처리 (조합 중간 과정 무시)
+      // 🔥 1순위: 시스템 언어 감지를 통한 정확한 처리
+      const detectionResult = await this.languageDetector.detectLanguage(rawEvent);
+      const detectedLanguage = detectionResult?.language || 'en';
+      
+      Logger.debug(this.componentName, '🔥 macOS 언어 감지 결과', {
+        keycode: rawEvent.keycode,
+        keychar: keychar,
+        detectedLanguage,
+        confidence: detectionResult?.confidence,
+        isComposing: detectionResult?.isComposing
+      });
+      
+      // 🔥 완성된 한글 처리
       if (this.isCompletedHangul(keychar)) {
         return await this.processCompletedHangul(char, type, rawEvent);
+      }
+      // 🔥 한글 IME 활성 시 영어 키 무시 (개선된 로직)
+      else if (detectedLanguage === 'ko') {
+        // 🔥 한글 IME가 활성화된 상태에서는 모든 알파벳 키를 한글 조합으로 처리
+        if (this.isEnglishAlphabet(rawEvent.keychar)) {
+          Logger.debug(this.componentName, '🔥 한글 IME 활성 - 영어 알파벳을 한글 조합으로 처리', {
+            keycode: rawEvent.keycode,
+            keychar: rawEvent.keychar,
+            char: rawEvent.keychar ? String.fromCharCode(rawEvent.keychar) : 'unknown',
+            detectedLanguage
+          });
+          return await this.processKoreanComposing(char, type, rawEvent, detectionResult);
+        } else {
+          // 숫자, 특수문자는 직접 처리
+          return await this.processDirectInput(char, type, rawEvent);
+        }
       }
       // 🔥 영어/숫자 직접 처리
       else if (this.isDirectInputCharacter(keychar)) {
         return await this.processDirectInput(char, type, rawEvent);
       }
-      // 🔥 조합 중인 자모는 무시 (시스템 IME가 완성해서 다시 들어올 때까지 기다림)
+      // 🔥 기타 언어 처리
       else {
-        Logger.debug(this.componentName, 'macOS IME 조합 중간 과정 무시', { 
+        Logger.debug(this.componentName, 'macOS 기타 언어 또는 무시할 키', { 
           keychar: keychar.toString(16),
-          char: char || 'none'
+          char: char || 'none',
+          detectedLanguage
         });
         return null;
       }
@@ -69,6 +101,15 @@ export class MacOSKeyboardHandler {
   private isDirectInputCharacter(keychar: number): boolean {
     // ASCII 인쇄 가능 문자 (스페이스~틸드)
     return keychar >= 32 && keychar <= 126;
+  }
+
+  /**
+   * 🔥 영어 알파벳 키인지 판별
+   */
+  private isEnglishAlphabet(keychar: number | undefined): boolean {
+    if (!keychar) return false;
+    // A-Z (65-90) 또는 a-z (97-122)
+    return (keychar >= 65 && keychar <= 90) || (keychar >= 97 && keychar <= 122);
   }
 
   /**
@@ -142,6 +183,45 @@ export class MacOSKeyboardHandler {
       char,
       language,
       isComposing: false
+    });
+
+    return processedEvent;
+  }
+
+  /**
+   * 🔥 한글 IME 조합 중 상태 처리 (새로 추가!)
+   */
+  private async processKoreanComposing(
+    char: string, 
+    type: string, 
+    rawEvent: UiohookKeyboardEvent,
+    detectionResult: LanguageDetectionResult
+  ): Promise<ProcessedKeyboardEvent> {
+    const windowInfo = this.windowTracker?.getCurrentWindow() || {
+      title: 'Unknown',
+      processName: 'Unknown'
+    };
+
+    const processedEvent: ProcessedKeyboardEvent = {
+      key: char,
+      code: `Key${rawEvent.keycode}`,
+      keycode: rawEvent.keycode,
+      keychar: char,
+      timestamp: Date.now(),
+      type: type as 'keydown' | 'keyup' | 'input',
+      windowTitle: windowInfo.title || 'Unknown',
+      language: 'ko',
+      composedChar: detectionResult?.detectedChar || char,
+      isComposing: detectionResult?.isComposing || true,    // 🔥 조합 중 상태
+      inputMethod: 'ime',
+      processingTime: 0
+    };
+
+    Logger.debug(this.componentName, '🔥 macOS 한글 IME 조합 중 처리됨', {
+      char,
+      detectedChar: detectionResult?.detectedChar,
+      isComposing: detectionResult?.isComposing,
+      confidence: detectionResult?.confidence
     });
 
     return processedEvent;

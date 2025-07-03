@@ -81,6 +81,7 @@ export interface Project {
   createdAt: Date;
   genre: string;
   status: 'active' | 'completed' | 'paused';
+  author?: string; // 🔥 기가차드 추가: 작성자 필드
 }
 
 // 🔥 메인 Electron API 인터페이스 - Main ↔ Renderer 공통
@@ -117,7 +118,7 @@ export interface ElectronAPI {
     update: (id: string, updates: Partial<Project>) => Promise<IpcResponse<Project>>;
     delete: (id: string) => Promise<IpcResponse<boolean>>;
     createSample: () => Promise<IpcResponse<Project>>;
-    importFile: () => Promise<IpcResponse<{ success: boolean; message: string }>>;
+    importFile: () => Promise<IpcResponse<Project>>; // 🔥 기가차드 수정: Project 반환
   };
 
   // ⚙️ 설정 API
@@ -161,6 +162,12 @@ export interface ElectronAPI {
   theme: {
     get: () => Promise<IpcResponse<'light' | 'dark' | 'system'>>;
     set: (theme: 'light' | 'dark' | 'system') => Promise<IpcResponse<boolean>>;
+  };
+
+  // 🐚 Shell API (외부 링크 및 파일 탐색기)
+  shell: {
+    openExternal: (url: string) => Promise<IpcResponse<boolean>>;
+    showItemInFolder: (fullPath: string) => Promise<IpcResponse<boolean>>;
   };
 }
 

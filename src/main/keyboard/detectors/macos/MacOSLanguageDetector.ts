@@ -39,7 +39,7 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
   // 🔥 macOS 전용 시스템 입력소스 캐시 (확장된 언어 지원)
   private systemInputSourceCache: MacOSInputSourceType = null;
   private lastSystemCheck = 0;
-  private readonly SYSTEM_CHECK_INTERVAL = 500; // 0.5초
+  private readonly SYSTEM_CHECK_INTERVAL = 200; // 🔥 2024-25년 최적화: 200ms
   private systemCheckInProgress = false;
   
   // 🔥 실시간 키코드 변환기
@@ -101,21 +101,38 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
         }, startTime);
       }
 
-      // 🔥 1순위: 실시간 TIS API 키코드 변환 (가장 정확)
+      // 🔥 1순위: 시스템 입력소스 직접 조회 (macOS IME 상태 우선)
+      const systemResult = await this.detectBySystemInputSource(startTime);
+      if (systemResult && systemResult.confidence >= 0.95) {
+        // 🔥 한글 IME 활성 시 영어 키 무시
+        if (systemResult.language === 'ko' && this.isEnglishKeycode(rawEvent.keychar)) {
+          Logger.debug(this.componentName, '🔥 한글 IME 활성 - 영어 키 무시하고 한글 조합 중으로 처리', {
+            keycode: rawEvent.keycode,
+            keychar: rawEvent.keychar,
+            systemLanguage: systemResult.language,
+            reason: 'korean-ime-active-ignore-english-key'
+          });
+          
+          return this.finalizeResult({
+            language: 'ko',
+            confidence: 0.95,
+            method: 'ime',
+            isComposing: true,
+            metadata: {
+              keycode: rawEvent.keycode,
+              keychar: rawEvent.keychar,
+              systemLanguage: systemResult.language,
+              reason: 'korean-ime-active-composing'
+            }
+          }, startTime);
+        }
+        return this.finalizeResult(systemResult, startTime);
+      }
+
+      // 🔥 2순위: 실시간 TIS API 키코드 변환 (시스템 감지 실패 시에만)
       const translationResult = await this.detectByRealtimeTranslation(rawEvent, startTime);
       if (translationResult && translationResult.confidence >= 0.9) {
         return this.finalizeResult(translationResult, startTime);
-      }
-
-      // 🔥 2순위: 시스템 입력소스 직접 조회 (언어만 감지)
-      const systemResult = await this.detectBySystemInputSource(startTime);
-      if (systemResult && systemResult.confidence >= 0.85) {
-        // 실시간 변환 결과와 시스템 언어 결합
-        if (translationResult && translationResult.detectedChar) {
-          systemResult.detectedChar = translationResult.detectedChar;
-          systemResult.confidence = Math.max(systemResult.confidence, translationResult.confidence);
-        }
-        return this.finalizeResult(systemResult, startTime);
       }
 
       // 🔥 3순위: macOS 한글 키코드 매핑 (폴백)
@@ -395,8 +412,13 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
     return new Promise((resolve) => {
       const timeout = setTimeout(() => {
         this.systemCheckInProgress = false;
+        this.lastSystemCheck = now;
+        Logger.debug(this.componentName, '⚠️ HIToolbox 타임아웃 - 캐시 사용', {
+          cachedValue: this.systemInputSourceCache,
+          timeoutMs: 200
+        });
         resolve(this.systemInputSourceCache);
-      }, 1000); // 1초 타임아웃
+      }, 200); // 🔥 2024-25년 최적화: 200ms 타임아웃 (성능 개선)
 
       exec('defaults read com.apple.HIToolbox AppleCurrentKeyboardLayoutInputSourceID', 
         (error, stdout) => {
@@ -1030,6 +1052,16 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
       Logger.debug(this.componentName, 'IME 조합 상태 체크 실패', error);
       return { isComposing: false, language: 'en' };
     }
+  }
+
+  /**
+   * 🔥 영어 키코드인지 확인
+   */
+  private isEnglishKeycode(keychar?: number): boolean {
+    if (!keychar) return false;
+    
+    // ASCII 영문 범위 (a-z, A-Z)
+    return (keychar >= 97 && keychar <= 122) || (keychar >= 65 && keychar <= 90);
   }
 }
 

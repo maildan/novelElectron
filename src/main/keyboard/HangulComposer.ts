@@ -173,8 +173,17 @@ export class HangulComposer extends BaseManager {
         return this.finishComposition();
       }
       
-      // 🔥 한글 키 확인 (개선된 로직)
+      // 🔥 한글 키 확인 (개선된 로직 - 키 값 검증 추가)
       let hangulChar: string | undefined;
+      
+      // 0. 키 값 사전 검증 (숫자나 특수문자는 즉시 조합 완료)
+      if (this.isInvalidKey(event.key)) {
+        Logger.debug(this.componentName, '⚠️ 유효하지 않은 키 - 조합 완료', { 
+          key: event.key,
+          reason: 'invalid-key-detected'
+        });
+        return this.finishComposition();
+      }
       
       // 1. 이미 한글 문자인지 확인
       if (this.isHangulChar(event.key)) {
@@ -182,7 +191,7 @@ export class HangulComposer extends BaseManager {
         Logger.debug(this.componentName, '🔥 이미 한글 문자 감지됨', { key: event.key });
       } else {
         // 2. 영어 키를 한글로 매핑
-        hangulChar = this.keyMap.get(event.key);
+        hangulChar = this.keyMap.get(event.key.toLowerCase());
         Logger.debug(this.componentName, '🔍 영어→한글 매핑 시도', { 
           englishKey: event.key, 
           hangulChar: hangulChar || 'undefined' 
@@ -775,6 +784,32 @@ export class HangulComposer extends BaseManager {
     const charCode = char.charCodeAt(0);
     // 한글 완성형 유니코드 범위: AC00-D7AF
     return charCode >= 0xAC00 && charCode <= 0xD7AF;
+  }
+
+  /**
+   * 🔥 유효하지 않은 키인지 판별 (숫자, 특수문자 등)
+   */
+  private isInvalidKey(key: string): boolean {
+    if (!key || key.length !== 1) return true;
+    
+    const charCode = key.charCodeAt(0);
+    
+    // 숫자 키 (0-9)
+    if (charCode >= 48 && charCode <= 57) {
+      Logger.debug(this.componentName, '❌ 숫자 키 감지', { key, charCode });
+      return true;
+    }
+    
+    // 특수문자 범위 (다양한 특수문자들)
+    if ((charCode >= 32 && charCode <= 47) ||   // 스페이스, !, ", #, $, %, &, ', (, ), *, +, ,, -, ., /
+        (charCode >= 58 && charCode <= 64) ||   // :, ;, <, =, >, ?, @
+        (charCode >= 91 && charCode <= 96) ||   // [, \, ], ^, _, `
+        (charCode >= 123 && charCode <= 126)) { // {, |, }, ~
+      Logger.debug(this.componentName, '❌ 특수문자 키 감지', { key, charCode });
+      return true;
+    }
+    
+    return false;
   }
 }
 

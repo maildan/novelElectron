@@ -363,16 +363,34 @@ export class KeyboardService extends EventEmitter {
           }
         }
         
-        // 🔥 HangulComposer로 한글 조합 처리 (감지된 한글 문자 전달)
-        hangulResult = await this.hangulComposer.processKey({
-          key: hangulChar || pressedKey, // 한글 문자 우선 사용
-          code: `Key${enhancedEvent.keycode}`,
-          keycode: enhancedEvent.keycode, // 🔥 keycode 추가
-          keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar), // 한글 문자 우선, 아니면 유니코드 변환
-          timestamp: Date.now(),
-          windowTitle: '',
-          type
-        });
+        // 🔥 HangulComposer로 한글 조합 처리 (개선된 키 값 검증)
+        const validKey = hangulChar || (this.isValidHangulInput(pressedKey) ? pressedKey : null);
+        
+        if (validKey) {
+          hangulResult = await this.hangulComposer.processKey({
+            key: validKey, // 검증된 한글 문자만 전달
+            code: `Key${enhancedEvent.keycode}`,
+            keycode: enhancedEvent.keycode, // 🔥 keycode 추가
+            keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar), // 한글 문자 우선, 아니면 유니코드 변환
+            timestamp: Date.now(),
+            windowTitle: '',
+            type
+          });
+          
+          Logger.debug('KEYBOARD', '🔥 유효한 한글 키로 조합 처리', {
+            validKey,
+            hangulChar,
+            pressedKey
+          });
+        } else {
+          // 🔥 유효하지 않은 키는 조합 완료
+          Logger.debug('KEYBOARD', '⚠️ 유효하지 않은 한글 키 - 조합 완료', {
+            hangulChar,
+            pressedKey,
+            keycode: enhancedEvent.keycode
+          });
+          hangulResult = { completed: '', composing: '' };
+        }
         
         // 🔥 HangulCompositionResult 처리
         composedChar = hangulResult.completed || hangulResult.composing;
@@ -1052,6 +1070,43 @@ export class KeyboardService extends EventEmitter {
       completedChar,
       keycode: rawEvent.keycode
     });
+  }
+
+  /**
+   * 🔥 유효한 한글 입력 키인지 검증
+   */
+  private isValidHangulInput(key: string): boolean {
+    if (!key || key.length !== 1) return false;
+    
+    // 알파벳 키만 한글로 매핑 가능
+    const charCode = key.charCodeAt(0);
+    const isAlphabet = (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
+    
+    if (!isAlphabet) {
+      Logger.debug('KEYBOARD', '❌ 비알파벳 키는 한글 처리 불가', { 
+        key, 
+        charCode,
+        isValid: false
+      });
+      return false;
+    }
+    
+    // HANGUL_KEY_MAP에서 매핑 확인
+    const reversedMap = new Map<string, string>();
+    Object.entries(HANGUL_KEY_MAP).forEach(([hangul, english]) => {
+      reversedMap.set(english.toLowerCase(), hangul);
+    });
+    
+    const hasMapping = reversedMap.has(key.toLowerCase());
+    
+    Logger.debug('KEYBOARD', '🔍 한글 입력 키 검증', { 
+      key, 
+      isAlphabet,
+      hasMapping,
+      isValid: hasMapping
+    });
+    
+    return hasMapping;
   }
 }
 
