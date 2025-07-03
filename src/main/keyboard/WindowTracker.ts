@@ -11,6 +11,25 @@ import { getAppCategory, APP_CATEGORIES, APP_CATEGORY_MAPPING } from './appCateg
 // #DEBUG: Window tracker entry point
 Logger.debug('WINDOW_TRACKER', 'Window tracker module loaded');
 
+// 🔥 active-win 라이브러리 결과 타입
+interface ActiveWinResult {
+  id: number;
+  title: string;
+  owner?: {
+    name: string;
+    processId: number;
+    bundleId?: string;
+    path?: string;
+  };
+  bounds?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  memoryUsage?: number;
+}
+
 // 🔥 기가차드 윈도우 변경 이벤트
 export interface WindowChangeEvent {
   previous: WindowInfo | null;
@@ -229,7 +248,7 @@ export class WindowTracker extends BaseManager {
   /**
    * 🔥 active-win 결과를 WindowInfo로 변환
    */
-  private convertActiveWinToWindowInfo(activeWinResult: any): WindowInfo | null {
+  private convertActiveWinToWindowInfo(activeWinResult: ActiveWinResult | undefined): WindowInfo | null {
     try {
       if (!activeWinResult) {
         return null;

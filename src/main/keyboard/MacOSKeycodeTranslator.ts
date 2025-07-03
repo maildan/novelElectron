@@ -116,7 +116,7 @@ export class MacOSKeycodeTranslator {
    */
   private async translateViaAppleScript(
     keycode: number,
-    modifiers: any
+    modifiers: { shift?: boolean; command?: boolean; option?: boolean; control?: boolean }
   ): Promise<{
     character: string | null;
     inputSource: string | null;

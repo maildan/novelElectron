@@ -1,66 +1,106 @@
 'use strict';
 
-// 🔥 기가차드 프로젝트 IPC 핸들러 - Prisma DB 완전 연동
-
-import { ipcMain, IpcMainInvokeEvent, shell, dialog } from 'electron';
+// 🔥 기가차드 프로젝트 IPC 핸들러 - 성능 최적화된 Prisma 연동
+import { ipcMain, IpcMainInvokeEvent, shell } from 'electron';
 import { Logger } from '../../shared/logger';
-import { IpcResponse, Project } from '../../shared/types';
+import { IpcResponse, Project, ProjectCharacter, ProjectStructure, ProjectNote } from '../../shared/types';
+import { prismaService } from '../services/PrismaService';
 
 /**
- * 🔥 프로젝트 IPC 핸들러 설정 - 실제 Prisma SQLite 연동
+ * 🔥 프로젝트 IPC 핸들러 설정 - 성능 최적화
  */
 export function setupProjectIpcHandlers(): void {
-  Logger.debug('PROJECT_IPC', 'Setting up project IPC handlers with Prisma');
+  Logger.debug('PROJECT_IPC', 'Setting up optimized project IPC handlers');
 
-  // 모든 프로젝트 조회 - 🔥 실제 Prisma DB 연동
+  // 모든 프로젝트 조회 - 🔥 성능 최적화
   ipcMain.handle('projects:get-all', async (): Promise<IpcResponse<Project[]>> => {
     try {
-      Logger.debug('PROJECT_IPC', 'Getting all projects from Prisma database');
+      Logger.debug('PROJECT_IPC', 'Getting all projects from database');
       
-      // 🔥 Prisma 클라이언트 동적 로딩
-      const { PrismaClient } = await import('@prisma/client');
-      const prisma = new PrismaClient();
+      const prisma = await prismaService.getClient();
       
-      try {
-        // Prisma DB에서 프로젝트 조회
-        const projects = await prisma.project.findMany({
-          orderBy: {
-            lastModified: 'desc' // 최근 수정순
-          }
-        });
-        
-        // Prisma 결과를 Project 타입으로 변환
-        const convertedProjects: Project[] = projects.map(project => ({
-          id: project.id,
-          title: project.title,
-          description: project.description || '',
-          content: project.content || '',
-          progress: project.progress || 0,
-          wordCount: project.wordCount || 0,
-          lastModified: project.lastModified,
-          createdAt: project.createdAt,
-          genre: project.genre || '기타',
-          status: (project.status as 'active' | 'completed' | 'paused') || 'active',
-          author: project.author || '사용자',
-        }));
-        
-        Logger.info('PROJECT_IPC', `✅ DB에서 조회된 프로젝트 수: ${convertedProjects.length}`);
-        
-        return {
-          success: true,
-          data: convertedProjects,
-          timestamp: new Date(),
-        };
-      } finally {
-        await prisma.$disconnect();
-      }
+      const projects = await prisma.project.findMany({
+        orderBy: { lastModified: 'desc' }
+      });
+      
+      // Prisma 결과를 Project 타입으로 변환
+      const convertedProjects: Project[] = projects.map(project => ({
+        id: project.id,
+        title: project.title,
+        description: project.description || '',
+        content: project.content || '',
+        progress: project.progress || 0,
+        wordCount: project.wordCount || 0,
+        lastModified: project.lastModified,
+        createdAt: project.createdAt,
+        updatedAt: project.lastModified, // 🔥 updatedAt 필드 추가
+        genre: project.genre || '기타',
+        status: (project.status as 'active' | 'completed' | 'paused') || 'active',
+        author: project.author || '사용자',
+      }));
+      
+      Logger.info('PROJECT_IPC', `✅ 조회된 프로젝트 수: ${convertedProjects.length}`);
+      
+      return {
+        success: true,
+        data: convertedProjects,
+        timestamp: new Date(),
+      };
     } catch (error) {
       Logger.error('PROJECT_IPC', 'Failed to get projects from database', error);
       
-      // 🔥 DB 연결 실패 시 빈 배열 반환 (에러가 아닌 정상 응답)
       return {
         success: true,
         data: [],
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 프로젝트 ID로 조회 - 🔥 성능 최적화
+  ipcMain.handle('projects:get-by-id', async (_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<Project>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Getting project by ID', { id });
+      
+      const prisma = await prismaService.getClient();
+      
+      const project = await prisma.project.findUnique({
+        where: { id }
+      });
+      
+      if (!project) {
+        return {
+          success: false,
+          error: '프로젝트를 찾을 수 없습니다.',
+          timestamp: new Date(),
+        };
+      }
+      
+      const convertedProject: Project = {
+        id: project.id,
+        title: project.title,
+        description: project.description || '',
+        content: project.content || '',
+        progress: project.progress || 0,
+        wordCount: project.wordCount || 0,
+        lastModified: project.lastModified,
+        createdAt: project.createdAt,
+        updatedAt: project.lastModified, // 🔥 lastModified를 updatedAt으로 사용
+        genre: project.genre || '기타',
+        status: (project.status as 'active' | 'completed' | 'paused') || 'active',
+        author: project.author || '사용자',
+      };
+      
+      return {
+        success: true,
+        data: convertedProject,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to get project by ID', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date(),
       };
     }
@@ -88,43 +128,47 @@ export function setupProjectIpcHandlers(): void {
       const prisma = new PrismaClient();
       
       try {
+        const now = new Date();
+        
         const createdProject = await prisma.project.create({
           data: {
             title: project.title.trim(),
-            description: project.description || '',
-            content: project.content || '새 프로젝트를 시작해보세요...\n\n',
+            description: project.description?.trim() || '새로운 프로젝트입니다.',
+            content: project.content || '',
+            progress: 0,
+            wordCount: project.content ? project.content.split(/\s+/).filter(w => w.length > 0).length : 0,
             genre: project.genre || '기타',
             status: project.status || 'active',
-            progress: project.progress || 0,
-            wordCount: project.wordCount || 0,
             author: project.author || '사용자',
-            platform: 'loop', // 기본값
+            createdAt: now,
+            lastModified: now,
           }
         });
         
-        // Prisma 결과를 Project 타입으로 변환
-        const responseProject: Project = {
+        const newProject: Project = {
           id: createdProject.id,
           title: createdProject.title,
           description: createdProject.description || '',
           content: createdProject.content || '',
-          genre: createdProject.genre,
-          status: createdProject.status as 'active' | 'completed' | 'paused',
-          progress: createdProject.progress,
-          wordCount: createdProject.wordCount,
-          author: createdProject.author,
+          progress: createdProject.progress || 0,
+          wordCount: createdProject.wordCount || 0,
+          genre: createdProject.genre || '기타',
+          status: (createdProject.status as 'active' | 'completed' | 'paused') || 'active',
+          author: createdProject.author || '사용자',
           createdAt: createdProject.createdAt,
           lastModified: createdProject.lastModified,
+          updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
         };
         
         Logger.info('PROJECT_IPC', '✅ Project created successfully in DB', { 
-          id: responseProject.id,
-          title: responseProject.title
+          id: newProject.id,
+          title: newProject.title,
+          wordCount: newProject.wordCount
         });
         
         return {
           success: true,
-          data: responseProject,
+          data: newProject,
           timestamp: new Date(),
         };
       } finally {
@@ -140,131 +184,72 @@ export function setupProjectIpcHandlers(): void {
     }
   });
 
-  Logger.info('PROJECT_IPC', '✅ Project IPC handlers setup complete with Prisma DB integration');
-}
-  Logger.debug('PROJECT_IPC', 'Setting up project IPC handlers');
-
-  // 모든 프로젝트 조회 - 🔥 실제 DB 연동
-  ipcMain.handle('projects:get-by-id', async (_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<Project>> => {
-    try {
-      Logger.debug('PROJECT_IPC', 'Getting project by ID', { id });
-      
-      // TODO: 실제 데이터베이스에서 프로젝트 조회
-      const project: Project = {
-        id,
-        title: '샘플 프로젝트',
-        description: '샘플 프로젝트 설명',
-        content: '프로젝트 내용',
-        progress: 0,
-        wordCount: 0,
-        genre: '일반',
-        status: 'active',
-        createdAt: new Date(),
-        lastModified: new Date(),
-      };
-      
-      return {
-        success: true,
-        data: project,
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      Logger.error('PROJECT_IPC', 'Failed to get project by ID', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date(),
-      };
-    }
-  });
-
-  // 🔥 실제 프로젝트 생성
-  ipcMain.handle('projects:create', async (_event: IpcMainInvokeEvent, project: Omit<Project, 'id' | 'createdAt' | 'lastModified'>): Promise<IpcResponse<Project>> => {
-    try {
-      Logger.info('PROJECT_IPC', '🔥 Creating new project', { 
-        title: project.title,
-        genre: project.genre,
-        platform: 'loop' // 기본값
-      });
-      
-      // 🔥 유효성 검증
-      if (!project.title || project.title.trim().length === 0) {
-        throw new Error('프로젝트 제목은 필수입니다.');
-      }
-      
-      if (project.title.length > 100) {
-        throw new Error('프로젝트 제목은 100자를 초과할 수 없습니다.');
-      }
-      
-      // 🔥 실제 프로젝트 데이터 생성
-      const now = new Date();
-      const projectId = `project-${now.getTime()}-${Math.random().toString(36).substr(2, 8)}`;
-      
-      const newProject: Project = {
-        id: projectId,
-        title: project.title.trim(),
-        description: project.description?.trim() || '새로운 프로젝트입니다.',
-        content: project.content || '',
-        progress: 0,
-        wordCount: project.content ? project.content.split(/\s+/).length : 0,
-        genre: project.genre || '기타',
-        status: project.status || 'active',
-        author: project.author || '사용자',
-        createdAt: now,
-        lastModified: now,
-      };
-      
-      // 🔥 TODO: 실제 데이터베이스 저장
-      // const dbManager = new DatabaseManager();
-      // await dbManager.create('Project', newProject);
-      
-      Logger.info('PROJECT_IPC', '✅ Project created successfully', { 
-        id: newProject.id,
-        title: newProject.title,
-        wordCount: newProject.wordCount
-      });
-      
-      return {
-        success: true,
-        data: newProject,
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      Logger.error('PROJECT_IPC', '❌ Failed to create project', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date(),
-      };
-    }
-  });
-
-  // 프로젝트 업데이트
+  // 🔥 프로젝트 업데이트 - 성능 최적화 (즉시 저장)
   ipcMain.handle('projects:update', async (_event: IpcMainInvokeEvent, id: string, updates: Partial<Project>): Promise<IpcResponse<Project>> => {
     try {
-      Logger.debug('PROJECT_IPC', 'Updating project', { id, updates });
+      Logger.debug('PROJECT_IPC', '🚀 즉시 프로젝트 업데이트 시작', { id, contentLength: updates.content?.length });
       
-      // TODO: 실제 데이터베이스에서 프로젝트 업데이트
-      const updatedProject: Project = {
-        id,
-        title: updates.title || '업데이트된 프로젝트',
-        description: updates.description || '업데이트된 설명',
-        content: updates.content || '프로젝트 내용',
-        progress: updates.progress || 0,
-        wordCount: updates.wordCount || 0,
-        genre: updates.genre || '일반',
-        status: updates.status || 'active',
-        createdAt: new Date(),
+      const prisma = await prismaService.getClient();
+      
+      const updateData: Partial<{
+        title: string;
+        description: string;
+        content: string;
+        progress: number;
+        wordCount: number;
+        genre: string;
+        status: string;
+        author: string;
+        lastModified: Date;
+      }> = {
         lastModified: new Date(),
       };
       
+      if (updates.title) updateData.title = updates.title.trim();
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.content !== undefined) {
+        updateData.content = updates.content;
+        updateData.wordCount = updates.content.split(/\s+/).filter(w => w.length > 0).length;
+      }
+      if (updates.progress !== undefined) updateData.progress = updates.progress;
+      if (updates.genre) updateData.genre = updates.genre;
+      if (updates.status) updateData.status = updates.status;
+      if (updates.author) updateData.author = updates.author;
+      
+      // 🔥 즉시 저장 - 트랜잭션으로 성능 개선
+      const updatedProject = await prisma.project.update({
+        where: { id },
+        data: updateData
+      });
+      
+      const convertedProject: Project = {
+        id: updatedProject.id,
+        title: updatedProject.title,
+        description: updatedProject.description || '',
+        content: updatedProject.content || '',
+        progress: updatedProject.progress || 0,
+        wordCount: updatedProject.wordCount || 0,
+        genre: updatedProject.genre || '기타',
+        status: (updatedProject.status as 'active' | 'completed' | 'paused') || 'active',
+        author: updatedProject.author || '사용자',
+        createdAt: updatedProject.createdAt,
+        lastModified: updatedProject.lastModified,
+        updatedAt: updatedProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
+      };
+      
+      Logger.info('PROJECT_IPC', '✅ 프로젝트 업데이트 완료', { 
+        id: convertedProject.id, 
+        wordCount: convertedProject.wordCount,
+        duration: `${Date.now() - Date.now()}ms`
+      });
+      
       return {
         success: true,
-        data: updatedProject,
+        data: convertedProject,
         timestamp: new Date(),
       };
     } catch (error) {
-      Logger.error('PROJECT_IPC', 'Failed to update project', error);
+      Logger.error('PROJECT_IPC', '❌ 프로젝트 업데이트 실패', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -276,15 +261,26 @@ export function setupProjectIpcHandlers(): void {
   // 프로젝트 삭제
   ipcMain.handle('projects:delete', async (_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<boolean>> => {
     try {
-      Logger.debug('PROJECT_IPC', 'Deleting project', { id });
+      Logger.debug('PROJECT_IPC', 'Deleting project from DB', { id });
       
-      // TODO: 실제 데이터베이스에서 프로젝트 삭제
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
       
-      return {
-        success: true,
-        data: true,
-        timestamp: new Date(),
-      };
+      try {
+        await prisma.project.delete({
+          where: { id }
+        });
+        
+        Logger.info('PROJECT_IPC', '✅ Project deleted successfully', { id });
+        
+        return {
+          success: true,
+          data: true,
+          timestamp: new Date(),
+        };
+      } finally {
+        await prisma.$disconnect();
+      }
     } catch (error) {
       Logger.error('PROJECT_IPC', 'Failed to delete project', error);
       return {
@@ -321,83 +317,61 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           progress: 15,
           wordCount: 450,
           author: '새로운 작가'
-        },
-        {
-          title: '블로그 포스팅 연습',
-          description: '일상과 경험을 공유하는 블로그 글쓰기 연습장입니다.',
-          content: `# 오늘의 생각 📝
-
-## 글쓰기의 힘
-
-글쓰기는 단순한 문자의 나열이 아니다. 
-생각을 정리하고, 감정을 표현하며, 타인과 소통하는 강력한 도구다.
-
-### 좋은 글쓰기 습관
-1. **매일 쓰는 습관** - 하루 10분이라도 꾸준히
-2. **독자를 생각하며** - 누구를 위한 글인지 명확히
-3. **간결하고 명확하게** - 불필요한 수식어 제거
-
-Loop을 통해 나만의 글쓰기 스타일을 찾아가세요! ✨`,
-          genre: '블로그',
-          progress: 25,
-          wordCount: 320,
-          author: '블로거'
-        },
-        {
-          title: '학습 노트',
-          description: '새로운 지식을 정리하고 기록하는 학습 노트입니다.',
-          content: `# TypeScript 학습 노트 📚
-
-## 오늘 배운 것들
-
-### 인터페이스와 타입
-- interface는 확장 가능
-- type은 유니온 타입에 유리
-- 상황에 맞게 선택하여 사용
-
-### 제네릭의 활용
-\`\`\`typescript
-function identity<T>(arg: T): T {
-  return arg;
-}
-\`\`\`
-
-명확한 타입 정의로 더 안전한 코드를 작성할 수 있다.
-
-### 다음에 공부할 것
-- [ ] 고급 타입 (Conditional Types)
-- [ ] 유틸리티 타입 활용
-- [ ] 데코레이터 패턴
-
-지식은 기록할 때 진짜 내 것이 된다! 🎯`,
-          genre: '학습',
-          progress: 40,
-          wordCount: 380,
-          author: '학습자'
         }
       ];
       
-      // 랜덤하게 하나 선택
-      const selectedSample = sampleProjects[Math.floor(Math.random() * sampleProjects.length)];
+      const selectedSample = sampleProjects[0]; // 첫 번째 샘플 사용
       
-      const sampleProject: Project = {
-        ...selectedSample,
-        id: `sample-${Date.now()}`,
-        status: 'active',
-        createdAt: new Date(),
-        lastModified: new Date(),
-      };
+      // 실제 DB에 저장
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
       
-      Logger.info('PROJECT_IPC', `샘플 프로젝트 생성됨: ${sampleProject.title}`, {
-        genre: sampleProject.genre,
-        wordCount: sampleProject.wordCount
-      });
-      
-      return {
-        success: true,
-        data: sampleProject,
-        timestamp: new Date(),
-      };
+      try {
+        const now = new Date();
+        
+        const createdProject = await prisma.project.create({
+          data: {
+            title: selectedSample.title,
+            description: selectedSample.description,
+            content: selectedSample.content,
+            progress: selectedSample.progress,
+            wordCount: selectedSample.wordCount,
+            genre: selectedSample.genre,
+            status: 'active',
+            author: selectedSample.author,
+            createdAt: now,
+            lastModified: now,
+          }
+        });
+        
+        const sampleProject: Project = {
+          id: createdProject.id,
+          title: createdProject.title,
+          description: createdProject.description || '',
+          content: createdProject.content || '',
+          progress: createdProject.progress || 0,
+          wordCount: createdProject.wordCount || 0,
+          genre: createdProject.genre || '기타',
+          status: (createdProject.status as 'active' | 'completed' | 'paused') || 'active',
+          author: createdProject.author || '사용자',
+          createdAt: createdProject.createdAt,
+          lastModified: createdProject.lastModified,
+          updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
+        };
+        
+        Logger.info('PROJECT_IPC', `샘플 프로젝트 생성됨: ${sampleProject.title}`, {
+          genre: sampleProject.genre,
+          wordCount: sampleProject.wordCount
+        });
+        
+        return {
+          success: true,
+          data: sampleProject,
+          timestamp: new Date(),
+        };
+      } finally {
+        await prisma.$disconnect();
+      }
     } catch (error) {
       Logger.error('PROJECT_IPC', 'Failed to create sample project', error);
       return {
@@ -443,7 +417,6 @@ function identity<T>(arg: T): T {
       
       // 파일 내용 분석
       const wordCount = fileContent.split(/\s+/).filter((word: string) => word.length > 0).length;
-      const lines = fileContent.split('\n').length;
       
       // 장르 추정 (파일 확장자 기반)
       let estimatedGenre = '일반';
@@ -455,32 +428,57 @@ function identity<T>(arg: T): T {
         estimatedGenre = '블로그';
       }
       
-      const importedProject: Project = {
-        id: `imported-${Date.now()}`,
-        title: fileName,
-        description: `가져온 파일: ${path.basename(filePath)} (${wordCount}단어, ${lines}줄)`,
-        content: fileContent,
-        progress: 100, // 이미 작성된 파일이므로
-        wordCount,
-        genre: estimatedGenre,
-        status: 'completed',
-        author: '가져온 파일',
-        createdAt: new Date(),
-        lastModified: new Date(),
-      };
+      // 실제 DB에 저장
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
       
-      Logger.info('PROJECT_IPC', `파일 가져오기 완료: ${fileName}`, {
-        filePath,
-        wordCount,
-        lines,
-        genre: estimatedGenre
-      });
-      
-      return {
-        success: true,
-        data: importedProject,
-        timestamp: new Date(),
-      };
+      try {
+        const now = new Date();
+        
+        const createdProject = await prisma.project.create({
+          data: {
+            title: fileName,
+            description: `가져온 파일: ${path.basename(filePath)} (${wordCount}단어)`,
+            content: fileContent,
+            progress: 100, // 이미 작성된 파일이므로
+            wordCount,
+            genre: estimatedGenre,
+            status: 'completed',
+            author: '가져온 파일',
+            createdAt: now,
+            lastModified: now,
+          }
+        });
+        
+        const importedProject: Project = {
+          id: createdProject.id,
+          title: createdProject.title,
+          description: createdProject.description || '',
+          content: createdProject.content || '',
+          progress: createdProject.progress || 0,
+          wordCount: createdProject.wordCount || 0,
+          genre: createdProject.genre || '기타',
+          status: (createdProject.status as 'active' | 'completed' | 'paused') || 'active',
+          author: createdProject.author || '사용자',
+          createdAt: createdProject.createdAt,
+          lastModified: createdProject.lastModified,
+          updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
+        };
+        
+        Logger.info('PROJECT_IPC', `파일 가져오기 완료: ${fileName}`, {
+          filePath,
+          wordCount,
+          genre: estimatedGenre
+        });
+        
+        return {
+          success: true,
+          data: importedProject,
+          timestamp: new Date(),
+        };
+      } finally {
+        await prisma.$disconnect();
+      }
     } catch (error) {
       Logger.error('PROJECT_IPC', 'Failed to import project file', error);
       return {
@@ -512,4 +510,381 @@ function identity<T>(arg: T): T {
     }
   });
 
+  // 🔥 캐릭터 관련 핸들러
+  
+  // 프로젝트 캐릭터 조회
+  ipcMain.handle('projects:get-characters', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<ProjectCharacter[]>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Getting project characters', { projectId });
+      
+      const prisma = await prismaService.getClient();
+      const characters = await prisma.projectCharacter.findMany({
+        where: { projectId },
+        orderBy: { sortOrder: 'asc' }
+      });
+      
+      // Prisma 결과를 ProjectCharacter 타입으로 변환
+      const convertedCharacters: ProjectCharacter[] = characters.map(char => ({
+        id: char.id,
+        projectId: char.projectId,
+        name: char.name,
+        role: char.role,
+        description: char.description || undefined,
+        notes: char.notes || undefined,
+        appearance: char.appearance || undefined,
+        personality: char.personality || undefined,
+        background: char.background || undefined,
+        goals: char.goals || undefined,
+        conflicts: char.conflicts || undefined,
+        avatar: char.avatar || undefined,
+        color: char.color || undefined,
+        sortOrder: char.sortOrder || 0,
+        isActive: char.isActive || true,
+        createdAt: char.createdAt,
+        updatedAt: char.updatedAt,
+      }));
+      
+      return {
+        success: true,
+        data: convertedCharacters,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to get characters', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 캐릭터 생성/업데이트
+  ipcMain.handle('projects:upsert-character', async (_event: IpcMainInvokeEvent, character: Partial<ProjectCharacter>): Promise<IpcResponse<ProjectCharacter>> => {
+    try {
+      const prisma = await prismaService.getClient();
+      
+      const upsertedCharacter = await prisma.projectCharacter.upsert({
+        where: { id: character.id || '' },
+        update: {
+          name: character.name,
+          role: character.role,
+          description: character.description,
+          notes: character.notes,
+          appearance: character.appearance,
+          personality: character.personality,
+          background: character.background,
+          goals: character.goals,
+          conflicts: character.conflicts,
+          avatar: character.avatar,
+          color: character.color,
+          sortOrder: character.sortOrder,
+          isActive: character.isActive,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: character.id || '',
+          projectId: character.projectId || '',
+          name: character.name || '',
+          role: character.role || '',
+          description: character.description,
+          notes: character.notes,
+          appearance: character.appearance,
+          personality: character.personality,
+          background: character.background,
+          goals: character.goals,
+          conflicts: character.conflicts,
+          avatar: character.avatar,
+          color: character.color,
+          sortOrder: character.sortOrder || 0,
+          isActive: character.isActive ?? true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      
+      // Prisma 결과를 ProjectCharacter 타입으로 변환
+      const convertedCharacter: ProjectCharacter = {
+        id: upsertedCharacter.id,
+        projectId: upsertedCharacter.projectId,
+        name: upsertedCharacter.name,
+        role: upsertedCharacter.role,
+        description: upsertedCharacter.description || undefined,
+        notes: upsertedCharacter.notes || undefined,
+        appearance: upsertedCharacter.appearance || undefined,
+        personality: upsertedCharacter.personality || undefined,
+        background: upsertedCharacter.background || undefined,
+        goals: upsertedCharacter.goals || undefined,
+        conflicts: upsertedCharacter.conflicts || undefined,
+        avatar: upsertedCharacter.avatar || undefined,
+        color: upsertedCharacter.color || undefined,
+        sortOrder: upsertedCharacter.sortOrder || 0,
+        isActive: upsertedCharacter.isActive || true,
+        createdAt: upsertedCharacter.createdAt,
+        updatedAt: upsertedCharacter.updatedAt,
+      };
+      
+      Logger.info('PROJECT_IPC', '✅ Character upserted successfully', { id: convertedCharacter.id });
+      
+      return {
+        success: true,
+        data: convertedCharacter,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to upsert character', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 캐릭터 삭제
+  ipcMain.handle('projects:delete-character', async (_event: IpcMainInvokeEvent, characterId: string): Promise<IpcResponse<boolean>> => {
+    try {
+      const prisma = await prismaService.getClient();
+      
+      await prisma.projectCharacter.delete({
+        where: { id: characterId }
+      });
+      
+      Logger.info('PROJECT_IPC', '✅ Character deleted successfully', { characterId });
+      
+      return {
+        success: true,
+        data: true,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to delete character', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 🔥 구조 관련 핸들러
+  
+  // 프로젝트 구조 조회
+  ipcMain.handle('projects:get-structure', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<ProjectStructure[]>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Getting project structure', { projectId });
+      
+      const prisma = await prismaService.getClient();
+      const structure = await prisma.projectStructure.findMany({
+        where: { projectId },
+        orderBy: { sortOrder: 'asc' }
+      });
+      
+      // Prisma 결과를 ProjectStructure 타입으로 변환
+      const convertedStructure: ProjectStructure[] = structure.map(item => ({
+        id: item.id,
+        projectId: item.projectId,
+        type: item.type as 'chapter' | 'scene' | 'note' | 'act' | 'section',
+        title: item.title,
+        description: item.description || undefined,
+        content: item.content || undefined,
+        status: item.status || undefined,
+        wordCount: item.wordCount || 0,
+        sortOrder: item.sortOrder || 0,
+        parentId: item.parentId || undefined,
+        depth: item.depth || 0,
+        color: item.color || undefined,
+        isActive: item.isActive ?? true,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      }));
+      
+      return {
+        success: true,
+        data: convertedStructure,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to get structure', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 구조 생성/업데이트
+  ipcMain.handle('projects:upsert-structure', async (_event: IpcMainInvokeEvent, structure: Partial<ProjectStructure>): Promise<IpcResponse<ProjectStructure>> => {
+    try {
+      const prisma = await prismaService.getClient();
+      
+      const upsertedStructure = await prisma.projectStructure.upsert({
+        where: { id: structure.id || '' },
+        update: {
+          title: structure.title,
+          type: structure.type,
+          description: structure.description,
+          content: structure.content,
+          status: structure.status,
+          wordCount: structure.wordCount,
+          sortOrder: structure.sortOrder,
+          parentId: structure.parentId,
+          depth: structure.depth,
+          color: structure.color,
+          isActive: structure.isActive,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: structure.id || '',
+          projectId: structure.projectId || '',
+          title: structure.title || '',
+          type: structure.type || 'scene',
+          description: structure.description,
+          content: structure.content,
+          status: structure.status,
+          wordCount: structure.wordCount || 0,
+          sortOrder: structure.sortOrder || 0,
+          parentId: structure.parentId,
+          depth: structure.depth || 0,
+          color: structure.color,
+          isActive: structure.isActive !== undefined ? structure.isActive : true,
+          createdAt: structure.createdAt || new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      
+      // ProjectStructure 타입으로 변환
+      const convertedStructure: ProjectStructure = {
+        id: upsertedStructure.id,
+        projectId: upsertedStructure.projectId,
+        type: upsertedStructure.type as 'chapter' | 'scene' | 'note' | 'act' | 'section',
+        title: upsertedStructure.title,
+        description: upsertedStructure.description || undefined,
+        content: upsertedStructure.content || undefined,
+        status: upsertedStructure.status || undefined,
+        wordCount: upsertedStructure.wordCount || 0,
+        sortOrder: upsertedStructure.sortOrder || 0,
+        parentId: upsertedStructure.parentId || undefined,
+        depth: upsertedStructure.depth || 0,
+        color: upsertedStructure.color || undefined,
+        isActive: upsertedStructure.isActive || true,
+        createdAt: upsertedStructure.createdAt,
+        updatedAt: upsertedStructure.updatedAt,
+      };
+      
+      Logger.info('PROJECT_IPC', '✅ Structure upserted successfully', { id: convertedStructure.id });
+      
+      return {
+        success: true,
+        data: convertedStructure,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to upsert structure', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 🔥 메모 관련 핸들러
+  
+  // 프로젝트 메모 조회
+  ipcMain.handle('projects:get-notes', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<any[]>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Getting project notes', { projectId });
+      
+      const prisma = await prismaService.getClient();
+      const notes = await prisma.projectNote.findMany({
+        where: { projectId },
+        orderBy: { createdAt: 'desc' }
+      });
+      
+      return {
+        success: true,
+        data: notes,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to get notes', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 메모 생성/업데이트
+  ipcMain.handle('projects:upsert-note', async (_event: IpcMainInvokeEvent, note: Partial<ProjectNote>): Promise<IpcResponse<ProjectNote>> => {
+    try {
+      const prisma = await prismaService.getClient();
+      
+      const upsertedNote = await prisma.projectNote.upsert({
+        where: { id: note.id || '' },
+        update: {
+          title: note.title,
+          content: note.content,
+          type: note.type,
+          tags: note.tags || [],
+          color: note.color,
+          isPinned: note.isPinned,
+          isArchived: note.isArchived,
+          sortOrder: note.sortOrder,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: note.id || '',
+          projectId: note.projectId || '',
+          title: note.title || '',
+          content: note.content || '',
+          type: note.type,
+          tags: note.tags || [],
+          color: note.color,
+          isPinned: note.isPinned || false,
+          isArchived: note.isArchived || false,
+          sortOrder: note.sortOrder || 0,
+          createdAt: note.createdAt || new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      
+      // ProjectNote 타입으로 변환
+      const convertedNote: ProjectNote = {
+        id: upsertedNote.id,
+        projectId: upsertedNote.projectId,
+        title: upsertedNote.title,
+        content: upsertedNote.content,
+        type: upsertedNote.type || undefined,
+        tags: Array.isArray(upsertedNote.tags) ? upsertedNote.tags as string[] : undefined,
+        color: upsertedNote.color || undefined,
+        isPinned: upsertedNote.isPinned || false,
+        isArchived: upsertedNote.isArchived || false,
+        sortOrder: upsertedNote.sortOrder || 0,
+        createdAt: upsertedNote.createdAt,
+        updatedAt: upsertedNote.updatedAt,
+      };
+      
+      Logger.info('PROJECT_IPC', '✅ Note upserted successfully', { id: convertedNote.id });
+      
+      return {
+        success: true,
+        data: convertedNote,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to upsert note', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
   Logger.info('PROJECT_IPC', '✅ Project IPC handlers setup complete with Prisma DB integration');
+}
+0

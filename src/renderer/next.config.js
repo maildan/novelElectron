@@ -1,12 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 🔥 Electron에서는 정적 export 필수 (SSR 비활성화)
+  // 🔥 Electron 최적화: standalone 모드 사용 (2024-25년 Best Practice)
   // 이유: 
   // 1. Electron은 로컬 파일 시스템에서 실행 (서버 없음)
-  // 2. SEO 불필요 (검색엔진 크롤링 없음)
-  // 3. 번들 크기 최소화 (217kB → 150kB 목표)
-  // 4. 빠른 앱 시작 속도
-  output: 'export',
+  // 2. 동적 라우팅 지원 (export보다 유연)
+  // 3. 번들 크기 최소화 + Next.js 서버 내장
+  // 4. 빠른 앱 시작 속도 + SSR 지원
+  output: 'standalone',
   
   // 🔥 성능 최적화 - 이미지 설정
   images: {

@@ -30,7 +30,7 @@ export class EnvironmentDetector {
     this.environmentInfo = this.detectEnvironment();
     Logger.info('ENVIRONMENT', 'Environment detected', this.environmentInfo);
   }
-
+      
   // 🔥 싱글톤 인스턴스 가져오기
   public static getInstance(): EnvironmentDetector {
     if (!EnvironmentDetector.instance) {

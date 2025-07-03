@@ -44,12 +44,97 @@ model Project {
   lastModified DateTime @updatedAt
 
   // Relations
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user        User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  characters  ProjectCharacter[]   // 🔥 등장인물 관계
+  structure   ProjectStructure[]   // 🔥 구조 관계
+  notes       ProjectNote[]        // 🔥 메모 관계
   
   @@map("projects")
   @@index([userId])
   @@index([status])
   @@index([lastModified])
+}
+
+// 👥 프로젝트 등장인물 모델 - 작가용 캐릭터 관리
+model ProjectCharacter {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  role        String   // '주인공' | '조력자' | '적대자' | '엑스트라'
+  description String?  // 캐릭터 설명
+  notes       String?  // 작가 메모
+  appearance  String?  // 외모 설명
+  personality String?  // 성격
+  background  String?  // 배경 이야기
+  goals       String?  // 목표/동기
+  conflicts   String?  // 갈등 요소
+  avatar      String?  // 아바타 이미지 경로
+  color       String   @default("#3b82f6") // 캐릭터 테마 색상
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("project_characters")
+  @@index([projectId])
+  @@index([sortOrder])
+}
+
+// 📚 프로젝트 구조 모델 - 챕터/장면 관리
+model ProjectStructure {
+  id          String   @id @default(cuid())
+  projectId   String
+  type        String   // 'chapter' | 'scene' | 'act' | 'section'
+  title       String
+  description String?
+  content     String?  // 구조 내용/요약
+  status      String   @default("planned") // 'planned' | 'in_progress' | 'completed'
+  wordCount   Int      @default(0)
+  sortOrder   Int      @default(0)
+  parentId    String?  // 계층 구조를 위한 부모 ID
+  depth       Int      @default(0) // 계층 깊이
+  color       String   @default("#6b7280") // 구조 색상
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project  Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent   ProjectStructure?  @relation("StructureHierarchy", fields: [parentId], references: [id])
+  children ProjectStructure[] @relation("StructureHierarchy")
+  
+  @@map("project_structure")
+  @@index([projectId])
+  @@index([sortOrder])
+  @@index([parentId])
+}
+
+// 📋 프로젝트 메모 모델 - 작가 아이디어/메모
+model ProjectNote {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  content     String
+  type        String   @default("general") // 'general' | 'idea' | 'research' | 'plot' | 'dialogue'
+  tags        Json?    // 태그 배열
+  color       String   @default("#fbbf24") // 메모 색상
+  isPinned    Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("project_notes")
+  @@index([projectId])
+  @@index([type])
+  @@index([isPinned])
+  @@index([createdAt])
 }
 
 // 📊 타이핑 세션 모델 - 핵심 데이터

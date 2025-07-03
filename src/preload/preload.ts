@@ -7,7 +7,10 @@ import {
   UserPreferences, 
   WindowInfo,
   ElectronAPI,
-  Project
+  Project,
+  ProjectCharacter,
+  ProjectStructure,
+  ProjectNote
 } from '../shared/types';
 import type { 
   SettingsSchema, 
@@ -58,6 +61,16 @@ const electronAPI: ElectronAPI = {
     delete: (id: string) => ipcRenderer.invoke('projects:delete', id),
     createSample: () => ipcRenderer.invoke('projects:create-sample'),
     importFile: () => ipcRenderer.invoke('projects:import-file'),
+    // 🔥 새로운 캐릭터/구조/메모 API 추가
+    getCharacters: (projectId: string) => ipcRenderer.invoke('projects:get-characters', projectId),
+    getStructure: (projectId: string) => ipcRenderer.invoke('projects:get-structure', projectId),
+    getNotes: (projectId: string) => ipcRenderer.invoke('projects:get-notes', projectId),
+    upsertCharacter: (character: Partial<ProjectCharacter>) => ipcRenderer.invoke('projects:upsert-character', character),
+    upsertStructure: (structure: Partial<ProjectStructure>) => ipcRenderer.invoke('projects:upsert-structure', structure),
+    upsertNote: (note: Partial<ProjectNote>) => ipcRenderer.invoke('projects:upsert-note', note),
+    deleteCharacter: (id: string) => ipcRenderer.invoke('projects:delete-character', id),
+    deleteStructure: (id: string) => ipcRenderer.invoke('projects:delete-structure', id),
+    deleteNote: (id: string) => ipcRenderer.invoke('projects:delete-note', id),
   },
 
   app: {
@@ -69,6 +82,10 @@ const electronAPI: ElectronAPI = {
   },
 
   database: {
+    backup: () => ipcRenderer.invoke('database:backup'),
+    restore: (backupPath: string) => ipcRenderer.invoke('database:restore', backupPath),
+    optimize: () => ipcRenderer.invoke('database:optimize'),
+    reset: () => ipcRenderer.invoke('database:reset'),
     saveSession: (session: Omit<TypingSession, 'id'>) => ipcRenderer.invoke(IPC_CHANNELS.DATABASE.SAVE_SESSION, session),
     getSessions: (options?: { limit?: number; offset?: number }) => ipcRenderer.invoke(IPC_CHANNELS.DATABASE.GET_SESSIONS, options),
     getStats: (dateRange?: { from: Date; to: Date }) => ipcRenderer.invoke(IPC_CHANNELS.DATABASE.GET_STATS, dateRange),

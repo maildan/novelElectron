@@ -7,6 +7,25 @@ export interface Result<TData = unknown> {
   error?: string;
 }
 
+// 📚 프로젝트 구조 데이터 - Main ↔ Renderer 공통
+export interface ProjectStructure {
+  id: string;
+  projectId: string;
+  type: 'chapter' | 'scene' | 'note' | 'act' | 'section';
+  title: string;
+  description?: string;
+  content?: string;
+  status?: string;
+  wordCount?: number;
+  sortOrder?: number;
+  parentId?: string;
+  depth?: number;
+  color?: string;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // 🔥 IPC 응답 타입 - Main ↔ Renderer 공통
 export interface IpcResponse<TData = unknown> {
   success: boolean;
@@ -79,9 +98,66 @@ export interface Project {
   wordCount: number;
   lastModified: Date;
   createdAt: Date;
+  updatedAt: Date;
   genre: string;
   status: 'active' | 'completed' | 'paused';
   author?: string; // 🔥 기가차드 추가: 작성자 필드
+}
+
+// 🎭 프로젝트 캐릭터 데이터 - Main ↔ Renderer 공통
+export interface ProjectCharacter {
+  id: string;
+  projectId: string;
+  name: string;
+  role: string;
+  description?: string;
+  notes?: string;
+  appearance?: string;
+  personality?: string;
+  background?: string;
+  goals?: string;
+  conflicts?: string;
+  avatar?: string;
+  color?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 📚 프로젝트 구조 데이터 - Main ↔ Renderer 공통
+export interface ProjectStructure {
+  id: string;
+  projectId: string;
+  type: 'chapter' | 'scene' | 'note' | 'act' | 'section';
+  title: string;
+  description?: string;
+  content?: string;
+  status?: string;
+  wordCount?: number;
+  sortOrder?: number;
+  parentId?: string;
+  depth?: number;
+  color?: string;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 📝 프로젝트 메모 데이터 - Main ↔ Renderer 공통
+export interface ProjectNote {
+  id: string;
+  projectId: string;
+  title: string;
+  content: string;
+  type?: string;
+  tags?: string[];
+  color?: string;
+  isPinned?: boolean;
+  isArchived?: boolean;
+  sortOrder?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // 🔥 메인 Electron API 인터페이스 - Main ↔ Renderer 공통
@@ -119,6 +195,16 @@ export interface ElectronAPI {
     delete: (id: string) => Promise<IpcResponse<boolean>>;
     createSample: () => Promise<IpcResponse<Project>>;
     importFile: () => Promise<IpcResponse<Project>>; // 🔥 기가차드 수정: Project 반환
+    // 🔥 새로운 캐릭터/구조/메모 API
+    getCharacters: (projectId: string) => Promise<IpcResponse<ProjectCharacter[]>>;
+    getStructure: (projectId: string) => Promise<IpcResponse<ProjectStructure[]>>;
+    getNotes: (projectId: string) => Promise<IpcResponse<ProjectNote[]>>;
+    upsertCharacter: (character: Partial<ProjectCharacter>) => Promise<IpcResponse<ProjectCharacter>>;
+    upsertStructure: (structure: Partial<ProjectStructure>) => Promise<IpcResponse<ProjectStructure>>;
+    upsertNote: (note: Partial<ProjectNote>) => Promise<IpcResponse<ProjectNote>>;
+    deleteCharacter: (id: string) => Promise<IpcResponse<boolean>>;
+    deleteStructure: (id: string) => Promise<IpcResponse<boolean>>;
+    deleteNote: (id: string) => Promise<IpcResponse<boolean>>;
   };
 
   // ⚙️ 설정 API
@@ -140,6 +226,10 @@ export interface ElectronAPI {
 
   // 💾 데이터베이스 API
   database: {
+    backup: () => Promise<IpcResponse<string>>;
+    restore: (backupPath: string) => Promise<IpcResponse<boolean>>;
+    optimize: () => Promise<IpcResponse<boolean>>;
+    reset: () => Promise<IpcResponse<boolean>>;
     saveSession: (session: Omit<TypingSession, 'id'>) => Promise<IpcResponse<TypingSession>>;
     getSessions: (options?: { limit?: number; offset?: number }) => Promise<IpcResponse<TypingSession[]>>;
     getStats: (dateRange?: { from: Date; to: Date }) => Promise<IpcResponse<DashboardStats>>;
@@ -392,6 +482,16 @@ export const IPC_CHANNELS = {
     STOP_MONITORING: 'keyboard:stop-monitoring',
     GET_STATUS: 'keyboard:get-status',
     EVENT: 'keyboard:event',
+    TEST_LANGUAGE_DETECTION: 'keyboard:test-language-detection',
+  },
+  PROJECTS: {
+    GET_ALL: 'projects:get-all',
+    GET_BY_ID: 'projects:get-by-id',
+    CREATE: 'projects:create',
+    UPDATE: 'projects:update',
+    DELETE: 'projects:delete',
+    CREATE_SAMPLE: 'projects:create-sample',
+    IMPORT_FILE: 'projects:import-file',
   },
   WINDOW: {
     GET_ACTIVE: 'window:get-active',

@@ -6,7 +6,7 @@ import { ProjectEditor } from '../../../components/projects/ProjectEditor';
 import { Logger } from '../../../../shared/logger';
 
 // 🔥 Next.js 15: 'use client'와 generateStaticParams 동시 사용 불가
-// 동적 라우팅이므로 generateStaticParams 제거
+// 동적 라우팅이므로 클라이언트 컴포넌트로 설정
 
 export default function ProjectPage(): React.ReactElement {
   const params = useParams();

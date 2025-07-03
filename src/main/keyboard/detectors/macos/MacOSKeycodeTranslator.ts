@@ -3,6 +3,15 @@
 import { exec } from 'child_process';
 import { Logger } from '../../../../shared/logger';
 import { Platform } from '../../../utils/platform';
+import { UiohookKeyboardEvent } from '../../../../shared/types';
+
+// 🔥 macOS 수정자 키 타입
+interface MacOSModifiers {
+  shift?: boolean;
+  command?: boolean;
+  option?: boolean;
+  control?: boolean;
+}
 
 /**
  * 🔥 MacOSKeycodeTranslator - Clipy/Sauce 기반 완전한 TIS API 구현
@@ -130,7 +139,7 @@ export class MacOSKeycodeTranslator {
    */
   private async translateViaAppleScript(
     keycode: number,
-    modifiers: any
+    modifiers: MacOSModifiers
   ): Promise<{
     character: string | null;
     inputSource: string | null;
