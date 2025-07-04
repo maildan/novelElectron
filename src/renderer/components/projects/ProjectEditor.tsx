@@ -54,13 +54,13 @@ export function ProjectEditor({ projectId }: ProjectEditorProps): React.ReactEle
     isFocusMode: uiState.isFocusMode
   });
 
-  // 🔥 프로젝트 로드
+  // 🔥 프로젝트 로드 (기가차드 수정: dependency 정리)
   useEffect(() => {
     projectData.loadProject();
     return () => {
       // 정리 작업 없음 (다른 hooks에서 처리)
     };
-  }, [projectId]);
+  }, [projectId, projectData.loadProject]); // 🔥 dependency 추가
 
   Logger.debug('PROJECT_EDITOR', 'Rendering with state', {
     projectId,

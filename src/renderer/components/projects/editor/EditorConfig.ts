@@ -37,19 +37,19 @@ export const getEditorOptions = () => ({
   status: ['lines', 'words', 'cursor'],
   toolbar: false, // 🔥 기본 툴바 숨기기 (커스텀 Lucide 툴바 사용)
   shortcuts: {
-    "toggleBold": "Ctrl-B",
-    "toggleItalic": "Ctrl-I", 
-    "drawLink": "Ctrl-K",
-    "toggleHeading1": "Ctrl-1",
-    "toggleHeading2": "Ctrl-2",
-    "toggleHeading3": "Ctrl-3",
-    "cleanBlock": "Ctrl-E",
-    "drawImage": "Ctrl-Alt-I",
-    "toggleUnorderedList": "Ctrl-L",
-    "toggleOrderedList": "Shift-Ctrl-L",
-    "toggleBlockquote": "Ctrl-'",
-    "toggleCodeBlock": "Ctrl-Alt-C",
-    "togglePreview": "Ctrl-P",
+    "toggleBold": "Cmd-B",        // 🔥 macOS 스타일 단축키
+    "toggleItalic": "Cmd-I", 
+    "drawLink": "Cmd-K",
+    "toggleHeading1": "Cmd-Alt-1", // 🔥 노션 스타일 헤딩 단축키
+    "toggleHeading2": "Cmd-Alt-2",
+    "toggleHeading3": "Cmd-Alt-3",
+    "cleanBlock": "Cmd-E",
+    "drawImage": "Cmd-Alt-I",
+    "toggleUnorderedList": "Cmd-Shift-8", // 🔥 노션 스타일 리스트
+    "toggleOrderedList": "Cmd-Shift-7",   // 🔥 노션 스타일 번호 리스트
+    "toggleBlockquote": "Cmd-Shift-9",    // 🔥 노션 스타일 인용구
+    "toggleCodeBlock": "Cmd-Alt-C",
+    "togglePreview": "Cmd-P",
     "toggleSideBySide": "F9",
     "toggleFullScreen": "F11"
   },
@@ -81,20 +81,68 @@ export const getEditorOptions = () => ({
   smartIndent: false, // 🔥 스마트 인덴트 비활성화 (한글 입력 방해 방지)
   electricChars: false, // 🔥 자동 문자 교정 비활성화 (한글 조합 방해 방지)
   rtlMoveVisually: true,
-  // 🔥 자동 마크다운 변환 완전 비활성화
+  // 🔥 노션 스타일 커스텀 키 맵핑 (커서 위치 보존 강화)
   extraKeys: {
-    // 기본 키만 유지, 자동 변환 제거
-    "Ctrl-B": function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('**' + text + '**');
+    // 🔥 노션 스타일 굵게 (Cmd+B) - 기가차드 수정: 포커스 조작 제거
+    "Cmd-B": function(cm: any) {
+      const cursor = cm.getCursor();
+      const selection = cm.getSelection();
+      
+      if (selection) {
+        cm.replaceSelection(`**${selection}**`);
+      } else {
+        cm.replaceSelection('****');
+        cm.setCursor({ line: cursor.line, ch: cursor.ch + 2 });
+      }
     },
-    "Ctrl-I": function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('*' + text + '*');
+    
+    // 🔥 노션 스타일 기울임 (Cmd+I) - 기가차드 수정: 포커스 조작 제거
+    "Cmd-I": function(cm: any) {
+      const cursor = cm.getCursor();
+      const selection = cm.getSelection();
+      
+      if (selection) {
+        cm.replaceSelection(`*${selection}*`);
+      } else {
+        cm.replaceSelection('**');
+        cm.setCursor({ line: cursor.line, ch: cursor.ch + 1 });
+      }
     },
-    "Ctrl-K": function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('[' + text + '](https://)');
+    
+    // 🔥 노션 스타일 링크 (Cmd+K) - 기가차드 수정: 포커스 조작 제거
+    "Cmd-K": function(cm: any) {
+      const cursor = cm.getCursor();
+      const selection = cm.getSelection();
+      
+      if (selection) {
+        cm.replaceSelection(`[${selection}]()`);
+        const newCursor = cm.getCursor();
+        cm.setCursor({ line: newCursor.line, ch: newCursor.ch - 1 });
+      } else {
+        cm.replaceSelection('[링크 텍스트]()');
+        cm.setSelection(
+          { line: cursor.line, ch: cursor.ch + 1 },
+          { line: cursor.line, ch: cursor.ch + 6 }
+        );
+      }
+    },
+    
+    // 🔥 기가차드 수정: 스페이스 키 처리 (단순화)
+    "Space": function(cm: any) {
+      const cursor = cm.getCursor();
+      const line = cm.getLine(cursor.line);
+      const lineStart = line.substring(0, cursor.ch);
+      
+      // # 패턴 감지 (1-6개까지)
+      const headingMatch = lineStart.match(/^(#{1,6})$/);
+      if (headingMatch) {
+        // 현재 위치에 스페이스만 추가 (# 그대로 유지)
+        cm.replaceSelection(' ');
+        return;
+      }
+      
+      // 기본 스페이스 입력
+      cm.replaceSelection(' ');
     }
   }
 });

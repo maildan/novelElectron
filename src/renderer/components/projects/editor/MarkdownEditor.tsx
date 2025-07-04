@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { EDITOR_STYLES } from './EditorStyles';
 import { useEditor } from './EditorProvider';
 import { CustomToolbar } from './CustomToolbar';
+import { setupKoreanInputOptimization } from './MarkdownUtils'; // 🔥 한글 최적화 임포트
+import { Logger } from '../../../../shared/logger';
 import './NotionMarkdownEditor.css'; // 🔥 노션 스타일 CSS 임포트
 
 // 🔥 Ulysses/Scrivener 스타일 마크다운 에디터
@@ -30,15 +32,35 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
   const { initializeEditor, getEditorOptions, getFocusModeOptions } = useEditor();
   const editorInstanceRef = useRef<any>(null);
 
-  // 🔥 에디터 인스턴스 저장
-  const handleEditorReady = (editor: any) => {
+  // 🔥 에디터 인스턴스 저장 및 최적화 적용 (기가차드 수정: 무한루프 제거)
+  const handleEditorReady = useCallback((editor: any) => {
     editorInstanceRef.current = editor;
-    initializeEditor(editor);
-  };
+    
+    try {
+      // 기본 에디터 초기화
+      initializeEditor(editor);
+      
+      // 🔥 한글 입력 최적화 적용 (한 번만!)
+      if (editor?.codemirror) {
+        setupKoreanInputOptimization(editor.codemirror);
+        Logger.info('MARKDOWN_EDITOR', 'Korean input optimization applied');
+      }
+      
+    } catch (error) {
+      Logger.error('MARKDOWN_EDITOR', 'Failed to initialize editor optimizations', error);
+    }
+  }, [initializeEditor]);
 
-  // 🔥 툴바 액션 핸들러
+  // 🔥 툴바 액션 핸들러 (에디터 포커스 유지)
   const handleToolbarAction = (action: string) => {
-    console.log(`Toolbar action: ${action}`);
+    Logger.debug('MARKDOWN_EDITOR', `Toolbar action executed: ${action}`);
+    
+    // 툴바 액션 후 에디터 포커스 복원
+    setTimeout(() => {
+      if (editorInstanceRef.current?.codemirror) {
+        editorInstanceRef.current.codemirror.focus();
+      }
+    }, 50);
   };
 
   return (

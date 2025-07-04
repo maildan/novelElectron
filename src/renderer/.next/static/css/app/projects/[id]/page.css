@@ -13,7 +13,7 @@
   display: none !important; /* 기본 툴바 숨기기 */
 }
 
-/* 🔥 마크다운 구문 숨기기 (노션 스타일) */
+/* 🔥 마크다운 구문 완전 숨기기 (기가차드 개선) */
 .CodeMirror .cm-formatting,
 .CodeMirror .cm-formatting-header,
 .CodeMirror .cm-formatting-header-1,
@@ -21,29 +21,91 @@
 .CodeMirror .cm-formatting-header-3,
 .CodeMirror .cm-formatting-header-4,
 .CodeMirror .cm-formatting-header-5,
-.CodeMirror .cm-formatting-header-6 {
-  font-size: 0 !important;
+.CodeMirror .cm-formatting-header-6,
+.CodeMirror .cm-formatting-strong,
+.CodeMirror .cm-formatting-em,
+.CodeMirror .cm-formatting-link,
+.CodeMirror .cm-formatting-link-string,
+.CodeMirror .cm-formatting-list,
+.CodeMirror .cm-formatting-quote {
+  position: fixed !important; /* 🔥 fixed로 변경 */
+  left: -99999px !important; /* 🔥 더 멀리 이동 */
+  top: -99999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
   opacity: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  display: none !important;
+  visibility: hidden !important; /* 🔥 추가 */
+  pointer-events: none !important; /* 🔥 추가 */
+}
+
+/* 🔥 헤딩 포매팅 다음의 스페이스도 완전 제거 */
+.CodeMirror .cm-formatting-header + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-1 + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-2 + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-3 + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-4 + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-5 + .cm-formatting-space,
+.CodeMirror .cm-formatting-header-6 + .cm-formatting-space {
+  position: fixed !important; /* 🔥 fixed로 변경 */
+  left: -99999px !important;
+  top: -99999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* 마크다운 링크 포매팅 완전 숨기기 */
+.CodeMirror .cm-formatting-link,
+.CodeMirror .cm-formatting-link-string {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
   display: none !important;
 }
 
-/* 마크다운 링크 포매팅 숨기기 */
-.CodeMirror .cm-formatting-link,
-.CodeMirror .cm-formatting-link-string {
-  opacity: 0.3 !important;
-  font-size: 0.8em !important;
-}
-
-/* 마크다운 리스트 포매팅 숨기기 */
+/* 마크다운 리스트 포매팅 완전 숨기기 */
 .CodeMirror .cm-formatting-list {
-  opacity: 0.4 !important;
-}
-
-/* 마크다운 굵게/기울임 포매팅 숨기기 */
-.CodeMirror .cm-formatting-strong,
-.CodeMirror .cm-formatting-em {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
   opacity: 0 !important;
   font-size: 0 !important;
+  display: none !important;
+}
+
+/* 마크다운 굵게/기울임 포매팅 완전 숨기기 */
+.CodeMirror .cm-formatting-strong,
+.CodeMirror .cm-formatting-em {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   display: none !important;
 }
 
@@ -102,6 +164,28 @@
   font-size: 0.9em !important;
   padding: 2px 4px !important;
   border-radius: 4px !important;
+}
+
+/* 🔥 추가 마크다운 포매팅 클래스들 완전 숨기기 */
+.CodeMirror .cm-formatting-code,
+.CodeMirror .cm-formatting-code-block,
+.CodeMirror .cm-formatting-quote,
+.CodeMirror .cm-formatting-task,
+.CodeMirror .cm-formatting-escape,
+.CodeMirror .cm-formatting-image,
+.CodeMirror .cm-formatting-reference {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: none !important;
 }
 
 /* 🔥 에디터 전체 스타일링 */
@@ -169,6 +253,18 @@
 .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
 .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
   background: #9ca3af !important;
+}
+
+/* 🔥 교차검증: 절대 위치로 화면 밖으로 이동 (백업 방법) */
+.CodeMirror .cm-formatting::before,
+.CodeMirror .cm-formatting-header::before,
+.CodeMirror .cm-formatting-header-1::before,
+.CodeMirror .cm-formatting-header-2::before,
+.CodeMirror .cm-formatting-header-3::before {
+  content: '';
+  position: absolute;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
 /* 🔥 한글 입력 최적화 */

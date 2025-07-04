@@ -328,10 +328,10 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     }
   }, [projectId, title, content]);
 
-  // 🔥 개선된 autoSave Hook 사용 - 성능 최적화
+  // 🔥 노션 스타일 autoSave Hook 사용 - 타이핑 중단 후 저장
   const { debouncedSave, forceSave, isLoading: isSaving } = useAutoSave({
     projectId,
-    delay: 800, // 0.8초 딜레이로 더 빠른 반응
+    delay: 2000, // 🔥 2초 딜레이 (노션 스타일) - 타이핑 멈춘 후에만 저장
     onSave: saveProjectInternal,
     onSaveSuccess: () => {
       setSaveStatus('saved');
