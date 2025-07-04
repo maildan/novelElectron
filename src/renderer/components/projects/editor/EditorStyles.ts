@@ -18,42 +18,58 @@ export const EDITOR_STYLES = {
       margin: 0;
       background: #ffffff;
     }
+    /* 🔥 한글 입력 최적화 */
+    .EasyMDEContainer .CodeMirror-focused {
+      outline: none;
+    }
+    
     .EasyMDEContainer .CodeMirror-focused .cm-header {
       color: #2563eb;
       font-weight: 600;
     }
     
-    /* 🔥 노션 스타일 마크업 자동 숨기기 - 활성 라인이 아닐 때 */
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-header {
+    /* 🔥 노션 스타일: 마크업 완전 숨기기 (2024-2025 UX 트렌드) */
+    .cm-formatting,
+    .cm-formatting-header,
+    .cm-formatting-list,
+    .cm-formatting-strong,
+    .cm-formatting-em,
+    .cm-formatting-strikethrough,
+    .cm-formatting-link,
+    .cm-formatting-code,
+    .cm-formatting-quote {
       display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-list {
-      display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-strong {
-      display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-em {
-      display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-link {
-      display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-code {
-      display: none !important;
-    }
-    .EasyMDEContainer .CodeMirror-line:not(.CodeMirror-activeline) .cm-formatting-quote {
-      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
     }
     
-    /* 🔥 더 정확한 선택자 - div 컨테이너 기반 */
-    div:not(.CodeMirror-activeline) > .CodeMirror-line span.cm-formatting {
-      display: none !important;
+    /* 🔥 헤더 스타일 강화 (마크업 없이도 구분 가능) */
+    .cm-header-1 { 
+      font-size: 2em; 
+      font-weight: 700; 
+      color: #1f2937;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 0.25em;
+      margin: 0.5em 0;
+    }
+    .cm-header-2 { 
+      font-size: 1.5em; 
+      font-weight: 600; 
+      color: #374151;
+      margin: 0.4em 0;
+    }
+    .cm-header-3 { 
+      font-size: 1.25em; 
+      font-weight: 600; 
+      color: #4b5563;
+      margin: 0.3em 0;
     }
     
-    /* 🔥 예외: 항상 보이게 할 요소들 */
-    span.cm-formatting-task {
-      display: inline !important;
+    /* 🔥 리스트 스타일 개선 */
+    .cm-variable-2,
+    .cm-variable-3 {
+      color: #374151;
+      font-weight: normal;
     }
     .editor-toolbar {
       opacity: 1 !important;
@@ -127,10 +143,6 @@ export const EDITOR_STYLES = {
       background: #111827;
     }
     
-    /* 🔥 다크 모드에서도 마크업 숨기기 */
-    body.dark div:not(.CodeMirror-activeline) > .CodeMirror-line span.cm-formatting {
-      display: none !important;
-    }
     .editor-preview {
       background: white;
       padding: 3rem;

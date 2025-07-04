@@ -43,11 +43,37 @@ class PrismaService {
       this.isConnecting = true;
       Logger.debug('PRISMA_SERVICE', 'Creating new Prisma client');
 
+      // 🔥 절대 경로로 데이터베이스 URL 설정
+      const path = await import('path');
+      const { app } = await import('electron');
+      const fs = await import('fs');
+      
+      let dbPath: string;
+      if (app.isPackaged) {
+        // 패키징된 앱에서는 app.getPath('userData') 사용
+        dbPath = path.join(app.getPath('userData'), 'loop.db');
+      } else {
+        // 개발 환경에서는 절대 경로 사용
+        dbPath = path.join(__dirname, '../../../prisma/loop.db');
+        // 대안 경로들도 체크
+        if (!fs.existsSync(dbPath)) {
+          dbPath = path.resolve(process.cwd(), 'prisma/loop.db');
+        }
+        if (!fs.existsSync(dbPath)) {
+          dbPath = path.resolve(__dirname, '../../prisma/loop.db');
+        }
+      }
+      
+      Logger.debug('PRISMA_SERVICE', `Database path: ${dbPath}`);
+      Logger.debug('PRISMA_SERVICE', `Database exists: ${fs.existsSync(dbPath)}`);
+      Logger.debug('PRISMA_SERVICE', `Current working directory: ${process.cwd()}`);
+      Logger.debug('PRISMA_SERVICE', `__dirname: ${__dirname}`);
+
       this.client = new PrismaClient({
         log: ['error', 'warn'],
         datasources: {
           db: {
-            url: "file:./prisma/loop.db"
+            url: `file:${dbPath}`
           }
         }
       });

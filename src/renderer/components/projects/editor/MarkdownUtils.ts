@@ -1,8 +1,8 @@
-// 🔥 노션 스타일 마크다운 자동 변환 유틸리티
+// 🔥 한글 입력 최적화 마크다운 유틸리티
 
 import { Logger } from '../../../../shared/logger';
 
-// CodeMirror 타입 정의
+// CodeMirror 타입 정의 확장
 interface CodeMirrorInstance {
   setOption(option: string, value: unknown): void;
   getCursor(): { line: number; ch: number };
@@ -12,113 +12,115 @@ interface CodeMirrorInstance {
   getSelection(): string;
   replaceSelection(replacement: string): void;
   execCommand(command: string): void;
+  getWrapperElement?(): HTMLElement; // 🔥 CodeMirror wrapper 요소 접근
+  getInputField?(): HTMLElement; // 🔥 입력 필드 접근
+  focus?(): void; // 🔥 포커스 메서드 추가
 }
 
-// 🔥 노션 스타일 키 이벤트 핸들러 설정
-export const setupNotionStyleKeys = (cm: CodeMirrorInstance): void => {
+// 🔥 한글 입력 최적화 설정 (2024-2025 IME 지원 강화)
+export const setupKoreanInputOptimization = (cm: CodeMirrorInstance): void => {
   if (!cm) return;
   
-  cm.setOption('extraKeys', {
-    'Enter': function(cm: CodeMirrorInstance) {
-      const cursor = cm.getCursor();
-      const line = cm.getLine(cursor.line);
-      
-      // 불릿 리스트 자동 연장
-      const listMatch = line.match(/^(\s*)([-*+])\s/);
-      if (listMatch) {
-        const indent = listMatch[1];
-        const bullet = listMatch[2];
-        
-        // 현재 줄이 비어있으면 리스트 종료
-        if (line.trim() === bullet) {
-          cm.replaceRange('', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: line.length });
-          cm.execCommand('newlineAndIndent');
-          return;
-        }
-        
-        // 새 리스트 아이템 생성
-        cm.execCommand('newlineAndIndent');
-        const newCursor = cm.getCursor();
-        cm.replaceRange(`${indent}${bullet} `, { line: newCursor.line, ch: 0 });
-        cm.setCursor({ line: newCursor.line, ch: `${indent}${bullet} `.length });
-        return;
-      }
-      
-      // 기본 Enter 동작
-      cm.execCommand('newlineAndIndent');
-    },
-    
-    'Space': function(cm: any) {
-      const cursor = cm.getCursor();
-      const line = cm.getLine(cursor.line);
-      const beforeCursor = line.substring(0, cursor.ch);
-      
-      // # 헤딩 자동 변환
-      if (beforeCursor === '#') {
-        cm.replaceRange('# ', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch });
-        cm.setCursor({ line: cursor.line, ch: 2 });
-        Logger.debug('MARKDOWN_UTILS', 'Auto-converted # to heading 1');
-        return;
-      }
-      
-      if (beforeCursor === '##') {
-        cm.replaceRange('## ', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch });
-        cm.setCursor({ line: cursor.line, ch: 3 });
-        Logger.debug('MARKDOWN_UTILS', 'Auto-converted ## to heading 2');
-        return;
-      }
-      
-      if (beforeCursor === '###') {
-        cm.replaceRange('### ', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch });
-        cm.setCursor({ line: cursor.line, ch: 4 });
-        Logger.debug('MARKDOWN_UTILS', 'Auto-converted ### to heading 3');
-        return;
-      }
-      
-      // - 불릿 리스트 자동 변환
-      if (beforeCursor === '-') {
-        cm.replaceRange('- ', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch });
-        cm.setCursor({ line: cursor.line, ch: 2 });
-        Logger.debug('MARKDOWN_UTILS', 'Auto-converted - to bullet list');
-        return;
-      }
-      
-      // * 불릿 리스트 자동 변환
-      if (beforeCursor === '*') {
-        cm.replaceRange('* ', { line: cursor.line, ch: 0 }, { line: cursor.line, ch: cursor.ch });
-        cm.setCursor({ line: cursor.line, ch: 2 });
-        Logger.debug('MARKDOWN_UTILS', 'Auto-converted * to bullet list');
-        return;
-      }
-      
-      // 기본 스페이스 입력
-      cm.replaceSelection(' ');
-    },
-    
-    // 단축키들
-    'Ctrl-1': function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('# ' + text);
-      Logger.debug('MARKDOWN_UTILS', 'Applied heading 1 shortcut');
-    },
-    'Ctrl-2': function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('## ' + text);
-      Logger.debug('MARKDOWN_UTILS', 'Applied heading 2 shortcut');
-    },
-    'Ctrl-3': function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('### ' + text);
-      Logger.debug('MARKDOWN_UTILS', 'Applied heading 3 shortcut');
-    },
-    'Ctrl-U': function(cm: any) {
-      const text = cm.getSelection();
-      cm.replaceSelection('- ' + text);
-      Logger.debug('MARKDOWN_UTILS', 'Applied unordered list shortcut');
-    }
-  });
+  // 🔥 기본 IME 친화적 설정
+  cm.setOption('inputStyle', 'contenteditable');
+  cm.setOption('lineWrapping', true);
+  cm.setOption('styleSelectedText', false); // 성능 향상
+  cm.setOption('electricChars', false);
+  cm.setOption('smartIndent', false);
+  cm.setOption('autofocus', true);
   
-  Logger.info('MARKDOWN_UTILS', 'Notion-style markdown shortcuts initialized');
+  // 🔥 성능 최적화 추가 설정
+  cm.setOption('workTime', 200);
+  cm.setOption('workDelay', 300);
+  cm.setOption('pollInterval', 100);
+  
+  // 🔥 IME Composition 이벤트 핸들러 추가 (최신 브라우저 지원)
+  let isComposing = false;
+  let compositionData = '';
+  
+  // Composition 시작 - 에디터 일시 정지
+  const handleCompositionStart = (event: CompositionEvent) => {
+    isComposing = true;
+    compositionData = '';
+    Logger.debug('IME', 'Composition started', { 
+      data: event.data,
+      target: event.target 
+    });
+    
+    // CodeMirror의 키 이벤트 처리를 일시적으로 비활성화
+    cm.setOption('readOnly', 'nocursor');
+  };
+  
+  // Composition 진행 중 - 데이터 추적
+  const handleCompositionUpdate = (event: CompositionEvent) => {
+    if (event.data) {
+      compositionData = event.data;
+      Logger.debug('IME', 'Composition update:', { 
+        data: event.data,
+        length: event.data.length 
+      });
+    }
+  };
+  
+  // Composition 완료 - 에디터 재활성화
+  const handleCompositionEnd = (event: CompositionEvent) => {
+    isComposing = false;
+    Logger.debug('IME', 'Composition ended', { 
+      finalData: event.data,
+      compositionData 
+    });
+    
+    // CodeMirror 재활성화
+    cm.setOption('readOnly', false);
+    
+    // 포커스 복원
+    setTimeout(() => {
+      cm.focus?.();
+    }, 0);
+    
+    compositionData = '';
+  };
+  
+  // 키 이벤트에서 IME 상태 확인
+  const handleKeyEvent = (event: KeyboardEvent) => {
+    if (event.isComposing || isComposing) {
+      // IME 조합 중이면 기본 동작 허용
+      Logger.debug('IME', 'Key event during composition - allowing default', {
+        key: event.key,
+        isComposing: event.isComposing || isComposing
+      });
+      return true;
+    }
+    return false;
+  };
+  
+  // 🔥 이벤트 리스너 등록 (안전한 방식으로 DOM 요소 접근)
+  try {
+    const wrapperElement = cm.getWrapperElement?.() || 
+                          (cm as any).display?.wrapper ||
+                          (cm as any).getWrapperElement?.();
+    
+    const inputElement = cm.getInputField?.() ||
+                        wrapperElement?.querySelector('textarea') ||
+                        wrapperElement?.querySelector('[contenteditable]') ||
+                        (cm as any).display?.input?.getField?.();
+    
+    if (inputElement) {
+      inputElement.addEventListener('compositionstart', handleCompositionStart);
+      inputElement.addEventListener('compositionupdate', handleCompositionUpdate);
+      inputElement.addEventListener('compositionend', handleCompositionEnd);
+      inputElement.addEventListener('keydown', handleKeyEvent);
+      inputElement.addEventListener('keyup', handleKeyEvent);
+      
+      Logger.info('IME', 'Composition event handlers registered successfully');
+    } else {
+      Logger.warn('IME', 'Could not find input element for composition events');
+    }
+  } catch (error) {
+    Logger.error('IME', 'Failed to register composition event handlers', error);
+  }
+  
+  Logger.info('MARKDOWN_UTILS', 'Korean IME optimization applied with composition events');
 };
 
 // 🔥 마크다운 텍스트 분석

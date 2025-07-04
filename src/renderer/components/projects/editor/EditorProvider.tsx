@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useRef, useCallback } from 'react';
 import { Logger } from '../../../../shared/logger';
-import { setupNotionStyleKeys } from './MarkdownUtils';
+import { setupKoreanInputOptimization } from './MarkdownUtils';
 import { getEditorOptions, getFocusModeOptions } from './EditorConfig';
 
 interface EditorContextType {
@@ -33,15 +33,15 @@ export function EditorProvider({ children }: EditorProviderProps): React.ReactEl
     if (!editor || !editor.codemirror) return;
     
     try {
-      Logger.debug('EDITOR', 'Initializing editor with Notion-style features');
+      Logger.debug('EDITOR', 'Initializing editor for Korean input optimization');
       
-      // 🔥 노션 스타일 키 핸들러 설정
-      setupNotionStyleKeys(editor.codemirror);
+      // 🔥 한글 입력 최적화 설정
+      setupKoreanInputOptimization(editor.codemirror);
       
       // 에디터 참조 저장
       editorRef.current = editor;
       
-      Logger.info('EDITOR', 'Editor initialized successfully');
+      Logger.info('EDITOR', 'Editor initialized with Korean input optimization');
     } catch (error) {
       Logger.error('EDITOR', 'Failed to initialize editor', error);
     }

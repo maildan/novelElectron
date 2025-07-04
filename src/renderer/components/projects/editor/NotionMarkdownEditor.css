@@ -1,0 +1,259 @@
+/* 🔥 노션 스타일 마크다운 에디터 CSS */
+
+/* 기본 에디터 스타일링 */
+.easymde-container {
+  border: none !important;
+  background: white;
+}
+
+.editor-toolbar {
+  display: none !important; /* 기본 툴바 숨기기 */
+}
+
+/* 🔥 마크다운 구문 숨기기 (노션 스타일) */
+.CodeMirror .cm-formatting,
+.CodeMirror .cm-formatting-header,
+.CodeMirror .cm-formatting-header-1,
+.CodeMirror .cm-formatting-header-2,
+.CodeMirror .cm-formatting-header-3,
+.CodeMirror .cm-formatting-header-4,
+.CodeMirror .cm-formatting-header-5,
+.CodeMirror .cm-formatting-header-6 {
+  font-size: 0 !important;
+  opacity: 0 !important;
+  display: none !important;
+}
+
+/* 마크다운 링크 포매팅 숨기기 */
+.CodeMirror .cm-formatting-link,
+.CodeMirror .cm-formatting-link-string {
+  opacity: 0.3 !important;
+  font-size: 0.8em !important;
+}
+
+/* 마크다운 리스트 포매팅 숨기기 */
+.CodeMirror .cm-formatting-list {
+  opacity: 0.4 !important;
+}
+
+/* 마크다운 굵게/기울임 포매팅 숨기기 */
+.CodeMirror .cm-formatting-strong,
+.CodeMirror .cm-formatting-em {
+  opacity: 0 !important;
+  font-size: 0 !important;
+  display: none !important;
+}
+
+/* 🔥 헤딩 스타일 (노션 스타일) */
+.CodeMirror .cm-header-1 {
+  font-size: 2em !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  line-height: 1.2 !important;
+}
+
+.CodeMirror .cm-header-2 {
+  font-size: 1.5em !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  line-height: 1.3 !important;
+}
+
+.CodeMirror .cm-header-3 {
+  font-size: 1.25em !important;
+  font-weight: 600 !important;
+  color: #4b5563 !important;
+  line-height: 1.4 !important;
+}
+
+/* 🔥 텍스트 포매팅 스타일 */
+.CodeMirror .cm-strong {
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+.CodeMirror .cm-em {
+  font-style: italic !important;
+  color: #374151 !important;
+}
+
+/* 🔥 리스트 스타일 개선 */
+.CodeMirror .cm-variable-2 {
+  color: #6b7280 !important;
+}
+
+/* 🔥 인용구 스타일 */
+.CodeMirror .cm-quote {
+  color: #6b7280 !important;
+  font-style: italic !important;
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 12px !important;
+  margin-left: 4px !important;
+}
+
+/* 🔥 코드 블록 스타일 */
+.CodeMirror .cm-comment {
+  background-color: #f9fafb !important;
+  color: #ef4444 !important;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace !important;
+  font-size: 0.9em !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+}
+
+/* 🔥 에디터 전체 스타일링 */
+.CodeMirror {
+  border: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  color: #1f2937 !important;
+  background: white !important;
+  padding: 20px !important;
+}
+
+.CodeMirror-focused .CodeMirror-cursor {
+  border-left: 2px solid #3b82f6 !important;
+}
+
+.CodeMirror-lines {
+  padding: 0 !important;
+}
+
+.CodeMirror-line {
+  padding: 4px 0 !important;
+}
+
+/* 🔥 선택 영역 스타일 */
+.CodeMirror-selected {
+  background: #dbeafe !important;
+}
+
+/* 🔥 플레이스홀더 스타일 */
+.CodeMirror-placeholder {
+  color: #9ca3af !important;
+  font-style: italic !important;
+}
+
+/* 🔥 스크롤바 스타일링 (macOS 스타일) */
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+  background-color: transparent !important;
+}
+
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+  outline: none !important;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar,
+.CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db !important;
+  border-radius: 4px !important;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af !important;
+}
+
+/* 🔥 한글 입력 최적화 */
+.CodeMirror-composing {
+  border-bottom: 2px solid #3b82f6 !important;
+  background-color: #eff6ff !important;
+}
+
+/* 🔥 미리보기 모드 스타일링 */
+.editor-preview,
+.editor-preview-side {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  color: #1f2937 !important;
+  background: white !important;
+  padding: 20px !important;
+}
+
+.editor-preview h1,
+.editor-preview-side h1 {
+  font-size: 2em !important;
+  font-weight: 700 !important;
+  color: #1f2937 !important;
+  margin-bottom: 16px !important;
+}
+
+.editor-preview h2,
+.editor-preview-side h2 {
+  font-size: 1.5em !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 12px !important;
+}
+
+.editor-preview h3,
+.editor-preview-side h3 {
+  font-size: 1.25em !important;
+  font-weight: 600 !important;
+  color: #4b5563 !important;
+  margin-bottom: 8px !important;
+}
+
+.editor-preview p,
+.editor-preview-side p {
+  margin-bottom: 16px !important;
+}
+
+.editor-preview ul,
+.editor-preview ol,
+.editor-preview-side ul,
+.editor-preview-side ol {
+  margin-bottom: 16px !important;
+  padding-left: 24px !important;
+}
+
+.editor-preview blockquote,
+.editor-preview-side blockquote {
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 16px !important;
+  margin: 16px 0 !important;
+  color: #6b7280 !important;
+  font-style: italic !important;
+}
+
+.editor-preview code,
+.editor-preview-side code {
+  background-color: #f3f4f6 !important;
+  color: #ef4444 !important;
+  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace !important;
+  font-size: 0.9em !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+.editor-preview pre,
+.editor-preview-side pre {
+  background-color: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin: 16px 0 !important;
+  overflow-x: auto !important;
+}
+
+.editor-preview pre code,
+.editor-preview-side pre code {
+  background: none !important;
+  color: #1f2937 !important;
+  padding: 0 !important;
+}
