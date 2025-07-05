@@ -127,23 +127,8 @@ export const getEditorOptions = () => ({
       }
     },
     
-    // 🔥 기가차드 수정: 스페이스 키 처리 (단순화)
-    "Space": function(cm: any) {
-      const cursor = cm.getCursor();
-      const line = cm.getLine(cursor.line);
-      const lineStart = line.substring(0, cursor.ch);
-      
-      // # 패턴 감지 (1-6개까지)
-      const headingMatch = lineStart.match(/^(#{1,6})$/);
-      if (headingMatch) {
-        // 현재 위치에 스페이스만 추가 (# 그대로 유지)
-        cm.replaceSelection(' ');
-        return;
-      }
-      
-      // 기본 스페이스 입력
-      cm.replaceSelection(' ');
-    }
+    // 🔥 기가차드 최종 수정: 스페이스 키 완전 기본 동작
+    "Space": false, // 🔥 커스텀 핸들러 완전 비활성화 → 브라우저 기본 동작 사용
   }
 });
 

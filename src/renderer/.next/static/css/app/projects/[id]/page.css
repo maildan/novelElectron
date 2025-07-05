@@ -13,7 +13,31 @@
   display: none !important; /* 기본 툴바 숨기기 */
 }
 
-/* 🔥 마크다운 구문 완전 숨기기 (기가차드 개선) */
+/* 🔥 기가차드 추가: 포커스 모드 스타일링 */
+.focus-mode-editor {
+  padding: 3rem 4rem !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  background: white !important;
+}
+
+.focus-mode-editor .CodeMirror {
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+  padding: 2rem !important;
+}
+
+.normal-mode-editor {
+  padding: 1rem !important;
+}
+
+.normal-mode-editor .CodeMirror {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  padding: 1rem !important;
+}
+
+/* 🔥 마크다운 구문 완전 숨기기 (기가차드 최종 개선) */
 .CodeMirror .cm-formatting,
 .CodeMirror .cm-formatting-header,
 .CodeMirror .cm-formatting-header-1,
@@ -27,16 +51,13 @@
 .CodeMirror .cm-formatting-link,
 .CodeMirror .cm-formatting-link-string,
 .CodeMirror .cm-formatting-list,
-.CodeMirror .cm-formatting-quote {
-  position: fixed !important; /* 🔥 fixed로 변경 */
-  left: -99999px !important; /* 🔥 더 멀리 이동 */
-  top: -99999px !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
+.CodeMirror .cm-formatting-quote { /* 🔥 완전 숨기기 */
   opacity: 0 !important;
   font-size: 0 !important;
-  line-height: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  left: -99999px !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;

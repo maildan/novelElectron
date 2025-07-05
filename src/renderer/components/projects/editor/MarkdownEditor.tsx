@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { EDITOR_STYLES } from './EditorStyles';
 import { useEditor } from './EditorProvider';
@@ -29,11 +29,29 @@ interface MarkdownEditorProps {
 }
 
 export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEditorProps): React.ReactElement {
-  const { initializeEditor, getEditorOptions, getFocusModeOptions } = useEditor();
+  const { initializeEditor, getEditorOptions } = useEditor();
   const editorInstanceRef = useRef<any>(null);
+  const isInitializedRef = useRef(false); // 🔥 중복 초기화 방지
+  const contentRef = useRef<string>(content); // 🔥 content를 ref로 추적
 
-  // 🔥 에디터 인스턴스 저장 및 최적화 적용 (기가차드 수정: 무한루프 제거)
+  // 🔥 기가차드 핵심 수정: EasyMDE options 완전 고정 (재초기화 방지)
+  const editorOptions = useMemo(() => {
+    return getEditorOptions();
+  }, []); // 🔥 dependency 없음 = 절대 재생성되지 않음
+
+  // 🔥 onChange 핸들러 최적화 (무한루프 방지)
+  const handleChange = useCallback((value: string) => {
+    // 내용이 실제로 변경되었을 때만 처리
+    if (value !== contentRef.current) {
+      contentRef.current = value;
+      onChange(value);
+    }
+  }, [onChange]);
+
+  // 🔥 에디터 인스턴스 저장 및 최적화 적용 (기가차드 수정: 한 번만 실행)
   const handleEditorReady = useCallback((editor: any) => {
+    if (isInitializedRef.current) return; // 🔥 중복 실행 방지
+    
     editorInstanceRef.current = editor;
     
     try {
@@ -46,13 +64,39 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
         Logger.info('MARKDOWN_EDITOR', 'Korean input optimization applied');
       }
       
+      isInitializedRef.current = true; // 🔥 초기화 완료 표시
+      
     } catch (error) {
       Logger.error('MARKDOWN_EDITOR', 'Failed to initialize editor optimizations', error);
     }
-  }, [initializeEditor]);
+  }, [initializeEditor]); // 🔥 필요한 dependency만 추가
+
+  // 🔥 컴포넌트 정리 (메모리 누수 방지)
+  useEffect(() => {
+    return () => {
+      if (editorInstanceRef.current) {
+        try {
+          // EasyMDE 인스턴스 정리
+          if (typeof editorInstanceRef.current.cleanup === 'function') {
+            editorInstanceRef.current.cleanup();
+          }
+          editorInstanceRef.current = null;
+          isInitializedRef.current = false;
+          Logger.debug('MARKDOWN_EDITOR', 'Editor instance cleaned up');
+        } catch (error) {
+          Logger.warn('MARKDOWN_EDITOR', 'Error during cleanup', error);
+        }
+      }
+    };
+  }, []);
+
+  // 🔥 content 변경 시 ref 업데이트 (하지만 에디터는 재초기화하지 않음)
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
 
   // 🔥 툴바 액션 핸들러 (에디터 포커스 유지)
-  const handleToolbarAction = (action: string) => {
+  const handleToolbarAction = useCallback((action: string) => {
     Logger.debug('MARKDOWN_EDITOR', `Toolbar action executed: ${action}`);
     
     // 툴바 액션 후 에디터 포커스 복원
@@ -61,7 +105,7 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
         editorInstanceRef.current.codemirror.focus();
       }
     }, 50);
-  };
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -78,31 +122,17 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           ${EDITOR_STYLES.customEditor}
         `}</style>
         
-        {isFocusMode ? (
-          // 몰입 모드 에디터
-          <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 h-full">
-            <div className="prose prose-slate dark:prose-invert max-w-none focus:outline-none px-16 py-12">
-              <EasyMDEEditor
-                value={content}
-                onChange={onChange}
-                options={getFocusModeOptions()}
-                events={{
-                  instanceReady: handleEditorReady
-                }}
-              />
-            </div>
-          </div>
-        ) : (
-          // 일반 모드 에디터
+        {/* 🔥 기가차드 핵심 수정: 완전 최적화된 EasyMDE */}
+        <div className={isFocusMode ? 'focus-mode-editor' : 'normal-mode-editor'}>
           <EasyMDEEditor
-            value={content}
-            onChange={onChange}
-            options={getEditorOptions()}
+            value={content} // 🔥 value로 되돌림 (controlled)
+            onChange={handleChange} // 🔥 최적화된 onChange
+            options={editorOptions} // 🔥 useMemo로 고정된 options
             events={{
               instanceReady: handleEditorReady
             }}
           />
-        )}
+        </div>
       </div>
     </div>
   );

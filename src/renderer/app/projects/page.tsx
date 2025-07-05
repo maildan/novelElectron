@@ -92,7 +92,8 @@ export default function ProjectsPage(): React.ReactElement {
       status: project.status || 'draft',
       progress: project.progress || 0,
       createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),
-      updatedAt: project.lastModified ? new Date(project.lastModified) : new Date(),
+      updatedAt: project.updatedAt ? new Date(project.updatedAt) : 
+                  project.lastModified ? new Date(project.lastModified) : new Date(),
       wordCount: project.wordCount || 0,
       author: project.author || '사용자',
       genre: project.genre || '기타'
@@ -146,6 +147,7 @@ export default function ProjectsPage(): React.ReactElement {
         status: 'active' as const,
         author: '사용자', // TODO: 실제 사용자 정보 연동
         platform: projectData.platform,
+        updatedAt: new Date(),
       };
 
       const result = await window.electronAPI.projects.create(createData);

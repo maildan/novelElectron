@@ -23,7 +23,7 @@ interface UseAutoSaveOptions {
  */
 export function useAutoSave({
   projectId,
-  delay = 3500, // 🔥 기가차드 수정: 3.5초로 조정 (더 안전한 타이핑)
+  delay = 5000, // 🔥 5초로 증가 (글 삭제 방지 - 기가차드 수정)
   onSave,
   onSaveSuccess,
   onSaveError

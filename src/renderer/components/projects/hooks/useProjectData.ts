@@ -331,7 +331,7 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
   // 🔥 노션 스타일 autoSave Hook 사용 - 타이핑 중단 후 저장
   const { debouncedSave, forceSave, isLoading: isSaving } = useAutoSave({
     projectId,
-    delay: 2000, // 🔥 2초 딜레이 (노션 스타일) - 타이핑 멈춘 후에만 저장
+    delay: 3000, // 🔥 3초 딜레이 (더 안전한 타이핑) - 타이핑 멈춘 후에만 저장
     onSave: saveProjectInternal,
     onSaveSuccess: () => {
       setSaveStatus('saved');
@@ -357,10 +357,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     await forceSave();
   }, [forceSave]);
   
-  // 🔥 작가 통계 업데이트
+  // 🔥 작가 통계 업데이트 (기가차드 수정: 세션 시간 실시간 계산)
   const updateWriterStats = useCallback((): void => {
     if (!content) return;
     
+    // 🔥 세션 시간을 매번 실시간 계산 (state 업데이트 없음)
     const sessionMinutes = Math.max(1, (Date.now() - sessionStartRef.current) / 1000 / 60);
     const newStats = calculateWriterStats(content, writerStats.wordGoal, sessionStartRef.current);
     
@@ -390,20 +391,12 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     }
   }, [isSaving]);
 
-  // 🔥 통계 업데이트
+  // 🔥 통계 업데이트 (기가차드 수정: interval 제거로 커서 리셋 완전 해결)
   useEffect(() => {
     updateWriterStats();
-    
-    // 세션 시간 주기적 업데이트 (30초로 단축)
-    const interval = setInterval(() => {
-      setWriterStats((prev: WriterStatsType) => ({
-        ...prev,
-        sessionTime: Math.floor((Date.now() - sessionStartRef.current) / 1000 / 60)
-      }));
-    }, 30000); // 1분에서 30초로 단축
-    
-    return () => clearInterval(interval);
-  }, [content, updateWriterStats]);
+    // 🔥 30초 interval 완전 제거 - 커서 리셋 원인 제거
+    // 세션 시간은 사용자가 통계를 볼 때만 계산하도록 변경
+  }, []); // 🔥 dependency 완전 제거 - useEffect 지옥 해결
 
   return {
     title,
