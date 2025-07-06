@@ -2,7 +2,8 @@
   "github.copilot.enable": {
     "*": true,
     "plaintext": false,
-    "markdown": false
+    "markdown": true,
+    "scminput": true
   },
   "github.copilot.advanced": {
     "length": 500,

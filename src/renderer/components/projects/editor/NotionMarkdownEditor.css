@@ -1,9 +1,43 @@
 /* 🔥 노션 스타일 마크다운 에디터 CSS */
 
+/* 🔥 CSS 변수 정의 (라이트/다크 모드) */
+:root {
+  --editor-bg: #ffffff;
+  --editor-text: #374151;
+  --editor-border: #e5e7eb;
+  --toolbar-bg: #ffffff;
+  --toolbar-border: #e5e7eb;
+  --button-hover: #f3f4f6;
+}
+
+:root.dark {
+  --editor-bg: #1f2937;
+  --editor-text: #f9fafb;
+  --editor-border: #374151;
+  --toolbar-bg: #111827;
+  --toolbar-border: #374151;
+  --button-hover: #374151;
+}
+
 /* 기본 에디터 스타일링 */
 .easymde-container {
   border: none !important;
-  background: white;
+  background: var(--editor-bg) !important;
+  color: var(--editor-text) !important;
+}
+
+.CodeMirror {
+  background: var(--editor-bg) !important;
+  color: var(--editor-text) !important;
+  border: 1px solid var(--editor-border) !important;
+}
+
+.CodeMirror-cursor {
+  border-left: 1px solid var(--editor-text) !important;
+}
+
+.CodeMirror-selected {
+  background: rgba(59, 130, 246, 0.1) !important;
 }
 
 .editor-toolbar {
@@ -59,12 +93,33 @@
   padding: 0 !important;
   position: absolute !important;
   left: -99999px !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  pointer-events: none !important;
+  color: transparent !important; /* 🔥 추가: 색상 투명화 */
+  background: transparent !important; /* 🔥 추가: 배경 투명화 */
+  text-shadow: none !important; /* 🔥 추가: 그림자 제거 */
   border: none !important;
-  display: none !important;
-  visibility: hidden !important; /* 🔥 추가 */
-  pointer-events: none !important; /* 🔥 추가 */
+}
+
+/* 🔥 CodeMirror 헤딩 색상 문제 해결 */
+.CodeMirror .cm-header,
+.CodeMirror .cm-header-1,
+.CodeMirror .cm-header-2,
+.CodeMirror .cm-header-3,
+.CodeMirror .cm-header-4,
+.CodeMirror .cm-header-5,
+.CodeMirror .cm-header-6 {
+  color: inherit !important; /* 🔥 기본 텍스트 색상 사용 */
+  background: transparent !important;
+}
+
+/* 🔥 마크다운 토큰 색상 완전 제거 */
+.CodeMirror .cm-strong,
+.CodeMirror .cm-em,
+.CodeMirror .cm-link,
+.CodeMirror .cm-url,
+.CodeMirror .cm-quote {
+  color: inherit !important; /* 🔥 모든 마크다운 요소를 기본 색상으로 */
+  background: transparent !important;
 }
 
 /* 🔥 헤딩 포매팅 다음의 스페이스도 완전 제거 */

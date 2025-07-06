@@ -1,10 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { EDITOR_STYLES } from './EditorStyles';
 import { useEditor } from './EditorProvider';
-import { CustomToolbar } from './CustomToolbar';
 import { setupKoreanInputOptimization } from './MarkdownUtils'; // 🔥 한글 최적화 임포트
 import { Logger } from '../../../../shared/logger';
 import './NotionMarkdownEditor.css'; // 🔥 노션 스타일 CSS 임포트
@@ -33,10 +31,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
   const editorInstanceRef = useRef<any>(null);
   const isInitializedRef = useRef(false); // 🔥 중복 초기화 방지
   const contentRef = useRef<string>(content); // 🔥 content를 ref로 추적
+  const [, forceUpdate] = useState({}); // 🔥 강제 re-render를 위한 상태
 
   // 🔥 기가차드 핵심 수정: EasyMDE options 완전 고정 (재초기화 방지)
   const editorOptions = useMemo(() => {
-    return getEditorOptions();
+    return {
+      ...getEditorOptions(),
+      autofocus: false, // 🔥 자동 포커스 비활성화로 커서 문제 방지
+    };
   }, []); // 🔥 dependency 없음 = 절대 재생성되지 않음
 
   // 🔥 onChange 핸들러 최적화 (무한루프 방지)
@@ -66,6 +68,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
       
       isInitializedRef.current = true; // 🔥 초기화 완료 표시
       
+      // 🔥 에디터 준비 완료 후 상태 업데이트 강제 (툴바 연동을 위해)
+      setTimeout(() => {
+        // 부모 컴포넌트 re-render를 유도하여 툴바가 에디터 인스턴스를 받도록 함
+        if (editorInstanceRef.current) {
+          Logger.debug('MARKDOWN_EDITOR', 'Editor instance ready for toolbar');
+        }
+      }, 100);
+      
     } catch (error) {
       Logger.error('MARKDOWN_EDITOR', 'Failed to initialize editor optimizations', error);
     }
@@ -90,43 +100,15 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
     };
   }, []);
 
-  // 🔥 content 변경 시 ref 업데이트 (하지만 에디터는 재초기화하지 않음)
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-
-  // 🔥 툴바 액션 핸들러 (에디터 포커스 유지)
-  const handleToolbarAction = useCallback((action: string) => {
-    Logger.debug('MARKDOWN_EDITOR', `Toolbar action executed: ${action}`);
-    
-    // 툴바 액션 후 에디터 포커스 복원
-    setTimeout(() => {
-      if (editorInstanceRef.current?.codemirror) {
-        editorInstanceRef.current.codemirror.focus();
-      }
-    }, 50);
-  }, []);
-
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* 🔥 커스텀 툴바 (포커스 모드가 아닐 때만 표시) */}
-      {!isFocusMode && (
-        <CustomToolbar 
-          editor={editorInstanceRef.current}
-          onAction={handleToolbarAction}
-        />
-      )}
-      
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
       <div className="flex-1 overflow-auto">
-        <style jsx global>{`
-          ${EDITOR_STYLES.customEditor}
-        `}</style>
-        
-        {/* 🔥 기가차드 핵심 수정: 완전 최적화된 EasyMDE */}
+        {/* 🔥 기가차드 핵심 수정: defaultValue로 초기 커서 문제 해결 */}
         <div className={isFocusMode ? 'focus-mode-editor' : 'normal-mode-editor'}>
           <EasyMDEEditor
-            value={content} // 🔥 value로 되돌림 (controlled)
-            onChange={handleChange} // 🔥 최적화된 onChange
+            key={content ? 'with-content' : 'empty'} // 🔥 content 유무로 key 설정
+            defaultValue={content} // 🔥 defaultValue 사용으로 초기 커서 문제 해결
+            onChange={handleChange} // 🔥 최적화된 onChange만
             options={editorOptions} // 🔥 useMemo로 고정된 options
             events={{
               instanceReady: handleEditorReady

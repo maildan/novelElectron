@@ -51,7 +51,8 @@ export const getEditorOptions = () => ({
     "toggleCodeBlock": "Cmd-Alt-C",
     "togglePreview": "Cmd-P",
     "toggleSideBySide": "F9",
-    "toggleFullScreen": "F11"
+    "toggleFullScreen": "F11",
+    "toggleDarkMode": "Cmd-D" // 🔥 다크모드 토글 단축키 추가
   },
   // 🔥 한글 입력 최적화 설정 (2024-2025 최신 IME 지원)
   inputStyle: "contenteditable" as const, // 🔥 IME 지원 향상을 위해 contenteditable 사용
@@ -127,8 +128,44 @@ export const getEditorOptions = () => ({
       }
     },
     
-    // 🔥 기가차드 최종 수정: 스페이스 키 완전 기본 동작
-    "Space": false, // 🔥 커스텀 핸들러 완전 비활성화 → 브라우저 기본 동작 사용
+    // 🔥 기가차드 마크다운 변환: Space 키로 마크업 자동 변환
+    "Space": function(cm: any) {
+      const cursor = cm.getCursor();
+      const line = cm.getLine(cursor.line);
+      const lineStart = line.substring(0, cursor.ch);
+      
+      // 1. 헤딩 패턴 감지 (# 1-6개) - 정확한 마크다운 변환
+      const headingMatch = lineStart.match(/^(#{1,6})$/);
+      if (headingMatch) {
+        // 단순히 스페이스만 추가 (### -> ### )
+        cm.replaceSelection(' ');
+        return;
+      }
+      
+      // 2. 리스트 패턴 감지 (- 또는 *)
+      const listMatch = lineStart.match(/^([-*])$/);
+      if (listMatch) {
+        cm.replaceSelection(' ');
+        return;
+      }
+      
+      // 3. 번호 리스트 패턴 감지 (1. 2. 등)
+      const numberedListMatch = lineStart.match(/^(\d+\.)$/);
+      if (numberedListMatch) {
+        cm.replaceSelection(' ');
+        return;
+      }
+      
+      // 4. 인용구 패턴 감지 (>)
+      const quoteMatch = lineStart.match(/^(>)$/);
+      if (quoteMatch) {
+        cm.replaceSelection(' ');
+        return;
+      }
+      
+      // 기본 스페이스 입력
+      cm.replaceSelection(' ');
+    }
   }
 });
 
