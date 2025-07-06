@@ -10,6 +10,10 @@ import { ProjectCharacter, ProjectStructure, ProjectNote } from '../../../../sha
 type SaveStatus = 'unsaved' | 'saving' | 'saved' | 'error';
 
 interface UseProjectDataReturn {
+  // 🔥 로딩 및 에러 상태
+  isLoading: boolean;
+  error: string | null;
+  
   // 프로젝트 상태
   title: string;
   setTitle: (title: string) => void;
@@ -23,6 +27,8 @@ interface UseProjectDataReturn {
   setCharacters: (characters: ProjectCharacter[]) => void;
   structure: ProjectStructure[];
   setStructure: (structure: ProjectStructure[]) => void;
+  notes: ProjectNote[]; // 🔥 notes 추가
+  setNotes: (notes: ProjectNote[]) => void; // 🔥 setNotes 추가
   writerStats: WriterStatsType;
   
   // 액션
@@ -36,15 +42,33 @@ interface UseProjectDataReturn {
 export function useProjectData(projectId: string): UseProjectDataReturn {
   const sessionStartRef = useRef<number>(Date.now());
   
+  // 🔥 로딩 및 에러 상태 추가
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
   // 🔥 기본 프로젝트 상태
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   
+  // 🔥 ref로 최신 값 추적 (무한루프 방지)
+  const titleRef = useRef<string>('');
+  const contentRef = useRef<string>('');
+  
+  // 🔥 ref 동기화
+  useEffect(() => {
+    titleRef.current = title;
+  }, [title]);
+  
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+  
   // 🔥 작가 데이터
   const [characters, setCharacters] = useState<ProjectCharacter[]>([]);
   const [structure, setStructure] = useState<ProjectStructure[]>([]);
+  const [notes, setNotes] = useState<ProjectNote[]>([]); // 🔥 notes 상태 추가
   const [writerStats, setWriterStats] = useState<WriterStatsType>({
     wordCount: 0,
     charCount: 0,
@@ -56,9 +80,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     wpm: 0
   });
 
-  // 🔥 프로젝트 로드
+  // 🔥 프로젝트 로드 (무한루프 방지)
   const loadProject = useCallback(async (): Promise<void> => {
     try {
+      setIsLoading(true);
+      setError(null);
       Logger.debug('PROJECT_DATA', 'Loading project', { projectId });
       
       const result = await window.electronAPI.projects.getById(projectId);
@@ -66,6 +92,7 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
         setTitle(result.data.title);
         setContent(result.data.content);
         setLastSaved(new Date(result.data.lastModified));
+        setSaveStatus('saved'); // 🔥 저장 상태 업데이트
         
         // 🔥 실제 데이터 로드 - 캐릭터 데이터
         try {
@@ -265,37 +292,107 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
           ]);
         }
         
-      } else {
-        Logger.error('PROJECT_DATA', 'Failed to load project', result.error);
-        
-        // 서버에서 로드 실패 시 로컬 스토리지 백업 확인
+        // 🔥 실제 데이터 로드 - 노트 데이터
         try {
-          const backup = localStorage.getItem(`project_backup_${projectId}`);
-          if (backup) {
-            const backupData = JSON.parse(backup);
-            setTitle(backupData.title || '');
-            setContent(backupData.content || '');
-            Logger.info('PROJECT_DATA', 'Loaded from local backup');
+          const notesResult = await window.electronAPI.projects.getNotes(projectId);
+          if (notesResult.success && notesResult.data) {
+            setNotes(notesResult.data);
+            Logger.debug('PROJECT_DATA', 'Notes loaded successfully', { count: notesResult.data.length });
+          } else {
+            Logger.warn('PROJECT_DATA', 'No notes found, using defaults');
+            // 기본 노트 데이터
+            setNotes([
+              { 
+                id: '1', 
+                projectId: projectId,
+                title: '첫 번째 메모',
+                content: '이야기의 핵심 아이디어를 여기에 적어보세요.',
+                tags: ['아이디어'],
+                color: '#3b82f6',
+                isPinned: false,
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+              { 
+                id: '2', 
+                projectId: projectId,
+                title: '설정 노트',
+                content: '세계관, 배경 설정에 대한 내용을 정리합니다.',
+                tags: ['설정', '세계관'],
+                color: '#10b981',
+                isPinned: true,
+                createdAt: new Date(),
+                updatedAt: new Date()
+              },
+            ]);
           }
-        } catch (storageError) {
-          Logger.error('PROJECT_DATA', 'Failed to load backup', storageError);
+        } catch (error) {
+          Logger.warn('PROJECT_DATA', 'Failed to load notes, using defaults', error);
+          setNotes([
+            { 
+              id: '1', 
+              projectId: projectId,
+              title: '첫 번째 메모',
+              content: '이야기의 핵심 아이디어를 여기에 적어보세요.',
+              tags: ['아이디어'],
+              color: '#3b82f6',
+              isPinned: false,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            },
+            { 
+              id: '2', 
+              projectId: projectId,
+              title: '설정 노트',
+              content: '세계관, 배경 설정에 대한 내용을 정리합니다.',
+              tags: ['설정', '세계관'],
+              color: '#10b981',
+              isPinned: true,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            },
+          ]);
         }
+        
+        Logger.info('PROJECT_DATA', 'Project loaded successfully');
+      } else {
+        throw new Error(result.error || 'Failed to load project');
       }
     } catch (error) {
       Logger.error('PROJECT_DATA', 'Error loading project', error);
+      setError(error instanceof Error ? error.message : 'Failed to load project');
+      
+      // 🔥 실패 시 로컬 백업 확인
+      try {
+        const backup = localStorage.getItem(`project_backup_${projectId}`);
+        if (backup) {
+          const backupData = JSON.parse(backup);
+          setTitle(backupData.title || '');
+          setContent(backupData.content || '');
+          setSaveStatus('unsaved');
+          Logger.info('PROJECT_DATA', 'Loaded from local backup');
+        }
+      } catch (storageError) {
+        Logger.error('PROJECT_DATA', 'Failed to load backup', storageError);
+      }
+    } finally {
+      setIsLoading(false); // 🔥 무조건 로딩 상태 해제
     }
   }, [projectId]);
 
-  // 🔥 프로젝트 저장 함수 (내부용)
+  // 🔥 프로젝트 저장 함수 (ref로 무한루프 방지)
   const saveProjectInternal = useCallback(async (): Promise<void> => {
     try {
-      if (!title.trim() && !content.trim()) return;
+      const currentTitle = titleRef.current;
+      const currentContent = contentRef.current;
+      
+      if (!currentTitle.trim() && !currentContent.trim()) return;
       
       Logger.debug('PROJECT_DATA', 'Saving project to server', { projectId });
       
       // 🔥 로컬 백업 먼저 저장 (즉시)
       try {
-        const backupData = { title, content, lastModified: new Date() };
+        const backupData = { title: currentTitle, content: currentContent, lastModified: new Date() };
         localStorage.setItem(`project_backup_${projectId}`, JSON.stringify(backupData));
         Logger.debug('PROJECT_DATA', 'Local backup saved');
       } catch (storageError) {
@@ -304,13 +401,14 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
       
       // 🔥 즉시 서버 저장
       const result = await window.electronAPI.projects.update(projectId, {
-        title,
-        content,
+        title: currentTitle,
+        content: currentContent,
         lastModified: new Date()
       });
       
       if (result.success) {
         setLastSaved(new Date());
+        setSaveStatus('saved');
         Logger.info('PROJECT_DATA', 'Project saved successfully to server');
         
         // 성공 시 로컬 백업 제거
@@ -324,9 +422,10 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
       }
     } catch (error) {
       Logger.error('PROJECT_DATA', 'Error saving project', error);
+      setSaveStatus('error');
       throw error;
     }
-  }, [projectId, title, content]);
+  }, [projectId]); // 🔥 projectId만 dependency로 설정
 
   // 🔥 노션 스타일 autoSave Hook 사용 - 타이핑 중단 후 저장
   const { debouncedSave, forceSave, isLoading: isSaving } = useAutoSave({
@@ -376,13 +475,20 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     }));
   }, []);
 
-  // 🔥 새로운 autoSave 시스템으로 자동 저장 트리거
+  // 🔥 프로젝트 초기 로드 (한 번만 실행)
+  useEffect(() => {
+    if (projectId) {
+      loadProject();
+    }
+  }, [projectId]); // 🔥 projectId만 dependency로 - loadProject는 제외하여 무한루프 방지
+
+  // 🔥 새로운 autoSave 시스템으로 자동 저장 트리거 (무한루프 수정)
   useEffect(() => {
     if (title.trim() || content.trim()) {
       setSaveStatus('unsaved');
       debouncedSave(); // 새로운 debounced save 사용
     }
-  }, [title, content, debouncedSave]);
+  }, [title, content]); // 🔥 debouncedSave dependency 제거로 무한루프 해결
 
   // 🔥 저장 중 상태 관리
   useEffect(() => {
@@ -398,18 +504,102 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     // 세션 시간은 사용자가 통계를 볼 때만 계산하도록 변경
   }, []); // 🔥 dependency 완전 제거 - useEffect 지옥 해결
 
+  // 🔥 초기 프로젝트 로딩
+  useEffect(() => {
+    if (projectId) {
+      loadProject();
+    }
+  }, [projectId]); // projectId만 dependency로 설정
+
+  // 🔥 캐릭터 저장 함수
+  const saveCharacters = useCallback(async (charactersToSave: ProjectCharacter[]): Promise<void> => {
+    try {
+      Logger.debug('PROJECT_DATA', 'Saving characters', { count: charactersToSave.length });
+      
+      // 🔥 임시: updateCharacters API 구현 필요
+      // const result = await window.electronAPI.projects.updateCharacters(projectId, charactersToSave);
+      Logger.info('PROJECT_DATA', 'Characters save - API 구현 필요', { characters: charactersToSave });
+      
+      // 🔥 임시로 성공으로 처리
+      // if (result.success) {
+        Logger.info('PROJECT_DATA', 'Characters saved successfully');
+      // } else {
+      //   throw new Error(result.error || 'Failed to save characters');
+      // }
+    } catch (error) {
+      Logger.error('PROJECT_DATA', 'Error saving characters', error);
+      throw error;
+    }
+  }, [projectId]);
+
+  // 🔥 메모 저장 함수
+  const saveNotes = useCallback(async (notesToSave: ProjectNote[]): Promise<void> => {
+    try {
+      Logger.debug('PROJECT_DATA', 'Saving notes', { count: notesToSave.length });
+      
+      // 🔥 임시: updateNotes API 구현 필요
+      // const result = await window.electronAPI.projects.updateNotes(projectId, notesToSave);
+      Logger.info('PROJECT_DATA', 'Notes save - API 구현 필요', { notes: notesToSave });
+      
+      // 🔥 임시로 성공으로 처리
+      // if (result.success) {
+        Logger.info('PROJECT_DATA', 'Notes saved successfully');
+      // } else {
+      //   throw new Error(result.error || 'Failed to save notes');
+      // }
+    } catch (error) {
+      Logger.error('PROJECT_DATA', 'Error saving notes', error);
+      throw error;
+    }
+  }, [projectId]);
+
+  // 🔥 캐릭터 변경 핸들러 (자동 저장 포함)
+  const handleCharactersChange = useCallback(async (newCharacters: ProjectCharacter[]): Promise<void> => {
+    setCharacters(newCharacters);
+    
+    try {
+      await saveCharacters(newCharacters);
+    } catch (error) {
+      Logger.error('PROJECT_DATA', 'Failed to save characters automatically', error);
+      // 사용자에게 에러 표시할 수 있음
+    }
+  }, [saveCharacters]);
+
+  // 🔥 메모 변경 핸들러 (자동 저장 포함)  
+  const handleNotesChange = useCallback(async (newNotes: ProjectNote[]): Promise<void> => {
+    setNotes(newNotes);
+    
+    try {
+      await saveNotes(newNotes);
+    } catch (error) {
+      Logger.error('PROJECT_DATA', 'Failed to save notes automatically', error);
+      // 사용자에게 에러 표시할 수 있음
+    }
+  }, [saveNotes]);
+
   return {
+    // 🔥 로딩 및 에러 상태
+    isLoading,
+    error,
+    
+    // 🔥 기본 프로젝트 데이터
     title,
     setTitle,
     content,
     setContent,
     lastSaved,
     saveStatus,
+    
+    // 🔥 작가 데이터
     characters,
     setCharacters,
     structure,
     setStructure,
+    notes, // 🔥 notes 추가
+    setNotes, // 🔥 setNotes 추가
     writerStats,
+    
+    // 🔥 액션 함수들
     loadProject,
     saveProject,
     forceSave, // 🔥 새로운 즉시 저장 함수

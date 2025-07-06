@@ -48,16 +48,24 @@ export function useUIState(): UseUIStateReturn {
   }, []);
   
   const toggleDarkMode = useCallback((): void => {
-    setIsDarkMode(prev => !prev);
-    Logger.info('UI_STATE', `Dark mode ${!isDarkMode ? 'enabled' : 'disabled'}`);
-  }, [isDarkMode]);
+    setIsDarkMode(prev => {
+      const newValue = !prev;
+      Logger.info('UI_STATE', `Dark mode ${newValue ? 'enabled' : 'disabled'}`);
+      return newValue;
+    });
+  }, []); // 🔥 dependency 제거로 무한루프 해결
   
   const toggleFocusMode = useCallback((): void => {
-    setIsFocusMode(prev => !prev);
-    setShowLeftSidebar(false);
-    setShowRightSidebar(false);
-    Logger.info('UI_STATE', `Focus mode ${!isFocusMode ? 'enabled' : 'disabled'}`);
-  }, [isFocusMode]);
+    setIsFocusMode(prev => {
+      const newValue = !prev;
+      if (newValue) {
+        setShowLeftSidebar(false);
+        setShowRightSidebar(false);
+      }
+      Logger.info('UI_STATE', `Focus mode ${newValue ? 'enabled' : 'disabled'}`);
+      return newValue;
+    });
+  }, []); // 🔥 dependency 제거로 무한루프 해결
 
   return {
     showLeftSidebar,
