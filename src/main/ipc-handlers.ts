@@ -34,7 +34,18 @@ export function cleanupAllIpcHandlers(): void {
       'projects:update', 
       'projects:delete',
       'projects:create-sample',
-      'projects:import-file'
+      'projects:import-file',
+      'settings:get-all',
+      'settings:get',
+      'settings:set',
+      'settings:reset',
+      'tray:get-info',
+      'tray:set-monitoring-status',
+      'tray:update-stats',
+      'tray:show-success',
+      'tray:show-error',
+      'tray:toggle-visibility',
+      'tray:test'
     ];
     
     handlersToClean.forEach(channel => {
@@ -83,12 +94,12 @@ export async function setupAllIpcHandlers(): Promise<void> {
       Logger.info('IPC_HANDLERS', 'Project IPC handlers setup complete');
     }
 
-    // 설정 IPC 핸들러 (electron-store 기반)
-    if (!registeredHandlers.has('settings')) {
-      setupSettingsIpcHandlers();
-      registeredHandlers.add('settings');
-      Logger.info('IPC_HANDLERS', 'electron-store based Settings IPC handlers setup complete');
-    }
+    // 설정 IPC 핸들러는 handlers/index.ts에서 관리하므로 여기서는 제외
+    // if (!registeredHandlers.has('settings')) {
+    //   setupSettingsIpcHandlers();
+    //   registeredHandlers.add('settings');
+    //   Logger.info('IPC_HANDLERS', 'electron-store based Settings IPC handlers setup complete');
+    // }
 
     // 트레이 IPC 핸들러
     if (!registeredHandlers.has('tray')) {

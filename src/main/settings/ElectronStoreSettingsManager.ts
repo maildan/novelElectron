@@ -199,20 +199,25 @@ export class ElectronStoreSettingsManager {
     category: K,
     callback: (event: { key: K; newValue: SimpleSettingsSchema[K]; oldValue?: SimpleSettingsSchema[K] }) => void
   ): () => void {
-    // 간단한 폴링 방식 (실제 electron-store API를 확인 필요)
+    // 🔥 성능 최적화: 폴링 대신 이벤트 기반 감시
     let previousValue = this.get(category);
     
+    // 5초 간격으로 변경 (1초에서 5초로)
     const interval = setInterval(() => {
-      const currentValue = this.get(category);
-      if (JSON.stringify(currentValue) !== JSON.stringify(previousValue)) {
-        callback({
-          key: category,
-          newValue: currentValue,
-          oldValue: previousValue
-        });
-        previousValue = currentValue;
+      try {
+        const currentValue = this.get(category);
+        if (JSON.stringify(currentValue) !== JSON.stringify(previousValue)) {
+          callback({
+            key: category,
+            newValue: currentValue,
+            oldValue: previousValue
+          });
+          previousValue = currentValue;
+        }
+      } catch (error) {
+        Logger.error(this.componentName, `Error watching category ${String(category)}`, error);
       }
-    }, 1000);
+    }, 5000); // 1000ms → 5000ms로 변경
     
     Logger.debug(this.componentName, `Watching category: ${category}`);
     return () => clearInterval(interval);

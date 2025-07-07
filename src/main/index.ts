@@ -91,6 +91,15 @@ class LoopApplication {
 
       // 🔥 권한 독립적인 매니저들 먼저 초기화
       
+      // 🔥 데이터베이스 서비스 초기화 (최우선)
+      const { databaseService } = await import('./services/databaseService');
+      const dbResult = await databaseService.initialize();
+      if (dbResult.success) {
+        Logger.info('MAIN_INDEX', '✅ Database service initialized');
+      } else {
+        Logger.warn('MAIN_INDEX', '⚠️ Database service initialization failed', dbResult.error);
+      }
+      
       // 메모리 관리자 초기화
       this.memoryManager = new MemoryManager();
       await this.memoryManager.initialize();

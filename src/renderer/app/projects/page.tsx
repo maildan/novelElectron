@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProjectGrid } from '../../components/projects/ProjectGrid';
 import { ProjectCreator, type ProjectCreationData } from '../../components/projects/ProjectCreator';
@@ -21,7 +21,8 @@ const PROJECTS_PAGE_STYLES = {
 // 🔥 기가차드 규칙: BE 연동을 위한 기본값 (로딩 중 사용)
 const DEFAULT_PROJECTS: readonly ProjectData[] = [] as const;
 
-export default function ProjectsPage(): React.ReactElement {
+// 🔥 Suspense 래핑된 컴포넌트
+function ProjectsPageContent(): React.ReactElement {
   const router = useRouter(); // 🔥 Navigation 훅 추가
   const searchParams = useSearchParams(); // 🔥 URL 쿼리 파라미터 감지
   const [projects, setProjects] = useState<readonly ProjectData[]>(DEFAULT_PROJECTS);
@@ -258,5 +259,18 @@ export default function ProjectsPage(): React.ReactElement {
         onCreate={handleProjectCreated}
       />
     </div>
+  );
+}
+
+// 🔥 Suspense로 래핑된 메인 컴포넌트
+export default function ProjectsPage(): React.ReactElement {
+  return (
+    <Suspense fallback={
+      <div className={PROJECTS_PAGE_STYLES.loading}>
+        <div className={PROJECTS_PAGE_STYLES.loadingText}>프로젝트 로딩 중...</div>
+      </div>
+    }>
+      <ProjectsPageContent />
+    </Suspense>
   );
 }

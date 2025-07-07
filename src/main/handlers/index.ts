@@ -5,6 +5,7 @@ import { setupKeyboardIpcHandlers } from './keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
 import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
 import { setupTrayIpcHandlers } from './trayIpcHandlers';
+import { setupOAuthIpcHandlers } from './oauthIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -71,6 +72,14 @@ export class HandlersManager {
           'tray:show-error',
           'tray:toggle-visibility',
           'tray:test',
+        ]),
+        this.setupHandler('oauth', () => setupOAuthIpcHandlers(), [
+          'oauth:google:start',
+          'oauth:google:callback',
+          'oauth:google:status',
+          'oauth:google:create-document',
+          'oauth:google:disconnect',
+          'oauth:config',
         ]),
         
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),

@@ -19,9 +19,9 @@ interface PrismaClient {
     update(args: { where: { id: string }; data: unknown }): Promise<unknown>;
     delete(args: { where: { id: string } }): Promise<unknown>;
   };
-  userPreferences: {
-    upsert(args: { where: { id: string }; create: unknown; update: unknown }): Promise<unknown>;
-    findUnique(args: { where: { id: string } }): Promise<unknown | null>;
+  userSettings: {
+    upsert(args: { where: { userId: string }; create: unknown; update: unknown }): Promise<unknown>;
+    findUnique(args: { where: { userId: string } }): Promise<unknown | null>;
   };
 }
 
@@ -77,8 +77,10 @@ export class DatabaseService {
       }
       
       this.prisma = new PrismaClientConstructor({
-        datasourceUrls: {
-          db: this.config.databaseUrl,
+        datasources: {
+          db: {
+            url: this.config.databaseUrl,
+          },
         },
         log: this.config.enableLogging ? ['query', 'info', 'warn', 'error'] : [],
       });
@@ -262,10 +264,29 @@ export class DatabaseService {
       // #DEBUG: Saving user preferences
       Logger.debug('DATABASE', 'Saving user preferences');
 
-      await this.prisma!.userPreferences.upsert({
-        where: { id: 'default' },
-        create: preferences,
-        update: preferences,
+      // 먼저 default 사용자 확인/생성
+      await this.prisma!.$executeRaw`
+        INSERT OR IGNORE INTO users (id, username, email, createdAt, updatedAt) 
+        VALUES ('default', 'default_user', 'default@loop.app', datetime('now'), datetime('now'))
+      `;
+
+      await this.prisma!.userSettings.upsert({
+        where: { userId: 'default' },
+        create: {
+          userId: 'default',
+          theme: preferences.theme || 'light',
+          language: preferences.language || 'ko',
+          enableSounds: preferences.enableSounds !== undefined ? preferences.enableSounds : false,
+          privacyMode: preferences.privacyMode !== undefined ? preferences.privacyMode : false,
+          monitoringEnabled: preferences.trackingEnabled !== undefined ? preferences.trackingEnabled : true,
+        },
+        update: {
+          theme: preferences.theme || 'light',
+          language: preferences.language || 'ko',
+          enableSounds: preferences.enableSounds !== undefined ? preferences.enableSounds : false,
+          privacyMode: preferences.privacyMode !== undefined ? preferences.privacyMode : false,
+          monitoringEnabled: preferences.trackingEnabled !== undefined ? preferences.trackingEnabled : true,
+        },
       });
 
       Logger.info('DATABASE', 'User preferences saved successfully');
@@ -287,8 +308,8 @@ export class DatabaseService {
       // #DEBUG: Fetching user preferences
       Logger.debug('DATABASE', 'Fetching user preferences');
 
-      const preferences = await this.prisma!.userPreferences.findUnique({
-        where: { id: 'default' },
+      const preferences = await this.prisma!.userSettings.findUnique({
+        where: { userId: 'default' },
       });
 
       const typedPreferences = preferences ? this.mapToUserPreferences(preferences) : null;
