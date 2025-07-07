@@ -516,16 +516,14 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     try {
       Logger.debug('PROJECT_DATA', 'Saving characters', { count: charactersToSave.length });
       
-      // 🔥 임시: updateCharacters API 구현 필요
-      // const result = await window.electronAPI.projects.updateCharacters(projectId, charactersToSave);
-      Logger.info('PROJECT_DATA', 'Characters save - API 구현 필요', { characters: charactersToSave });
+      // 🔥 실제 API 호출
+      const result = await window.electronAPI.projects.updateCharacters(projectId, charactersToSave);
       
-      // 🔥 임시로 성공으로 처리
-      // if (result.success) {
+      if (result.success) {
         Logger.info('PROJECT_DATA', 'Characters saved successfully');
-      // } else {
-      //   throw new Error(result.error || 'Failed to save characters');
-      // }
+      } else {
+        throw new Error(result.error || 'Failed to save characters');
+      }
     } catch (error) {
       Logger.error('PROJECT_DATA', 'Error saving characters', error);
       throw error;
@@ -537,16 +535,14 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     try {
       Logger.debug('PROJECT_DATA', 'Saving notes', { count: notesToSave.length });
       
-      // 🔥 임시: updateNotes API 구현 필요
-      // const result = await window.electronAPI.projects.updateNotes(projectId, notesToSave);
-      Logger.info('PROJECT_DATA', 'Notes save - API 구현 필요', { notes: notesToSave });
+      // 🔥 실제 API 호출
+      const result = await window.electronAPI.projects.updateNotes(projectId, notesToSave);
       
-      // 🔥 임시로 성공으로 처리
-      // if (result.success) {
+      if (result.success) {
         Logger.info('PROJECT_DATA', 'Notes saved successfully');
-      // } else {
-      //   throw new Error(result.error || 'Failed to save notes');
-      // }
+      } else {
+        throw new Error(result.error || 'Failed to save notes');
+      }
     } catch (error) {
       Logger.error('PROJECT_DATA', 'Error saving notes', error);
       throw error;

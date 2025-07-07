@@ -6,6 +6,7 @@ import {
   Save,
   Share2,
   Download,
+  Trash2,
   Sun,
   Moon,
   Sidebar,
@@ -55,6 +56,7 @@ interface ProjectHeaderProps {
   onSave: () => void;
   onShare: () => void;
   onDownload: () => void;
+  onDelete: () => void;
 }
 
 export function ProjectHeader({
@@ -69,7 +71,8 @@ export function ProjectHeader({
   onToggleDarkMode,
   onSave,
   onShare,
-  onDownload
+  onDownload,
+  onDelete
 }: ProjectHeaderProps): React.ReactElement {
   
   // 🔥 헤더 액션 정의 (모듈화된 방식)
@@ -77,6 +80,7 @@ export function ProjectHeader({
     { icon: Save, label: '저장', onClick: onSave },
     { icon: Share2, label: '공유', onClick: onShare },
     { icon: Download, label: '다운로드', onClick: onDownload },
+    { icon: Trash2, label: '삭제', onClick: onDelete },
     { 
       icon: isDarkMode ? Sun : Moon, 
       label: '테마', 

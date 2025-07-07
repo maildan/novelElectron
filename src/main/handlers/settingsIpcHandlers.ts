@@ -1,202 +1,119 @@
-// 🔥 기가차드 Settings IPC 핸들러 - 프론트엔드와 연결!
+// 🔥 기가차드 Settings IPC 핸들러 - electron-store 기반 완전 리팩토링
 
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { Logger } from '../../shared/logger';
-import { getSettingsManager } from '../settings';
-import { SettingsSchema } from '../settings/types';
+import { IpcResponse } from '../../shared/types';
+import { getElectronStoreSettingsManager } from '../settings/ElectronStoreSettingsManager';
 
 const componentName = 'SETTINGS_IPC';
 
 /**
- * 🔥 Settings IPC 핸들러 설정
+ * 🔥 Settings IPC 핸들러 설정 (electron-store 기반)
  */
 export function setupSettingsIpcHandlers(): void {
-  Logger.info(componentName, 'Setting up Settings IPC handlers...');
+  Logger.info(componentName, 'Setting up electron-store based Settings IPC handlers...');
+
+  const settingsManager = getElectronStoreSettingsManager();
 
   // 🔥 모든 설정 가져오기
-  ipcMain.handle('settings:get-all', async () => {
+  ipcMain.handle('settings:get-all', async (): Promise<IpcResponse<unknown>> => {
     try {
-      const settingsManager = getSettingsManager();
-      const settings = settingsManager.getAll();
+      Logger.debug(componentName, 'Getting all settings');
       
-      Logger.debug(componentName, 'All settings retrieved');
+      const allSettings = settingsManager.getAll();
+      
       return {
         success: true,
-        data: settings
+        data: allSettings,
+        timestamp: new Date(),
       };
     } catch (error) {
       Logger.error(componentName, 'Failed to get all settings', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
       };
     }
   });
 
-  // 🔥 특정 카테고리 설정 가져오기
-  ipcMain.handle('settings:get-category', async (_: IpcMainInvokeEvent, category: keyof SettingsSchema) => {
+  // 🔥 특정 설정 가져오기 (dot notation 지원)
+  ipcMain.handle('settings:get', async (_event: IpcMainInvokeEvent, keyPath: string): Promise<IpcResponse<unknown>> => {
     try {
-      const settingsManager = getSettingsManager();
-      const categorySettings = settingsManager.get(category);
+      Logger.debug(componentName, 'Getting setting', { keyPath });
       
-      Logger.debug(componentName, `Category '${category}' settings retrieved`);
+      const value = settingsManager.getDeep(keyPath);
+      
       return {
         success: true,
-        data: categorySettings
+        data: value,
+        timestamp: new Date(),
       };
     } catch (error) {
-      Logger.error(componentName, `Failed to get '${category}' settings`, error);
+      Logger.error(componentName, 'Failed to get setting', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
       };
     }
   });
 
-  // 🔥 특정 설정값 가져오기
-  ipcMain.handle('settings:get-value', async (_: any, category: keyof SettingsSchema, key: string) => {
+  // 🔥 설정 저장하기 (dot notation 지원)
+  ipcMain.handle('settings:set', async (_event: IpcMainInvokeEvent, keyPath: string, value: unknown): Promise<IpcResponse<boolean>> => {
     try {
-      const settingsManager = getSettingsManager();
-      const value = settingsManager.getDeep(category, key);
+      Logger.debug(componentName, 'Setting value', { keyPath, value });
       
-      Logger.debug(componentName, `Setting '${category}.${key}' retrieved`);
+      const success = settingsManager.setDeep(keyPath, value);
+      
       return {
         success: true,
-        data: value
+        data: success,
+        timestamp: new Date(),
       };
     } catch (error) {
-      Logger.error(componentName, `Failed to get '${category}.${key}'`, error);
+      Logger.error(componentName, 'Failed to set setting', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  });
-
-  // 🔥 전체 카테고리 설정 변경
-  ipcMain.handle('settings:set-category', async (_: any, category: keyof SettingsSchema, value: unknown) => {
-    try {
-      const settingsManager = getSettingsManager();
-      const result = await settingsManager.set(category, value as SettingsSchema[typeof category]);
-      
-      if (result.success) {
-        Logger.debug(componentName, `Category '${category}' settings updated`);
-      }
-      
-      return result;
-    } catch (error) {
-      Logger.error(componentName, `Failed to set '${category}' settings`, error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  });
-
-  // 🔥 특정 설정값 변경
-  ipcMain.handle('settings:set-value', async (_: any, category: keyof SettingsSchema, key: string, value: unknown) => {
-    try {
-      const settingsManager = getSettingsManager();
-      const result = await settingsManager.setDeep(category, key, value);
-      
-      if (result.success) {
-        Logger.debug(componentName, `Setting '${category}.${key}' updated`);
-      }
-      
-      return result;
-    } catch (error) {
-      Logger.error(componentName, `Failed to set '${category}.${key}'`, error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
       };
     }
   });
 
   // 🔥 설정 리셋
-  ipcMain.handle('settings:reset', async () => {
+  ipcMain.handle('settings:reset', async (_event: IpcMainInvokeEvent, category?: string): Promise<IpcResponse<boolean>> => {
     try {
-      const settingsManager = getSettingsManager();
-      const result = await settingsManager.reset();
+      Logger.info(componentName, 'Resetting settings', { category });
       
-      if (result.success) {
-        Logger.info(componentName, 'Settings reset to defaults');
-      }
+      const success = settingsManager.reset(category as any);
       
-      return result;
+      return {
+        success: true,
+        data: success,
+        timestamp: new Date(),
+      };
     } catch (error) {
       Logger.error(componentName, 'Failed to reset settings', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
       };
     }
   });
 
-  // 🔥 설정 백업
-  ipcMain.handle('settings:backup', async () => {
-    try {
-      const settingsManager = getSettingsManager();
-      const result = await settingsManager.backup();
-      
-      if (result.success) {
-        Logger.info(componentName, 'Settings backup created');
-      }
-      
-      return result;
-    } catch (error) {
-      Logger.error(componentName, 'Failed to backup settings', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  });
-
-  // 🔥 설정 복원
-  ipcMain.handle('settings:restore', async (_: any, backupData: string) => {
-    try {
-      const settingsManager = getSettingsManager();
-      const result = await settingsManager.restore(backupData);
-      
-      if (result.success) {
-        Logger.info(componentName, 'Settings restored from backup');
-      }
-      
-      return result;
-    } catch (error) {
-      Logger.error(componentName, 'Failed to restore settings', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  });
-
-  Logger.info(componentName, 'Settings IPC handlers setup completed');
+  Logger.info(componentName, '✅ electron-store based Settings IPC handlers setup complete');
 }
 
 /**
  * 🔥 Settings IPC 핸들러 정리
  */
 export function cleanupSettingsIpcHandlers(): void {
-  Logger.info(componentName, 'Cleaning up Settings IPC handlers...');
-  
-  // 모든 settings 관련 IPC 핸들러 제거
-  const settingsChannels = [
-    'settings:get-all',
-    'settings:get-category', 
-    'settings:get-value',
-    'settings:set-category',
-    'settings:set-value',
-    'settings:reset',
-    'settings:backup',
-    'settings:restore'
-  ];
-  
-  settingsChannels.forEach(channel => {
-    ipcMain.removeAllListeners(channel);
-  });
-  
-  Logger.info(componentName, 'Settings IPC handlers cleanup completed');
+  ipcMain.removeHandler('settings:get-all');
+  ipcMain.removeHandler('settings:get');
+  ipcMain.removeHandler('settings:set');
+  ipcMain.removeHandler('settings:reset');
+
+  Logger.info(componentName, '✅ Settings IPC handlers cleanup complete');
 }

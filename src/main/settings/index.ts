@@ -1,41 +1,39 @@
-// 🔥 기가차드 Settings 모듈 통합 진입점
+// 🔥 기가차드 Settings 모듈 통합 진입점 - electron-store 기반
 
 export * from './types';
 export * from './defaults';
 export * from './validation';
-export { SettingsManager } from './SettingsManager';
-export { FileStorage } from './storage/FileStorage';
+export { ElectronStoreSettingsManager } from './ElectronStoreSettingsManager';
 
-// 🔥 기본 Settings 인스턴스 생성 팩토리
-import { SettingsManager } from './SettingsManager';
-import { FileStorage } from './storage/FileStorage';
+// 🔥 electron-store 기반 Settings 인스턴스 생성 팩토리
+import { ElectronStoreSettingsManager } from './ElectronStoreSettingsManager';
 
 /**
- * 🔥 기가차드 Settings 시스템 생성
+ * 🔥 기가차드 Settings 시스템 생성 (electron-store 기반)
  */
-export function createSettingsManager(): SettingsManager {
-  const storage = new FileStorage();
-  return new SettingsManager(storage);
+export function createSettingsManager(): ElectronStoreSettingsManager {
+  return new ElectronStoreSettingsManager();
 }
 
 /**
  * 🔥 전역 Settings 인스턴스 (싱글톤)
  */
-let globalSettingsManager: SettingsManager | null = null;
+let globalSettingsManager: ElectronStoreSettingsManager | null = null;
 
-export function getSettingsManager(): SettingsManager {
+export function getSettingsManager(): ElectronStoreSettingsManager {
   if (!globalSettingsManager) {
     globalSettingsManager = createSettingsManager();
   }
   return globalSettingsManager;
 }
 
+
 /**
- * 🔥 Settings 시스템 초기화
+ * 🔥 Settings 시스템 초기화 (electron-store는 자동 초기화)
  */
-export async function initializeSettings(): Promise<SettingsManager> {
+export async function initializeSettings(): Promise<ElectronStoreSettingsManager> {
   const settingsManager = getSettingsManager();
-  await settingsManager.initialize();
+  // electron-store는 자동으로 초기화됨
   return settingsManager;
 }
 
@@ -44,7 +42,7 @@ export async function initializeSettings(): Promise<SettingsManager> {
  */
 export async function cleanupSettings(): Promise<void> {
   if (globalSettingsManager) {
-    await globalSettingsManager.cleanup();
+    // electron-store는 별도 cleanup이 필요 없음
     globalSettingsManager = null;
   }
 }

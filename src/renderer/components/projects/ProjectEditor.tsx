@@ -6,6 +6,8 @@ import { EditorProvider } from './editor/EditorProvider';
 import { ShortcutHelp } from './editor/ShortcutHelp';
 import { WriterSidebar } from './components/WriterSidebar';
 import { ProjectHeader } from './components/ProjectHeader'; // 🔥 새로운 모듈화된 헤더
+import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
+import { ShareDialog } from './components/ShareDialog';
 import { WriteView } from './views/WriteView';
 import { StructureView } from './views/StructureView';
 import { CharactersView } from './views/CharactersView';
@@ -56,6 +58,8 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
   const uiState = useUIState();
   const [currentView, setCurrentView] = useState<string>('write'); // 🔥 실제 뷰 상태 관리
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
+  const [showShareDialog, setShowShareDialog] = useState<boolean>(false);
   const editorRef = useRef<any>(null);
   const [isEditorReady, setIsEditorReady] = useState<boolean>(false); // 🔥 에디터 준비 상태 추가
   
@@ -70,7 +74,40 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
 
   const handleBack = useCallback(() => window.history.back(), []);
   const handleToggleSidebar = useCallback(() => setCollapsed((prev) => !prev), []);
-  const handleShare = useCallback(() => Logger.info('PROJECT_EDITOR', 'Share action'), []);
+  
+  // 🔥 공유 기능 핸들러
+  const handleShare = useCallback(() => {
+    setShowShareDialog(true);
+    Logger.info('PROJECT_EDITOR', 'Share dialog opened');
+  }, []);
+  
+  // 🔥 삭제 기능 핸들러
+  const handleDelete = useCallback(() => {
+    setShowDeleteDialog(true);
+    Logger.info('PROJECT_EDITOR', 'Delete confirmation dialog opened');
+  }, []);
+  
+  // 🔥 삭제 확인 핸들러
+  const handleConfirmDelete = useCallback(async () => {
+    try {
+      Logger.info('PROJECT_EDITOR', 'Deleting project', { projectId });
+      
+      const result = await window.electronAPI.projects.delete(projectId);
+      
+      if (result.success) {
+        Logger.info('PROJECT_EDITOR', 'Project deleted successfully');
+        setShowDeleteDialog(false);
+        // 🔥 삭제 후 대시보드로 이동
+        window.history.back();
+      } else {
+        throw new Error(result.error || 'Failed to delete project');
+      }
+    } catch (error) {
+      Logger.error('PROJECT_EDITOR', 'Failed to delete project', error);
+      // TODO: 에러 토스트 표시
+    }
+  }, [projectId]);
+  
   const handleDownload = useCallback(() => Logger.info('PROJECT_EDITOR', 'Download action'), []);
   // 🔥 뷰 변경 핸들러 (실제 구현)
   const handleViewChange = useCallback((view: string) => {
@@ -183,6 +220,7 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
           onSave={projectData.forceSave}
           onShare={handleShare}
           onDownload={handleDownload}
+          onDelete={handleDelete}
         />
 
         {/* 🔥 메인 영역 */}
@@ -216,6 +254,7 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
             )}
             {currentView === 'characters' && (
               <CharactersView
+                projectId={projectId}
                 characters={projectData.characters}
                 onCharactersChange={projectData.setCharacters}
               />
@@ -223,7 +262,7 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
             {currentView === 'notes' && (
               <NotesView
                 projectId={projectId}
-                notes={projectData.notes}
+                notes={projectData.notes || []}
                 onNotesChange={projectData.setNotes}
               />
             )}
@@ -233,6 +272,22 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
 
       {/* 🔥 단축키 도움말 (우측 하단 고정) */}
       <ShortcutHelp />
+
+      {/* 🔥 삭제 확인 다이얼로그 */}
+      <ConfirmDeleteDialog
+        isOpen={showDeleteDialog}
+        projectTitle={projectData.title}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteDialog(false)}
+      />
+
+      {/* 🔥 공유 다이얼로그 */}
+      <ShareDialog
+        isOpen={showShareDialog}
+        projectTitle={projectData.title}
+        projectId={projectId}
+        onClose={() => setShowShareDialog(false)}
+      />
     </EditorProvider>
   );
 });

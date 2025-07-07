@@ -885,6 +885,114 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
     }
   });
 
+  // 🔥 캐릭터 일괄 업데이트 핸들러 추가
+  ipcMain.handle('projects:update-characters', async (_event: IpcMainInvokeEvent, projectId: string, characters: ProjectCharacter[]): Promise<IpcResponse<ProjectCharacter[]>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Updating project characters', { projectId, count: characters.length });
+      
+      const prisma = await prismaService.getClient();
+      
+      // 🔥 기존 캐릭터들 삭제 후 새로 생성 (간단한 방법)
+      await prisma.projectCharacter.deleteMany({
+        where: { projectId }
+      });
+      
+      // 🔥 새 캐릭터들 생성
+      const createdCharacters = await Promise.all(
+        characters.map(character => 
+          prisma.projectCharacter.create({
+            data: {
+              id: character.id,
+              projectId: character.projectId,
+              name: character.name,
+              role: character.role || '',
+              notes: character.notes || '',
+            }
+          })
+        )
+      );
+      
+      const convertedCharacters: ProjectCharacter[] = createdCharacters.map(char => ({
+        id: char.id,
+        projectId: char.projectId,
+        name: char.name,
+        role: char.role || '',
+        notes: char.notes || undefined,
+        createdAt: char.createdAt,
+        updatedAt: char.updatedAt,
+      }));
+      
+      Logger.info('PROJECT_IPC', `✅ Characters updated successfully`, { count: convertedCharacters.length });
+      
+      return {
+        success: true,
+        data: convertedCharacters,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to update characters', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 🔥 노트 일괄 업데이트 핸들러 추가
+  ipcMain.handle('projects:update-notes', async (_event: IpcMainInvokeEvent, projectId: string, notes: ProjectNote[]): Promise<IpcResponse<ProjectNote[]>> => {
+    try {
+      Logger.debug('PROJECT_IPC', 'Updating project notes', { projectId, count: notes.length });
+      
+      const prisma = await prismaService.getClient();
+      
+      // 🔥 기존 노트들 삭제 후 새로 생성 (간단한 방법)
+      await prisma.projectNote.deleteMany({
+        where: { projectId }
+      });
+      
+      // 🔥 새 노트들 생성
+      const createdNotes = await Promise.all(
+        notes.map(note => 
+          prisma.projectNote.create({
+            data: {
+              id: note.id,
+              projectId: note.projectId,
+              title: note.title,
+              content: note.content || '',
+              tags: note.tags || '',
+            }
+          })
+        )
+      );
+      
+      const convertedNotes: ProjectNote[] = createdNotes.map(note => ({
+        id: note.id,
+        projectId: note.projectId,
+        title: note.title,
+        content: note.content || '',
+        tags: note.tags ? (typeof note.tags === 'string' ? note.tags.split(',').map(t => t.trim()) : undefined) : undefined,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+      }));
+      
+      Logger.info('PROJECT_IPC', `✅ Notes updated successfully`, { count: convertedNotes.length });
+      
+      return {
+        success: true,
+        data: convertedNotes,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      Logger.error('PROJECT_IPC', 'Failed to update notes', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date(),
+      };
+    }
+  });
+
   Logger.info('PROJECT_IPC', '✅ Project IPC handlers setup complete with Prisma DB integration');
 }
 0

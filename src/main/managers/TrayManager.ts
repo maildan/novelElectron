@@ -214,16 +214,16 @@ export class TrayManager extends BaseManager {
       const settingsManager = getSettingsManager();
 
       // 🎨 UI 설정 변경 감지 (테마, 색상 등)
-      const uiUnwatcher = settingsManager.watch('ui', (event: SettingsChangeEvent<UISettingsSchema>) => {
+      const uiUnwatcher = settingsManager.watch('ui', (event) => {
         Logger.debug(this.componentName, 'UI settings changed', { 
           key: event.key,
-          colorScheme: event.newValue?.colorScheme 
+          newValue: event.newValue
         });
         this.updateTrayStatus();
       });
 
       // 🏠 앱 설정 변경 감지 (트레이 표시 등)
-      const appUnwatcher = settingsManager.watch('app', (event: SettingsChangeEvent<AppSettingsSchema>) => {
+      const appUnwatcher = settingsManager.watch('app', (event) => {
         Logger.debug(this.componentName, 'App settings changed', { 
           key: event.key,
           minimizeToTray: event.newValue?.minimizeToTray 
@@ -236,7 +236,7 @@ export class TrayManager extends BaseManager {
       });
 
       // ⌨️ 키보드 설정 변경 감지 (모니터링 상태 등)
-      const keyboardUnwatcher = settingsManager.watch('keyboard', (event: SettingsChangeEvent<KeyboardSettingsSchema>) => {
+      const keyboardUnwatcher = settingsManager.watch('keyboard', (event) => {
         Logger.debug(this.componentName, 'Keyboard settings changed', { 
           key: event.key,
           enabled: event.newValue?.enabled 
@@ -248,17 +248,11 @@ export class TrayManager extends BaseManager {
         }
       });
 
-      // 🔔 알림 설정 변경 감지
-      const notificationsUnwatcher = settingsManager.watch('notifications', (event: SettingsChangeEvent<NotificationSettingsSchema>) => {
-        Logger.debug(this.componentName, 'Notifications settings changed', { 
-          key: event.key,
-          enabled: event.newValue?.enableNotifications 
-        });
-        this.updateTrayStatus();
-      });
+      // 🔔 알림 설정은 SimpleSettingsSchema에 없으므로 제거
+      // const notificationsUnwatcher = settingsManager.watch('notifications', ...);
 
-      // unwatcher 함수들 저장
-      this.settingsUnwatchers = [uiUnwatcher, appUnwatcher, keyboardUnwatcher, notificationsUnwatcher];
+      // unwatcher 함수들 저장 (notifications 제외)
+      this.settingsUnwatchers = [uiUnwatcher, appUnwatcher, keyboardUnwatcher];
 
       Logger.debug(this.componentName, 'Settings watchers setup complete');
 

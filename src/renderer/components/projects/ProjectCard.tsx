@@ -37,7 +37,7 @@ const PROJECT_CARD_STYLES = {
   actionButtons: 'flex items-center gap-2',
   actionButton: 'opacity-0 group-hover:opacity-100 transition-opacity duration-200',
   statusBadge: 'mb-2',
-  icon: 'w-3 h-3',
+  icon: 'w-4 h-4', // 🔥 아이콘 크기 확대: 3→4
 } as const;
 
 // 🔥 기가차드 규칙: 명시적 타입 정의
@@ -86,6 +86,25 @@ export function ProjectCard({
   const handleAction = (actionId: string, callback?: (project: ProjectData) => void): void => {
     Logger.info('PROJECT_CARD', `Action triggered: ${actionId}`, { projectId: project.id });
     callback?.(project);
+  };
+
+  // 🔥 액션 버튼 클릭 핸들러 - 이벤트 전파 중단
+  const handleActionClick = (
+    event: React.MouseEvent, 
+    actionId: string, 
+    callback?: (project: ProjectData) => void
+  ): void => {
+    event.stopPropagation(); // 🔥 카드 클릭 이벤트 전파 중단
+    event.preventDefault();
+    Logger.info('PROJECT_CARD', `Action triggered: ${actionId}`, { projectId: project.id });
+    callback?.(project);
+  };
+
+  // 🔥 더 보기 버튼 클릭 핸들러 - 이벤트 전파 중단
+  const handleMoreClick = (event: React.MouseEvent): void => {
+    event.stopPropagation();
+    event.preventDefault();
+    handleAction('more', onMore);
   };
 
   // 🔥 카드 클릭 핸들러 추가 - 프로젝트 상세 보기
@@ -177,7 +196,7 @@ export function ProjectCard({
               variant="ghost"
               size="sm"
               className={PROJECT_CARD_STYLES.moreButton}
-              onClick={() => handleAction('more', onMore)}
+              onClick={handleMoreClick}
               aria-label="프로젝트 옵션 더 보기"
             >
               <MoreHorizontal className={PROJECT_CARD_STYLES.icon} />
@@ -250,7 +269,7 @@ export function ProjectCard({
                     variant={action.variant}
                     size="sm"
                     className={PROJECT_CARD_STYLES.actionButton}
-                    onClick={() => action.onClick(project)}
+                    onClick={(event) => handleActionClick(event, action.id, action.onClick.bind(null, project))}
                     aria-label={action.ariaLabel}
                   >
                     <Icon className={PROJECT_CARD_STYLES.icon} />

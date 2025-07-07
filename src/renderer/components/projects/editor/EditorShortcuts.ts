@@ -178,6 +178,11 @@ export function handleEditorKeyDown(editor: Editor | null, event: KeyboardEvent)
   const { key, ctrlKey, metaKey, shiftKey, altKey } = event;
   const isModifier = isMac ? metaKey : ctrlKey;
 
+  // 🔥 Space 키는 마크다운 처리를 위해 완전 제외
+  if (key === ' ') {
+    return false;
+  }
+
   // 🔥 마크다운 타이핑 방해 방지: modifier 키가 없는 단일 문자는 처리하지 않음
   if (!isModifier && !shiftKey && !altKey && key.length === 1) {
     return false;
@@ -243,25 +248,18 @@ export function getShortcutHelp(): string {
 `.trim();
 }
 
-// 🔥 에디터에 단축키 시스템 바인딩
+// 🔥 에디터에 단축키 시스템 바인딩 (전역 리스너 제거)
 export function bindShortcutsToEditor(editor: Editor | null): () => void {
   if (!editor) return () => {};
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    handleEditorKeyDown(editor, event);
-  };
-
-  // 🔥 전역 키보드 이벤트 리스너 등록
-  document.addEventListener('keydown', handleKeyDown, true);
-  
-  Logger.info('EDITOR_SHORTCUTS', 'Shortcuts bound to editor', {
+  // 🔥 전역 리스너 등록하지 않음 - TipTap 내부 handleKeyDown만 사용
+  Logger.info('EDITOR_SHORTCUTS', 'Shortcuts system initialized', {
     shortcutCount: ALL_SHORTCUTS.length,
     platform: isMac ? 'macOS' : 'Windows/Linux'
   });
 
-  // 🔥 정리 함수 반환
+  // 🔥 정리 함수 반환 (실제로는 아무것도 안 함)
   return () => {
-    document.removeEventListener('keydown', handleKeyDown, true);
-    Logger.debug('EDITOR_SHORTCUTS', 'Shortcuts unbound from editor');
+    Logger.debug('EDITOR_SHORTCUTS', 'Shortcuts system cleaned up');
   };
 }

@@ -199,6 +199,8 @@ export interface ElectronAPI {
     getCharacters: (projectId: string) => Promise<IpcResponse<ProjectCharacter[]>>;
     getStructure: (projectId: string) => Promise<IpcResponse<ProjectStructure[]>>;
     getNotes: (projectId: string) => Promise<IpcResponse<ProjectNote[]>>;
+    updateCharacters: (projectId: string, characters: ProjectCharacter[]) => Promise<IpcResponse<ProjectCharacter[]>>;
+    updateNotes: (projectId: string, notes: ProjectNote[]) => Promise<IpcResponse<ProjectNote[]>>;
     upsertCharacter: (character: Partial<ProjectCharacter>) => Promise<IpcResponse<ProjectCharacter>>;
     upsertStructure: (structure: Partial<ProjectStructure>) => Promise<IpcResponse<ProjectStructure>>;
     upsertNote: (note: Partial<ProjectNote>) => Promise<IpcResponse<ProjectNote>>;

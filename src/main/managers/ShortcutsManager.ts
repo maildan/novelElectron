@@ -116,10 +116,16 @@ export class ShortcutsManager extends BaseManager {
       const settingsManager = getSettingsManager();
       const keyboardSettings = settingsManager.get('keyboard');
       
-      if (keyboardSettings.enableGlobalShortcuts && keyboardSettings.globalShortcuts) {
-        const shortcuts = keyboardSettings.globalShortcuts;
-        
-        // Settings의 단축키들 등록
+      // 🔥 간단 버전에서는 기본 단축키만 사용
+      if (keyboardSettings.enabled) {
+        // 🔥 기본 단축키 설정 (현재 SimpleSettingsSchema에는 globalShortcuts가 없으므로 기본값 사용)
+        const shortcuts = {
+          startStop: 'CommandOrControl+Shift+K',
+          pause: 'CommandOrControl+Shift+P',
+          showStats: 'CommandOrControl+Shift+S'
+        };
+
+        // 기본 단축키들 등록
         this.registerShortcut('keyboard.start-stop', {
           accelerator: shortcuts.startStop,
           description: '키보드 모니터링 시작/중지',
@@ -141,7 +147,7 @@ export class ShortcutsManager extends BaseManager {
           global: true
         });
 
-        Logger.info(this.componentName, 'Shortcuts loaded from settings', {
+        Logger.info(this.componentName, 'Shortcuts loaded with default values', {
           startStop: shortcuts.startStop,
           pause: shortcuts.pause,
           showStats: shortcuts.showStats

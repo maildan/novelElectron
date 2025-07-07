@@ -110,36 +110,43 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           const { $from } = selection;
           const textBefore = $from.parent.textContent.slice(0, $from.parentOffset);
           
-          // # 처리 (제목)
+          // # 처리 (제목 1)
           if (textBefore === '#') {
             event.preventDefault();
+            event.stopPropagation();
             const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 1 });
             tr.delete($from.pos - 1, $from.pos); // # 문자 삭제
             dispatch(tr);
+            Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H1 applied');
             return true;
           }
           
-          // ## 처리
+          // ## 처리 (제목 2)
           if (textBefore === '##') {
             event.preventDefault();
+            event.stopPropagation();
             const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 2 });
             tr.delete($from.pos - 2, $from.pos); // ## 문자 삭제
             dispatch(tr);
+            Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H2 applied');
             return true;
           }
           
-          // ### 처리
+          // ### 처리 (제목 3)
           if (textBefore === '###') {
             event.preventDefault();
+            event.stopPropagation();
             const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 3 });
             tr.delete($from.pos - 3, $from.pos); // ### 문자 삭제
             dispatch(tr);
+            Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H3 applied');
             return true;
           }
           
           // - 처리 (불릿 리스트)
           if (textBefore === '-') {
             event.preventDefault();
+            event.stopPropagation();
             const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.listItem);
             tr.delete($from.pos - 1, $from.pos); // - 문자 삭제
             const blockRange = $from.blockRange();
@@ -149,12 +156,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             } else {
               dispatch(tr);
             }
+            Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Bullet list applied');
             return true;
           }
           
           // 1. 처리 (번호 리스트)
           if (/^\d+\.$/.test(textBefore)) {
             event.preventDefault();
+            event.stopPropagation();
             const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.listItem);
             tr.delete($from.pos - textBefore.length, $from.pos); // 번호 문자 삭제
             const blockRange = $from.blockRange();
@@ -164,12 +173,16 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             } else {
               dispatch(tr);
             }
+            Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Ordered list applied');
             return true;
           }
         }
         
-        // 🔥 마크다운 처리 후 단축키 시스템 처리
-        if (handleEditorKeyDown(editor, event)) {
+        // 🔥 Space 외의 키는 단축키 시스템에서 처리
+        // 단, Ctrl/Cmd와 조합된 키만 단축키로 처리
+        const isShortcutKey = event.ctrlKey || event.metaKey || event.altKey || ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(event.key);
+        
+        if (isShortcutKey && handleEditorKeyDown(editor, event)) {
           return true;
         }
         

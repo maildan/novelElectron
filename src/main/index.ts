@@ -11,9 +11,36 @@ config({ path: envPath });
 // 기본 .env 파일도 로딩 (백업)
 config({ path: join(__dirname, '../..', '.env') });
 
-
-
+// 🔥 Electron 모듈 임포트 (commandLine 설정 전에 필수)
 import { app, BrowserWindow } from 'electron';
+
+// 🔥 성능 최적화: 하드웨어 가속 및 멀티프로세싱 활성화
+if (process.platform === 'darwin') {
+  // macOS M4 Air 최적화
+  app.commandLine.appendSwitch('enable-gpu-rasterization');
+  app.commandLine.appendSwitch('enable-zero-copy');
+  app.commandLine.appendSwitch('enable-hardware-overlays');
+  app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization');
+  app.commandLine.appendSwitch('use-gl', 'desktop');
+  app.commandLine.appendSwitch('enable-accelerated-2d-canvas');
+} else {
+  // 다른 플랫폼
+  app.commandLine.appendSwitch('enable-gpu-rasterization');
+  app.commandLine.appendSwitch('enable-accelerated-2d-canvas');
+  app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder');
+}
+
+// CPU 코어 활용 최적화
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=4096 --expose-gc');
+app.commandLine.appendSwitch('enable-parallel-downloading');
+app.commandLine.appendSwitch('enable-quic');
+
+// 렌더링 성능 향상
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+
+// 🔥 다른 모듈들 임포트
 import { Logger } from '../shared/logger';
 import { windowManager } from './core/window';
 import { securityManager } from './core/security';
@@ -388,21 +415,22 @@ class LoopApplication {
       const settingsManager = getSettingsManager();
 
       // 🎨 UI 테마 변경 감지
-      settingsManager.watch('ui', (event: SettingsChangeEvent<UISettingsSchema>) => {
+      settingsManager.watch('ui', (event) => {
         Logger.info('MAIN_INDEX', 'UI settings changed', {
           key: event.key,
-          oldValue: event.oldValue?.colorScheme,
-          newValue: event.newValue?.colorScheme
+          oldValue: event.oldValue,
+          newValue: event.newValue
         });
         
-        // 메뉴 관리자에 테마 변경 알림
-        if (this.menuManager) {
-          this.menuManager.updateTheme(event.newValue?.colorScheme || 'blue');
+        // 메뉴 관리자에 윈도우 설정 변경 알림
+        if (this.menuManager && this.mainWindow) {
+          const { windowWidth, windowHeight } = event.newValue;
+          this.mainWindow.setSize(windowWidth, windowHeight);
         }
       });
 
       // 🏠 앱 설정 변경 감지
-      settingsManager.watch('app', (event: SettingsChangeEvent<AppSettingsSchema>) => {
+      settingsManager.watch('app', (event) => {
         Logger.info('MAIN_INDEX', 'App settings changed', {
           key: event.key,
           theme: event.newValue?.theme,
@@ -414,50 +442,45 @@ class LoopApplication {
           this.trayManager.toggleTrayVisibility();
         }
 
-        // 언어 변경 시 메뉴 업데이트
-        if (this.menuManager && event.oldValue?.language !== event.newValue?.language) {
-          this.menuManager.updateLanguage(event.newValue?.language || 'ko');
+        // 테마 변경 처리
+        if (event.oldValue?.theme !== event.newValue?.theme) {
+          Logger.info('MAIN_INDEX', 'Theme changed', { 
+            from: event.oldValue?.theme, 
+            to: event.newValue?.theme 
+          });
         }
       });
 
       // ⌨️ 키보드 설정 변경 감지
-      settingsManager.watch('keyboard', (event: SettingsChangeEvent<KeyboardSettingsSchema>) => {
+      settingsManager.watch('keyboard', (event) => {
         Logger.info('MAIN_INDEX', 'Keyboard settings changed', {
           key: event.key,
           enabled: event.newValue?.enabled,
-          shortcuts: event.newValue?.globalShortcuts
+          language: event.newValue?.language
         });
 
-        // 단축키 관리자에 변경 알림
-        if (this.shortcutsManager) {
-          this.shortcutsManager.updateShortcuts(event.newValue?.globalShortcuts || {});
+        // 키보드 서비스 재시작
+        if (event.oldValue?.enabled !== event.newValue?.enabled) {
+          if (event.newValue?.enabled) {
+            keyboardService.startMonitoring();
+          } else {
+            keyboardService.stopMonitoring();
+          }
         }
       });
 
-      // 🔔 알림 설정 변경 감지
-      settingsManager.watch('notifications', (event: SettingsChangeEvent<NotificationSettingsSchema>) => {
-        Logger.info('MAIN_INDEX', 'Notification settings changed', {
+      // � 성능 설정 변경 감지
+      settingsManager.watch('performance', (event) => {
+        Logger.info('MAIN_INDEX', 'Performance settings changed', {
           key: event.key,
-          enabled: event.newValue?.enableNotifications
-        });
-      });
-
-      // 🗄️ 데이터 보관 설정 변경 감지
-      settingsManager.watch('dataRetention', (event: SettingsChangeEvent<DataRetentionSettingsSchema>) => {
-        Logger.info('MAIN_INDEX', 'Data retention settings changed', {
-          key: event.key,
-          retentionPeriod: event.newValue?.retentionPeriod
+          gpuAcceleration: event.newValue?.enableGPUAcceleration,
+          hardwareAcceleration: event.newValue?.enableHardwareAcceleration
         });
 
-        // 데이터 동기화 관리자에 변경 알림
-        if (this.dataSyncManager) {
-          this.dataSyncManager.updateRetentionPolicy(event.newValue || {
-            retentionPeriod: 30,
-            autoDeleteOldData: false,
-            enableDataArchive: true,
-            typingData: { enabled: true, retentionDays: 30, enableCompression: false },
-            keystrokeData: { enabled: true, retentionDays: 7, enableAggregation: true }
-          });
+        // GPU 가속 설정 변경 시 앱 재시작 권장
+        if (event.oldValue?.enableGPUAcceleration !== event.newValue?.enableGPUAcceleration ||
+            event.oldValue?.enableHardwareAcceleration !== event.newValue?.enableHardwareAcceleration) {
+          Logger.warn('MAIN_INDEX', 'Hardware acceleration settings changed - app restart recommended');
         }
       });
 

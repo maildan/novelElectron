@@ -83,11 +83,11 @@ export async function setupAllIpcHandlers(): Promise<void> {
       Logger.info('IPC_HANDLERS', 'Project IPC handlers setup complete');
     }
 
-    // 설정 IPC 핸들러
+    // 설정 IPC 핸들러 (electron-store 기반)
     if (!registeredHandlers.has('settings')) {
       setupSettingsIpcHandlers();
       registeredHandlers.add('settings');
-      Logger.info('IPC_HANDLERS', 'Settings IPC handlers setup complete');
+      Logger.info('IPC_HANDLERS', 'electron-store based Settings IPC handlers setup complete');
     }
 
     // 트레이 IPC 핸들러
