@@ -172,37 +172,8 @@ export function setupDashboardIpcHandlers(): void {
       )
     );
 
-    // 🔥 사용자 설정 저장
-    ipcMain.handle(
-      IPC_CHANNELS.SETTINGS.SET,
-      createSafeAsyncIpcHandler(
-        async (event, preferences: unknown) => {
-          // #DEBUG: IPC call - save settings
-          Logger.debug('DASHBOARD_IPC', 'IPC: Save settings requested');
-          
-          const result = await databaseService.saveUserPreferences(preferences as never);
-          return result.success ? result.data : null;
-        },
-        'DASHBOARD_IPC',
-        'Save user preferences'
-      )
-    );
-
-    // 🔥 사용자 설정 조회
-    ipcMain.handle(
-      IPC_CHANNELS.SETTINGS.GET,
-      createSafeAsyncIpcHandler(
-        async (event) => {
-          // #DEBUG: IPC call - get settings
-          Logger.debug('DASHBOARD_IPC', 'IPC: Get settings requested');
-          
-          const result = await databaseService.getUserPreferences();
-          return result.success ? result.data : null;
-        },
-        'DASHBOARD_IPC',
-        'Get user preferences'
-      )
-    );
+    // 🔥 설정 관련 핸들러는 settingsIpcHandlers.ts에서 관리
+    // 중복 등록 방지를 위해 제거됨
 
     // 🔥 데이터베이스 헬스 체크
     ipcMain.handle(
@@ -429,8 +400,7 @@ export function cleanupDashboardIpcHandlers(): void {
       IPC_CHANNELS.APP.QUIT,
       IPC_CHANNELS.APP.MINIMIZE,
       IPC_CHANNELS.APP.MAXIMIZE,
-      IPC_CHANNELS.SETTINGS.SET,
-      IPC_CHANNELS.SETTINGS.GET,
+      // 설정 관련 채널은 settingsIpcHandlers에서 관리
       'dashboard:get-realtime-wpm',
       'dashboard:health-check',
       'dashboard:delete-session',

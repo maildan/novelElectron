@@ -215,7 +215,7 @@ export class WindowManager {
 
       const targetUrl = url || (process.env.NODE_ENV === 'development'
         ? 'http://localhost:4000'
-        : `file://${join(__dirname, '../renderer/index.html')}`
+        : `file://${join(__dirname, '../../renderer/out/index.html')}`
       );
 
       await window.loadURL(targetUrl);

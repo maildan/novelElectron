@@ -64,12 +64,40 @@ export async function setupKeyboardIpcHandlers(): Promise<void> {
     // 🔥 모니터링 상태 조회
     ipcMain.handle(
       IPC_CHANNELS.KEYBOARD.GET_STATUS,
-      createSafeIpcHandler(
+      createSafeAsyncIpcHandler(
         async (event) => {
           // #DEBUG: IPC call - get status
           Logger.debug('KEYBOARD_IPC', 'IPC: Status requested');
           const result = await keyboardService.getStatus();
-          return result.data;
+          
+          // 🔥 직렬화 가능한 객체로 변환
+          if (result.success && result.data) {
+            const statusData = {
+              isActive: Boolean(result.data.isActive),
+              language: String(result.data.language || 'auto'),
+              inputMethod: String(result.data.inputMethod || 'unknown'),
+              eventsPerSecond: Number(result.data.eventsPerSecond || 0),
+              totalEvents: Number(result.data.totalEvents || 0),
+              startTime: result.data.startTime ? result.data.startTime.toISOString() : null,
+              sessionDuration: result.data.startTime ? Math.floor((Date.now() - result.data.startTime.getTime()) / 1000) : 0
+            };
+            
+            Logger.debug('KEYBOARD_IPC', 'Status data serialized', statusData);
+            return statusData;
+          }
+          
+          const fallbackData = {
+            isActive: false,
+            language: 'auto',
+            inputMethod: 'unknown',
+            eventsPerSecond: 0,
+            totalEvents: 0,
+            startTime: null,
+            sessionDuration: 0
+          };
+          
+          Logger.debug('KEYBOARD_IPC', 'Returning fallback status data', fallbackData);
+          return fallbackData;
         },
         'KEYBOARD_IPC',
         'Get keyboard monitoring status'

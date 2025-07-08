@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Target, 
@@ -25,6 +25,8 @@ import {
   KpiCard 
 } from '../ui';
 import { QuickStartCard } from './QuickStartCard';
+import { MonitoringControlPanel } from './MonitoringControlPanel';
+import { DashboardSkeleton } from './DashboardSkeleton';
 import { HydrationGuard } from '../ui/HydrationGuard';
 import { Logger } from '../../../shared/logger';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
@@ -122,6 +124,13 @@ export function DashboardMain(): React.ReactElement {
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [recentFiles, setRecentFiles] = useState<RecentFile[]>([]);
+  
+  // 🔥 로딩 상태 최적화 - 개별 로딩 상태 관리
+  const [loadingStates, setLoadingStates] = useState({
+    kpi: true,
+    projects: true,
+    recentFiles: true,
+  });
   // 🔥 기가차드 규칙: 타입 안전성 - KPI 데이터 타입 정의
   interface KpiDataItem {
     readonly title: string;
@@ -167,26 +176,12 @@ export function DashboardMain(): React.ReactElement {
     },
   ]);
 
-  // 🔥 대시보드 데이터 로딩
-  React.useEffect(() => {
-    loadDashboardData();
-    
-    // 🔥 실시간 업데이트 (5초마다)
-    const interval = setInterval(loadDashboardData, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  /**
-   * 🔥 실제 대시보드 데이터 로딩 (BE 연동)
-   */
-  const loadDashboardData = async (): Promise<void> => {
+  // 🔥 대시보드 데이터 로딩 - 메모화로 성능 최적화
+  const loadDashboardData = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true);
-      
       // 🔥 기가차드 규칙: 타입 안전한 IPC 통신 - 병렬 처리
-      const [dashboardStatsResult, realtimeStatsResult, projectsResult, recentSessionsResult] = await Promise.allSettled([
+      const [dashboardStatsResult, projectsResult, recentSessionsResult] = await Promise.allSettled([
         window.electronAPI.dashboard.getStats(),
-        window.electronAPI.keyboard.getRealtimeStats(),
         window.electronAPI.projects.getAll(),
         window.electronAPI.dashboard.getRecentSessions()
       ]);
@@ -195,18 +190,8 @@ export function DashboardMain(): React.ReactElement {
       if (dashboardStatsResult.status === 'fulfilled' && dashboardStatsResult.value.success) {
         const stats = dashboardStatsResult.value.data;
         updateKpiData(stats);
+        setLoadingStates(prev => ({ ...prev, kpi: false }));
         Logger.debug('DASHBOARD', '✅ Dashboard stats loaded', stats);
-      }
-
-      // 🔥 실시간 통계 업데이트
-      if (realtimeStatsResult.status === 'fulfilled' && realtimeStatsResult.value.success) {
-        const realtimeStats = realtimeStatsResult.value.data;
-        setMonitoringData({
-          wpm: realtimeStats?.currentWpm || 0,
-          words: realtimeStats?.charactersTyped || 0,
-          time: realtimeStats?.sessionTime || 0,
-        });
-        Logger.debug('DASHBOARD', '✅ Realtime stats loaded', realtimeStats);
       }
 
       // 🔥 프로젝트 데이터 업데이트
@@ -219,6 +204,7 @@ export function DashboardMain(): React.ReactElement {
           progress: p.progress || 0,
           goal: p.dueDate ? new Date(p.dueDate).toLocaleDateString() : '목표 미설정',
         })));
+        setLoadingStates(prev => ({ ...prev, projects: false }));
         Logger.debug('DASHBOARD', '✅ Projects loaded', { count: projectsData.length });
       }
 
@@ -232,15 +218,23 @@ export function DashboardMain(): React.ReactElement {
           time: formatTimeAgo(session.endTime || session.startTime),
           status: '완료',
         })));
+        setLoadingStates(prev => ({ ...prev, recentFiles: false }));
         Logger.debug('DASHBOARD', '✅ Recent sessions loaded', { count: sessions.length });
       }
 
     } catch (error) {
       Logger.error('DASHBOARD', '❌ Failed to load dashboard data', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
+
+  // 🔥 대시보드 데이터 로딩 - 성능 최적화
+  React.useEffect(() => {
+    loadDashboardData();
+    
+    // 🔥 실시간 업데이트 (30초마다로 변경 - 성능 최적화)
+    const interval = setInterval(loadDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, [loadDashboardData]);
 
   /**
    * 🔥 변화율 타입 결정 헬퍼 함수
@@ -413,41 +407,19 @@ export function DashboardMain(): React.ReactElement {
 
       {/* 메인 콘텐츠 */}
       <div className={DASHBOARD_STYLES.content}>
-        {/* 실시간 모니터링 패널 */}
-        {isMonitoring && (
-          <div className={DASHBOARD_STYLES.monitoringPanel}>
-            <div className={DASHBOARD_STYLES.monitoringHeader}>
-              <div className={DASHBOARD_STYLES.monitoringStatus}>
-                <div className={DASHBOARD_STYLES.monitoringPulse} />
-                <h2 className={DASHBOARD_STYLES.monitoringTitle}>실시간 모니터링</h2>
-              </div>
-              <div className={DASHBOARD_STYLES.monitoringTime}>
-                {formatTime(monitoringData.time)}
-              </div>
-            </div>
-            <div className={DASHBOARD_STYLES.monitoringStats}>
-              <div>
-                <div className={DASHBOARD_STYLES.statValue}>{monitoringData.wpm}</div>
-                <div className={DASHBOARD_STYLES.statLabel}>분당 단어</div>
-              </div>
-              <div>
-                <div className={DASHBOARD_STYLES.statValue}>{monitoringData.words.toLocaleString()}</div>
-                <div className={DASHBOARD_STYLES.statLabel}>총 단어</div>
-              </div>
-              <div>
-                <div className={DASHBOARD_STYLES.statValue}>{Math.round(monitoringData.wpm * 0.85)}</div>
-                <div className={DASHBOARD_STYLES.statLabel}>정확도</div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* 🔥 모니터링 컨트롤 패널 - 항상 표시 */}
+        <MonitoringControlPanel />
 
         {/* KPI 카드 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiData.map((kpi, index) => (
-            <KpiCard key={index} {...kpi} />
-          ))}
-        </div>
+        {loadingStates.kpi ? (
+          <DashboardSkeleton showKpi showProjects={false} showRecentFiles={false} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpiData.map((kpi, index) => (
+              <KpiCard key={index} {...kpi} />
+            ))}
+          </div>
+        )}
 
         {/* 빠른 시작 */}
         <QuickStartCard
@@ -499,33 +471,43 @@ export function DashboardMain(): React.ReactElement {
               <h3 className="font-semibold text-slate-900 dark:text-slate-100">활성 프로젝트</h3>
             </div>
 
-            <div className={DASHBOARD_STYLES.projectList}>
-              {projects.map((project) => (
-                <div 
-                  key={project.id} 
-                  className={`${DASHBOARD_STYLES.projectItem} ${
-                    project.status === 'active' 
-                      ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800' 
-                      : ''
-                  }`}
-                >
-                  <div className={DASHBOARD_STYLES.projectHeader}>
-                    <h4 className={DASHBOARD_STYLES.projectTitle}>{project.title}</h4>
-                    <Badge 
-                      variant={project.status === 'active' ? 'primary' : 'default'}
-                      size="sm"
+            {loadingStates.projects ? (
+              <DashboardSkeleton showKpi={false} showProjects showRecentFiles={false} />
+            ) : (
+              <div className={DASHBOARD_STYLES.projectList}>
+                {projects.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                    <Target className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>아직 프로젝트가 없습니다</p>
+                    <p className="text-sm">새 프로젝트를 만들어보세요!</p>
+                  </div>
+                ) : (
+                  projects.map((project) => (
+                    <div 
+                      key={project.id} 
+                      className={`${DASHBOARD_STYLES.projectItem} ${
+                        project.status === 'active' 
+                          ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800' 
+                          : ''
+                      }`}
                     >
-                      {project.status === 'active' ? '진행중' : '초안'}
-                    </Badge>
-                  </div>
-                  <div className={DASHBOARD_STYLES.projectProgress}>
-                    <ProgressBar 
-                      value={project.progress} 
-                      color={project.status === 'active' ? 'blue' : 'purple'} 
-                      size="md"
-                    />
-                  </div>
-                  <div className={DASHBOARD_STYLES.projectStats}>
+                      <div className={DASHBOARD_STYLES.projectHeader}>
+                        <h4 className={DASHBOARD_STYLES.projectTitle}>{project.title}</h4>
+                        <Badge 
+                          variant={project.status === 'active' ? 'primary' : 'default'}
+                          size="sm"
+                        >
+                          {project.status === 'active' ? '진행중' : '초안'}
+                        </Badge>
+                      </div>
+                      <div className={DASHBOARD_STYLES.projectProgress}>
+                        <ProgressBar 
+                          value={project.progress} 
+                          color={project.status === 'active' ? 'blue' : 'purple'} 
+                          size="md"
+                        />
+                      </div>
+                      <div className={DASHBOARD_STYLES.projectStats}>
                     <span className={DASHBOARD_STYLES.progressText}>
                       {project.progress}% 완료
                     </span>
@@ -534,19 +516,31 @@ export function DashboardMain(): React.ReactElement {
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Card>
+              ))
+            )}
+          </div>
+        )}
+      </Card>
 
-          {/* 최근 파일 */}
-          <Card>
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100">최근 파일</h3>
-            </div>
+      {/* 최근 파일 */}
+      <Card>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">최근 파일</h3>
+        </div>
 
-            <div className={DASHBOARD_STYLES.recentFiles}>
-              {recentFiles.map((file) => (
+        {loadingStates.recentFiles ? (
+          <DashboardSkeleton showKpi={false} showProjects={false} showRecentFiles />
+        ) : (
+          <div className={DASHBOARD_STYLES.recentFiles}>
+            {recentFiles.length === 0 ? (
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>최근 파일이 없습니다</p>
+                <p className="text-sm">작업을 시작하면 여기에 표시됩니다!</p>
+              </div>
+            ) : (
+              recentFiles.map((file) => (
                 <div 
                   key={file.id}
                   className={DASHBOARD_STYLES.fileItem}
@@ -570,10 +564,12 @@ export function DashboardMain(): React.ReactElement {
                     <div className={DASHBOARD_STYLES.fileStatus}>{file.status}</div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+              ))
+            )}
+          </div>
+        )}
+      </Card>
+    </div>
       </div>
     </div>
   );

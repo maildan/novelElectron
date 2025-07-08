@@ -75,6 +75,9 @@ export class HandlersManager extends BaseManager {
     
     // 기본 핸들러 등록
     await this.registerDefaultHandlers();
+    
+    // 기존 IPC 핸들러 등록
+    await this.registerExistingHandlers();
   }
 
   /**
@@ -244,6 +247,29 @@ export class HandlersManager extends BaseManager {
         };
       }
     };
+  }
+
+  /**
+   * 🔥 기존 IPC 핸들러 등록 - 중복 등록 방지를 위해 handlers/index.ts 사용
+   */
+  public async registerExistingHandlers(): Promise<void> {
+    try {
+      Logger.info(this.componentName, 'Using unified handler system from handlers/index.ts');
+      
+      // 🔥 기존 중복 등록 코드를 제거하고 단일 핸들러 시스템 사용
+      const { HandlersManager: UnifiedHandlersManager } = await import('../handlers/index');
+      const handlerManager = UnifiedHandlersManager.getInstance();
+      
+      const success = await handlerManager.setupAllHandlers();
+      if (!success) {
+        throw new Error('Failed to setup unified handlers');
+      }
+      
+      Logger.info(this.componentName, 'Unified IPC handlers registered successfully');
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to register unified IPC handlers', error);
+      throw error;
+    }
   }
 
   /**

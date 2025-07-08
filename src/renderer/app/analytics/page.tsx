@@ -137,8 +137,11 @@ export default function AnalyticsPage(): React.ReactElement {
       }
 
       // 🔥 키보드 모니터링 상태 반영
-      if (keyboardStatus.data?.isActive && keyboardStatus.data.sessionDuration) {
-        convertedData.kpis.sessionTime = keyboardStatus.data.sessionDuration / 3600; // 시간 단위로 변환
+      if (keyboardStatus.data?.isActive && keyboardStatus.data.startTime) {
+        // startTime을 기준으로 세션 시간 계산
+        const startTime = new Date(keyboardStatus.data.startTime);
+        const sessionDuration = (Date.now() - startTime.getTime()) / 1000; // 초 단위
+        convertedData.kpis.sessionTime = sessionDuration / 3600; // 시간 단위로 변환
       }
 
       setAnalyticsData(convertedData);

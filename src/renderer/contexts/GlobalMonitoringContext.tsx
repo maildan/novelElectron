@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useLayoutEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useLayoutEffect, useMemo } from 'react';
 import { Logger } from '../../shared/logger';
 
 // 🔥 기가차드 규칙: 명시적 타입 정의
@@ -26,19 +26,22 @@ export interface MonitoringContextType {
 // 🔥 컨텍스트 생성
 export const MonitoringContext = createContext<MonitoringContextType | undefined>(undefined);
 
+// 🔥 초기 상태 상수화 (메모리 최적화)
+const INITIAL_STATE: MonitoringState = {
+  isMonitoring: false,
+  isAIOpen: false,
+  startTime: null,
+  sessionData: {
+    wpm: 0,
+    words: 0,
+    time: 0,
+  },
+} as const;
+
 // 🔥 프로바이더 컴포넌트
 export function MonitoringProvider({ children }: { children: React.ReactNode }): React.ReactElement {
   // 🔥 하이드레이션 불일치 완전 해결: 서버와 클라이언트 동일한 초기값
-  const [state, setState] = useState<MonitoringState>({
-    isMonitoring: false, // 서버/클라이언트 모두 false로 시작
-    isAIOpen: false,
-    startTime: null,
-    sessionData: {
-      wpm: 0,
-      words: 0,
-      time: 0,
-    },
-  });
+  const [state, setState] = useState<MonitoringState>(INITIAL_STATE);
 
   // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (useLayoutEffect로 즉시 실행)
   useLayoutEffect(() => {
@@ -65,15 +68,19 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
     }
   }, []);
 
-  // 🔥 상태 변경 시 localStorage에 저장 (즉시 실행)
-  React.useEffect(() => {
+  // 🔥 상태 변경 시 localStorage에 저장 (즉시 실행) - 디바운스 적용
+  useLayoutEffect(() => {
     if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('monitoring-state', JSON.stringify(state));
-        Logger.debug('MONITORING_CONTEXT', 'State saved to localStorage', state);
-      } catch (error) {
-        Logger.error('MONITORING_CONTEXT', 'Failed to save state to localStorage', error);
-      }
+      const timeoutId = setTimeout(() => {
+        try {
+          localStorage.setItem('monitoring-state', JSON.stringify(state));
+          Logger.debug('MONITORING_CONTEXT', 'State saved to localStorage', state);
+        } catch (error) {
+          Logger.error('MONITORING_CONTEXT', 'Failed to save state to localStorage', error);
+        }
+      }, 100); // 100ms 디바운스
+
+      return () => clearTimeout(timeoutId);
     }
   }, [state]);
 
@@ -126,8 +133,8 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
       ...prev,
       isAIOpen: !prev.isAIOpen,
     }));
-    Logger.info('MONITORING_CONTEXT', `AI Panel toggled to: ${!state.isAIOpen}`);
-  }, [state.isAIOpen]);
+    Logger.info('MONITORING_CONTEXT', 'AI Panel toggled');
+  }, []);
 
   const updateSessionData = useCallback((data: Partial<MonitoringState['sessionData']>): void => {
     setState(prev => ({
@@ -139,13 +146,14 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
     }));
   }, []);
 
-  const contextValue: MonitoringContextType = {
+  // 🔥 컨텍스트 값 메모화 (성능 최적화)
+  const contextValue = useMemo<MonitoringContextType>(() => ({
     state,
     startMonitoring,
     stopMonitoring,
     toggleAI,
     updateSessionData,
-  };
+  }), [state, startMonitoring, stopMonitoring, toggleAI, updateSessionData]);
 
   return (
     <MonitoringContext.Provider value={contextValue}>

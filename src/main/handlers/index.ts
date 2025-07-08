@@ -6,6 +6,7 @@ import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
 import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
 import { setupTrayIpcHandlers } from './trayIpcHandlers';
 import { setupOAuthIpcHandlers } from './oauthIpcHandlers';
+import { setupProjectIpcHandlers } from './projectIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -80,6 +81,26 @@ export class HandlersManager {
           'oauth:google:create-document',
           'oauth:google:disconnect',
           'oauth:config',
+        ]),
+        this.setupHandler('projects', () => setupProjectIpcHandlers(), [
+          'projects:get-all',
+          'projects:get-by-id',
+          'projects:create',
+          'projects:update',
+          'projects:delete',
+          'projects:create-sample',
+          'projects:import-file',
+          'projects:get-characters',
+          'projects:get-structure',
+          'projects:get-notes',
+          'projects:update-characters',
+          'projects:update-notes',
+          'projects:upsert-character',
+          'projects:upsert-structure',
+          'projects:upsert-note',
+          'projects:delete-character',
+          'projects:delete-structure',
+          'projects:delete-note',
         ]),
         
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),
