@@ -1,167 +1,9 @@
 {
-  "timestamp": "2025-07-08T04:39:32.612Z",
-  "totalFiles": 45,
-  "totalIssues": 167,
-  "averageScore": 81,
+  "timestamp": "2025-07-08T05:54:25.569Z",
+  "totalFiles": 52,
+  "totalIssues": 156,
+  "averageScore": 85,
   "files": [
-    {
-      "file": "src/renderer/app/settings/page.tsx",
-      "issues": [
-        {
-          "line": 364,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 이벤트 핸들러",
-          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
-          "code": "onClick={() => handleSectionChange(section.id)}"
-        },
-        {
-          "line": 395,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}"
-        },
-        {
-          "line": 416,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('app', 'language', e.target.value)}"
-        },
-        {
-          "line": 437,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('app', 'autoSave', e.target.checked)}"
-        },
-        {
-          "line": 455,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('app', 'minimizeToTray', e.target.checked)}"
-        },
-        {
-          "line": 475,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('app', 'fontSize', parseInt(e.target.value))}"
-        },
-        {
-          "line": 504,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'enabled', checked)}"
-        },
-        {
-          "line": 521,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('keyboard', 'language', e.target.value)}"
-        },
-        {
-          "line": 541,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'trackAllApps', checked)}"
-        },
-        {
-          "line": 561,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('keyboard', 'sessionTimeout', parseInt(e.target.value))}"
-        },
-        {
-          "line": 590,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('ui', 'sidebarCollapsed', checked)}"
-        },
-        {
-          "line": 606,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('ui', 'focusMode', checked)}"
-        },
-        {
-          "line": 622,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('ui', 'showLineNumbers', checked)}"
-        },
-        {
-          "line": 638,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('ui', 'showWordCount', checked)}"
-        },
-        {
-          "line": 666,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableGPUAcceleration', checked)}"
-        },
-        {
-          "line": 682,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableHardwareAcceleration', checked)}"
-        },
-        {
-          "line": 703,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('performance', 'maxCPUUsage', parseInt(e.target.value))}"
-        },
-        {
-          "line": 725,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => handleSettingUpdate('performance', 'maxMemoryUsage', parseInt(e.target.value))}"
-        },
-        {
-          "line": 1,
-          "type": "large-component",
-          "severity": "medium",
-          "message": "큰 컴포넌트 (756줄)",
-          "suggestion": "더 작은 컴포넌트로 분리 고려",
-          "code": "전체 컴포넌트 크기: 756줄"
-        }
-      ],
-      "score": 5
-    },
     {
       "file": "src/renderer/components/projects/views/NotesView.tsx",
       "issues": [
@@ -1354,6 +1196,118 @@
           "message": "큰 컴포넌트 (124줄)",
           "suggestion": "더 작은 컴포넌트로 분리 고려",
           "code": "전체 컴포넌트 크기: 124줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/AppSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (184줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 184줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/KeyboardSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (119줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 119줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/PerformanceSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (118줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 118줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/UISettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (148줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 148줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/constants/settings.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (128줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 128줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/constants/styles.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (103줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 103줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (236줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 236줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/types/index.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (137줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 137줄"
         }
       ],
       "score": 95
