@@ -262,7 +262,18 @@ export class DatabaseService {
       }
 
       // #DEBUG: Saving user preferences
-      Logger.debug('DATABASE', 'Saving user preferences');
+      Logger.debug('DATABASE', 'Saving user preferences', { type: typeof preferences, preferences });
+
+      // 문자열로 전달된 경우 파싱
+      let parsedPreferences = preferences;
+      if (typeof preferences === 'string') {
+        try {
+          parsedPreferences = JSON.parse(preferences);
+        } catch (error) {
+          Logger.error('DATABASE', 'Failed to parse preferences string', error);
+          throw new Error('Invalid preferences format');
+        }
+      }
 
       // 먼저 default 사용자 확인/생성
       await this.prisma!.$executeRaw`
@@ -270,22 +281,46 @@ export class DatabaseService {
         VALUES ('default', 'default_user', 'default@loop.app', datetime('now'), datetime('now'))
       `;
 
+      // 설정 필드 매핑 (Prisma UserSettings 모델과 UserPreferences 타입 매핑)
+      const settingsData = {
+        theme: (typeof parsedPreferences.theme === 'string') ? parsedPreferences.theme : 'light',
+        language: (typeof parsedPreferences.language === 'string') ? parsedPreferences.language : 'ko',
+        keyboardLayout: 'qwerty', // 기본값
+        showRealTimeWpm: true, // 기본값
+        enableSounds: Boolean(parsedPreferences.enableSounds !== undefined ? parsedPreferences.enableSounds : false),
+        autoSaveInterval: 30, // 기본값
+        privacyMode: Boolean(parsedPreferences.privacyMode !== undefined ? parsedPreferences.privacyMode : false),
+        monitoringEnabled: Boolean(parsedPreferences.trackingEnabled !== undefined ? parsedPreferences.trackingEnabled : true),
+        targetWpm: 60, // 기본값
+        sessionGoalMinutes: 30, // 기본값
+      };
+
       await this.prisma!.userSettings.upsert({
         where: { userId: 'default' },
-        create: {
+        create: { 
           userId: 'default',
-          theme: preferences.theme || 'light',
-          language: preferences.language || 'ko',
-          enableSounds: preferences.enableSounds !== undefined ? preferences.enableSounds : false,
-          privacyMode: preferences.privacyMode !== undefined ? preferences.privacyMode : false,
-          monitoringEnabled: preferences.trackingEnabled !== undefined ? preferences.trackingEnabled : true,
+          theme: settingsData.theme,
+          language: settingsData.language,
+          keyboardLayout: settingsData.keyboardLayout,
+          showRealTimeWpm: settingsData.showRealTimeWpm,
+          enableSounds: settingsData.enableSounds,
+          autoSaveInterval: settingsData.autoSaveInterval,
+          privacyMode: settingsData.privacyMode,
+          monitoringEnabled: settingsData.monitoringEnabled,
+          targetWpm: settingsData.targetWpm,
+          sessionGoalMinutes: settingsData.sessionGoalMinutes,
         },
         update: {
-          theme: preferences.theme || 'light',
-          language: preferences.language || 'ko',
-          enableSounds: preferences.enableSounds !== undefined ? preferences.enableSounds : false,
-          privacyMode: preferences.privacyMode !== undefined ? preferences.privacyMode : false,
-          monitoringEnabled: preferences.trackingEnabled !== undefined ? preferences.trackingEnabled : true,
+          theme: settingsData.theme,
+          language: settingsData.language,
+          keyboardLayout: settingsData.keyboardLayout,
+          showRealTimeWpm: settingsData.showRealTimeWpm,
+          enableSounds: settingsData.enableSounds,
+          autoSaveInterval: settingsData.autoSaveInterval,
+          privacyMode: settingsData.privacyMode,
+          monitoringEnabled: settingsData.monitoringEnabled,
+          targetWpm: settingsData.targetWpm,
+          sessionGoalMinutes: settingsData.sessionGoalMinutes,
         },
       });
 

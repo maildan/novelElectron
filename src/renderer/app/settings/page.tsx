@@ -32,6 +32,7 @@ const SETTINGS_PAGE_STYLES = {
   textInput: 'w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100',
   numberInput: 'w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100',
   select: 'px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100',
+  checkbox: 'w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2 dark:bg-slate-700 dark:border-slate-600',
   toggle: 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
   toggleActive: 'bg-blue-600',
   toggleInactive: 'bg-slate-200 dark:bg-slate-600',
@@ -250,14 +251,12 @@ export default function SettingsPage(): React.ReactElement {
     }
   }, []);
 
+  // 🔥 로딩 상태 처리
   if (loading || !settings) {
     return (
       <div className={SETTINGS_PAGE_STYLES.container}>
         <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-slate-600 dark:text-slate-400">설정을 불러오는 중...</p>
-          </div>
+          <div className="text-lg text-slate-600">설정을 로딩 중...</div>
         </div>
       </div>
     );
@@ -308,7 +307,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
-                    value={settings.app.theme}
+                    value={settings?.app?.theme || 'system'}
                     onChange={(e) => updateSetting('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}
                   >
                     <option value="system">시스템 설정 따름</option>
@@ -329,7 +328,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
-                    value={settings.app.language}
+                    value={settings?.app?.language || 'ko'}
                     onChange={(e) => updateSetting('app', 'language', e.target.value)}
                   >
                     <option value="ko">한국어</option>
@@ -347,14 +346,16 @@ export default function SettingsPage(): React.ReactElement {
                   </div>
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
-                  <Toggle
-                    checked={settings.app.autoSave}
-                    onChange={(checked) => updateSetting('app', 'autoSave', checked)}
+                  <input
+                    type="checkbox"
+                    className={SETTINGS_PAGE_STYLES.checkbox}
+                    checked={settings?.app?.autoSave || false}
+                    onChange={(e) => updateSetting('app', 'autoSave', e.target.checked)}
                   />
                 </div>
               </div>
 
-              {/* 시스템 트레이로 최소화 */}
+              {/* 트레이 최소화 */}
               <div className={SETTINGS_PAGE_STYLES.settingRow}>
                 <div className={SETTINGS_PAGE_STYLES.settingLabel}>
                   <div className={SETTINGS_PAGE_STYLES.settingTitle}>시스템 트레이로 최소화</div>
@@ -363,9 +364,11 @@ export default function SettingsPage(): React.ReactElement {
                   </div>
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
-                  <Toggle
-                    checked={settings.app.minimizeToTray}
-                    onChange={(checked) => updateSetting('app', 'minimizeToTray', checked)}
+                  <input
+                    type="checkbox"
+                    className={SETTINGS_PAGE_STYLES.checkbox}
+                    checked={settings?.app?.minimizeToTray || true}
+                    onChange={(e) => updateSetting('app', 'minimizeToTray', e.target.checked)}
                   />
                 </div>
               </div>
@@ -384,7 +387,7 @@ export default function SettingsPage(): React.ReactElement {
                     min="10"
                     max="24"
                     className={SETTINGS_PAGE_STYLES.numberInput}
-                    value={settings.app.fontSize}
+                    value={settings?.app?.fontSize || 14}
                     onChange={(e) => updateSetting('app', 'fontSize', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">px</span>
@@ -430,11 +433,12 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
-                    value={settings.keyboard.language}
+                    value={settings?.keyboard?.language || 'korean'}
                     onChange={(e) => updateSetting('keyboard', 'language', e.target.value)}
                   >
                     <option value="korean">한국어</option>
                     <option value="english">English</option>
+                    <option value="auto">자동 감지</option>
                   </select>
                 </div>
               </div>
@@ -467,9 +471,9 @@ export default function SettingsPage(): React.ReactElement {
                   <input
                     type="number"
                     min="1"
-                    max="120"
+                    max="60"
                     className={SETTINGS_PAGE_STYLES.numberInput}
-                    value={settings.keyboard.sessionTimeout}
+                    value={settings?.keyboard?.sessionTimeout || 30}
                     onChange={(e) => updateSetting('keyboard', 'sessionTimeout', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">분</span>
@@ -488,7 +492,7 @@ export default function SettingsPage(): React.ReactElement {
             </div>
             
             <div className={SETTINGS_PAGE_STYLES.settingItem}>
-              {/* 사이드바 기본 상태 */}
+              {/* 사이드바 축소 */}
               <div className={SETTINGS_PAGE_STYLES.settingRow}>
                 <div className={SETTINGS_PAGE_STYLES.settingLabel}>
                   <div className={SETTINGS_PAGE_STYLES.settingTitle}>사이드바 숨김</div>
@@ -498,7 +502,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.ui.sidebarCollapsed}
+                    checked={settings?.ui?.sidebarCollapsed || false}
                     onChange={(checked) => updateSetting('ui', 'sidebarCollapsed', checked)}
                   />
                 </div>
@@ -514,7 +518,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.ui.focusMode}
+                    checked={settings?.ui?.focusMode || false}
                     onChange={(checked) => updateSetting('ui', 'focusMode', checked)}
                   />
                 </div>
@@ -530,7 +534,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.ui.showLineNumbers}
+                    checked={settings?.ui?.showLineNumbers || true}
                     onChange={(checked) => updateSetting('ui', 'showLineNumbers', checked)}
                   />
                 </div>
@@ -546,7 +550,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.ui.showWordCount}
+                    checked={settings?.ui?.showWordCount || true}
                     onChange={(checked) => updateSetting('ui', 'showWordCount', checked)}
                   />
                 </div>
@@ -574,7 +578,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.performance.enableGPUAcceleration}
+                    checked={settings?.performance?.enableGPUAcceleration || true}
                     onChange={(checked) => updateSetting('performance', 'enableGPUAcceleration', checked)}
                   />
                 </div>
@@ -590,7 +594,7 @@ export default function SettingsPage(): React.ReactElement {
                 </div>
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
-                    checked={settings.performance.enableHardwareAcceleration}
+                    checked={settings?.performance?.enableHardwareAcceleration || true}
                     onChange={(checked) => updateSetting('performance', 'enableHardwareAcceleration', checked)}
                   />
                 </div>
@@ -609,8 +613,9 @@ export default function SettingsPage(): React.ReactElement {
                     type="number"
                     min="10"
                     max="100"
+                    step="5"
                     className={SETTINGS_PAGE_STYLES.numberInput}
-                    value={settings.performance.maxCPUUsage}
+                    value={settings?.performance?.maxCPUUsage || 80}
                     onChange={(e) => updateSetting('performance', 'maxCPUUsage', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">%</span>
@@ -629,10 +634,10 @@ export default function SettingsPage(): React.ReactElement {
                   <input
                     type="number"
                     min="100"
-                    max="8192"
-                    step="128"
+                    max="4000"
+                    step="100"
                     className={SETTINGS_PAGE_STYLES.numberInput}
-                    value={settings.performance.maxMemoryUsage}
+                    value={settings?.performance?.maxMemoryUsage || 1000}
                     onChange={(e) => updateSetting('performance', 'maxMemoryUsage', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">MB</span>
