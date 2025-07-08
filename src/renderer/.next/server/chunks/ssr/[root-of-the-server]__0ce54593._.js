@@ -1294,7 +1294,7 @@ const INITIAL_STATE = {
 function MonitoringProvider({ children }) {
     // 🔥 하이드레이션 불일치 완전 해결: 서버와 클라이언트 동일한 초기값
     const [state, setState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(INITIAL_STATE);
-    // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (useLayoutEffect로 즉시 실행)
+    // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (모니터링은 항상 false로 시작)
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useLayoutEffect"])(()=>{
         if ("TURBOPACK compile-time falsy", 0) {
             "TURBOPACK unreachable";
@@ -1383,7 +1383,7 @@ function MonitoringProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/contexts/GlobalMonitoringContext.tsx",
-        lineNumber: 159,
+        lineNumber: 160,
         columnNumber: 5
     }, this);
 }

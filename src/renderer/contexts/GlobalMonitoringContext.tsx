@@ -43,7 +43,7 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
   // 🔥 하이드레이션 불일치 완전 해결: 서버와 클라이언트 동일한 초기값
   const [state, setState] = useState<MonitoringState>(INITIAL_STATE);
 
-  // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (useLayoutEffect로 즉시 실행)
+  // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (모니터링은 항상 false로 시작)
   useLayoutEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -52,15 +52,16 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
           const parsed = JSON.parse(savedState);
           setState(prev => ({
             ...prev,
-            isMonitoring: parsed.isMonitoring || false,
+            // 🔥 모니터링은 항상 false로 시작 (사용자 수동 시작 원칙)
+            isMonitoring: false, 
             isAIOpen: parsed.isAIOpen || false,
-            startTime: parsed.startTime ? new Date(parsed.startTime) : null,
+            startTime: null, // 시작 시간도 초기화
             sessionData: {
               ...prev.sessionData,
               ...parsed.sessionData,
             },
           }));
-          Logger.debug('MONITORING_CONTEXT', 'State restored from localStorage', parsed);
+          Logger.debug('MONITORING_CONTEXT', 'State restored from localStorage (monitoring disabled)', { ...parsed, isMonitoring: false });
         }
       } catch (error) {
         Logger.error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);

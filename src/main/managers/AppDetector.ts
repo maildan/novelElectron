@@ -63,9 +63,28 @@ export class AppDetector extends BaseManager {
   protected async doStart(): Promise<void> {
     Logger.info(this.componentName, 'Starting window monitoring');
     
-    // 주기적 윈도우 체크 시작
+    // 🔥 처음에 키보드 서비스 상태 확인
+    const { keyboardService } = await import('../keyboard/keyboardService');
+    const initialStatus = keyboardService.getStatus();
+    
+    if (!initialStatus.success || !initialStatus.data?.isActive) {
+      Logger.info(this.componentName, '모니터링이 비활성화되어 있어 윈도우 추적이 대기 중입니다. 모니터링을 시작하면 자동으로 활성화됩니다.');
+    }
+    
+    // 🔥 키보드 모니터링이 활성화되었을 때만 폴링 시작
+    // 불필요한 리소스 사용 방지 및 성능 최적화
     this.windowCheckInterval = setInterval(async () => {
       try {
+        // 키보드 서비스 상태 체크 (매번 확인하여 실시간 상태 반영)
+        const { keyboardService } = await import('../keyboard/keyboardService');
+        const status = keyboardService.getStatus();
+        
+        if (!status.success || !status.data?.isActive) {
+          // 불필요한 로깅을 줄이기 위해 주석 처리
+          // Logger.debug(this.componentName, 'Window tracking skipped - monitoring inactive');
+          return; // 키보드 모니터링이 비활성화되면 체크 건너뛰기
+        }
+        
         await this.checkWindowChange();
       } catch (error) {
         Logger.error(this.componentName, 'Window check failed', error);
@@ -104,10 +123,21 @@ export class AppDetector extends BaseManager {
   }
 
   /**
-   * 윈도우 변경 체크
+   * 윈도우 변경 체크 - 모니터링이 활성화된 경우에만 작동
    */
   private async checkWindowChange(): Promise<void> {
     try {
+      // 키보드 서비스 상태 추가 검증
+      const { keyboardService } = await import('../keyboard/keyboardService');
+      const status = keyboardService.getStatus();
+      
+      // 모니터링이 비활성화된 경우 조기 반환으로 모든 후속 작업 방지
+      if (!status.success || !status.data?.isActive) {
+        // Logger.debug(this.componentName, 'Window tracking inactive - monitoring is disabled');
+        return;
+      }
+      
+      // 모니터링이 활성화된 경우에만 윈도우 감지
       const activeWindow = await this.detectActiveWindow();
       
       if (!activeWindow) {

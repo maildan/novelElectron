@@ -1335,7 +1335,7 @@ function MonitoringProvider({ children }) {
     _s();
     // 🔥 하이드레이션 불일치 완전 해결: 서버와 클라이언트 동일한 초기값
     const [state, setState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(INITIAL_STATE);
-    // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (useLayoutEffect로 즉시 실행)
+    // 🔥 클라이언트 마운트 후 localStorage에서 상태 복원 (모니터링은 항상 false로 시작)
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
         "MonitoringProvider.useLayoutEffect": ()=>{
             if ("TURBOPACK compile-time truthy", 1) {
@@ -1346,16 +1346,20 @@ function MonitoringProvider({ children }) {
                         setState({
                             "MonitoringProvider.useLayoutEffect": (prev)=>({
                                     ...prev,
-                                    isMonitoring: parsed.isMonitoring || false,
+                                    // 🔥 모니터링은 항상 false로 시작 (사용자 수동 시작 원칙)
+                                    isMonitoring: false,
                                     isAIOpen: parsed.isAIOpen || false,
-                                    startTime: parsed.startTime ? new Date(parsed.startTime) : null,
+                                    startTime: null,
                                     sessionData: {
                                         ...prev.sessionData,
                                         ...parsed.sessionData
                                     }
                                 })
                         }["MonitoringProvider.useLayoutEffect"]);
-                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].debug('MONITORING_CONTEXT', 'State restored from localStorage', parsed);
+                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].debug('MONITORING_CONTEXT', 'State restored from localStorage (monitoring disabled)', {
+                            ...parsed,
+                            isMonitoring: false
+                        });
                     }
                 } catch (error) {
                     __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('MONITORING_CONTEXT', 'Failed to load state from localStorage', error);
@@ -1478,7 +1482,7 @@ function MonitoringProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/contexts/GlobalMonitoringContext.tsx",
-        lineNumber: 159,
+        lineNumber: 160,
         columnNumber: 5
     }, this);
 }

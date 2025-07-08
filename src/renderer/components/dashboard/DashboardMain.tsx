@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Crosshair as Target, 
+  Target, 
   Clock, 
   CheckCircle, 
   FileText, 
@@ -13,8 +13,8 @@ import {
   TrendingUp,
   Calendar,
   Zap,
-  FolderOpen,
-  PenTool,
+  Folder,
+  Edit,
   type LucideIcon
 } from 'lucide-react';
 import { 
@@ -149,7 +149,7 @@ export function DashboardMain(): React.ReactElement {
     {
       title: '오늘 작성',
       value: '0',
-      icon: PenTool,
+      icon: Edit,
       color: 'blue' as const,
       change: { value: 0, type: 'neutral' as const, period: '%' },
     },
@@ -170,7 +170,7 @@ export function DashboardMain(): React.ReactElement {
     {
       title: '활성 프로젝트',
       value: '0',
-      icon: FolderOpen,
+      icon: Folder,
       color: 'orange' as const,
       change: { value: 0, type: 'neutral' as const, period: '개' },
     },
@@ -253,7 +253,7 @@ export function DashboardMain(): React.ReactElement {
       {
         title: '오늘 작성',
         value: (stats?.todayWords || 0).toLocaleString(),
-        icon: PenTool,
+        icon: Edit,
         color: 'blue' as const,
         change: {
           value: Math.max(0, stats?.dailyGrowth || 0),
@@ -286,7 +286,7 @@ export function DashboardMain(): React.ReactElement {
       {
         title: '활성 프로젝트',
         value: (stats?.activeProjects || 0).toString(),
-        icon: FolderOpen,
+        icon: Folder,
         color: 'orange' as const,
         change: {
           value: Math.max(0, stats?.projectGrowth || 0),
