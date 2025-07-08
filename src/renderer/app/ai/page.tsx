@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { 
   Sparkles, 
   MessageSquare, 
@@ -144,22 +144,23 @@ export default function AiPage(): React.ReactElement {
     Logger.info('AI_PAGE', 'AI page loaded');
   }, []);
 
-  const handleFeatureClick = (feature: AiFeature): void => {
+  // 🔥 기가차드 성능 최적화: 이벤트 핸들러 메모이제이션
+  const handleFeatureClick = useCallback((feature: AiFeature): void => {
     Logger.info('AI_PAGE', `Feature clicked: ${feature.id}`, { title: feature.title });
     // TODO: 해당 기능 페이지로 이동 또는 모달 열기
     alert(`${feature.title} 기능을 구현 중입니다.`);
-  };
+  }, []);
 
-  const handleSendMessage = async (): Promise<void> => {
+  const handleSendMessage = useCallback(async (): Promise<void> => {
     if (!inputMessage.trim()) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputMessage.trim(),
+      content: inputMessage.
+trim(),
       sender: 'user',
       timestamp: new Date()
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
@@ -180,12 +181,12 @@ export default function AiPage(): React.ReactElement {
       setIsTyping(false);
       Logger.info('AI_PAGE', 'AI response sent', { content: aiMessage.content });
     }, 1500);
-  };
+  }, [inputMessage]);
 
-  const handleSuggestionClick = (suggestion: string): void => {
+  const handleSuggestionClick = useCallback((suggestion: string): void => {
     setInputMessage(suggestion);
     Logger.info('AI_PAGE', 'Suggestion clicked', { suggestion });
-  };
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent): void => {
     if (e.key === 'Enter' && !e.shiftKey) {

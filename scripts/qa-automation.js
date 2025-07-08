@@ -45,8 +45,16 @@ const execAsync = (0, util_1.promisify)(child_process_1.exec);
  */
 class QAAutomation {
     constructor() {
-        this.srcPath = path.join(process.cwd(), 'src');
+        // 🔥 현재 디렉토리 확인 및 올바른 경로 설정
+        this.projectRoot = process.cwd();
+        this.srcPath = path.join(this.projectRoot, 'src');
         this.results = [];
+        
+        console.log(`🔍 Current working directory: ${process.cwd()}`);
+        console.log(`🔍 Project root: ${this.projectRoot}`);
+        console.log(`🔍 Src path: ${this.srcPath}`);
+        console.log(`🔍 Renderer path: ${path.join(this.srcPath, 'renderer')}`);
+        console.log(`🔍 Renderer exists: ${fs.existsSync(path.join(this.srcPath, 'renderer'))}`);
     }
     /**
      * 🔥 메인 QA 실행
@@ -336,17 +344,44 @@ class QAAutomation {
     async checkProcessSeparation(issues) {
         const mainFiles = await this.getFilesInDirectory(path.join(this.srcPath, 'main'));
         const rendererFiles = await this.getFilesInDirectory(path.join(this.srcPath, 'renderer'));
-        // Main process에서 DOM 접근 체크
+        // Main process에서 DOM 접근 체크 (개선된 로직)
         for (const file of mainFiles) {
             const content = fs.readFileSync(file, 'utf8');
-            if (content.includes('document.') || content.includes('window.')) {
-                issues.push({
-                    file: path.relative(process.cwd(), file),
-                    description: 'Main process에서 DOM에 접근하고 있음',
-                    recommendation: 'DOM 접근은 Renderer process에서만 해야 합니다',
-                    priority: 'critical'
-                });
-            }
+            const lines = content.split('\n');
+            
+            lines.forEach((line, index) => {
+                // 🔥 더 정확한 DOM 접근 패턴 체크
+                const domPatterns = [
+                    /document\./,               // document. 직접 접근
+                    /window\.(?!electronAPI)/,  // window. 접근 (electronAPI 제외)
+                    /localStorage/,             // localStorage 접근
+                    /sessionStorage/,           // sessionStorage 접근
+                    /navigator\./,              // navigator 접근
+                    /location\./,               // location 접근
+                    /history\./,                // history 접근
+                ];
+                
+                // Electron 관련 키워드는 제외
+                const isElectronCode = line.includes('BrowserWindow') || 
+                                     line.includes('webContents') ||
+                                     line.includes('electron') ||
+                                     line.includes('import') ||
+                                     line.includes('require');
+                
+                if (!isElectronCode) {
+                    domPatterns.forEach(pattern => {
+                        if (pattern.test(line)) {
+                            issues.push({
+                                file: path.relative(process.cwd(), file),
+                                line: index + 1,
+                                description: 'Main process에서 DOM에 접근하고 있음',
+                                recommendation: 'DOM 접근은 Renderer process에서만 해야 합니다',
+                                priority: 'critical'
+                            });
+                        }
+                    });
+                }
+            });
         }
         // Renderer process에서 Node.js API 직접 접근 체크
         for (const file of rendererFiles) {
@@ -495,19 +530,41 @@ class QAAutomation {
      */
     async checkReactPerformance(issues) {
         console.log('⚛️ React 성능 이슈 체크...');
+        
         const rendererPath = path.join(this.srcPath, 'renderer');
+        
+        console.log(`🔍 Checking renderer path: ${rendererPath}`);
+        console.log(`🔍 Renderer exists: ${fs.existsSync(rendererPath)}`);
+        
         if (!fs.existsSync(rendererPath)) {
             console.log('   ⚠️ Renderer 디렉토리가 없습니다');
-            return issues;
+            
+            // 🔥 대안 경로들 확인
+            const alternativePaths = [
+                path.join(process.cwd(), 'src', 'renderer'),
+                path.join(process.cwd(), 'renderer'),
+                path.join(this.projectRoot, 'src', 'renderer')
+            ];
+            
+            for (const altPath of alternativePaths) {
+                console.log(`🔍 Alternative path: ${altPath} - exists: ${fs.existsSync(altPath)}`);
+                if (fs.existsSync(altPath)) {
+                    console.log(`✅ Found renderer at: ${altPath}`);
+                    await this.scanDirectoryForReactIssues(altPath, issues);
+                    break;
+                }
+            }
+            
+            if (issues.length === 0) {
+                console.log('   ❌ React 컴포넌트를 찾을 수 없습니다');
+                return issues;
+            }
+        } else {
+            await this.scanDirectoryForReactIssues(rendererPath, issues);
         }
-        await this.scanDirectoryForReactIssues(rendererPath, issues);
+
         console.log(`   ✅ React 성능 체크 완료: ${issues.length}개 이슈 발견`);
-        this.results.push(...issues.map(issue => ({
-            category: 'React Performance',
-            severity: issue.priority,
-            description: issue.description,
-            priority: issue.priority
-        })));
+        
         return issues;
     }
     /**

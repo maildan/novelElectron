@@ -1,596 +1,166 @@
 {
-  "timestamp": "2025-07-08T02:01:59.696Z",
+  "timestamp": "2025-07-08T04:39:32.612Z",
   "totalFiles": 45,
-  "totalIssues": 211,
-  "averageScore": 80,
+  "totalIssues": 167,
+  "averageScore": 81,
   "files": [
     {
       "file": "src/renderer/app/settings/page.tsx",
       "issues": [
         {
-          "line": 107,
+          "line": 364,
           "type": "inline-object",
           "severity": "medium",
           "message": "인라인 이벤트 핸들러",
           "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
-          "code": "onClick={() => onChange(!checked)}"
-        },
-        {
-          "line": 280,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 이벤트 핸들러",
-          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
-          "code": "onClick={() => setActiveSection(section.id)}"
-        },
-        {
-          "line": 311,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}"
-        },
-        {
-          "line": 332,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('app', 'language', e.target.value)}"
-        },
-        {
-          "line": 353,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('app', 'autoSave', e.target.checked)}"
-        },
-        {
-          "line": 371,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('app', 'minimizeToTray', e.target.checked)}"
-        },
-        {
-          "line": 391,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('app', 'fontSize', parseInt(e.target.value))}"
-        },
-        {
-          "line": 420,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('keyboard', 'enabled', checked)}"
-        },
-        {
-          "line": 437,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('keyboard', 'language', e.target.value)}"
-        },
-        {
-          "line": 457,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('keyboard', 'trackAllApps', checked)}"
-        },
-        {
-          "line": 477,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('keyboard', 'sessionTimeout', parseInt(e.target.value))}"
-        },
-        {
-          "line": 506,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('ui', 'sidebarCollapsed', checked)}"
-        },
-        {
-          "line": 522,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('ui', 'focusMode', checked)}"
-        },
-        {
-          "line": 538,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('ui', 'showLineNumbers', checked)}"
-        },
-        {
-          "line": 554,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('ui', 'showWordCount', checked)}"
-        },
-        {
-          "line": 582,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('performance', 'enableGPUAcceleration', checked)}"
-        },
-        {
-          "line": 598,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(checked) => updateSetting('performance', 'enableHardwareAcceleration', checked)}"
-        },
-        {
-          "line": 619,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('performance', 'maxCPUUsage', parseInt(e.target.value))}"
-        },
-        {
-          "line": 641,
-          "type": "inline-object",
-          "severity": "medium",
-          "message": "인라인 변경 핸들러",
-          "suggestion": "useCallback으로 메모이제이션",
-          "code": "onChange={(e) => updateSetting('performance', 'maxMemoryUsage', parseInt(e.target.value))}"
-        },
-        {
-          "line": 1,
-          "type": "large-component",
-          "severity": "medium",
-          "message": "큰 컴포넌트 (672줄)",
-          "suggestion": "더 작은 컴포넌트로 분리 고려",
-          "code": "전체 컴포넌트 크기: 672줄"
-        }
-      ],
-      "score": 0
-    },
-    {
-      "file": "src/renderer/components/projects/hooks/useProjectData.ts",
-      "issues": [
-        {
-          "line": 94,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "setLastSaved(new Date(result.data.lastModified));"
-        },
-        {
-          "line": 113,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 114,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 122,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 123,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 131,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 132,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 145,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 146,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 154,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 155,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 163,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 164,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 185,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 186,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 194,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 195,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 203,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 204,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 212,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 213,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 221,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 222,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 230,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 231,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 244,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 245,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 253,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 254,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 262,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 263,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 271,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 272,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 280,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 281,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 289,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 290,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 313,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 314,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 324,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 325,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 340,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 341,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 351,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "createdAt: new Date(),"
-        },
-        {
-          "line": 352,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "updatedAt: new Date()"
-        },
-        {
-          "line": 369,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: JSON 파싱",
-          "suggestion": "useMemo로 결과 캐싱",
-          "code": "const backupData = JSON.parse(backup);"
+          "code": "onClick={() => handleSectionChange(section.id)}"
         },
         {
           "line": 395,
-          "type": "missing-memo",
+          "type": "inline-object",
           "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "const backupData = { title: currentTitle, content: currentContent, lastModified: new Date() };"
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}"
         },
         {
-          "line": 406,
-          "type": "missing-memo",
+          "line": 416,
+          "type": "inline-object",
           "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "lastModified: new Date()"
-        },
-        {
-          "line": 410,
-          "type": "missing-memo",
-          "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "setLastSaved(new Date());"
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('app', 'language', e.target.value)}"
         },
         {
           "line": 437,
-          "type": "missing-memo",
+          "type": "inline-object",
           "severity": "medium",
-          "message": "비용이 큰 연산: 날짜 객체 생성",
-          "suggestion": "useMemo 또는 상수로 분리",
-          "code": "setLastSaved(new Date());"
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('app', 'autoSave', e.target.checked)}"
+        },
+        {
+          "line": 455,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('app', 'minimizeToTray', e.target.checked)}"
+        },
+        {
+          "line": 475,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('app', 'fontSize', parseInt(e.target.value))}"
+        },
+        {
+          "line": 504,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'enabled', checked)}"
+        },
+        {
+          "line": 521,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('keyboard', 'language', e.target.value)}"
+        },
+        {
+          "line": 541,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'trackAllApps', checked)}"
+        },
+        {
+          "line": 561,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('keyboard', 'sessionTimeout', parseInt(e.target.value))}"
+        },
+        {
+          "line": 590,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('ui', 'sidebarCollapsed', checked)}"
+        },
+        {
+          "line": 606,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('ui', 'focusMode', checked)}"
+        },
+        {
+          "line": 622,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('ui', 'showLineNumbers', checked)}"
+        },
+        {
+          "line": 638,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('ui', 'showWordCount', checked)}"
+        },
+        {
+          "line": 666,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableGPUAcceleration', checked)}"
+        },
+        {
+          "line": 682,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableHardwareAcceleration', checked)}"
+        },
+        {
+          "line": 703,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('performance', 'maxCPUUsage', parseInt(e.target.value))}"
+        },
+        {
+          "line": 725,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSettingUpdate('performance', 'maxMemoryUsage', parseInt(e.target.value))}"
         },
         {
           "line": 1,
           "type": "large-component",
           "severity": "medium",
-          "message": "큰 컴포넌트 (606줄)",
+          "message": "큰 컴포넌트 (756줄)",
           "suggestion": "더 작은 컴포넌트로 분리 고려",
-          "code": "전체 컴포넌트 크기: 606줄"
-        },
-        {
-          "line": 1,
-          "type": "too-many-states",
-          "severity": "medium",
-          "message": "과도한 useState 사용 (11개)",
-          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
-          "code": "useState 사용 횟수: 11"
+          "code": "전체 컴포넌트 크기: 756줄"
         }
       ],
-      "score": 0
+      "score": 5
     },
     {
       "file": "src/renderer/components/projects/views/NotesView.tsx",
@@ -717,6 +287,84 @@
         }
       ],
       "score": 25
+    },
+    {
+      "file": "src/renderer/components/projects/hooks/useProjectData.ts",
+      "issues": [
+        {
+          "line": 45,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "// 🔥 성능 최적화: 기본 날짜 메모이제이션 (new Date() 반복 생성 방지)"
+        },
+        {
+          "line": 212,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date(result.data.lastModified));"
+        },
+        {
+          "line": 275,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: JSON 파싱",
+          "suggestion": "useMemo로 결과 캐싱",
+          "code": "const backupData = JSON.parse(backup);"
+        },
+        {
+          "line": 301,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const backupData = { title: currentTitle, content: currentContent, lastModified: new Date() };"
+        },
+        {
+          "line": 312,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "lastModified: new Date()"
+        },
+        {
+          "line": 316,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date());"
+        },
+        {
+          "line": 343,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date());"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (511줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 511줄"
+        },
+        {
+          "line": 1,
+          "type": "too-many-states",
+          "severity": "medium",
+          "message": "과도한 useState 사용 (11개)",
+          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
+          "code": "useState 사용 횟수: 11"
+        }
+      ],
+      "score": 55
     },
     {
       "file": "src/renderer/components/projects/ProjectCreator.tsx",
@@ -932,7 +580,7 @@
       "file": "src/renderer/app/ai/page.tsx",
       "issues": [
         {
-          "line": 215,
+          "line": 216,
           "type": "inline-object",
           "severity": "medium",
           "message": "인라인 이벤트 핸들러",
@@ -940,7 +588,7 @@
           "code": "onClick={() => handleFeatureClick(feature)}"
         },
         {
-          "line": 308,
+          "line": 309,
           "type": "inline-object",
           "severity": "medium",
           "message": "인라인 변경 핸들러",
@@ -948,7 +596,7 @@
           "code": "onChange={(e) => setInputMessage(e.target.value)}"
         },
         {
-          "line": 332,
+          "line": 333,
           "type": "inline-object",
           "severity": "medium",
           "message": "인라인 이벤트 핸들러",
@@ -964,7 +612,7 @@
           "code": "timestamp: new Date(Date.now() - 60000)"
         },
         {
-          "line": 160,
+          "line": 162,
           "type": "missing-memo",
           "severity": "medium",
           "message": "비용이 큰 연산: 날짜 객체 생성",
@@ -972,7 +620,7 @@
           "code": "timestamp: new Date()"
         },
         {
-          "line": 176,
+          "line": 177,
           "type": "missing-memo",
           "severity": "medium",
           "message": "비용이 큰 연산: 날짜 객체 생성",
@@ -983,9 +631,9 @@
           "line": 1,
           "type": "large-component",
           "severity": "medium",
-          "message": "큰 컴포넌트 (345줄)",
+          "message": "큰 컴포넌트 (346줄)",
           "suggestion": "더 작은 컴포넌트로 분리 고려",
-          "code": "전체 컴포넌트 크기: 345줄"
+          "code": "전체 컴포넌트 크기: 346줄"
         }
       ],
       "score": 65

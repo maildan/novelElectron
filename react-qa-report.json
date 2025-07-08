@@ -1,0 +1,466 @@
+{
+  "timestamp": "2025-07-08T03:18:36.544Z",
+  "totalIssues": 264,
+  "issuesByType": {
+    "inline-handler": 61,
+    "unnecessary-update": 99,
+    "missing-memo": 87,
+    "inline-style": 2,
+    "inline-conditional": 15
+  },
+  "issuesBySeverity": {
+    "medium": 264
+  },
+  "issues": [
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 216,
+      "type": "inline-handler",
+      "message": "인라인 클릭 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onClick={() => handleFeatureClick(feature)}"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 309,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => setInputMessage(e.target.value)}"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 333,
+      "type": "inline-handler",
+      "message": "인라인 클릭 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onClick={() => handleSuggestionClick(suggestion)}"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 166,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setIsTyping(true);"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 181,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setIsTyping(false);"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 187,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setInputMessage(suggestion);"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 127,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "timestamp: new Date(Date.now() - 60000)"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 162,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "timestamp: new Date()"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 177,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "timestamp: new Date()"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 102,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(true);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 103,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 144,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setAnalyticsData(convertedData);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 158,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setAnalyticsData(DEFAULT_ANALYTICS);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 160,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(false);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 208,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "const date = new Date(session.createdAt);"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 240,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "const duration = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();"
+    },
+    {
+      "file": "src/renderer/app/layout.tsx",
+      "line": 53,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSidebarCollapsed(true);"
+    },
+    {
+      "file": "src/renderer/app/layout.tsx",
+      "line": 60,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setIsClientMounted(true);"
+    },
+    {
+      "file": "src/renderer/app/layout.tsx",
+      "line": 70,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSidebarCollapsed(newState);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 38,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setShowCreator(true);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 57,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(true);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 58,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 70,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setProjects(projectsData);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 76,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(errorMessage);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 79,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setProjects(DEFAULT_PROJECTS);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 81,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(false);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 109,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setShowCreator(true);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 209,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 211,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(true);"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 258,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "onClose={() => setShowCreator(false)}"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 95,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 96,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "updatedAt: project.updatedAt ? new Date(project.updatedAt) :"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 97,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "project.lastModified ? new Date(project.lastModified) : new Date(),"
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "line": 151,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "updatedAt: new Date(),"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 364,
+      "type": "inline-handler",
+      "message": "인라인 클릭 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onClick={() => handleSectionChange(section.id)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 395,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 416,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('app', 'language', e.target.value)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 437,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('app', 'autoSave', e.target.checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 455,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('app', 'minimizeToTray', e.target.checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 475,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('app', 'fontSize', parseInt(e.target.value))}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 504,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'enabled', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 521,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('keyboard', 'language', e.target.value)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 541,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'trackAllApps', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 561,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(e) => handleSettingUpdate('keyboard', 'sessionTimeout', parseInt(e.target.value))}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 590,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('ui', 'sidebarCollapsed', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 606,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('ui', 'focusMode', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 622,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('ui', 'showLineNumbers', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 638,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('ui', 'showWordCount', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 666,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableGPUAcceleration', checked)}"
+    },
+    {
+      "file": "src/renderer/app/settings/page.tsx",
+      "line": 682,
+      "type": "inline-handler",
+      "message": "인라인 변경 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableHardwareAcceleration', checked)}"
+    }
+  ]
+}

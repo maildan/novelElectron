@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Logger } from '../../../../shared/logger';
 import { calculateWriterStats, type WriterStats as WriterStatsType } from '../editor/WriterStats';
 import { useAutoSave } from './useAutoSave';
@@ -41,6 +41,122 @@ interface UseProjectDataReturn {
 
 export function useProjectData(projectId: string): UseProjectDataReturn {
   const sessionStartRef = useRef<number>(Date.now());
+  
+  // 🔥 성능 최적화: 기본 날짜 메모이제이션 (new Date() 반복 생성 방지)
+  const defaultDate = useMemo(() => new Date(), []);
+  
+  // 🔥 성능 최적화: 기본 데이터 메모이제이션 (중복 객체 생성 방지)
+  const defaultCharacters = useMemo(() => [
+    { 
+      id: '1', 
+      projectId: projectId,
+      name: '주인공', 
+      role: '주요 인물', 
+      notes: '용감하고 정의로운 성격',
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '2', 
+      projectId: projectId,
+      name: '조력자', 
+      role: '조력자', 
+      notes: '지혜롭고 경험이 많음',
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '3', 
+      projectId: projectId,
+      name: '적대자', 
+      role: '적대자', 
+      notes: '야망이 크고 냉혹함',
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+  ], [projectId, defaultDate]);
+
+  const defaultNotes = useMemo(() => [
+    { 
+      id: '1', 
+      projectId: projectId,
+      title: '첫 번째 메모',
+      content: '이야기의 핵심 아이디어를 여기에 적어보세요.',
+      tags: ['아이디어'],
+      color: '#3b82f6',
+      isPinned: false,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '2', 
+      projectId: projectId,
+      title: '설정 노트',
+      content: '세계관, 배경 설정에 대한 내용을 정리합니다.',
+      tags: ['설정', '세계관'],
+      color: '#10b981',
+      isPinned: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+  ], [projectId, defaultDate]);
+
+  const defaultStructure = useMemo(() => [
+    { 
+      id: '1', 
+      projectId: projectId,
+      type: 'chapter' as const, 
+      title: '1장: 시작',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '2', 
+      projectId: projectId,
+      type: 'scene' as const, 
+      title: '첫 번째 장면',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '3', 
+      projectId: projectId,
+      type: 'scene' as const, 
+      title: '두 번째 장면',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '4', 
+      projectId: projectId,
+      type: 'chapter' as const, 
+      title: '2장: 전개',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '5', 
+      projectId: projectId,
+      type: 'scene' as const, 
+      title: '세 번째 장면',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+    { 
+      id: '6', 
+      projectId: projectId,
+      type: 'note' as const, 
+      title: '아이디어 메모',
+      isActive: true,
+      createdAt: defaultDate,
+      updatedAt: defaultDate
+    },
+  ], [projectId, defaultDate]);
   
   // 🔥 로딩 및 에러 상태 추가
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -105,67 +221,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
           } else {
             Logger.warn('PROJECT_DATA', 'No characters found, using defaults');
             // 기본 캐릭터 데이터
-            setCharacters([
-              { 
-                id: '1', 
-                projectId: projectId,
-                name: '주인공', 
-                role: '주요 인물', 
-                notes: '용감하고 정의로운 성격',
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '2', 
-                projectId: projectId,
-                name: '조력자', 
-                role: '조력자', 
-                notes: '지혜롭고 경험이 많음',
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '3', 
-                projectId: projectId,
-                name: '적대자', 
-                role: '적대자', 
-                notes: '야망이 크고 냉혹함',
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-            ]);
+            setCharacters(defaultCharacters);
           }
         } catch (error) {
           Logger.warn('PROJECT_DATA', 'Failed to load characters, using defaults', error);
-          setCharacters([
-            { 
-              id: '1', 
-              projectId: projectId,
-              name: '주인공', 
-              role: '주요 인물', 
-              notes: '용감하고 정의로운 성격',
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '2', 
-              projectId: projectId,
-              name: '조력자', 
-              role: '조력자', 
-              notes: '지혜롭고 경험이 많음',
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '3', 
-              projectId: projectId,
-              name: '적대자', 
-              role: '적대자', 
-              notes: '야망이 크고 냉혹함',
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-          ]);
+          setCharacters(defaultCharacters);
         }
         
         // 🔥 실제 데이터 로드 - 구조 데이터
@@ -177,121 +237,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
           } else {
             Logger.warn('PROJECT_DATA', 'No structure found, using defaults');
             // 기본 구조 데이터
-            setStructure([
-              { 
-                id: '1', 
-                projectId: projectId,
-                type: 'chapter', 
-                title: '1장: 시작',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '2', 
-                projectId: projectId,
-                type: 'scene', 
-                title: '첫 번째 장면',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '3', 
-                projectId: projectId,
-                type: 'scene', 
-                title: '두 번째 장면',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '4', 
-                projectId: projectId,
-                type: 'chapter', 
-                title: '2장: 전개',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '5', 
-                projectId: projectId,
-                type: 'scene', 
-                title: '세 번째 장면',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '6', 
-                projectId: projectId,
-                type: 'note', 
-                title: '아이디어 메모',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-            ]);
+            setStructure(defaultStructure);
           }
         } catch (error) {
           Logger.warn('PROJECT_DATA', 'Failed to load structure, using defaults', error);
-          setStructure([
-            { 
-              id: '1', 
-              projectId: projectId,
-              type: 'chapter', 
-              title: '1장: 시작',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '2', 
-              projectId: projectId,
-              type: 'scene', 
-              title: '첫 번째 장면',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '3', 
-              projectId: projectId,
-              type: 'scene', 
-              title: '두 번째 장면',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '4', 
-              projectId: projectId,
-              type: 'chapter', 
-              title: '2장: 전개',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '5', 
-              projectId: projectId,
-              type: 'scene', 
-              title: '세 번째 장면',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '6', 
-              projectId: projectId,
-              type: 'note', 
-              title: '아이디어 메모',
-              isActive: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-          ]);
+          setStructure(defaultStructure);
         }
         
         // 🔥 실제 데이터 로드 - 노트 데이터
@@ -303,57 +253,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
           } else {
             Logger.warn('PROJECT_DATA', 'No notes found, using defaults');
             // 기본 노트 데이터
-            setNotes([
-              { 
-                id: '1', 
-                projectId: projectId,
-                title: '첫 번째 메모',
-                content: '이야기의 핵심 아이디어를 여기에 적어보세요.',
-                tags: ['아이디어'],
-                color: '#3b82f6',
-                isPinned: false,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-              { 
-                id: '2', 
-                projectId: projectId,
-                title: '설정 노트',
-                content: '세계관, 배경 설정에 대한 내용을 정리합니다.',
-                tags: ['설정', '세계관'],
-                color: '#10b981',
-                isPinned: true,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              },
-            ]);
+            setNotes(defaultNotes);
           }
         } catch (error) {
           Logger.warn('PROJECT_DATA', 'Failed to load notes, using defaults', error);
-          setNotes([
-            { 
-              id: '1', 
-              projectId: projectId,
-              title: '첫 번째 메모',
-              content: '이야기의 핵심 아이디어를 여기에 적어보세요.',
-              tags: ['아이디어'],
-              color: '#3b82f6',
-              isPinned: false,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-            { 
-              id: '2', 
-              projectId: projectId,
-              title: '설정 노트',
-              content: '세계관, 배경 설정에 대한 내용을 정리합니다.',
-              tags: ['설정', '세계관'],
-              color: '#10b981',
-              isPinned: true,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            },
-          ]);
+          setNotes(defaultNotes);
         }
         
         Logger.info('PROJECT_DATA', 'Project loaded successfully');
@@ -458,16 +362,16 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     await forceSave();
   }, [forceSave]);
   
-  // 🔥 작가 통계 업데이트 (기가차드 수정: 세션 시간 실시간 계산)
+  // 🔥 비용이 큰 통계 계산을 메모이제이션 (Hook 규칙 준수)
+  const memoizedStats = useMemo(() => {
+    if (!content) return writerStats;
+    return calculateWriterStats(content, writerStats.wordGoal, sessionStartRef.current);
+  }, [content, writerStats.wordGoal, writerStats]);
+
+  // 🔥 작가 통계 업데이트 (메모이제이션된 값 사용)
   const updateWriterStats = useCallback((): void => {
-    if (!content) return;
-    
-    // 🔥 세션 시간을 매번 실시간 계산 (state 업데이트 없음)
-    const sessionMinutes = Math.max(1, (Date.now() - sessionStartRef.current) / 1000 / 60);
-    const newStats = calculateWriterStats(content, writerStats.wordGoal, sessionStartRef.current);
-    
-    setWriterStats(newStats);
-  }, [content, writerStats.wordGoal]);
+    setWriterStats(memoizedStats);
+  }, [memoizedStats]);
   
   const setWordGoal = useCallback((goal: number): void => {
     setWriterStats((prev: WriterStatsType) => ({
