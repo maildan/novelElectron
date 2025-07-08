@@ -68,7 +68,7 @@
   padding: 1rem !important;
 }
 
-/* 🔥 마크다운 구문 완전 숨기기 (기가차드 최종 개선) */
+/* 🔥 마크다운 구문 완전 박멸 (기가차드 Ultimate 구현) */
 .CodeMirror .cm-formatting,
 .CodeMirror .cm-formatting-header,
 .CodeMirror .cm-formatting-header-1,
@@ -82,8 +82,16 @@
 .CodeMirror .cm-formatting-link,
 .CodeMirror .cm-formatting-link-string,
 .CodeMirror .cm-formatting-list,
-.CodeMirror .cm-formatting-quote {
-  display: none !important; /* 🔥 완전 숨기기 */
+.CodeMirror .cm-formatting-quote,
+.CodeMirror .cm-formatting-code,
+.CodeMirror .cm-formatting-code-block,
+.CodeMirror .cm-formatting-image,
+.CodeMirror .cm-formatting-task,
+.CodeMirror .cm-formatting-escape,
+.CodeMirror .cm-formatting-reference,
+.CodeMirror span[class*="cm-formatting"] {
+  /* 🔥 Ultimate 숨김 기법 - 모든 방법 동시 적용 */
+  display: none !important; 
   visibility: hidden !important;
   opacity: 0 !important;
   font-size: 0 !important;
@@ -91,13 +99,24 @@
   height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
-  position: absolute !important;
+  position: fixed !important; /* absolute 대신 fixed 사용 */
   left: -99999px !important;
+  top: -99999px !important;
+  z-index: -9999 !important; /* 🔥 추가: z-index 최하위 */
   pointer-events: none !important;
-  color: transparent !important; /* 🔥 추가: 색상 투명화 */
-  background: transparent !important; /* 🔥 추가: 배경 투명화 */
-  text-shadow: none !important; /* 🔥 추가: 그림자 제거 */
+  color: transparent !important; 
+  background: transparent !important;
+  text-shadow: none !important;
   border: none !important;
+  outline: none !important; /* 🔥 추가: 아웃라인 제거 */
+  box-shadow: none !important; /* 🔥 추가: 그림자 제거 */
+  transform: scale(0) !important; /* 🔥 추가: 크기를 0으로 */
+  overflow: hidden !important; /* 🔥 추가: 넘침 숨김 */
+  clip: rect(0, 0, 0, 0) !important; /* 🔥 추가: 클리핑 */
+  white-space: nowrap !important;
+  text-indent: -9999px !important; /* 🔥 추가: 텍스트 들여쓰기 */
+  user-select: none !important; /* 🔥 추가: 선택 불가 */
+  content: "" !important; /* 🔥 추가: 내용 제거 */
 }
 
 /* 🔥 CodeMirror 헤딩 색상 문제 해결 */
@@ -122,15 +141,13 @@
   background: transparent !important;
 }
 
-/* 🔥 헤딩 포매팅 다음의 스페이스도 완전 제거 */
+/* 🔥 헤딩 포매팅 스페이스 완전 제거 (통합) */
 .CodeMirror .cm-formatting-header + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-1 + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-2 + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-3 + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-4 + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-5 + .cm-formatting-space,
-.CodeMirror .cm-formatting-header-6 + .cm-formatting-space {
-  position: fixed !important; /* 🔥 fixed로 변경 */
+.CodeMirror .cm-formatting-strong + .cm-space,
+.CodeMirror .cm-formatting-em + .cm-space,
+.CodeMirror span[class*="cm-formatting"] + .cm-space {
+  /* 🔥 포매팅 다음의 모든 공백 완전 제거 */
+  position: fixed !important;
   left: -99999px !important;
   top: -99999px !important;
   width: 0 !important;
@@ -144,47 +161,10 @@
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
+  z-index: -9999 !important;
 }
 
-/* 마크다운 링크 포매팅 완전 숨기기 */
-.CodeMirror .cm-formatting-link,
-.CodeMirror .cm-formatting-link-string {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 0 !important;
-  opacity: 0 !important;
-  font-size: 0 !important;
-  display: none !important;
-}
-
-/* 마크다운 리스트 포매팅 완전 숨기기 */
-.CodeMirror .cm-formatting-list {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 0 !important;
-  opacity: 0 !important;
-  font-size: 0 !important;
-  display: none !important;
-}
-
-/* 마크다운 굵게/기울임 포매팅 완전 숨기기 */
-.CodeMirror .cm-formatting-strong,
-.CodeMirror .cm-formatting-em {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
-  font-size: 0 !important;
-  line-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: none !important;
-}
+/* 🔥 마크다운 포매팅 중복 제거 - 위에서 이미 처리됨 */
 
 /* 🔥 헤딩 스타일 (노션 스타일) */
 .CodeMirror .cm-header-1 {
@@ -243,27 +223,7 @@
   border-radius: 4px !important;
 }
 
-/* 🔥 추가 마크다운 포매팅 클래스들 완전 숨기기 */
-.CodeMirror .cm-formatting-code,
-.CodeMirror .cm-formatting-code-block,
-.CodeMirror .cm-formatting-quote,
-.CodeMirror .cm-formatting-task,
-.CodeMirror .cm-formatting-escape,
-.CodeMirror .cm-formatting-image,
-.CodeMirror .cm-formatting-reference {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
-  font-size: 0 !important;
-  line-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: none !important;
-}
+/* 🔥 추가 마크다운 포매팅 중복 제거 - 위에서 이미 처리됨 */
 
 /* 🔥 에디터 전체 스타일링 */
 .CodeMirror {

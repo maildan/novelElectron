@@ -1,6 +1,8 @@
 // 🔥 기가차드 Settings 타입 정의 - electron-store 호환
 'use client';
 
+import React from 'react';
+
 /**
  * 🔥 설정 섹션 타입 (main/settings와 완전 호환)
  */
@@ -77,3 +79,35 @@ export type UpdateSettingFunction = <K extends keyof SettingsData, T extends key
   key: T,
   value: SettingsData[K][T]
 ) => Promise<void>;
+
+/**
+ * 🔥 설정 아이템 Props (SettingItem 컴포넌트용)
+ */
+export interface SettingItemProps {
+  title: string;
+  description: string;
+  control: React.ReactNode;
+}
+
+/**
+ * 🔥 설정 섹션 정의 (constants/settings.ts용)
+ */
+export interface SettingSectionDefinition {
+  id: SettingSection;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+/**
+ * 🔥 useSettings 훅 반환 타입
+ */
+export interface UseSettingsReturn {
+  settings: SettingsData | null;
+  loading: boolean;
+  saving: boolean;
+  error: string | null;
+  updateSetting: UpdateSettingFunction;
+  saveAllSettings: () => Promise<void>;
+  resetSettings: () => Promise<void>;
+  setSettings: React.Dispatch<React.SetStateAction<SettingsData | null>>;
+}

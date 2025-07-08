@@ -68,6 +68,7 @@ export class WindowTracker extends BaseManager {
   private trackingInterval: NodeJS.Timeout | null = null;
   private windowHistory: WindowInfo[] = [];
   private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
+  private loggedMissingTitles: Set<string> = new Set(); // 🔥 중복 로그 방지용
 
   // 🔥 앱 카테고리 매핑 (Loop 특화) - 중복 제거 및 확장된 버전
 
@@ -84,7 +85,7 @@ export class WindowTracker extends BaseManager {
     this.hasAccessibilityPermission = hasAccessibilityPermission;
 
     this.trackerConfig = {
-      trackingInterval: 500, // 0.5초마다 체크
+      trackingInterval: 2000, // 🔥 2초마다 체크로 변경 (CPU 부하 감소)
       enableMemoryTracking: true,
       enableTitleTracking: true,
       maxHistorySize: 100,
@@ -304,21 +305,23 @@ export class WindowTracker extends BaseManager {
       if (!windowInfo.owner.name || windowInfo.owner.name.trim() === '') {
         Logger.debug(this.componentName, '⚠️ owner.name 없음 - 기본값으로 보완');
         windowInfo.owner.name = 'Unknown App';
-      }
-
-      // 🔥 title 검증 및 보완 (개선된 로직)
-      if (!windowInfo.title || windowInfo.title.trim() === '') {
-        Logger.debug(this.componentName, '⚠️ title 없음 - 앱 이름으로 보완');
-        
-        // 추후 activeWin 옵션 확장 시 활용 가능
-        // TODO: active-win 8.x 옵션 활용하여 더 정확한 title 획득
-        windowInfo.title = `${windowInfo.owner.name} - Active Window`;
-        
-        Logger.debug(this.componentName, '✅ title 보완 완료', { 
-          originalTitle: '',
-          enhancedTitle: windowInfo.title 
-        });
-      }
+      }        // 🔥 title 검증 및 보완 (로그 최소화)
+        if (!windowInfo.title || windowInfo.title.trim() === '') {
+          // 추후 activeWin 옵션 확장 시 활용 가능
+          // TODO: active-win 8.x 옵션 활용하여 더 정확한 title 획득
+          windowInfo.title = windowInfo.owner.name;
+          
+          // 🔥 중복 로그 방지: 같은 앱의 title 없음은 1회만 로그
+          if (!this.loggedMissingTitles?.has(windowInfo.owner.name)) {
+            if (!this.loggedMissingTitles) {
+              this.loggedMissingTitles = new Set();
+            }
+            this.loggedMissingTitles.add(windowInfo.owner.name);
+            Logger.debug(this.componentName, '✅ title 보완 완료', { 
+              appName: windowInfo.owner.name
+            });
+          }
+        }
 
       // 🔥 processId 검증 및 보완
       if (typeof windowInfo.owner.processId !== 'number' || windowInfo.owner.processId <= 0) {
@@ -343,12 +346,8 @@ export class WindowTracker extends BaseManager {
         windowInfo.memoryUsage = 0;
       }
 
-      Logger.debug(this.componentName, '✅ 윈도우 정보 검증 완료', {
-        app: windowInfo.owner.name,
-        title: windowInfo.title,
-        processId: windowInfo.owner.processId,
-        id: windowInfo.id
-      });
+      // 🔥 윈도우 정보 검증 완료 (로그 최소화)
+      // DEBUG 로그 제거하여 1초마다 반복되는 로그 방지
 
       return windowInfo;
 
@@ -394,12 +393,8 @@ export class WindowTracker extends BaseManager {
     enhanced.loopAppCategory = getAppCategory(ownerName) as WindowInfo['loopAppCategory'];
     enhanced.loopSessionId = `${ownerName}-${Date.now()}`;
 
-    // 🔥 추가 디버그 정보
-    Logger.debug(this.componentName, '🔧 윈도우 정보 향상 완료', {
-      originalApp: ownerName,
-      detectedCategory: enhanced.loopAppCategory,
-      sessionId: enhanced.loopSessionId,
-    });
+    // 🔥 로그 최소화: 윈도우가 실제로 변경될 때만 로그
+    // DEBUG 로그 제거하여 1초마다 반복되는 로그 방지
 
     return enhanced;
   }

@@ -230,6 +230,6 @@ export function useSettings(): UseSettingsReturn {
     updateSetting,
     saveAllSettings,
     resetSettings,
-    loadSettings,
+    setSettings,
   };
 }

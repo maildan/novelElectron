@@ -7,8 +7,6 @@ import {
   Share2,
   Download,
   Trash2,
-  Sun,
-  Moon,
   Sidebar,
   Eye,
   EyeOff
@@ -48,10 +46,6 @@ interface ProjectHeaderProps {
   isFocusMode: boolean;
   onToggleFocusMode: () => void;
   
-  // 🔥 다크모드 컨트롤
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
-  
   // 🔥 프로젝트 액션들
   onSave: () => void;
   onShare: () => void;
@@ -67,25 +61,18 @@ export function ProjectHeader({
   onToggleSidebar,
   isFocusMode,
   onToggleFocusMode,
-  isDarkMode,
-  onToggleDarkMode,
   onSave,
   onShare,
   onDownload,
   onDelete
 }: ProjectHeaderProps): React.ReactElement {
   
-  // 🔥 헤더 액션 정의 (모듈화된 방식)
+  // 🔥 헤더 액션 정의 (모듈화된 방식) - 테마 토글 제거
   const headerActions: HeaderAction[] = [
     { icon: Save, label: '저장', onClick: onSave },
     { icon: Share2, label: '공유', onClick: onShare },
     { icon: Download, label: '다운로드', onClick: onDownload },
     { icon: Trash2, label: '삭제', onClick: onDelete },
-    { 
-      icon: isDarkMode ? Sun : Moon, 
-      label: '테마', 
-      onClick: onToggleDarkMode 
-    },
   ];
 
   return (

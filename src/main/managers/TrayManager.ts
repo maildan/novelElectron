@@ -102,13 +102,24 @@ export class TrayManager extends BaseManager {
       const iconPath = this.getTrayIconPath();
       
       if (!iconPath) {
-        throw new Error('Tray icon path not found');
+        throw new Error('Tray icon path not found for current platform');
+      }
+
+      // 🔥 파일 존재 여부 확인
+      const fs = await import('fs/promises');
+      try {
+        await fs.access(iconPath);
+        Logger.debug(this.componentName, 'Tray icon file exists', { iconPath });
+      } catch (fileError) {
+        Logger.error(this.componentName, 'Tray icon file not found', { iconPath, error: fileError });
+        throw new Error(`Tray icon file not found: ${iconPath}`);
       }
 
       // 아이콘 이미지 생성
       const icon = nativeImage.createFromPath(iconPath);
       
       if (icon.isEmpty()) {
+        Logger.error(this.componentName, 'Failed to create image from path', { iconPath });
         throw new Error(`Failed to load tray icon from: ${iconPath}`);
       }
 
@@ -124,7 +135,11 @@ export class TrayManager extends BaseManager {
         this.tray = new Tray(icon);
       }
 
-      Logger.info(this.componentName, 'Tray icon created', { iconPath });
+      Logger.info(this.componentName, 'Tray icon created successfully', { 
+        iconPath, 
+        platform: process.platform,
+        isEmpty: icon.isEmpty()
+      });
 
     } catch (error) {
       Logger.error(this.componentName, 'Failed to create tray icon', error);
@@ -286,17 +301,40 @@ export class TrayManager extends BaseManager {
    */
   private getTrayIconPath(): string | null {
     try {
-      const iconsDir = path.join(__dirname, '..', '..', '..', 'public', 'icon');
+      // 🔥 개발 환경과 프로덕션 환경 구분
+      const isDev = process.env.NODE_ENV === 'development';
+      
+      let iconsDir: string;
+      if (isDev) {
+        // 개발 환경: 프로젝트 루트의 public/icon
+        iconsDir = path.join(process.cwd(), 'public', 'icon');
+      } else {
+        // 프로덕션 환경: 패키지된 앱의 resources 폴더
+        const appPath = app.getAppPath();
+        iconsDir = path.join(appPath, '..', 'public', 'icon');
+      }
+      
+      Logger.debug(this.componentName, 'Icon directory paths', {
+        iconsDir,
+        isDev,
+        platform: process.platform
+      });
       
       if (Platform.isMacOS()) {
-        // 🔥 macOS - Template.png 접미사가 있는 템플릿 이미지 필수
-        return path.join(iconsDir, 'iconTemplate.png');
+        // 🔥 macOS - iconTemplate.png (자동 다크/라이트 모드 변경)
+        const iconPath = path.join(iconsDir, 'iconTemplate.png');
+        Logger.debug(this.componentName, 'macOS icon path resolved', { iconPath });
+        return iconPath;
       } else if (Platform.isWindows()) {
         // Windows - ICO 파일 권장
-        return path.join(iconsDir, 'tray.ico');
+        const iconPath = path.join(iconsDir, 'tray.ico');
+        Logger.debug(this.componentName, 'Windows icon path resolved', { iconPath });
+        return iconPath;
       } else if (Platform.isLinux()) {
         // Linux - PNG 파일
-        return path.join(iconsDir, 'tray.png');
+        const iconPath = path.join(iconsDir, 'tray.png');
+        Logger.debug(this.componentName, 'Linux icon path resolved', { iconPath });
+        return iconPath;
       }
       
       return null;
@@ -336,19 +374,28 @@ export class TrayManager extends BaseManager {
     try {
       // 기본 아이콘 경로 (항상 동일)
       const iconPath = this.getTrayIconPath();
-      if (!iconPath) return;
+      if (!iconPath) {
+        Logger.warn(this.componentName, 'Icon path not available for update');
+        return;
+      }
 
       // 아이콘 이미지 생성
       const icon = nativeImage.createFromPath(iconPath);
-      if (icon.isEmpty()) return;
+      if (icon.isEmpty()) {
+        Logger.warn(this.componentName, 'Failed to create icon for update', { iconPath });
+        return;
+      }
 
       // macOS에서는 템플릿 이미지 설정
       if (Platform.isMacOS()) {
         const templateIcon = nativeImage.createFromPath(iconPath);
         templateIcon.setTemplateImage(true);
         this.tray.setImage(templateIcon);
+        
+        Logger.debug(this.componentName, 'macOS template icon updated', { iconPath });
       } else {
         this.tray.setImage(icon);
+        Logger.debug(this.componentName, 'Standard icon updated', { iconPath });
       }
 
       Logger.debug(this.componentName, 'Tray icon updated', { 

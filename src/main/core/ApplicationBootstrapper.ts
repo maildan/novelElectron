@@ -126,9 +126,12 @@ export class ApplicationBootstrapper {
   private async handleAppReady(): Promise<void> {
     try {
       // 기존 windowManager 활용 (중복 방지)
-      await windowManager.createMainWindow();
+      const mainWindow = windowManager.createMainWindow('main');
       
-      Logger.info('BOOTSTRAPPER', '🪟 Main window created');
+      // 🔥 URL 로딩 추가 (빈 화면 문제 해결)
+      await windowManager.loadUrl('main');
+      
+      Logger.info('BOOTSTRAPPER', '🪟 Main window created and URL loaded');
     } catch (error) {
       Logger.error('BOOTSTRAPPER', 'Failed to create main window', error);
       throw error;

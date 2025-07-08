@@ -180,15 +180,26 @@ export class WindowManager {
   private getAppIcon(): string | undefined {
     // #DEBUG: Getting app icon
     try {
-      if (Platform.isWindows()) {
-        return join(__dirname, '../../assets/icon.ico');
-      } else if (Platform.isMacOS()) {
-        return join(__dirname, '../../assets/icon.icns');
+      const isDev = process.env.NODE_ENV === 'development';
+      
+      let iconsDir: string;
+      if (isDev) {
+        // 개발 환경: 프로젝트 루트의 public/icon
+        iconsDir = join(process.cwd(), 'public', 'icon');
       } else {
-        return join(__dirname, '../../assets/icon.png');
+        // 프로덕션 환경: 패키지된 앱의 resources 폴더
+        iconsDir = join(__dirname, '../../../public/icon');
+      }
+      
+      if (Platform.isWindows()) {
+        return join(iconsDir, 'tray.ico');
+      } else if (Platform.isMacOS()) {
+        return join(iconsDir, 'appIcon.png');
+      } else {
+        return join(iconsDir, 'appIcon.png');
       }
     } catch (error) {
-      Logger.warn('WINDOW', 'Could not find app icon');
+      Logger.warn('WINDOW', 'Could not find app icon', error);
       return undefined;
     }
   }
@@ -204,7 +215,7 @@ export class WindowManager {
 
       const targetUrl = url || (process.env.NODE_ENV === 'development'
         ? 'http://localhost:4000'
-        : `file://${join(__dirname, '../../out/index.html')}`
+        : `file://${join(__dirname, '../renderer/index.html')}`
       );
 
       await window.loadURL(targetUrl);

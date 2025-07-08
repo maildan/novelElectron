@@ -13,9 +13,10 @@ if (process.env.NODE_ENV === 'development') {
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=2048');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 
-// 🔥 macOS 보안 설정
+// 🔥 macOS 보안 설정  
 if (process.platform === 'darwin') {
-  app.dock?.setIcon(''); // 독 아이콘 설정
+  // 독 아이콘은 기본값 사용 (빈 문자열 에러 방지)
+  // app.dock?.setIcon(''); // 제거: 빈 경로로 인한 이미지 로드 실패
 }
 
 /**
