@@ -54,6 +54,7 @@ export class AppLifecycle extends BaseManager {
   private beforeQuitHandlers: Array<() => Promise<void>> = [];
   private onActivateHandlers: Array<() => Promise<void>> = [];
   private onDeactivateHandlers: Array<() => Promise<void>> = [];
+  private metricsInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     super({ name: 'AppLifecycle', autoStart: true });
@@ -93,6 +94,13 @@ export class AppLifecycle extends BaseManager {
    */
   protected async doCleanup(): Promise<void> {
     Logger.info(this.componentName, 'Cleaning up app lifecycle manager');
+    
+    // 🔥 메트릭스 수집 타이머 정리
+    if (this.metricsInterval) {
+      clearInterval(this.metricsInterval);
+      this.metricsInterval = null;
+    }
+    
     this.events.length = 0;
     this.beforeQuitHandlers.length = 0;
     this.onActivateHandlers.length = 0;
@@ -232,16 +240,34 @@ export class AppLifecycle extends BaseManager {
   }
 
   /**
-   * 주기적 메트릭스 수집
+   * 주기적 메트릭스 수집 (무한루프 방지)
    */
   private startPeriodicMetricsCollection(): void {
-    setInterval(() => {
-      this.addEvent('metrics-collected', this.currentState, {
-        memoryUsage: process.memoryUsage(),
-        cpuUsage: process.cpuUsage(),
-        uptime: process.uptime(),
-      });
-    }, 60000); // 1분마다
+    // 🔥 기존 interval 정리
+    if (this.metricsInterval) {
+      clearInterval(this.metricsInterval);
+      this.metricsInterval = null;
+    }
+
+    // 개발 모드에서는 간격을 늘림 (5분)
+    const interval = process.env.NODE_ENV === 'development' ? 300000 : 60000;
+    
+    this.metricsInterval = setInterval(() => {
+      try {
+        // 🔥 매니저가 실행 중일 때만 수집
+        if (this.isRunning()) {
+          this.addEvent('metrics-collected', this.currentState, {
+            memoryUsage: process.memoryUsage(),
+            cpuUsage: process.cpuUsage(),
+            uptime: process.uptime(),
+          });
+        }
+      } catch (error) {
+        Logger.error(this.componentName, 'Metrics collection failed', error);
+      }
+    }, interval);
+    
+    Logger.debug(this.componentName, `Metrics collection setup with ${interval/1000}s interval`);
   }
 
   /**

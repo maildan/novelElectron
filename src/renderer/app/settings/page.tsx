@@ -97,14 +97,20 @@ interface ToggleProps {
   onChange: (checked: boolean) => void;
 }
 
+// 🔥 기가차드 성능 최적화: 인라인 핸들러 제거
 function Toggle({ checked, onChange }: ToggleProps): React.ReactElement {
+  // 🔥 useCallback으로 이벤트 핸들러 메모이제이션
+  const handleToggle = useCallback(() => {
+    onChange(!checked);
+  }, [checked, onChange]);
+
   return (
     <button
       type="button"
       className={`${SETTINGS_PAGE_STYLES.toggle} ${
         checked ? SETTINGS_PAGE_STYLES.toggleActive : SETTINGS_PAGE_STYLES.toggleInactive
       }`}
-      onClick={() => onChange(!checked)}
+      onClick={handleToggle}
     >
       <span
         className={`${SETTINGS_PAGE_STYLES.toggleSwitch} ${
@@ -251,6 +257,84 @@ export default function SettingsPage(): React.ReactElement {
     }
   }, []);
 
+  // 🔥 기가차드 성능 최적화: 이벤트 핸들러 메모이제이션
+  const handleSectionChange = useCallback((sectionId: SettingSection) => {
+    setActiveSection(sectionId);
+  }, []);
+
+  const handleSettingUpdate = useCallback(async (
+    category: string,
+    key: string,
+    value: unknown
+  ): Promise<void> => {
+    // 타입 안전성을 위해 기존 updateSetting 함수 직접 호출
+    try {
+      if (!settings) return;
+      
+      setSaving(true);
+      const result = await window.electronAPI.settings.set(category, value);
+      if (result.success) {
+        // 로컬 상태 업데이트
+        setSettings(prev => prev ? {
+          ...prev,
+          [category]: {
+            ...prev[category as keyof SettingsData],
+            [key]: value
+          }
+        } : null);
+      }
+    } catch (error) {
+      Logger.error('SETTINGS_PAGE', 'Failed to update setting', error);
+    } finally {
+      setSaving(false);
+    }
+  }, [settings]);
+
+  const handleSaveAll = useCallback(async (): Promise<void> => {
+    if (!settings) return;
+    
+    try {
+      setSaving(true);
+      Logger.info('SETTINGS_PAGE', 'Saving all settings...');
+      
+      // 모든 카테고리 저장
+      for (const category of Object.keys(settings) as Array<keyof SettingsData>) {
+        const result = await window.electronAPI.settings.set(category, settings[category]);
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to save settings');
+        }
+      }
+      
+      Logger.info('SETTINGS_PAGE', 'All settings saved successfully');
+    } catch (error) {
+      Logger.error('SETTINGS_PAGE', 'Failed to save settings', error);
+    } finally {
+      setSaving(false);
+    }
+  }, [settings]);
+
+  const handleResetAll = useCallback(async (): Promise<void> => {
+    if (!confirm('모든 설정을 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      Logger.info('SETTINGS_PAGE', 'Resetting all settings...');
+      
+      const result = await window.electronAPI.settings.reset();
+      if (result.success) {
+        // 기본값으로 재설정
+        window.location.reload();
+        Logger.info('SETTINGS_PAGE', 'Settings reset successfully');
+      }
+    } catch (error) {
+      Logger.error('SETTINGS_PAGE', 'Failed to reset settings', error);
+    } finally {
+      setSaving(false);
+    }
+  }, []);
+
   // 🔥 로딩 상태 처리
   if (loading || !settings) {
     return (
@@ -277,7 +361,7 @@ export default function SettingsPage(): React.ReactElement {
                 ? SETTINGS_PAGE_STYLES.navButtonActive
                 : SETTINGS_PAGE_STYLES.navButtonInactive
             }`}
-            onClick={() => setActiveSection(section.id)}
+            onClick={() => handleSectionChange(section.id)}
           >
             <section.icon className="w-4 h-4 mr-2 inline" />
             {section.label}
@@ -308,7 +392,7 @@ export default function SettingsPage(): React.ReactElement {
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
                     value={settings?.app?.theme || 'system'}
-                    onChange={(e) => updateSetting('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}
+                    onChange={(e) => handleSettingUpdate('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}
                   >
                     <option value="system">시스템 설정 따름</option>
                     <option value="light">라이트 모드</option>
@@ -329,7 +413,7 @@ export default function SettingsPage(): React.ReactElement {
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
                     value={settings?.app?.language || 'ko'}
-                    onChange={(e) => updateSetting('app', 'language', e.target.value)}
+                    onChange={(e) => handleSettingUpdate('app', 'language', e.target.value)}
                   >
                     <option value="ko">한국어</option>
                     <option value="en">English</option>
@@ -350,7 +434,7 @@ export default function SettingsPage(): React.ReactElement {
                     type="checkbox"
                     className={SETTINGS_PAGE_STYLES.checkbox}
                     checked={settings?.app?.autoSave || false}
-                    onChange={(e) => updateSetting('app', 'autoSave', e.target.checked)}
+                    onChange={(e) => handleSettingUpdate('app', 'autoSave', e.target.checked)}
                   />
                 </div>
               </div>
@@ -368,7 +452,7 @@ export default function SettingsPage(): React.ReactElement {
                     type="checkbox"
                     className={SETTINGS_PAGE_STYLES.checkbox}
                     checked={settings?.app?.minimizeToTray || true}
-                    onChange={(e) => updateSetting('app', 'minimizeToTray', e.target.checked)}
+                    onChange={(e) => handleSettingUpdate('app', 'minimizeToTray', e.target.checked)}
                   />
                 </div>
               </div>
@@ -388,7 +472,7 @@ export default function SettingsPage(): React.ReactElement {
                     max="24"
                     className={SETTINGS_PAGE_STYLES.numberInput}
                     value={settings?.app?.fontSize || 14}
-                    onChange={(e) => updateSetting('app', 'fontSize', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingUpdate('app', 'fontSize', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">px</span>
                 </div>
@@ -417,7 +501,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings.keyboard.enabled}
-                    onChange={(checked) => updateSetting('keyboard', 'enabled', checked)}
+                    onChange={(checked) => handleSettingUpdate('keyboard', 'enabled', checked)}
                   />
                 </div>
               </div>
@@ -434,7 +518,7 @@ export default function SettingsPage(): React.ReactElement {
                   <select
                     className={SETTINGS_PAGE_STYLES.select}
                     value={settings?.keyboard?.language || 'korean'}
-                    onChange={(e) => updateSetting('keyboard', 'language', e.target.value)}
+                    onChange={(e) => handleSettingUpdate('keyboard', 'language', e.target.value)}
                   >
                     <option value="korean">한국어</option>
                     <option value="english">English</option>
@@ -454,7 +538,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings.keyboard.trackAllApps}
-                    onChange={(checked) => updateSetting('keyboard', 'trackAllApps', checked)}
+                    onChange={(checked) => handleSettingUpdate('keyboard', 'trackAllApps', checked)}
                   />
                 </div>
               </div>
@@ -474,7 +558,7 @@ export default function SettingsPage(): React.ReactElement {
                     max="60"
                     className={SETTINGS_PAGE_STYLES.numberInput}
                     value={settings?.keyboard?.sessionTimeout || 30}
-                    onChange={(e) => updateSetting('keyboard', 'sessionTimeout', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingUpdate('keyboard', 'sessionTimeout', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">분</span>
                 </div>
@@ -503,7 +587,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.ui?.sidebarCollapsed || false}
-                    onChange={(checked) => updateSetting('ui', 'sidebarCollapsed', checked)}
+                    onChange={(checked) => handleSettingUpdate('ui', 'sidebarCollapsed', checked)}
                   />
                 </div>
               </div>
@@ -519,7 +603,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.ui?.focusMode || false}
-                    onChange={(checked) => updateSetting('ui', 'focusMode', checked)}
+                    onChange={(checked) => handleSettingUpdate('ui', 'focusMode', checked)}
                   />
                 </div>
               </div>
@@ -535,7 +619,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.ui?.showLineNumbers || true}
-                    onChange={(checked) => updateSetting('ui', 'showLineNumbers', checked)}
+                    onChange={(checked) => handleSettingUpdate('ui', 'showLineNumbers', checked)}
                   />
                 </div>
               </div>
@@ -551,7 +635,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.ui?.showWordCount || true}
-                    onChange={(checked) => updateSetting('ui', 'showWordCount', checked)}
+                    onChange={(checked) => handleSettingUpdate('ui', 'showWordCount', checked)}
                   />
                 </div>
               </div>
@@ -579,7 +663,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.performance?.enableGPUAcceleration || true}
-                    onChange={(checked) => updateSetting('performance', 'enableGPUAcceleration', checked)}
+                    onChange={(checked) => handleSettingUpdate('performance', 'enableGPUAcceleration', checked)}
                   />
                 </div>
               </div>
@@ -595,7 +679,7 @@ export default function SettingsPage(): React.ReactElement {
                 <div className={SETTINGS_PAGE_STYLES.settingControl}>
                   <Toggle
                     checked={settings?.performance?.enableHardwareAcceleration || true}
-                    onChange={(checked) => updateSetting('performance', 'enableHardwareAcceleration', checked)}
+                    onChange={(checked) => handleSettingUpdate('performance', 'enableHardwareAcceleration', checked)}
                   />
                 </div>
               </div>
@@ -616,7 +700,7 @@ export default function SettingsPage(): React.ReactElement {
                     step="5"
                     className={SETTINGS_PAGE_STYLES.numberInput}
                     value={settings?.performance?.maxCPUUsage || 80}
-                    onChange={(e) => updateSetting('performance', 'maxCPUUsage', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingUpdate('performance', 'maxCPUUsage', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">%</span>
                 </div>
@@ -638,7 +722,7 @@ export default function SettingsPage(): React.ReactElement {
                     step="100"
                     className={SETTINGS_PAGE_STYLES.numberInput}
                     value={settings?.performance?.maxMemoryUsage || 1000}
-                    onChange={(e) => updateSetting('performance', 'maxMemoryUsage', parseInt(e.target.value))}
+                    onChange={(e) => handleSettingUpdate('performance', 'maxMemoryUsage', parseInt(e.target.value))}
                   />
                   <span className="text-sm text-slate-500">MB</span>
                 </div>

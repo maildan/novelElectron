@@ -22,6 +22,7 @@ export class SettingsManager extends BaseManager {
   private settings: SettingsSchema;
   private storage: SettingsStorage;
   private changeListeners: Map<string, Set<(event: SettingsChangeEvent) => void>>;
+  private autoSaveInterval: NodeJS.Timeout | null = null;
 
   // 컴포넌트 이름 getter
   private get componentName(): string {
@@ -277,17 +278,30 @@ export class SettingsManager extends BaseManager {
   }
 
   /**
-   * 🔥 자동 저장 설정
+   * 🔥 자동 저장 설정 (무한루프 방지)
    */
   private setupAutoSave(): void {
-    // 30초마다 자동 저장
-    setInterval(async () => {
+    // 🔥 기존 interval 정리
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval);
+      this.autoSaveInterval = null;
+    }
+
+    // 30초마다 자동 저장 (개발 모드에서는 60초)
+    const interval = process.env.NODE_ENV === 'development' ? 60000 : 30000;
+    
+    this.autoSaveInterval = setInterval(async () => {
       try {
-        await this.saveSettings();
+        // 🔥 매니저가 실행 중일 때만 저장
+        if (this.isRunning()) {
+          await this.saveSettings();
+        }
       } catch (error) {
         Logger.error(this.componentName, 'Auto-save failed', error);
       }
-    }, 30000);
+    }, interval);
+    
+    Logger.debug(this.componentName, `Auto-save setup with ${interval/1000}s interval`);
   }
 
   /**
@@ -364,10 +378,17 @@ export class SettingsManager extends BaseManager {
   }
 
   /**
-   * BaseManager 추상 메서드 구현 - 정리
+   * BaseManager 추상 메서드 구현 - 정리 (무한루프 방지)
    */
   protected async doCleanup(): Promise<void> {
     try {
+      // 🔥 자동 저장 interval 정리
+      if (this.autoSaveInterval) {
+        clearInterval(this.autoSaveInterval);
+        this.autoSaveInterval = null;
+        Logger.debug(this.componentName, 'Auto-save interval cleared');
+      }
+      
       // 마지막 저장
       await this.saveSettings();
       

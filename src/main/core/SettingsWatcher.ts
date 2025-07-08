@@ -2,6 +2,12 @@
 
 import { Logger } from '../../shared/logger';
 import { getSettingsManager } from '../settings';
+import type { 
+  SettingsChangeEvent, 
+  AppSettingsSchema, 
+  UISettingsSchema, 
+  KeyboardSettingsSchema 
+} from '../settings/types';
 
 /**
  * 🔥 SettingsWatcher - 모든 설정 변경 감시 통합
@@ -55,7 +61,10 @@ export class SettingsWatcher {
 
         // 디바운스 처리로 성능 최적화
         this.debounceAction('ui-update', () => {
-          this.handleUISettingsChange(event);
+          this.handleUISettingsChange({
+            ...event,
+            timestamp: new Date()
+          });
         }, 500);
       });
 
@@ -129,16 +138,17 @@ export class SettingsWatcher {
   }
 
   /**
-   * 🔥 UI 설정 변경 처리
+   * 🔥 UI 설정 변경 처리 (타입 안전)
    */
-  private handleUISettingsChange(event: any): void {
+  private handleUISettingsChange(event: { newValue?: unknown; oldValue?: unknown; timestamp?: Date }): void {
     try {
-      const { theme, fontSize, sidebarWidth } = event.newValue || {};
+      const uiSettings = event.newValue as Record<string, unknown>;
+      const { colorScheme, fontSize, fontFamily, enableAnimations } = uiSettings || {};
 
-      if (theme) {
-        Logger.debug('SETTINGS_WATCHER', `Theme changed to: ${theme}`);
-        // 테마 변경 로직 (렌더러로 이벤트 전송)
-        this.notifyRenderer('theme-changed', { theme });
+      if (colorScheme) {
+        Logger.debug('SETTINGS_WATCHER', `Color scheme changed to: ${colorScheme}`);
+        // 색상 테마 변경 로직 (렌더러로 이벤트 전송)
+        this.notifyRenderer('theme-changed', { colorScheme });
       }
 
       if (fontSize) {
@@ -146,9 +156,14 @@ export class SettingsWatcher {
         this.notifyRenderer('font-size-changed', { fontSize });
       }
 
-      if (sidebarWidth) {
-        Logger.debug('SETTINGS_WATCHER', `Sidebar width changed to: ${sidebarWidth}`);
-        this.notifyRenderer('sidebar-width-changed', { sidebarWidth });
+      if (fontFamily) {
+        Logger.debug('SETTINGS_WATCHER', `Font family changed to: ${fontFamily}`);
+        this.notifyRenderer('font-family-changed', { fontFamily });
+      }
+
+      if (enableAnimations !== undefined) {
+        Logger.debug('SETTINGS_WATCHER', `Animations ${enableAnimations ? 'enabled' : 'disabled'}`);
+        this.notifyRenderer('animations-changed', { enableAnimations });
       }
 
     } catch (error) {
@@ -157,16 +172,17 @@ export class SettingsWatcher {
   }
 
   /**
-   * 🔥 앱 설정 변경 처리
+   * 🔥 앱 설정 변경 처리 (타입 안전)
    */
-  private handleAppSettingsChange(event: any): void {
+  private handleAppSettingsChange(event: { newValue?: unknown; oldValue?: unknown }): void {
     try {
-      const { autoStart, minimizeToTray, language } = event.newValue || {};
+      const appSettings = event.newValue as Record<string, unknown>;
+      const { autoStart, minimizeToTray, language } = appSettings || {};
 
       if (autoStart !== undefined) {
         Logger.debug('SETTINGS_WATCHER', `Auto start changed to: ${autoStart}`);
         // 자동 시작 설정 로직
-        this.updateAutoStart(autoStart);
+        this.updateAutoStart(autoStart as boolean);
       }
 
       if (minimizeToTray !== undefined) {
@@ -185,16 +201,17 @@ export class SettingsWatcher {
   }
 
   /**
-   * 🔥 키보드 설정 변경 처리
+   * 🔥 키보드 설정 변경 처리 (타입 안전)
    */
-  private handleKeyboardSettingsChange(event: any): void {
+  private handleKeyboardSettingsChange(event: { newValue?: unknown; oldValue?: unknown }): void {
     try {
-      const { enabled, language, shortcuts } = event.newValue || {};
+      const keyboardSettings = event.newValue as Record<string, unknown>;
+      const { enabled, language, shortcuts } = keyboardSettings || {};
 
       if (enabled !== undefined) {
         Logger.debug('SETTINGS_WATCHER', `Keyboard monitoring changed to: ${enabled}`);
         // 키보드 서비스 활성화/비활성화
-        this.toggleKeyboardMonitoring(enabled);
+        this.toggleKeyboardMonitoring(enabled as boolean);
       }
 
       if (language) {
@@ -213,11 +230,12 @@ export class SettingsWatcher {
   }
 
   /**
-   * 🔥 성능 설정 변경 처리
+   * 🔥 성능 설정 변경 처리 (타입 안전)
    */
-  private handlePerformanceSettingsChange(event: any): void {
+  private handlePerformanceSettingsChange(event: { newValue?: unknown; oldValue?: unknown }): void {
     try {
-      const { memoryMonitoring, backgroundProcessing } = event.newValue || {};
+      const performanceSettings = event.newValue as Record<string, unknown>;
+      const { memoryMonitoring, backgroundProcessing } = performanceSettings || {};
 
       if (memoryMonitoring !== undefined) {
         Logger.debug('SETTINGS_WATCHER', `Memory monitoring changed to: ${memoryMonitoring}`);
@@ -254,9 +272,9 @@ export class SettingsWatcher {
   }
 
   /**
-   * 🔥 렌더러에 이벤트 알림
+   * 🔥 렌더러에 이벤트 알림 (타입 안전)
    */
-  private notifyRenderer(event: string, data: any): void {
+  private notifyRenderer(event: string, data: Record<string, unknown>): void {
     try {
       // 메인 윈도우로 이벤트 전송
       const { BrowserWindow } = require('electron');

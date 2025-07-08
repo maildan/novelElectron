@@ -52,18 +52,20 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
   
-  // 🔥 ref로 최신 값 추적 (무한루프 방지)
+  // 🔥 ref로 최신 값 추적 (성능 최적화: useEffect 제거)
   const titleRef = useRef<string>('');
   const contentRef = useRef<string>('');
   
-  // 🔥 ref 동기화
-  useEffect(() => {
-    titleRef.current = title;
-  }, [title]);
+  // 🔥 최적화: setter에서 직접 ref 업데이트 (useEffect 불필요)
+  const setTitleOptimized = useCallback((newTitle: string) => {
+    titleRef.current = newTitle;
+    setTitle(newTitle);
+  }, []);
   
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
+  const setContentOptimized = useCallback((newContent: string) => {
+    contentRef.current = newContent;
+    setContent(newContent);
+  }, []);
   
   // 🔥 작가 데이터
   const [characters, setCharacters] = useState<ProjectCharacter[]>([]);
@@ -475,20 +477,26 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     }));
   }, []);
 
-  // 🔥 프로젝트 초기 로드 (한 번만 실행)
+  // 🔥 프로젝트 초기 로드 (성능 최적화: loadProject를 useRef로 안전하게 관리)
+  const loadProjectRef = useRef(loadProject);
+  loadProjectRef.current = loadProject;
+  
   useEffect(() => {
     if (projectId) {
-      loadProject();
+      loadProjectRef.current();
     }
-  }, [projectId]); // 🔥 projectId만 dependency로 - loadProject는 제외하여 무한루프 방지
+  }, [projectId]); // 🔥 projectId만 dependency로 - 무한루프 완전 방지
 
-  // 🔥 새로운 autoSave 시스템으로 자동 저장 트리거 (무한루프 수정)
+  // 🔥 자동 저장 시스템 (성능 최적화: ref로 무한루프 방지)
+  const debouncedSaveRef = useRef(debouncedSave);
+  debouncedSaveRef.current = debouncedSave;
+  
   useEffect(() => {
     if (title.trim() || content.trim()) {
       setSaveStatus('unsaved');
-      debouncedSave(); // 새로운 debounced save 사용
+      debouncedSaveRef.current(); // ref를 통해 안전하게 호출
     }
-  }, [title, content]); // 🔥 debouncedSave dependency 제거로 무한루프 해결
+  }, [title, content]); // 🔥 debouncedSave dependency 완전 제거
 
   // 🔥 저장 중 상태 관리
   useEffect(() => {
@@ -503,13 +511,6 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     // 🔥 30초 interval 완전 제거 - 커서 리셋 원인 제거
     // 세션 시간은 사용자가 통계를 볼 때만 계산하도록 변경
   }, []); // 🔥 dependency 완전 제거 - useEffect 지옥 해결
-
-  // 🔥 초기 프로젝트 로딩
-  useEffect(() => {
-    if (projectId) {
-      loadProject();
-    }
-  }, [projectId]); // projectId만 dependency로 설정
 
   // 🔥 캐릭터 저장 함수
   const saveCharacters = useCallback(async (charactersToSave: ProjectCharacter[]): Promise<void> => {
@@ -578,11 +579,11 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     isLoading,
     error,
     
-    // 🔥 기본 프로젝트 데이터
+    // 🔥 기본 프로젝트 데이터 (성능 최적화된 setter)
     title,
-    setTitle,
+    setTitle: setTitleOptimized,
     content,
-    setContent,
+    setContent: setContentOptimized,
     lastSaved,
     saveStatus,
     

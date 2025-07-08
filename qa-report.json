@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-07-08T01:02:47.710Z",
+  "totalIssues": 8,
+  "score": 5,
+  "summary": {
+    "critical": 2,
+    "high": 5,
+    "medium": 1
+  },
+  "issues": [
+    {
+      "category": "Type Safety",
+      "severity": "high",
+      "description": "any 타입 사용: src/main/core/SettingsWatcher.ts:134",
+      "priority": "high"
+    },
+    {
+      "category": "Type Safety",
+      "severity": "high",
+      "description": "any 타입 사용: src/main/core/SettingsWatcher.ts:162",
+      "priority": "high"
+    },
+    {
+      "category": "Type Safety",
+      "severity": "high",
+      "description": "any 타입 사용: src/main/core/SettingsWatcher.ts:190",
+      "priority": "high"
+    },
+    {
+      "category": "Type Safety",
+      "severity": "high",
+      "description": "any 타입 사용: src/main/core/SettingsWatcher.ts:218",
+      "priority": "high"
+    },
+    {
+      "category": "Type Safety",
+      "severity": "high",
+      "description": "any 타입 사용: src/main/core/SettingsWatcher.ts:259",
+      "priority": "high"
+    },
+    {
+      "category": "Performance",
+      "severity": "critical",
+      "description": "무한 루프 위험: src/main/managers/AppLifecycle.ts:238",
+      "priority": "critical"
+    },
+    {
+      "category": "Performance",
+      "severity": "critical",
+      "description": "무한 루프 위험: src/main/settings/SettingsManager.ts:284",
+      "priority": "critical"
+    },
+    {
+      "category": "React Performance",
+      "severity": "medium",
+      "description": "React 성능 이슈: src/renderer/app/ai/page.tsx:143",
+      "priority": "medium"
+    }
+  ]
+}
