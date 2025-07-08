@@ -6,7 +6,7 @@ import {
   Sparkles,
   Users,
   Map,
-  Speech,
+  MessageSquare,
   Clock,
   Target,
   TrendingUp,
@@ -233,7 +233,7 @@ export function AIAssistant({
             >
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center">
-                  <Speech className="w-4 h-4 mr-2 text-orange-500" />
+                  <MessageSquare className="w-4 h-4 mr-2 text-orange-500" />
                   <div className="text-left">
                     <div className="font-medium">대화문 개선</div>
                     <div className="text-xs text-slate-500">자연스러운 대화를 만들어요</div>

@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  Target, 
+  Crosshair as Target, 
   Clock, 
   CheckCircle, 
   FileText, 
@@ -508,68 +508,68 @@ export function DashboardMain(): React.ReactElement {
                         />
                       </div>
                       <div className={DASHBOARD_STYLES.projectStats}>
-                    <span className={DASHBOARD_STYLES.progressText}>
-                      {project.progress}% 완료
-                    </span>
-                    <span className={DASHBOARD_STYLES.progressGoal}>
-                      목표: {project.goal}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </Card>
-
-      {/* 최근 파일 */}
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100">최근 파일</h3>
-        </div>
-
-        {loadingStates.recentFiles ? (
-          <DashboardSkeleton showKpi={false} showProjects={false} showRecentFiles />
-        ) : (
-          <div className={DASHBOARD_STYLES.recentFiles}>
-            {recentFiles.length === 0 ? (
-              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-                <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>최근 파일이 없습니다</p>
-                <p className="text-sm">작업을 시작하면 여기에 표시됩니다!</p>
+                        <span className={DASHBOARD_STYLES.progressText}>
+                          {project.progress}% 완료
+                        </span>
+                        <span className={DASHBOARD_STYLES.progressGoal}>
+                          목표: {project.goal}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-            ) : (
-              recentFiles.map((file) => (
-                <div 
-                  key={file.id}
-                  className={DASHBOARD_STYLES.fileItem}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => Logger.info('DASHBOARD', 'File clicked', { file: file.name })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      Logger.info('DASHBOARD', 'File selected', { file: file.name });
-                    }
-                  }}
-                >
-                  <FileText className={DASHBOARD_STYLES.fileIcon} />
-                  <div className={DASHBOARD_STYLES.fileInfo}>
-                    <div className={DASHBOARD_STYLES.fileName}>{file.name}</div>
-                    <div className={DASHBOARD_STYLES.fileProject}>{file.project}</div>
-                  </div>
-                  <div className={DASHBOARD_STYLES.fileMeta}>
-                    <div className={DASHBOARD_STYLES.fileTime}>{file.time}</div>
-                    <div className={DASHBOARD_STYLES.fileStatus}>{file.status}</div>
-                  </div>
-                </div>
-              ))
             )}
-          </div>
-        )}
-      </Card>
-    </div>
+          </Card>
+
+          {/* 최근 파일 */}
+          <Card>
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100">최근 파일</h3>
+            </div>
+
+            {loadingStates.recentFiles ? (
+              <DashboardSkeleton showKpi={false} showProjects={false} showRecentFiles />
+            ) : (
+              <div className={DASHBOARD_STYLES.recentFiles}>
+                {recentFiles.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>최근 작업한 파일이 없습니다</p>
+                    <p className="text-sm">작업을 시작해보세요!</p>
+                  </div>
+                ) : (
+                  recentFiles.map((file) => (
+                    <div 
+                      key={file.id}
+                      className={DASHBOARD_STYLES.fileItem}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => Logger.info('DASHBOARD', 'File clicked', { file: file.name })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          Logger.info('DASHBOARD', 'File selected', { file: file.name });
+                        }
+                      }}
+                    >
+                      <FileText className={DASHBOARD_STYLES.fileIcon} />
+                      <div className={DASHBOARD_STYLES.fileInfo}>
+                        <div className={DASHBOARD_STYLES.fileName}>{file.name}</div>
+                        <div className={DASHBOARD_STYLES.fileProject}>{file.project}</div>
+                      </div>
+                      <div className={DASHBOARD_STYLES.fileMeta}>
+                        <div className={DASHBOARD_STYLES.fileTime}>{file.time}</div>
+                        <div className={DASHBOARD_STYLES.fileStatus}>{file.status}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   );

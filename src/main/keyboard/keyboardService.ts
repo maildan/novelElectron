@@ -936,8 +936,14 @@ export class KeyboardService extends EventEmitter {
       return false;
     }
 
+    const languageConfig = KEYBOARD_LANGUAGES[language];
+    if (!languageConfig) {
+      Logger.warn('KEYBOARD', 'Language config not found', { language });
+      return false;
+    }
+
     this.state.language = language;
-    this.state.inputMethod = KEYBOARD_LANGUAGES[language].inputMethod;
+    this.state.inputMethod = languageConfig.inputMethod;
     
     // 🔥 한글 모드일 때 HangulComposer 활성화
     if (language === 'ko' && !this.hangulComposer.isRunning()) {
@@ -953,7 +959,7 @@ export class KeyboardService extends EventEmitter {
     Logger.info('KEYBOARD', 'Language changed', {
       language,
       inputMethod: this.state.inputMethod,
-      composition: KEYBOARD_LANGUAGES[language].composition
+      composition: languageConfig.composition
     });
     
     return true;

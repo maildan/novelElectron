@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X as XIcon, AlertTriangle } from 'lucide-react';
 
 // 🔥 프리컴파일된 스타일 (11원칙 준수)
 const CONFIRM_DIALOG_STYLES = {
@@ -64,7 +64,7 @@ export function ConfirmDeleteDialog({ isOpen, projectTitle, onConfirm, onCancel 
             onClick={onCancel}
             aria-label="닫기"
           >
-            <X size={20} />
+            <XIcon size={20} />
           </button>
         </div>
 

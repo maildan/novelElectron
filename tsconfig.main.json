@@ -12,10 +12,10 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "declaration": false,
-    "declarationMap": false,
-    "incremental": false,
-    "tsBuildInfoFile": null
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./tsconfig.main.tsbuildinfo"
   },
   "include": [
     "src/main/**/*",

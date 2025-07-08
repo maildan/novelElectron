@@ -322,6 +322,10 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
       
       const selectedSample = sampleProjects[0]; // 첫 번째 샘플 사용
       
+      if (!selectedSample) {
+        throw new Error('Sample project not found');
+      }
+      
       // 실제 DB에 저장
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();

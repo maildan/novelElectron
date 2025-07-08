@@ -15,7 +15,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200], // 🔥 디바이스별 최적화
   },
   
-  // 🔥 성능 최적화 - 번들 분할 및 트리쉐이킹
+  // 🔥 성능 최적화 - 번들 분할 및 트리쉐이킹 + 기가차드 극한 최적화
   experimental: {
     optimizePackageImports: [
       'react', 
@@ -27,6 +27,22 @@ const nextConfig = {
       'tailwind-merge'
     ],
     webpackBuildWorker: true, // 멀티스레드 빌드
+    parallelServerBuildTraces: true, // 🔥 병렬 빌드 트레이스
+    parallelServerCompiles: true, // 🔥 병렬 컴파일
+    
+    // 🔥 기가차드 극한 최적화 추가
+    useWasmBinary: true, // WASM 바이너리 사용 (더 빠름)
+    // optimizeCss: true, // CSS 최적화 - critters 모듈 에러로 임시 비활성화
+    strictNextHead: true, // Head 컴포넌트 최적화
+  },
+
+  // 🔥 Turbopack 설정 (experimental.turbo는 deprecated)
+  turbopack: {
+    rules: {
+      '*.svg': ['@svgr/webpack'],
+    },
+    // 🔥 Turbopack 메모리 최적화
+    memoryLimit: 4096,
   },
   
   // 🔥 개발 품질 보장 (TypeScript & ESLint 활성화)
@@ -122,21 +138,7 @@ const nextConfig = {
 
   // 🔥 압축 최적화
   compress: true,
-  modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
-      skipDefaultConversion: true,
-    },
-    '@radix-ui/react-icons': {
-      transform: '@radix-ui/react-icons/dist/{{member}}.js',
-    },
-    'date-fns': {
-      transform: 'date-fns/{{member}}',
-    },
-    'lodash': {
-      transform: 'lodash/{{member}}',
-    },
-  },
+  // modularizeImports 설정 제거 - lucide-react와 호환성 문제 해결
 };
 
 module.exports = nextConfig;

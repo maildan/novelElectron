@@ -658,8 +658,13 @@ export class MemoryManager extends BaseManager {
   private calculateMemoryTrend(samples: MemoryInfo[]): 'increasing' | 'decreasing' | 'stable' {
     if (samples.length < 3) return 'stable';
 
-    const first = samples[0].percentage;
-    const last = samples[samples.length - 1].percentage;
+    const firstSample = samples.length > 0 ? samples[0] : null;
+    const lastSample = samples.length > 0 ? samples[samples.length - 1] : null;
+    
+    if (!firstSample || !lastSample) return 'stable';
+    
+    const first = firstSample.percentage;
+    const last = lastSample.percentage;
     const diff = last - first;
     const threshold = 5; // 5% 임계값
 

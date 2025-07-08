@@ -136,7 +136,10 @@ export class TypingStatsCalculator {
     if (this.wpmWindow.length === 0) return 0;
 
     const correctKeystrokes = this.wpmWindow.filter(k => k.isCorrect).length;
-    const timeSpanMs = now - this.wpmWindow[0].timestamp;
+    const firstKeystroke = this.wpmWindow[0];
+    if (!firstKeystroke) return 0;
+    
+    const timeSpanMs = now - firstKeystroke.timestamp;
     const timeSpanMinutes = timeSpanMs / 60000;
     
     if (timeSpanMinutes === 0) return 0;

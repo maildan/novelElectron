@@ -200,11 +200,11 @@ export class AppDetector extends BaseManager {
       }
 
       return {
-        id: parseInt(pidStr) || 0,
+        id: parseInt(pidStr || '0') || 0,
         title: windowTitle || processName,
         owner: {
           name: processName,
-          processId: parseInt(pidStr) || 0
+          processId: parseInt(pidStr || '0') || 0
         },
         bounds: {
           x: 0,
@@ -265,7 +265,7 @@ export class AppDetector extends BaseManager {
         title: windowTitle || processName,
         owner: {
           name: processName,
-          processId: parseInt(pidStr) || 0
+          processId: parseInt(pidStr || '0') || 0
         },
         bounds: { x: 0, y: 0, width: 0, height: 0 },
         id: Date.now(),

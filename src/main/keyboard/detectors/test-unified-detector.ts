@@ -46,6 +46,8 @@ async function testUnifiedLanguageDetector(): Promise<void> {
     
     for (let i = 0; i < testEvents.length; i++) {
       const event = testEvents[i];
+      if (!event) continue;
+      
       const result = await detector.detectLanguage(event);
       
       console.log(`${i + 1}. 키코드 ${event.keycode} (${String.fromCharCode(event.keychar || event.keycode)}) →`, {

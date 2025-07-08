@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProjectCharacter } from '../../../../shared/types';
-import { Plus, Edit3, Save, X } from 'lucide-react';
+import { Plus, Edit3, Save, X as XIcon } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 
 interface CharactersViewProps {
@@ -208,7 +208,7 @@ export function CharactersView({ projectId, characters, onCharactersChange }: Ch
                         className={CHARACTERS_STYLES.cancelButton}
                         title="취소"
                       >
-                        <X size={16} />
+                        <XIcon size={16} />
                       </button>
                     </>
                   ) : (

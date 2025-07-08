@@ -325,6 +325,11 @@ export class ScreenshotManager {
 
       const screenshot = this.screenshots[index];
       
+      if (!screenshot) {
+        Logger.warn('SCREENSHOT', 'Screenshot not found for deletion', { screenshotId });
+        return false;
+      }
+      
       // 파일 삭제
       await this.deleteScreenshotFile(screenshot.filepath);
       

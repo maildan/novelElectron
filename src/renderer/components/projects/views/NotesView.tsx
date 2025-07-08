@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ProjectNote } from '../../../../shared/types';
-import { Plus, Edit3, Save, X, Lightbulb, Target, BookOpen } from 'lucide-react';
+import { Plus, Edit3, Save, X as XIcon, Lightbulb, Target, BookOpen } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 
 interface NotesViewProps {
@@ -240,7 +240,7 @@ export function NotesView({ projectId, notes: propNotes, onNotesChange }: NotesV
                           className={NOTES_STYLES.cancelButton}
                           title="취소"
                         >
-                          <X size={16} />
+                          <XIcon size={16} />
                         </button>
                       </>
                     ) : (

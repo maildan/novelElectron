@@ -834,9 +834,11 @@ export class WindowTracker extends BaseManager {
       // 다음 윈도우와의 시간 차이 계산
       if (index < this.windowHistory.length - 1) {
         const nextWindow = this.windowHistory[index + 1];
-        const sessionTime = (nextWindow.loopTimestamp || 0) - (window.loopTimestamp || 0);
-        if (sessionTime > 0 && sessionTime < 3600000) { // 1시간 이내만 유효
-          categoryStats[category].totalTime += sessionTime;
+        if (nextWindow?.loopTimestamp && window.loopTimestamp) {
+          const sessionTime = nextWindow.loopTimestamp - window.loopTimestamp;
+          if (sessionTime > 0 && sessionTime < 3600000) { // 1시간 이내만 유효
+            categoryStats[category].totalTime += sessionTime;
+          }
         }
       }
     });

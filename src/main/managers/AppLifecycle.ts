@@ -414,7 +414,10 @@ export class AppLifecycle extends BaseManager {
       cpuUsage: process.cpuUsage(),
       eventCount: this.events.length,
       crashCount: this.crashCount,
-      lastActivity: this.events.length > 0 ? this.events[this.events.length - 1].timestamp : null,
+      lastActivity: (() => {
+        const lastEvent = this.events.length > 0 ? this.events[this.events.length - 1] : null;
+        return lastEvent ? lastEvent.timestamp : null;
+      })(),
     };
   }
 

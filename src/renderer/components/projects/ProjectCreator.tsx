@@ -184,7 +184,14 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
       other: `새로운 프로젝트가 시작되었습니다.\n\n자유롭게 내용을 작성해보세요.`,
     };
 
-    return templates[genre] || templates.other;
+    // genre가 undefined일 경우 대비하여 기본값 제공
+    const defaultTemplate = `새로운 프로젝트가 시작되었습니다.\n\n자유롭게 내용을 작성해보세요.`;
+    
+    if (!genre) {
+      return defaultTemplate;
+    }
+    
+    return templates[genre] ?? templates.other ?? defaultTemplate;
   };
 
   return (

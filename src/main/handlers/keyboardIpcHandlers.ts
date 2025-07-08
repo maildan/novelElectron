@@ -70,7 +70,7 @@ export async function setupKeyboardIpcHandlers(): Promise<void> {
           Logger.debug('KEYBOARD_IPC', 'IPC: Status requested');
           const result = await keyboardService.getStatus();
           
-          // 🔥 직렬화 가능한 객체로 변환
+          // 🔥 IpcResponse 형태로 반환 + Analytics 필수 필드 추가
           if (result.success && result.data) {
             const statusData = {
               isActive: Boolean(result.data.isActive),
@@ -79,10 +79,13 @@ export async function setupKeyboardIpcHandlers(): Promise<void> {
               eventsPerSecond: Number(result.data.eventsPerSecond || 0),
               totalEvents: Number(result.data.totalEvents || 0),
               startTime: result.data.startTime ? result.data.startTime.toISOString() : null,
-              sessionDuration: result.data.startTime ? Math.floor((Date.now() - result.data.startTime.getTime()) / 1000) : 0
+              // 🔥 Analytics에서 요구하는 필드 추가
+              sessionDuration: result.data.startTime ? 
+                Math.floor((Date.now() - result.data.startTime.getTime()) / 1000) : 0,
+              hasPermission: true
             };
             
-            Logger.debug('KEYBOARD_IPC', 'Status data serialized', statusData);
+            Logger.debug('KEYBOARD_IPC', 'Status data serialized with analytics fields', statusData);
             return statusData;
           }
           
@@ -93,7 +96,8 @@ export async function setupKeyboardIpcHandlers(): Promise<void> {
             eventsPerSecond: 0,
             totalEvents: 0,
             startTime: null,
-            sessionDuration: 0
+            sessionDuration: 0,
+            hasPermission: true
           };
           
           Logger.debug('KEYBOARD_IPC', 'Returning fallback status data', fallbackData);

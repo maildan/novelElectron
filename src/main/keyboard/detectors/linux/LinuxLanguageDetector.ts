@@ -247,7 +247,7 @@ export class LinuxLanguageDetector extends BaseLanguageDetector {
         const match = stdout.match(/layout:\s*(\w+)/);
         const layout = match ? match[1] : null;
         Logger.debug(this.componentName, '🔥 setxkbmap 레이아웃 조회 성공', { layout });
-        resolve(layout);
+        resolve(layout || null);
       });
     });
   }

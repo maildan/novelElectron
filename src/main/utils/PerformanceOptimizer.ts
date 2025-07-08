@@ -344,10 +344,12 @@ export class PerformanceOptimizer {
       // Electron 플래그 적용
       this.performanceConfig.electronFlags.forEach(flag => {
         const [key, value] = flag.split('=');
-        if (value) {
-          app.commandLine.appendSwitch(key.replace('--', ''), value);
-        } else {
-          app.commandLine.appendSwitch(flag.replace('--', ''));
+        if (key) {
+          if (value) {
+            app.commandLine.appendSwitch(key.replace('--', ''), value);
+          } else {
+            app.commandLine.appendSwitch(flag.replace('--', ''));
+          }
         }
       });
 

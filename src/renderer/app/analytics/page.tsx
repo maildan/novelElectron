@@ -226,9 +226,9 @@ export default function AnalyticsPage(): React.ReactElement {
     const colors: Array<'blue' | 'green' | 'purple' | 'orange' | 'red'> = ['blue', 'green', 'purple', 'orange', 'red'];
     
     return projects.slice(0, 5).map((project, index) => ({
-      name: project.title || '제목 없음',
-      progress: project.progress || 0,
-      color: colors[index % colors.length]
+      name: String(project.title || '제목 없음'),
+      progress: Number(project.progress || 0),
+      color: colors[index % colors.length] || 'blue'
     }));
   };
 

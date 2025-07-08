@@ -229,8 +229,12 @@ export class KeyboardStatsManager extends BaseManager {
     // 최근 키스트로크 간격 계산
     const intervals: number[] = [];
     for (let i = 1; i < this.recentKeystrokes.length; i++) {
-      const interval = this.recentKeystrokes[i].timestamp - this.recentKeystrokes[i - 1].timestamp;
-      intervals.push(interval);
+      const current = this.recentKeystrokes[i];
+      const previous = this.recentKeystrokes[i - 1];
+      if (current && previous) {
+        const interval = current.timestamp - previous.timestamp;
+        intervals.push(interval);
+      }
     }
 
     const averageInterval = intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { HelpCircle, X } from 'lucide-react';
+import { HelpCircle, X as XIcon } from 'lucide-react';
 import { getShortcutHelp } from './EditorShortcuts';
 
 // 🔥 단축키 도움말 스타일
@@ -82,7 +82,7 @@ export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.React
                 onClick={handleClose}
                 aria-label="닫기"
               >
-                <X size={20} />
+                <XIcon size={20} />
               </button>
             </div>
 

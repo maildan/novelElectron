@@ -132,7 +132,9 @@ export class EnvironmentDetector {
 
     // Node.js 버전 확인
     const nodeVersion = process.version;
-    const majorVersion = parseInt(nodeVersion.split('.')[0].substring(1));
+    const versionParts = nodeVersion.split('.');
+    const majorVersionStr = versionParts[0] ? versionParts[0].substring(1) : '0';
+    const majorVersion = parseInt(majorVersionStr);
     if (majorVersion < 16) {
       errors.push(`Node.js version ${nodeVersion} is too old. Minimum required: 16.x`);
     }

@@ -209,7 +209,7 @@ else:
           }
 
           // 🔥 언어 감지
-          const language = this.detectLanguageFromChar(character, inputSource);
+          const language = (character && inputSource) ? this.detectLanguageFromChar(character, inputSource) : 'unknown';
           
           Logger.debug(MacOSKeycodeTranslator.componentName, '✅ AppleScript 변환 성공', {
             keycode,

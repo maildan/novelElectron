@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { X, Share2, Copy, Check, Download, Mail } from 'lucide-react';
+import { X as XIcon, Share2, Copy, Check, Download, Mail } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 
 // 🔥 프리컴파일된 스타일 (11원칙 준수)
@@ -112,7 +112,7 @@ export function ShareDialog({ isOpen, projectTitle, projectId, onClose }: ShareD
             onClick={onClose}
             aria-label="닫기"
           >
-            <X size={20} />
+            <XIcon size={20} />
           </button>
         </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useCallback } from 'react';
-import { Play, Pause, Square, AlertCircle } from 'lucide-react';
+import { Play, Pause, StopCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../ui';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 import { Logger } from '../../../shared/logger';
@@ -120,7 +120,7 @@ function MonitoringControlPanelComponent({ className }: MonitoringControlPanelPr
             className={`${MONITORING_STYLES.button} ${MONITORING_STYLES.stopButton}`}
             disabled={false}
           >
-            <Square className="w-4 h-4" />
+            <StopCircle className="w-4 h-4" />
             모니터링 중지
           </Button>
         )}

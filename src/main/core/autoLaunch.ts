@@ -329,14 +329,17 @@ export class AutoLaunchManager {
       // 명령줄 인수에서 지연 시간 확인
       const delayArg = process.argv.find(arg => arg.startsWith('--delay='));
       if (delayArg) {
-        const delaySeconds = parseInt(delayArg.split('=')[1]);
-        
-        if (delaySeconds > 0) {
-          Logger.info('AUTO_LAUNCH', 'Delaying app start', { delaySeconds });
+        const delayValue = delayArg.split('=')[1];
+        if (delayValue) {
+          const delaySeconds = parseInt(delayValue);
           
-          await new Promise(resolve => setTimeout(resolve, delaySeconds * 1000));
-          
-          Logger.info('AUTO_LAUNCH', 'Delay completed, continuing startup');
+          if (delaySeconds > 0) {
+            Logger.info('AUTO_LAUNCH', 'Delaying app start', { delaySeconds });
+            
+            await new Promise(resolve => setTimeout(resolve, delaySeconds * 1000));
+            
+            Logger.info('AUTO_LAUNCH', 'Delay completed, continuing startup');
+          }
         }
       }
 

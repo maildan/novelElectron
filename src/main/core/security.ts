@@ -264,9 +264,8 @@ export class SecurityManager {
     try {
       // #DEBUG: Getting security status
       const violationCount = this.securityViolations.length;
-      const lastViolation = violationCount > 0 
-        ? this.securityViolations[violationCount - 1].timestamp 
-        : null;
+      const lastViolationEntry = violationCount > 0 ? this.securityViolations[violationCount - 1] : null;
+      const lastViolation = lastViolationEntry ? lastViolationEntry.timestamp : null;
 
       const status = {
         config: this.config,

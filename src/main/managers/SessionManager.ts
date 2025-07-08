@@ -561,8 +561,13 @@ export class SessionManager extends BaseManager {
     // 마지막 윈도우 정보 설정
     if (this.keyboardSessionData.length > 0) {
       const lastInput = this.keyboardSessionData[this.keyboardSessionData.length - 1];
-      this.keyboardCurrentSession.windowTitle = lastInput.windowInfo.title || 'Unknown';
-      this.keyboardCurrentSession.appName = lastInput.windowInfo.processName || null;
+      if (lastInput && lastInput.windowInfo) {
+        this.keyboardCurrentSession.windowTitle = lastInput.windowInfo.title || 'Unknown';
+        this.keyboardCurrentSession.appName = lastInput.windowInfo.processName || null;
+      } else {
+        this.keyboardCurrentSession.windowTitle = 'Unknown';
+        this.keyboardCurrentSession.appName = null;
+      }
     }
 
     const finalSession = { ...this.keyboardCurrentSession };

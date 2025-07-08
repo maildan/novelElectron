@@ -114,7 +114,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '#') {
             event.preventDefault();
             event.stopPropagation();
-            const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 1 });
+            // heading 노드 타입이 있는지 확인
+            const headingType = state.schema.nodes.heading;
+            if (!headingType) {
+              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
+              return false;
+            }
+            
+            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 1 });
             tr.delete($from.pos - 1, $from.pos); // # 문자 삭제
             dispatch(tr);
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H1 applied');
@@ -125,7 +132,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '##') {
             event.preventDefault();
             event.stopPropagation();
-            const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 2 });
+            // heading 노드 타입이 있는지 확인
+            const headingType = state.schema.nodes.heading;
+            if (!headingType) {
+              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
+              return false;
+            }
+            
+            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 2 });
             tr.delete($from.pos - 2, $from.pos); // ## 문자 삭제
             dispatch(tr);
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H2 applied');
@@ -136,7 +150,14 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '###') {
             event.preventDefault();
             event.stopPropagation();
-            const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.heading, { level: 3 });
+            // heading 노드 타입이 있는지 확인
+            const headingType = state.schema.nodes.heading;
+            if (!headingType) {
+              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
+              return false;
+            }
+            
+            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 3 });
             tr.delete($from.pos - 3, $from.pos); // ### 문자 삭제
             dispatch(tr);
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H3 applied');
@@ -147,11 +168,20 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '-') {
             event.preventDefault();
             event.stopPropagation();
-            const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.listItem);
+            // listItem 및 bulletList 노드 타입 확인
+            const listItemType = state.schema.nodes.listItem;
+            const bulletListType = state.schema.nodes.bulletList;
+            
+            if (!listItemType || !bulletListType) {
+              Logger.warn('TIPTAP_EDITOR', 'List node types not found');
+              return false;
+            }
+            
+            const tr = state.tr.setBlockType($from.before(), $from.after(), listItemType);
             tr.delete($from.pos - 1, $from.pos); // - 문자 삭제
             const blockRange = $from.blockRange();
             if (blockRange) {
-              const wrappedTr = tr.wrap(blockRange, [{ type: state.schema.nodes.bulletList }]);
+              const wrappedTr = tr.wrap(blockRange, [{ type: bulletListType }]);
               dispatch(wrappedTr || tr);
             } else {
               dispatch(tr);
@@ -164,11 +194,20 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (/^\d+\.$/.test(textBefore)) {
             event.preventDefault();
             event.stopPropagation();
-            const tr = state.tr.setBlockType($from.before(), $from.after(), state.schema.nodes.listItem);
+            // listItem 및 orderedList 노드 타입 확인
+            const listItemType = state.schema.nodes.listItem;
+            const orderedListType = state.schema.nodes.orderedList;
+            
+            if (!listItemType || !orderedListType) {
+              Logger.warn('TIPTAP_EDITOR', 'List node types not found');
+              return false;
+            }
+            
+            const tr = state.tr.setBlockType($from.before(), $from.after(), listItemType);
             tr.delete($from.pos - textBefore.length, $from.pos); // 번호 문자 삭제
             const blockRange = $from.blockRange();
             if (blockRange) {
-              const wrappedTr = tr.wrap(blockRange, [{ type: state.schema.nodes.orderedList }]);
+              const wrappedTr = tr.wrap(blockRange, [{ type: orderedListType }]);
               dispatch(wrappedTr || tr);
             } else {
               dispatch(tr);
