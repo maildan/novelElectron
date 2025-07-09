@@ -19,23 +19,24 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
+import { HydrationGuard } from '../../components/ui/HydrationGuard';
 import { Logger } from '../../../shared/logger';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const AI_PAGE_STYLES = {
-  container: 'container mx-auto px-4 py-6 max-w-7xl space-y-6',
+  container: 'container mx-auto px-4 py-6 max-w-7xl space-y-6 min-h-screen',
   header: 'text-center mb-8',
   pageTitle: 'text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2',
   pageSubtitle: 'text-lg text-slate-600 dark:text-slate-400',
   featuresGrid: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8',
-  featureCard: 'group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer',
+  featureCard: 'group hover:shadow-lg dark:hover:shadow-slate-900/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer',
   featureContent: 'p-6 text-center',
   featureIcon: 'w-12 h-12 mx-auto mb-4 p-2 rounded-full group-hover:scale-110 transition-transform duration-200',
   featureIconColors: {
-    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400',
-    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400',
-    green: 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400',
-    orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400'
+    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+    green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
   },
   featureTitle: 'text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2',
   featureDescription: 'text-sm text-slate-600 dark:text-slate-400 mb-3',
@@ -44,8 +45,8 @@ const AI_PAGE_STYLES = {
   chatCard: 'lg:col-span-2 flex flex-col h-96',
   chatHeader: 'p-4 border-b border-slate-200 dark:border-slate-700',
   chatTitle: 'text-lg font-semibold text-slate-900 dark:text-slate-100',
-  chatMessages: 'flex-1 p-4 overflow-y-auto space-y-4',
-  chatInput: 'p-4 border-t border-slate-200 dark:border-slate-700',
+  chatMessages: 'flex-1 p-4 overflow-y-auto space-y-4 bg-white dark:bg-slate-800',
+  chatInput: 'p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800',
   chatInputForm: 'flex gap-2',
   message: 'flex gap-3 max-w-3xl',
   messageUser: 'ml-auto flex-row-reverse',
@@ -97,24 +98,24 @@ const AI_FEATURES: readonly AiFeature[] = [
     icon: Brain,
     color: 'blue',
     usageCount: 89,
-    isNew: true
-  },
-  {
-    id: 'idea-generator',
-    title: '아이디어 생성',
-    description: '주제나 키워드를 입력하면 창의적인 아이디어와 스토리를 제안합니다.',
-    icon: Lightbulb,
-    color: 'orange',
-    usageCount: 45,
     isNew: false
   },
   {
-    id: 'performance-insight',
-    title: '성과 인사이트',
-    description: '타이핑 패턴과 작성 습관을 분석하여 생산성 향상 방법을 제시합니다.',
-    icon: TrendingUp,
+    id: 'continue-writing',
+    title: '이어쓰기 도움',
+    description: '현재 작성 중인 내용을 기반으로 자연스러운 다음 문장을 제안합니다.',
+    icon: Lightbulb,
     color: 'green',
     usageCount: 156,
+    isNew: true
+  },
+  {
+    id: 'text-improvement',
+    title: '문장 개선',
+    description: '기존 문장을 더 매력적이고 자연스럽게 개선하여 제안합니다.',
+    icon: TrendingUp,
+    color: 'orange',
+    usageCount: 203,
     isNew: false
   }
 ] as const;
@@ -139,9 +140,31 @@ export default function AiPage(): React.ReactElement {
   const [messages, setMessages] = useState<readonly ChatMessage[]>(INITIAL_MESSAGES);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [aiStats, setAiStats] = useState<{ usageCount: number; available: boolean }>({
+    usageCount: 0,
+    available: false
+  });
 
+  // 🔥 AI 통계 로딩
   React.useEffect(() => {
-    Logger.info('AI_PAGE', 'AI page loaded');
+    const loadAiStats = async (): Promise<void> => {
+      try {
+        if (window.electronAPI?.ai?.getUsageStats) {
+          const result = await window.electronAPI.ai.getUsageStats();
+          if (result.success) {
+            setAiStats({
+              usageCount: result.data?.totalRequests || 0,
+              available: true
+            });
+          }
+        }
+        Logger.info('AI_PAGE', 'AI page loaded');
+      } catch (error) {
+        Logger.error('AI_PAGE', 'Failed to load AI stats', error);
+      }
+    };
+
+    loadAiStats();
   }, []);
 
   // 🔥 기가차드 성능 최적화: 이벤트 핸들러 메모이제이션
@@ -167,20 +190,45 @@ trim(),
 
     Logger.info('AI_PAGE', 'User message sent', { content: userMessage.content });
 
-    // TODO: 실제 AI API 호출
-    // 임시 응답 시뮬레이션
-    setTimeout(() => {
+    try {
+      // 🔥 실제 AI API 호출
+      if (window.electronAPI?.ai?.analyzeText) {
+        const result = await window.electronAPI.ai.analyzeText(userMessage.content);
+        
+        if (result.success && result.data) {
+          const suggestions = result.data.suggestions || [];
+          const response = suggestions.length > 0 
+            ? suggestions.join('\n\n') 
+            : '분석이 완료되었습니다. 더 구체적인 질문을 해주시면 더 나은 답변을 드릴 수 있습니다.';
+            
+          const aiMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: response,
+            sender: 'ai',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, aiMessage]);
+        } else {
+          throw new Error('AI API 응답 실패');
+        }
+      } else {
+        throw new Error('AI API 사용 불가');
+      }
+    } catch (error) {
+      Logger.error('AI_PAGE', 'AI API call failed', error);
+      
+      // 폴백 응답
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: `"${userMessage.content}"에 대한 답변을 준비 중입니다. 곧 AI 기능이 활성화될 예정입니다!`,
+        content: `죄송합니다. 현재 AI 서비스에 일시적인 문제가 있습니다. 잠시 후 다시 시도해주세요.`,
         sender: 'ai',
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-      Logger.info('AI_PAGE', 'AI response sent', { content: aiMessage.content });
-    }, 1500);
+    }
+    
+    setIsTyping(false);
+    Logger.info('AI_PAGE', 'AI response completed');
   }, [inputMessage]);
 
   const handleSuggestionClick = useCallback((suggestion: string): void => {
@@ -273,10 +321,15 @@ trim(),
                     {message.content}
                   </div>
                   <div className={AI_PAGE_STYLES.messageTime}>
-                    {message.timestamp.toLocaleTimeString('ko-KR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
+                    {/* 🔥 하이드레이션 에러 방지: 시간을 클라이언트에서만 렌더링 */}
+                    <HydrationGuard fallback={<span className="text-slate-400">--:--</span>}>
+                      <span suppressHydrationWarning>
+                        {new Date(message.timestamp).toLocaleTimeString('ko-KR', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                    </HydrationGuard>
                   </div>
                 </div>
               </div>

@@ -6,22 +6,22 @@ import { Button } from '../ui';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 import { Logger } from '../../../shared/logger';
 
-// 🔥 프리컴파일된 스타일
+// 🔥 작가 친화적 모니터링 패널 스타일 - 다크모드 완벽 지원
 const MONITORING_STYLES = {
-  container: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg',
-  header: 'flex items-center justify-between mb-4',
-  status: 'flex items-center gap-2',
-  pulse: 'w-2 h-2 bg-green-400 rounded-full animate-pulse',
-  title: 'text-lg font-semibold',
-  time: 'font-mono text-lg',
-  stats: 'grid grid-cols-3 gap-6 text-center mb-6',
-  statValue: 'text-2xl font-bold',
-  statLabel: 'text-blue-200 text-sm',
-  controls: 'flex items-center gap-3',
-  button: 'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all',
-  startButton: 'bg-green-600 hover:bg-green-700 text-white',
-  stopButton: 'bg-red-600 hover:bg-red-700 text-white',
-  aiButton: 'bg-purple-600 hover:bg-purple-700 text-white',
+  container: 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-8 rounded-2xl shadow-sm',
+  header: 'flex items-center justify-between mb-6',
+  status: 'flex items-center gap-3',
+  pulse: 'w-3 h-3 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse shadow-sm',
+  title: 'text-xl font-medium text-slate-900 dark:text-slate-100 tracking-wide',
+  time: 'font-mono text-xl font-medium text-slate-900 dark:text-slate-100 tracking-wider',
+  stats: 'grid grid-cols-3 gap-8 text-center mb-8',
+  statValue: 'text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight',
+  statLabel: 'text-slate-600 dark:text-slate-400 text-sm font-medium tracking-wide mt-1',
+  controls: 'flex items-center gap-4',
+  button: 'flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border',
+  startButton: 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-sm hover:shadow-md',
+  stopButton: 'bg-red-600 hover:bg-red-700 border-red-600 text-white shadow-sm hover:shadow-md',
+  aiButton: 'bg-violet-600 hover:bg-violet-700 border-violet-600 text-white shadow-sm hover:shadow-md',
 } as const;
 
 interface MonitoringControlPanelProps {

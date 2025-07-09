@@ -3,13 +3,14 @@
 import { forwardRef, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const CARD_STYLES = {
-  base: 'rounded-lg transition-shadow duration-200',
+  base: 'rounded-lg transition-all duration-200 ease-in-out',
   variants: {
-    default: 'bg-white border border-gray-200',
-    elevated: 'bg-white shadow-lg border-0',
-    outlined: 'bg-transparent border-2 border-gray-300'
+    default: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-900/20',
+    elevated: 'bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900/30 border-0',
+    outlined: 'bg-transparent border-2 border-slate-300 dark:border-slate-600',
+    writer: 'bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 backdrop-blur-sm'
   },
   padding: {
     sm: 'p-4',
@@ -17,9 +18,10 @@ const CARD_STYLES = {
     lg: 'p-8'
   },
   hover: {
-    default: 'hover:shadow-sm',
-    elevated: 'hover:shadow-xl',
-    outlined: 'hover:border-gray-400'
+    default: 'hover:shadow-md dark:hover:shadow-slate-900/40 hover:border-slate-300 dark:hover:border-slate-600',
+    elevated: 'hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-1',
+    outlined: 'hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50',
+    writer: 'hover:shadow-lg dark:hover:shadow-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
   }
 } as const;
 

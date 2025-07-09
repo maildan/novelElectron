@@ -139,15 +139,15 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lu
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드
 const BUTTON_STYLES = {
-    base: 'inline-flex items-center justify-center rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+    base: 'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
     variants: {
-        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-        secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500',
-        outline: 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
-        ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
-        destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
+        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-400',
+        secondary: 'bg-slate-200 text-slate-900 hover:bg-slate-300 focus:ring-slate-500 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600 dark:focus:ring-slate-400',
+        outline: 'border border-slate-300 bg-transparent text-slate-700 hover:bg-slate-50 focus:ring-slate-500 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-slate-400',
+        ghost: 'text-slate-700 hover:bg-slate-100 focus:ring-slate-500 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus:ring-slate-400',
+        destructive: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-400'
     },
     sizes: {
         sm: 'px-3 py-1.5 text-sm',
@@ -1940,6 +1940,7 @@ function RootLayout({ children }) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("html", {
         lang: "ko",
         className: `${__TURBOPACK__imported__module__$5b$next$5d2f$internal$2f$font$2f$google$2f$inter_fade9bbd$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].className} ${LAYOUT_STYLES.html}`,
+        suppressHydrationWarning: true,
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("head", {
                 children: [
@@ -1978,12 +1979,17 @@ function RootLayout({ children }) {
                             __html: `
               (function() {
                 try {
-                  // 🔥 하이드레이션 에러 방지: 서버와 클라이언트 초기 상태 완전 동기화
+                  // 🔥 하이드레이션 에러 완전 방지: 서버와 클라이언트 완전 동기화
                   
-                  // 1. localStorage에서 저장된 테마 확인 (서버에선 없으므로 system이 기본값)
+                  var html = document.documentElement;
                   var savedTheme = 'system'; // 🔥 서버 기본값과 동일
+                  
+                  // 1. localStorage에서 저장된 테마 확인 (안전하게)
                   try {
-                    savedTheme = localStorage.getItem('loop-theme') || 'system';
+                    var stored = localStorage.getItem('loop-theme');
+                    if (stored && ['light', 'dark', 'system'].includes(stored)) {
+                      savedTheme = stored;
+                    }
                   } catch (e) {
                     // localStorage 접근 실패 시 기본값 유지
                   }
@@ -1991,44 +1997,58 @@ function RootLayout({ children }) {
                   // 2. system 테마인 경우 실제 시스템 테마 감지
                   var resolvedTheme = savedTheme;
                   if (savedTheme === 'system') {
-                    resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    try {
+                      resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    } catch (e) {
+                      resolvedTheme = 'light'; // 폴백
+                    }
                   }
                   
-                  // 3. HTML 요소 안전하게 참조
-                  var html = document.documentElement;
-                  var body = document.body;
-                  
-                  // 4. 기존 테마 클래스 완전 제거 (하이드레이션 에러 방지)
+                  // 3. 기존 클래스 완전 제거 (하이드레이션 에러 방지)
                   html.classList.remove('light', 'dark', 'system');
                   
-                  // 5. 해결된 테마만 적용 (중복 방지)
+                  // 4. 해결된 테마만 적용
                   html.classList.add(resolvedTheme);
                   
-                  // 6. 일관된 속성 설정
+                  // 5. 일관된 속성 설정
                   html.setAttribute('data-theme', resolvedTheme);
                   html.style.setProperty('color-scheme', resolvedTheme);
+                  html.style.visibility = 'visible'; // 깜빡임 방지
                   
-                  // 7. body 클래스도 동기화 (하이드레이션 에러 방지)
+                  // 6. CSS 커스텀 속성도 즉시 적용
+                  if (resolvedTheme === 'dark') {
+                    html.style.setProperty('--bg-primary', '#0f1419');
+                    html.style.setProperty('--text-primary', '#e5e7eb');
+                  } else {
+                    html.style.setProperty('--bg-primary', '#fefcf7');
+                    html.style.setProperty('--text-primary', '#1a1a1a');
+                  }
+                  
+                  // 7. body가 존재하면 안전하게 업데이트
+                  var body = document.body;
                   if (body) {
-                    body.classList.remove('light', 'dark');
-                    // body에는 테마 클래스 추가하지 않음 (Tailwind CSS가 html.dark로 처리)
+                    // body 클래스는 고정값으로 설정 (하이드레이션 안전)
+                    body.className = 'h-full bg-slate-50 dark:bg-slate-900 antialiased';
+                    body.style.visibility = 'visible';
                   }
                   
-                  // 8. 디버그 정보 (개발 환경에서만)
-                  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-                    console.log('🎨 Theme initialized for hydration:', {
-                      saved: savedTheme,
-                      resolved: resolvedTheme,
-                      htmlClass: html.className
-                    });
-                  }
                 } catch (error) {
-                  // 🔥 폴백: 안전한 라이트 테마 (하이드레이션 에러 방지)
-                  document.documentElement.classList.remove('light', 'dark', 'system');
-                  document.documentElement.classList.add('light');
-                  document.documentElement.setAttribute('data-theme', 'light');
-                  document.documentElement.style.setProperty('color-scheme', 'light');
-                  console.warn('🚨 Theme script error, using safe light theme:', error);
+                  // 🔥 완전 폴백: 모든 에러 상황에 대비
+                  try {
+                    var html = document.documentElement;
+                    html.classList.remove('light', 'dark', 'system');
+                    html.classList.add('light');
+                    html.setAttribute('data-theme', 'light');
+                    html.style.setProperty('color-scheme', 'light');
+                    html.style.visibility = 'visible';
+                    if (document.body) {
+                      document.body.className = 'h-full bg-slate-50 dark:bg-slate-900 antialiased';
+                      document.body.style.visibility = 'visible';
+                    }
+                  } catch (finalError) {
+                    // 마지막 안전장치
+                    console.warn('Theme script critical error:', finalError);
+                  }
                 }
               })();
             `
@@ -2046,6 +2066,7 @@ function RootLayout({ children }) {
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("body", {
                 className: LAYOUT_STYLES.body,
+                suppressHydrationWarning: true,
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$providers$2f$ThemeProvider$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ThemeProvider"], {
                     defaultTheme: "system",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$contexts$2f$GlobalMonitoringContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MonitoringProvider"], {
@@ -2061,12 +2082,12 @@ function RootLayout({ children }) {
                                         onToggleCollapse: handleToggleSidebar
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/app/layout.tsx",
-                                        lineNumber: 160,
+                                        lineNumber: 179,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/app/layout.tsx",
-                                    lineNumber: 159,
+                                    lineNumber: 178,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2076,12 +2097,12 @@ function RootLayout({ children }) {
                                             className: LAYOUT_STYLES.header,
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$layout$2f$AppHeader$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AppHeader"], {}, void 0, false, {
                                                 fileName: "[project]/src/renderer/app/layout.tsx",
-                                                lineNumber: 172,
+                                                lineNumber: 191,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/layout.tsx",
-                                            lineNumber: 171,
+                                            lineNumber: 190,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2089,34 +2110,34 @@ function RootLayout({ children }) {
                                             children: children
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/app/layout.tsx",
-                                            lineNumber: 176,
+                                            lineNumber: 195,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/app/layout.tsx",
-                                    lineNumber: 169,
+                                    lineNumber: 188,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/app/layout.tsx",
-                            lineNumber: 157,
+                            lineNumber: 176,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/app/layout.tsx",
-                        lineNumber: 156,
+                        lineNumber: 175,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/renderer/app/layout.tsx",
-                    lineNumber: 155,
+                    lineNumber: 174,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/app/layout.tsx",
-                lineNumber: 154,
+                lineNumber: 173,
                 columnNumber: 7
             }, this)
         ]

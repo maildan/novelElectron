@@ -15,13 +15,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ut
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const CARD_STYLES = {
-    base: 'rounded-lg transition-shadow duration-200',
+    base: 'rounded-lg transition-all duration-200 ease-in-out',
     variants: {
-        default: 'bg-white border border-gray-200',
-        elevated: 'bg-white shadow-lg border-0',
-        outlined: 'bg-transparent border-2 border-gray-300'
+        default: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-900/20',
+        elevated: 'bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900/30 border-0',
+        outlined: 'bg-transparent border-2 border-slate-300 dark:border-slate-600',
+        writer: 'bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 backdrop-blur-sm'
     },
     padding: {
         sm: 'p-4',
@@ -29,9 +30,10 @@ const CARD_STYLES = {
         lg: 'p-8'
     },
     hover: {
-        default: 'hover:shadow-sm',
-        elevated: 'hover:shadow-xl',
-        outlined: 'hover:border-gray-400'
+        default: 'hover:shadow-md dark:hover:shadow-slate-900/40 hover:border-slate-300 dark:hover:border-slate-600',
+        elevated: 'hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-1',
+        outlined: 'hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50',
+        writer: 'hover:shadow-lg dark:hover:shadow-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
     }
 };
 const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["forwardRef"])(({ variant = 'default', padding = 'md', hoverable = false, className, children, onClick, role, 'aria-label': ariaLabel, ...props }, ref)=>{
@@ -53,7 +55,7 @@ const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$n
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/ui/Card.tsx",
-        lineNumber: 61,
+        lineNumber: 63,
         columnNumber: 7
     }, this);
 });
@@ -543,25 +545,25 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ut
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수  
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 다크모드 완벽 지원
 const KPI_STYLES = {
     container: 'p-6 transition-all duration-200',
     header: 'flex items-center justify-between mb-4',
     iconContainer: 'w-10 h-10 rounded-lg flex items-center justify-center',
     iconColors: {
-        blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
-        purple: 'bg-purple-100 text-purple-600',
-        orange: 'bg-orange-100 text-orange-600',
-        red: 'bg-red-100 text-red-600'
+        blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+        green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+        purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+        orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+        red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
     },
-    value: 'text-2xl font-bold text-gray-900 mb-1',
-    label: 'text-sm text-gray-600 mb-2',
+    value: 'text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1',
+    label: 'text-sm text-slate-600 dark:text-slate-400 mb-2',
     change: 'text-sm font-medium flex items-center gap-1',
     changeColors: {
-        increase: 'text-green-600',
-        decrease: 'text-red-600',
-        neutral: 'text-gray-500'
+        increase: 'text-green-600 dark:text-green-400',
+        decrease: 'text-red-600 dark:text-red-400',
+        neutral: 'text-slate-500 dark:text-slate-400'
     }
 };
 function KpiCard({ title, value, icon: Icon, change, color = 'blue', className, onClick }) {
@@ -615,7 +617,7 @@ function KpiCard({ title, value, icon: Icon, change, color = 'blue', className, 
                                 columnNumber: 13
                             }, this),
                             change.period && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-xs text-gray-500",
+                                className: "text-xs text-slate-500 dark:text-slate-400",
                                 children: [
                                     "(",
                                     change.period,
@@ -846,14 +848,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$t
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드
 const QUICK_START_STYLES = {
-    container: 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-dashed border-2 border-blue-200 dark:border-blue-800',
+    container: 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-900/20',
     content: 'text-center py-8 px-6',
     title: 'text-xl font-bold text-slate-900 dark:text-slate-100 mb-2',
-    description: 'text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto',
+    description: 'text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto leading-relaxed',
     actionGrid: 'grid grid-cols-2 gap-3 max-w-sm mx-auto',
-    actionButton: 'h-auto py-3 px-4 flex-col gap-2 text-sm hover:scale-105 transition-transform duration-200',
+    actionButton: 'h-auto py-3 px-4 flex-col gap-2 text-sm hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md dark:hover:shadow-slate-900/30',
     icon: 'w-5 h-5',
     emptyState: 'text-slate-500 dark:text-slate-400 text-sm'
 };
@@ -994,22 +996,22 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$t
 ;
 ;
 ;
-// 🔥 프리컴파일된 스타일
+// 🔥 작가 친화적 모니터링 패널 스타일 - 다크모드 완벽 지원
 const MONITORING_STYLES = {
-    container: 'bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg',
-    header: 'flex items-center justify-between mb-4',
-    status: 'flex items-center gap-2',
-    pulse: 'w-2 h-2 bg-green-400 rounded-full animate-pulse',
-    title: 'text-lg font-semibold',
-    time: 'font-mono text-lg',
-    stats: 'grid grid-cols-3 gap-6 text-center mb-6',
-    statValue: 'text-2xl font-bold',
-    statLabel: 'text-blue-200 text-sm',
-    controls: 'flex items-center gap-3',
-    button: 'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all',
-    startButton: 'bg-green-600 hover:bg-green-700 text-white',
-    stopButton: 'bg-red-600 hover:bg-red-700 text-white',
-    aiButton: 'bg-purple-600 hover:bg-purple-700 text-white'
+    container: 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-8 rounded-2xl shadow-sm',
+    header: 'flex items-center justify-between mb-6',
+    status: 'flex items-center gap-3',
+    pulse: 'w-3 h-3 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse shadow-sm',
+    title: 'text-xl font-medium text-slate-900 dark:text-slate-100 tracking-wide',
+    time: 'font-mono text-xl font-medium text-slate-900 dark:text-slate-100 tracking-wider',
+    stats: 'grid grid-cols-3 gap-8 text-center mb-8',
+    statValue: 'text-3xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight',
+    statLabel: 'text-slate-600 dark:text-slate-400 text-sm font-medium tracking-wide mt-1',
+    controls: 'flex items-center gap-4',
+    button: 'flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 border',
+    startButton: 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 text-white shadow-sm hover:shadow-md',
+    stopButton: 'bg-red-600 hover:bg-red-700 border-red-600 text-white shadow-sm hover:shadow-md',
+    aiButton: 'bg-violet-600 hover:bg-violet-700 border-violet-600 text-white shadow-sm hover:shadow-md'
 };
 function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
@@ -1605,8 +1607,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$ne
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/target.mjs [app-ssr] (ecmascript) <export default as Target>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/clock.mjs [app-ssr] (ecmascript) <export default as Clock>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/file-text.mjs [app-ssr] (ecmascript) <export default as FileText>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/play.mjs [app-ssr] (ecmascript) <export default as Play>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pause$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Pause$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/pause.mjs [app-ssr] (ecmascript) <export default as Pause>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Calendar$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/calendar.mjs [app-ssr] (ecmascript) <export default as Calendar>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$zap$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Zap$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/zap.mjs [app-ssr] (ecmascript) <export default as Zap>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$folder$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Folder$3e$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/lucide-react@0.263.1_react@19.1.0/node_modules/lucide-react/dist/esm/icons/folder.mjs [app-ssr] (ecmascript) <export default as Folder>");
@@ -1635,30 +1635,32 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$contexts$
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 작가 친화적 스타일 상수 - 미니멀하고 집중할 수 있는 디자인
 const DASHBOARD_STYLES = {
-    container: 'flex-1 flex flex-col bg-slate-50 dark:bg-slate-950',
-    header: 'bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6',
-    headerContent: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
-    headerTitle: 'text-2xl font-bold text-slate-900 dark:text-slate-100',
-    headerSubtitle: 'text-slate-600 dark:text-slate-400 mt-1',
-    headerActions: 'flex items-center gap-3',
-    content: 'flex-1 overflow-y-auto p-6 space-y-6',
-    monitoringPanel: 'bg-blue-600 text-white p-6 rounded-lg shadow-lg',
-    monitoringHeader: 'flex items-center justify-between mb-4',
-    monitoringStatus: 'flex items-center gap-2',
-    monitoringPulse: 'w-2 h-2 bg-green-400 rounded-full animate-pulse',
-    monitoringTitle: 'text-lg font-semibold',
-    monitoringTime: 'font-mono text-lg',
-    monitoringStats: 'grid grid-cols-3 gap-6 text-center',
-    statValue: 'text-2xl font-bold',
-    statLabel: 'text-blue-200 text-sm',
-    quickActions: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4',
-    quickActionCard: 'h-[120px] flex flex-col justify-between transition-colors hover:shadow-md',
-    quickActionIcon: 'w-5 h-5',
-    quickActionTitle: 'font-semibold text-slate-900 dark:text-slate-100 mb-1',
-    quickActionDesc: 'text-sm text-slate-600 dark:text-slate-400 mb-2',
-    quickActionStatus: 'text-xs font-medium',
+    container: 'flex-1 flex flex-col min-h-screen',
+    header: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 p-8',
+    headerContent: 'max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6',
+    headerTitle: 'text-3xl font-light text-slate-900 dark:text-slate-100 tracking-tight',
+    headerSubtitle: 'text-slate-600 dark:text-slate-400 mt-2 text-lg leading-relaxed',
+    headerActions: 'flex items-center gap-4',
+    content: 'flex-1 overflow-y-auto p-8 max-w-6xl mx-auto w-full space-y-8',
+    // 🔥 작가 친화적 모니터링 패널 - 차분한 색상
+    monitoringPanel: 'bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black text-white p-8 rounded-2xl shadow-sm border border-slate-200/20',
+    monitoringHeader: 'flex items-center justify-between mb-6',
+    monitoringStatus: 'flex items-center gap-3',
+    monitoringPulse: 'w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-sm',
+    monitoringTitle: 'text-xl font-light tracking-wide',
+    monitoringTime: 'font-mono text-xl font-light tracking-wider',
+    monitoringStats: 'grid grid-cols-3 gap-8 text-center',
+    statValue: 'text-3xl font-light tracking-tight',
+    statLabel: 'text-slate-300 text-sm font-medium tracking-wide mt-1',
+    // 🔥 작가 친화적 카드 디자인 - 최소한의 장식
+    quickActions: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6',
+    quickActionCard: 'bg-white dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 p-6 rounded-xl hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group min-h-[140px] flex flex-col justify-between',
+    quickActionIcon: 'w-6 h-6 text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors',
+    quickActionTitle: 'font-medium text-slate-900 dark:text-slate-100 mt-3 mb-2 tracking-tight',
+    quickActionDesc: 'text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3',
+    quickActionStatus: 'text-xs font-medium text-slate-500 dark:text-slate-500',
     mainGrid: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
     projectList: 'space-y-4',
     projectItem: 'bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg',
@@ -1712,7 +1714,7 @@ function DashboardMain() {
             change: {
                 value: 0,
                 type: 'neutral',
-                period: '%'
+                period: '단어'
             }
         },
         {
@@ -1723,7 +1725,7 @@ function DashboardMain() {
             change: {
                 value: 0,
                 type: 'neutral',
-                period: '%'
+                period: '세션'
             }
         },
         {
@@ -1734,7 +1736,7 @@ function DashboardMain() {
             change: {
                 value: 0,
                 type: 'neutral',
-                period: '%'
+                period: '어제 대비'
             }
         },
         {
@@ -1767,6 +1769,13 @@ function DashboardMain() {
                         kpi: false
                     }));
                 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].debug('DASHBOARD', '✅ Dashboard stats loaded', stats);
+            } else {
+                // 백엔드에서 데이터를 가져올 수 없는 경우 기본값 사용
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].warn('DASHBOARD', '⚠️ Dashboard stats not available, using defaults');
+                setLoadingStates((prev)=>({
+                        ...prev,
+                        kpi: false
+                    }));
             }
             // 🔥 프로젝트 데이터 업데이트
             if (projectsResult.status === 'fulfilled' && projectsResult.value.success) {
@@ -1785,6 +1794,14 @@ function DashboardMain() {
                 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].debug('DASHBOARD', '✅ Projects loaded', {
                     count: projectsData.length
                 });
+            } else {
+                // 프로젝트 데이터가 없는 경우
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].warn('DASHBOARD', '⚠️ Projects not available, using empty state');
+                setProjects([]);
+                setLoadingStates((prev)=>({
+                        ...prev,
+                        projects: false
+                    }));
             }
             // 🔥 최근 세션 데이터를 파일 형태로 변환
             if (recentSessionsResult.status === 'fulfilled' && recentSessionsResult.value.success) {
@@ -1803,6 +1820,14 @@ function DashboardMain() {
                 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].debug('DASHBOARD', '✅ Recent sessions loaded', {
                     count: sessions.length
                 });
+            } else {
+                // 세션 데이터가 없는 경우
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].warn('DASHBOARD', '⚠️ Recent sessions not available, using empty state');
+                setRecentFiles([]);
+                setLoadingStates((prev)=>({
+                        ...prev,
+                        recentFiles: false
+                    }));
             }
         } catch (error) {
             __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Logger"].error('DASHBOARD', '❌ Failed to load dashboard data', error);
@@ -1921,7 +1946,7 @@ function DashboardMain() {
                                     children: "대시보드"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                    lineNumber: 346,
+                                    lineNumber: 364,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1929,135 +1954,75 @@ function DashboardMain() {
                                     children: "오늘의 창작을 시작하세요"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                    lineNumber: 347,
+                                    lineNumber: 365,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                            lineNumber: 345,
+                            lineNumber: 363,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: DASHBOARD_STYLES.headerActions,
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$HydrationGuard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["HydrationGuard"], {
-                                    fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                                        variant: "outline",
-                                        className: "gap-2",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
-                                                className: "w-4 h-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 356,
-                                                columnNumber: 17
-                                            }, void 0),
-                                            "Loop AI"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 352,
-                                        columnNumber: 15
-                                    }, void 0),
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                                        onClick: handleAIToggle,
-                                        variant: isAIOpen ? 'primary' : 'outline',
-                                        className: "gap-2",
-                                        "aria-pressed": isAIOpen,
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
-                                                className: "w-4 h-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 366,
-                                                columnNumber: 17
-                                            }, this),
-                                            "Loop AI"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 360,
-                                        columnNumber: 15
-                                    }, this)
-                                }, void 0, false, {
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$HydrationGuard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["HydrationGuard"], {
+                                fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                                    variant: "outline",
+                                    className: "gap-2",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
+                                            lineNumber: 374,
+                                            columnNumber: 17
+                                        }, void 0),
+                                        "Loop AI"
+                                    ]
+                                }, void 0, true, {
                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                    lineNumber: 351,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$HydrationGuard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["HydrationGuard"], {
-                                    fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                                        variant: "primary",
-                                        className: "gap-2 min-w-[120px]",
-                                        size: "md",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__["Play"], {
-                                                className: "w-4 h-4"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 377,
-                                                columnNumber: 17
-                                            }, void 0),
-                                            "타이핑 시작"
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 372,
-                                        columnNumber: 15
-                                    }, void 0),
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                                        onClick: handleToggleMonitoring,
-                                        variant: isMonitoring ? 'destructive' : 'primary',
-                                        className: `gap-2 min-w-[120px] transition-all duration-200 ${isMonitoring ? 'animate-pulse bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl'}`,
-                                        size: "md",
-                                        children: isMonitoring ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pause$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Pause$3e$__["Pause"], {
-                                                    className: "w-4 h-4"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 393,
-                                                    columnNumber: 21
-                                                }, this),
-                                                "모니터링 중지"
-                                            ]
-                                        }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$play$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Play$3e$__["Play"], {
-                                                    className: "w-4 h-4"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 398,
-                                                    columnNumber: 21
-                                                }, this),
-                                                "타이핑 시작"
-                                            ]
-                                        }, void 0, true)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 381,
-                                        columnNumber: 15
-                                    }, this)
-                                }, void 0, false, {
+                                    lineNumber: 370,
+                                    columnNumber: 15
+                                }, void 0),
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                                    onClick: handleAIToggle,
+                                    variant: isAIOpen ? 'primary' : 'outline',
+                                    className: "gap-2",
+                                    "aria-pressed": isAIOpen,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$target$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Target$3e$__["Target"], {
+                                            className: "w-4 h-4"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
+                                            lineNumber: 384,
+                                            columnNumber: 17
+                                        }, this),
+                                        "Loop AI"
+                                    ]
+                                }, void 0, true, {
                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                    lineNumber: 371,
-                                    columnNumber: 13
+                                    lineNumber: 378,
+                                    columnNumber: 15
                                 }, this)
-                            ]
-                        }, void 0, true, {
+                            }, void 0, false, {
+                                fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
+                                lineNumber: 369,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
                             fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                            lineNumber: 350,
+                            lineNumber: 368,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                    lineNumber: 344,
+                    lineNumber: 362,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                lineNumber: 343,
+                lineNumber: 361,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2065,7 +2030,7 @@ function DashboardMain() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$MonitoringControlPanel$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["MonitoringControlPanel"], {}, void 0, false, {
                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                        lineNumber: 411,
+                        lineNumber: 395,
                         columnNumber: 9
                     }, this),
                     loadingStates.kpi ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$DashboardSkeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardSkeleton"], {
@@ -2074,7 +2039,7 @@ function DashboardMain() {
                         showRecentFiles: false
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                        lineNumber: 415,
+                        lineNumber: 399,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4",
@@ -2082,12 +2047,12 @@ function DashboardMain() {
                                 ...kpi
                             }, index, false, {
                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                lineNumber: 419,
+                                lineNumber: 403,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                        lineNumber: 417,
+                        lineNumber: 401,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$QuickStartCard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["QuickStartCard"], {
@@ -2130,7 +2095,7 @@ function DashboardMain() {
                         }
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                        lineNumber: 425,
+                        lineNumber: 409,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2145,7 +2110,7 @@ function DashboardMain() {
                                                 className: "w-5 h-5 text-blue-600 dark:text-blue-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 470,
+                                                lineNumber: 454,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -2153,13 +2118,13 @@ function DashboardMain() {
                                                 children: "활성 프로젝트"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 471,
+                                                lineNumber: 455,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 469,
+                                        lineNumber: 453,
                                         columnNumber: 13
                                     }, this),
                                     loadingStates.projects ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$DashboardSkeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardSkeleton"], {
@@ -2168,7 +2133,7 @@ function DashboardMain() {
                                         showRecentFiles: false
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 475,
+                                        lineNumber: 459,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: DASHBOARD_STYLES.projectList,
@@ -2179,14 +2144,14 @@ function DashboardMain() {
                                                     className: "w-12 h-12 mx-auto mb-3 opacity-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 480,
+                                                    lineNumber: 464,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: "아직 프로젝트가 없습니다"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 481,
+                                                    lineNumber: 465,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2194,13 +2159,13 @@ function DashboardMain() {
                                                     children: "새 프로젝트를 만들어보세요!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 482,
+                                                    lineNumber: 466,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                            lineNumber: 479,
+                                            lineNumber: 463,
                                             columnNumber: 19
                                         }, this) : projects.map((project)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: `${DASHBOARD_STYLES.projectItem} ${project.status === 'active' ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800' : ''}`,
@@ -2213,7 +2178,7 @@ function DashboardMain() {
                                                                 children: project.title
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 495,
+                                                                lineNumber: 479,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -2222,13 +2187,13 @@ function DashboardMain() {
                                                                 children: project.status === 'active' ? '진행중' : '초안'
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 496,
+                                                                lineNumber: 480,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 494,
+                                                        lineNumber: 478,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2239,12 +2204,12 @@ function DashboardMain() {
                                                             size: "md"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                            lineNumber: 504,
+                                                            lineNumber: 488,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 503,
+                                                        lineNumber: 487,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2258,7 +2223,7 @@ function DashboardMain() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 511,
+                                                                lineNumber: 495,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2269,30 +2234,30 @@ function DashboardMain() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 514,
+                                                                lineNumber: 498,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 510,
+                                                        lineNumber: 494,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, project.id, true, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 486,
+                                                lineNumber: 470,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 477,
+                                        lineNumber: 461,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                lineNumber: 468,
+                                lineNumber: 452,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2304,7 +2269,7 @@ function DashboardMain() {
                                                 className: "w-5 h-5 text-green-600 dark:text-green-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 528,
+                                                lineNumber: 512,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -2312,13 +2277,13 @@ function DashboardMain() {
                                                 children: "최근 파일"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 529,
+                                                lineNumber: 513,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 527,
+                                        lineNumber: 511,
                                         columnNumber: 13
                                     }, this),
                                     loadingStates.recentFiles ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$DashboardSkeleton$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardSkeleton"], {
@@ -2327,7 +2292,7 @@ function DashboardMain() {
                                         showRecentFiles: true
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 533,
+                                        lineNumber: 517,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: DASHBOARD_STYLES.recentFiles,
@@ -2338,14 +2303,14 @@ function DashboardMain() {
                                                     className: "w-12 h-12 mx-auto mb-3 opacity-50"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 538,
+                                                    lineNumber: 522,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     children: "최근 작업한 파일이 없습니다"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 539,
+                                                    lineNumber: 523,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2353,13 +2318,13 @@ function DashboardMain() {
                                                     children: "작업을 시작해보세요!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                    lineNumber: 540,
+                                                    lineNumber: 524,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                            lineNumber: 537,
+                                            lineNumber: 521,
                                             columnNumber: 19
                                         }, this) : recentFiles.map((file)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: DASHBOARD_STYLES.fileItem,
@@ -2381,7 +2346,7 @@ function DashboardMain() {
                                                         className: DASHBOARD_STYLES.fileIcon
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 557,
+                                                        lineNumber: 541,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2392,7 +2357,7 @@ function DashboardMain() {
                                                                 children: file.name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 559,
+                                                                lineNumber: 543,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2400,13 +2365,13 @@ function DashboardMain() {
                                                                 children: file.project
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 560,
+                                                                lineNumber: 544,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 558,
+                                                        lineNumber: 542,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2417,7 +2382,7 @@ function DashboardMain() {
                                                                 children: file.time
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 563,
+                                                                lineNumber: 547,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2425,48 +2390,48 @@ function DashboardMain() {
                                                                 children: file.status
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                                lineNumber: 564,
+                                                                lineNumber: 548,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                        lineNumber: 562,
+                                                        lineNumber: 546,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, file.id, true, {
                                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                                lineNumber: 544,
+                                                lineNumber: 528,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                        lineNumber: 535,
+                                        lineNumber: 519,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                                lineNumber: 526,
+                                lineNumber: 510,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                        lineNumber: 466,
+                        lineNumber: 450,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-                lineNumber: 409,
+                lineNumber: 393,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/dashboard/DashboardMain.tsx",
-        lineNumber: 341,
+        lineNumber: 359,
         columnNumber: 5
     }, this);
 }
@@ -2486,7 +2451,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$component
 ;
 function DashboardPage() {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen bg-slate-50",
+        className: "min-h-screen",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$dashboard$2f$DashboardMain$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardMain"], {}, void 0, false, {
             fileName: "[project]/src/renderer/app/page.tsx",
             lineNumber: 9,

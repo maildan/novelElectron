@@ -97,6 +97,13 @@ const electronAPI: ElectronAPI = {
     analyzeText: (text: string) => ipcRenderer.invoke('ai:analyze-text', text),
     generateSuggestions: (prompt: string) => ipcRenderer.invoke('ai:generate-suggestions', prompt),
     getUsageStats: () => ipcRenderer.invoke('ai:get-usage-stats'),
+    sendMessage: (message: string, context?: string) => ipcRenderer.invoke('ai:send-message', message, context),
+    getWritingHelp: (prompt: string, context?: string) => ipcRenderer.invoke('ai:get-writing-help', prompt, context),
+    healthCheck: () => ipcRenderer.invoke('ai:health-check'),
+    getProjectContext: (projectId: string) => ipcRenderer.invoke('ai:get-project-context', projectId),
+    continueWriting: (text: string, context?: string) => ipcRenderer.invoke('ai:continue-writing', text, context),
+    improveText: (text: string, projectContext?: string) => ipcRenderer.invoke('ai:improve-text', text, projectContext),
+    summarizeText: (text: string) => ipcRenderer.invoke('ai:summarize-text', text),
   },
 
   notifications: {
@@ -120,6 +127,16 @@ const electronAPI: ElectronAPI = {
   shell: {
     openExternal: (url: string) => ipcRenderer.invoke('shell:open-external', url),
     showItemInFolder: (fullPath: string) => ipcRenderer.invoke('shell:show-item-in-folder', fullPath),
+  },
+
+  // 🔥 OAuth API (Google Docs 연동)
+  oauth: {
+    startGoogleAuth: () => ipcRenderer.invoke('oauth:start-google-auth'),
+    handleCallback: (code: string) => ipcRenderer.invoke('oauth:handle-callback', code),
+    getGoogleDocuments: () => ipcRenderer.invoke('oauth:get-google-documents'),
+    importGoogleDoc: (documentId: string) => ipcRenderer.invoke('oauth:import-google-doc', documentId),
+    getAuthStatus: () => ipcRenderer.invoke('oauth:get-auth-status'),
+    revokeAuth: () => ipcRenderer.invoke('oauth:revoke-auth'),
   },
 };
 

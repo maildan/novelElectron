@@ -15,13 +15,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ut
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const CARD_STYLES = {
-    base: 'rounded-lg transition-shadow duration-200',
+    base: 'rounded-lg transition-all duration-200 ease-in-out',
     variants: {
-        default: 'bg-white border border-gray-200',
-        elevated: 'bg-white shadow-lg border-0',
-        outlined: 'bg-transparent border-2 border-gray-300'
+        default: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-900/20',
+        elevated: 'bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900/30 border-0',
+        outlined: 'bg-transparent border-2 border-slate-300 dark:border-slate-600',
+        writer: 'bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 backdrop-blur-sm'
     },
     padding: {
         sm: 'p-4',
@@ -29,9 +30,10 @@ const CARD_STYLES = {
         lg: 'p-8'
     },
     hover: {
-        default: 'hover:shadow-sm',
-        elevated: 'hover:shadow-xl',
-        outlined: 'hover:border-gray-400'
+        default: 'hover:shadow-md dark:hover:shadow-slate-900/40 hover:border-slate-300 dark:hover:border-slate-600',
+        elevated: 'hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-1',
+        outlined: 'hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50',
+        writer: 'hover:shadow-lg dark:hover:shadow-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
     }
 };
 const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])(_c = ({ variant = 'default', padding = 'md', hoverable = false, className, children, onClick, role, 'aria-label': ariaLabel, ...props }, ref)=>{
@@ -53,7 +55,7 @@ const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$n
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/ui/Card.tsx",
-        lineNumber: 61,
+        lineNumber: 63,
         columnNumber: 7
     }, this);
 });
@@ -81,25 +83,25 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ut
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수  
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 다크모드 완벽 지원
 const KPI_STYLES = {
     container: 'p-6 transition-all duration-200',
     header: 'flex items-center justify-between mb-4',
     iconContainer: 'w-10 h-10 rounded-lg flex items-center justify-center',
     iconColors: {
-        blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
-        purple: 'bg-purple-100 text-purple-600',
-        orange: 'bg-orange-100 text-orange-600',
-        red: 'bg-red-100 text-red-600'
+        blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+        green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+        purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+        orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+        red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
     },
-    value: 'text-2xl font-bold text-gray-900 mb-1',
-    label: 'text-sm text-gray-600 mb-2',
+    value: 'text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1',
+    label: 'text-sm text-slate-600 dark:text-slate-400 mb-2',
     change: 'text-sm font-medium flex items-center gap-1',
     changeColors: {
-        increase: 'text-green-600',
-        decrease: 'text-red-600',
-        neutral: 'text-gray-500'
+        increase: 'text-green-600 dark:text-green-400',
+        decrease: 'text-red-600 dark:text-red-400',
+        neutral: 'text-slate-500 dark:text-slate-400'
     }
 };
 function KpiCard({ title, value, icon: Icon, change, color = 'blue', className, onClick }) {
@@ -153,7 +155,7 @@ function KpiCard({ title, value, icon: Icon, change, color = 'blue', className, 
                                 columnNumber: 13
                             }, this),
                             change.period && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-xs text-gray-500",
+                                className: "text-xs text-slate-500 dark:text-slate-400",
                                 children: [
                                     "(",
                                     change.period,

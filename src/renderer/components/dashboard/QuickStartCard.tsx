@@ -6,14 +6,14 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Logger } from '../../../shared/logger';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드
 const QUICK_START_STYLES = {
-  container: 'bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-dashed border-2 border-blue-200 dark:border-blue-800',
+  container: 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm dark:shadow-slate-900/20',
   content: 'text-center py-8 px-6',
   title: 'text-xl font-bold text-slate-900 dark:text-slate-100 mb-2',
-  description: 'text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto',
+  description: 'text-slate-600 dark:text-slate-400 mb-6 max-w-md mx-auto leading-relaxed',
   actionGrid: 'grid grid-cols-2 gap-3 max-w-sm mx-auto',
-  actionButton: 'h-auto py-3 px-4 flex-col gap-2 text-sm hover:scale-105 transition-transform duration-200',
+  actionButton: 'h-auto py-3 px-4 flex-col gap-2 text-sm hover:scale-105 transition-all duration-200 shadow-sm hover:shadow-md dark:hover:shadow-slate-900/30',
   icon: 'w-5 h-5',
   emptyState: 'text-slate-500 dark:text-slate-400 text-sm',
 } as const;

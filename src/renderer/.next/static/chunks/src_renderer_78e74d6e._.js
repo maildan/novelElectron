@@ -15,13 +15,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$lib$2f$ut
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const CARD_STYLES = {
-    base: 'rounded-lg transition-shadow duration-200',
+    base: 'rounded-lg transition-all duration-200 ease-in-out',
     variants: {
-        default: 'bg-white border border-gray-200',
-        elevated: 'bg-white shadow-lg border-0',
-        outlined: 'bg-transparent border-2 border-gray-300'
+        default: 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-slate-900/20',
+        elevated: 'bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900/30 border-0',
+        outlined: 'bg-transparent border-2 border-slate-300 dark:border-slate-600',
+        writer: 'bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 backdrop-blur-sm'
     },
     padding: {
         sm: 'p-4',
@@ -29,9 +30,10 @@ const CARD_STYLES = {
         lg: 'p-8'
     },
     hover: {
-        default: 'hover:shadow-sm',
-        elevated: 'hover:shadow-xl',
-        outlined: 'hover:border-gray-400'
+        default: 'hover:shadow-md dark:hover:shadow-slate-900/40 hover:border-slate-300 dark:hover:border-slate-600',
+        elevated: 'hover:shadow-xl dark:hover:shadow-slate-900/50 hover:-translate-y-1',
+        outlined: 'hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50',
+        writer: 'hover:shadow-lg dark:hover:shadow-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60'
     }
 };
 const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"])(_c = ({ variant = 'default', padding = 'md', hoverable = false, className, children, onClick, role, 'aria-label': ariaLabel, ...props }, ref)=>{
@@ -53,7 +55,7 @@ const Card = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$n
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/ui/Card.tsx",
-        lineNumber: 61,
+        lineNumber: 63,
         columnNumber: 7
     }, this);
 });
@@ -1328,36 +1330,36 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const PROJECT_CREATOR_STYLES = {
-    overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4',
-    modal: 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden',
-    header: 'flex items-center justify-between p-6 border-b border-slate-200',
-    title: 'text-2xl font-bold text-slate-900',
-    closeButton: 'text-slate-400 hover:text-slate-600 transition-colors',
-    content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)]',
+    overlay: 'fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4',
+    modal: 'bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-slate-900/50 w-full max-w-4xl max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700',
+    header: 'flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
+    title: 'text-2xl font-bold text-slate-900 dark:text-slate-100',
+    closeButton: 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800',
+    content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)] bg-white dark:bg-slate-900',
     // 플랫폼 선택
     platformSection: 'mb-8',
-    sectionTitle: 'text-lg font-semibold text-slate-900 mb-4',
+    sectionTitle: 'text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4',
     platformGrid: 'grid grid-cols-1 md:grid-cols-3 gap-4',
-    platformCard: 'p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50',
-    platformCardSelected: 'border-blue-500 bg-blue-50',
-    platformCardDefault: 'border-slate-200 bg-white',
-    platformIcon: 'w-8 h-8 text-blue-600 mb-2',
-    platformTitle: 'font-semibold text-slate-900 mb-1',
-    platformDescription: 'text-sm text-slate-600',
+    platformCard: 'p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20',
+    platformCardSelected: 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20',
+    platformCardDefault: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800',
+    platformIcon: 'w-8 h-8 text-blue-600 dark:text-blue-400 mb-2',
+    platformTitle: 'font-semibold text-slate-900 dark:text-slate-100 mb-1',
+    platformDescription: 'text-sm text-slate-600 dark:text-slate-400',
     // 프로젝트 정보
     formSection: 'mb-6',
-    label: 'block text-sm font-medium text-slate-900 mb-2',
+    label: 'block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2',
     inputGroup: 'mb-4',
     genreGrid: 'grid grid-cols-2 md:grid-cols-4 gap-2 mt-2',
     genreButton: 'p-2 text-sm border rounded-lg transition-colors',
-    genreSelected: 'border-blue-500 bg-blue-50 text-blue-700',
-    genreDefault: 'border-slate-200 text-slate-600 hover:border-slate-300',
+    genreSelected: 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300',
+    genreDefault: 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800',
     // 버튼
-    footer: 'flex items-center justify-between p-6 border-t border-slate-200 bg-slate-50',
-    secondaryButton: 'px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors',
-    primaryButton: 'px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50'
+    footer: 'flex items-center justify-between p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
+    secondaryButton: 'px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800',
+    primaryButton: 'px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 };
 // 🔥 플랫폼 옵션
 const PLATFORM_OPTIONS = [
@@ -1466,9 +1468,35 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
             setIsCreating(false);
         }
     };
-    const handlePlatformSelect = (platformId)=>{
+    const handlePlatformSelect = async (platformId)=>{
         setSelectedPlatform(platformId);
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].debug('PROJECT_CREATOR', `Platform selected: ${platformId}`);
+        // 🔥 Google Docs 선택 시 OAuth 인증 시작
+        if (platformId === 'google-docs') {
+            try {
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('PROJECT_CREATOR', 'Starting Google OAuth authentication');
+                if (window.electronAPI?.oauth?.startGoogleAuth) {
+                    const result = await window.electronAPI.oauth.startGoogleAuth();
+                    if (result.success) {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('PROJECT_CREATOR', 'Google OAuth started successfully');
+                    // OAuth 완료 후 사용자에게 피드백 제공
+                    // TODO: OAuth 완료 상태 UI 업데이트
+                    } else {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('PROJECT_CREATOR', 'Google OAuth failed to start');
+                        alert('Google 인증을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                        setSelectedPlatform('loop'); // 기본값으로 복원
+                    }
+                } else {
+                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('PROJECT_CREATOR', 'Google OAuth API not available');
+                    alert('Google Docs 연동 기능이 준비되지 않았습니다.');
+                    setSelectedPlatform('loop'); // 기본값으로 복원
+                }
+            } catch (error) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('PROJECT_CREATOR', 'Google OAuth error', error);
+                alert('Google 인증 중 오류가 발생했습니다.');
+                setSelectedPlatform('loop'); // 기본값으로 복원
+            }
+        }
     };
     const handleGenreSelect = (genreId)=>{
         setSelectedGenre(genreId);
@@ -1505,7 +1533,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                             children: "새 프로젝트 만들기"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 202,
+                            lineNumber: 230,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1516,18 +1544,18 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                 className: "w-6 h-6"
                             }, void 0, false, {
                                 fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                lineNumber: 208,
+                                lineNumber: 236,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 203,
+                            lineNumber: 231,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                    lineNumber: 201,
+                    lineNumber: 229,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1541,7 +1569,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                     children: "작성 플랫폼 선택"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 216,
+                                    lineNumber: 244,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1556,7 +1584,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                                     className: PROJECT_CREATOR_STYLES.platformIcon
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                    lineNumber: 230,
+                                                    lineNumber: 258,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1568,20 +1596,20 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                                             children: "추천"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                            lineNumber: 234,
+                                                            lineNumber: 262,
                                                             columnNumber: 25
                                                         }, this),
                                                         platform.external && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$lucide$2d$react$40$0$2e$263$2e$1_react$40$19$2e$1$2e$0$2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$external$2d$link$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ExternalLink$3e$__["ExternalLink"], {
                                                             className: "inline w-4 h-4 ml-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                            lineNumber: 237,
+                                                            lineNumber: 265,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                    lineNumber: 231,
+                                                    lineNumber: 259,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1589,25 +1617,25 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                                     children: platform.description
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                    lineNumber: 240,
+                                                    lineNumber: 268,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, platform.id, true, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 221,
+                                            lineNumber: 249,
                                             columnNumber: 19
                                         }, this);
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 217,
+                                    lineNumber: 245,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 215,
+                            lineNumber: 243,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1618,7 +1646,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                     children: "프로젝트 정보"
                                 }, void 0, false, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 251,
+                                    lineNumber: 279,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1630,7 +1658,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                             children: "프로젝트 제목 *"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 254,
+                                            lineNumber: 282,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1642,13 +1670,13 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                             maxLength: 100
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 257,
+                                            lineNumber: 285,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 253,
+                                    lineNumber: 281,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1660,7 +1688,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                             children: "프로젝트 설명"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 268,
+                                            lineNumber: 296,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1672,13 +1700,13 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                             maxLength: 500
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 271,
+                                            lineNumber: 299,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 267,
+                                    lineNumber: 295,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1689,7 +1717,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                             children: "장르"
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 282,
+                                            lineNumber: 310,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1704,38 +1732,38 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                                                             className: "w-4 h-4 inline mr-1"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                            lineNumber: 296,
+                                                            lineNumber: 324,
                                                             columnNumber: 23
                                                         }, this),
                                                         genre.name
                                                     ]
                                                 }, genre.id, true, {
                                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                                    lineNumber: 287,
+                                                    lineNumber: 315,
                                                     columnNumber: 21
                                                 }, this);
                                             })
                                         }, void 0, false, {
                                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                            lineNumber: 283,
+                                            lineNumber: 311,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                                    lineNumber: 281,
+                                    lineNumber: 309,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 250,
+                            lineNumber: 278,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                    lineNumber: 213,
+                    lineNumber: 241,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1747,7 +1775,7 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                             children: "취소"
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 308,
+                            lineNumber: 336,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$renderer$2f$components$2f$ui$2f$Button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1757,24 +1785,24 @@ function ProjectCreator({ isOpen, onClose, onCreate }) {
                             children: isCreating ? '생성 중...' : '프로젝트 만들기'
                         }, void 0, false, {
                             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                            lineNumber: 314,
+                            lineNumber: 342,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-                    lineNumber: 307,
+                    lineNumber: 335,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-            lineNumber: 199,
+            lineNumber: 227,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/renderer/components/projects/ProjectCreator.tsx",
-        lineNumber: 198,
+        lineNumber: 226,
         columnNumber: 5
     }, this);
 }

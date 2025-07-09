@@ -31,30 +31,34 @@ import { HydrationGuard } from '../ui/HydrationGuard';
 import { Logger } from '../../../shared/logger';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 작가 친화적 스타일 상수 - 미니멀하고 집중할 수 있는 디자인
 const DASHBOARD_STYLES = {
-  container: 'flex-1 flex flex-col bg-slate-50 dark:bg-slate-950',
-  header: 'bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 p-6',
-  headerContent: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4',
-  headerTitle: 'text-2xl font-bold text-slate-900 dark:text-slate-100',
-  headerSubtitle: 'text-slate-600 dark:text-slate-400 mt-1',
-  headerActions: 'flex items-center gap-3',
-  content: 'flex-1 overflow-y-auto p-6 space-y-6',
-  monitoringPanel: 'bg-blue-600 text-white p-6 rounded-lg shadow-lg',
-  monitoringHeader: 'flex items-center justify-between mb-4',
-  monitoringStatus: 'flex items-center gap-2',
-  monitoringPulse: 'w-2 h-2 bg-green-400 rounded-full animate-pulse',
-  monitoringTitle: 'text-lg font-semibold',
-  monitoringTime: 'font-mono text-lg',
-  monitoringStats: 'grid grid-cols-3 gap-6 text-center',
-  statValue: 'text-2xl font-bold',
-  statLabel: 'text-blue-200 text-sm',
-  quickActions: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4',
-  quickActionCard: 'h-[120px] flex flex-col justify-between transition-colors hover:shadow-md',
-  quickActionIcon: 'w-5 h-5',
-  quickActionTitle: 'font-semibold text-slate-900 dark:text-slate-100 mb-1',
-  quickActionDesc: 'text-sm text-slate-600 dark:text-slate-400 mb-2',
-  quickActionStatus: 'text-xs font-medium',
+  container: 'flex-1 flex flex-col min-h-screen',
+  header: 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50 p-8',
+  headerContent: 'max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6',
+  headerTitle: 'text-3xl font-light text-slate-900 dark:text-slate-100 tracking-tight',
+  headerSubtitle: 'text-slate-600 dark:text-slate-400 mt-2 text-lg leading-relaxed',
+  headerActions: 'flex items-center gap-4',
+  content: 'flex-1 overflow-y-auto p-8 max-w-6xl mx-auto w-full space-y-8',
+  
+  // 🔥 작가 친화적 모니터링 패널 - 차분한 색상
+  monitoringPanel: 'bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-900 dark:to-black text-white p-8 rounded-2xl shadow-sm border border-slate-200/20',
+  monitoringHeader: 'flex items-center justify-between mb-6',
+  monitoringStatus: 'flex items-center gap-3',
+  monitoringPulse: 'w-3 h-3 bg-emerald-400 rounded-full animate-pulse shadow-sm',
+  monitoringTitle: 'text-xl font-light tracking-wide',
+  monitoringTime: 'font-mono text-xl font-light tracking-wider',
+  monitoringStats: 'grid grid-cols-3 gap-8 text-center',
+  statValue: 'text-3xl font-light tracking-tight',
+  statLabel: 'text-slate-300 text-sm font-medium tracking-wide mt-1',
+  
+  // 🔥 작가 친화적 카드 디자인 - 최소한의 장식
+  quickActions: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6',
+  quickActionCard: 'bg-white dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 p-6 rounded-xl hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group min-h-[140px] flex flex-col justify-between',
+  quickActionIcon: 'w-6 h-6 text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors',
+  quickActionTitle: 'font-medium text-slate-900 dark:text-slate-100 mt-3 mb-2 tracking-tight',
+  quickActionDesc: 'text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-3',
+  quickActionStatus: 'text-xs font-medium text-slate-500 dark:text-slate-500',
   mainGrid: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
   projectList: 'space-y-4',
   projectItem: 'bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-lg',
@@ -151,21 +155,21 @@ export function DashboardMain(): React.ReactElement {
       value: '0',
       icon: Edit,
       color: 'blue' as const,
-      change: { value: 0, type: 'neutral' as const, period: '%' },
+      change: { value: 0, type: 'neutral' as const, period: '단어' },
     },
     {
       title: '이번 주',
       value: '0', 
       icon: Calendar,
       color: 'green' as const,
-      change: { value: 0, type: 'neutral' as const, period: '%' },
+      change: { value: 0, type: 'neutral' as const, period: '세션' },
     },
     {
       title: '평균 속도',
       value: '0 WPM',
       icon: Zap,
       color: 'purple' as const,
-      change: { value: 0, type: 'neutral' as const, period: '%' },
+      change: { value: 0, type: 'neutral' as const, period: '어제 대비' },
     },
     {
       title: '활성 프로젝트',
@@ -192,6 +196,10 @@ export function DashboardMain(): React.ReactElement {
         updateKpiData(stats);
         setLoadingStates(prev => ({ ...prev, kpi: false }));
         Logger.debug('DASHBOARD', '✅ Dashboard stats loaded', stats);
+      } else {
+        // 백엔드에서 데이터를 가져올 수 없는 경우 기본값 사용
+        Logger.warn('DASHBOARD', '⚠️ Dashboard stats not available, using defaults');
+        setLoadingStates(prev => ({ ...prev, kpi: false }));
       }
 
       // 🔥 프로젝트 데이터 업데이트
@@ -206,6 +214,11 @@ export function DashboardMain(): React.ReactElement {
         })));
         setLoadingStates(prev => ({ ...prev, projects: false }));
         Logger.debug('DASHBOARD', '✅ Projects loaded', { count: projectsData.length });
+      } else {
+        // 프로젝트 데이터가 없는 경우
+        Logger.warn('DASHBOARD', '⚠️ Projects not available, using empty state');
+        setProjects([]);
+        setLoadingStates(prev => ({ ...prev, projects: false }));
       }
 
       // 🔥 최근 세션 데이터를 파일 형태로 변환
@@ -220,6 +233,11 @@ export function DashboardMain(): React.ReactElement {
         })));
         setLoadingStates(prev => ({ ...prev, recentFiles: false }));
         Logger.debug('DASHBOARD', '✅ Recent sessions loaded', { count: sessions.length });
+      } else {
+        // 세션 데이터가 없는 경우
+        Logger.warn('DASHBOARD', '⚠️ Recent sessions not available, using empty state');
+        setRecentFiles([]);
+        setLoadingStates(prev => ({ ...prev, recentFiles: false }));
       }
 
     } catch (error) {
@@ -365,40 +383,6 @@ export function DashboardMain(): React.ReactElement {
               >
                 <Target className="w-4 h-4" />
                 Loop AI
-              </Button>
-            </HydrationGuard>
-
-            <HydrationGuard fallback={
-              <Button
-                variant="primary"
-                className="gap-2 min-w-[120px]"
-                size="md"
-              >
-                <Play className="w-4 h-4" />
-                타이핑 시작
-              </Button>
-            }>
-              <Button
-                onClick={handleToggleMonitoring}
-                variant={isMonitoring ? 'destructive' : 'primary'}
-                className={`gap-2 min-w-[120px] transition-all duration-200 ${
-                  isMonitoring 
-                    ? 'animate-pulse bg-red-600 hover:bg-red-700' 
-                    : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl'
-                }`}
-                size="md"
-              >
-                {isMonitoring ? (
-                  <>
-                    <Pause className="w-4 h-4" />
-                    모니터링 중지
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    타이핑 시작
-                  </>
-                )}
               </Button>
             </HydrationGuard>
           </div>

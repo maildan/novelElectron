@@ -237,11 +237,19 @@ export interface ElectronAPI {
     getStats: (dateRange?: { from: Date; to: Date }) => Promise<IpcResponse<DashboardStats>>;
   };
 
-  // 🤖 AI API
+  // 🤖 AI API - 작가 친화적 AI 어시스턴트
   ai: {
     analyzeText: (text: string) => Promise<IpcResponse<{ suggestions: string[]; score: number }>>;
     generateSuggestions: (prompt: string) => Promise<IpcResponse<string[]>>;
     getUsageStats: () => Promise<IpcResponse<{ totalRequests: number; monthlyRequests: number }>>;
+    sendMessage: (message: string, context?: string) => Promise<IpcResponse<{ response: string; suggestions?: string[] }>>;
+    getWritingHelp: (prompt: string, context?: string) => Promise<IpcResponse<{ response: string; suggestions?: string[] }>>;
+    healthCheck: () => Promise<IpcResponse<{ healthy: boolean }>>;
+    // 🔥 에디터 전용 AI 기능
+    getProjectContext: (projectId: string) => Promise<IpcResponse<{ summary: string; characters: string[]; keywords: string[] }>>;
+    continueWriting: (projectId: string, currentText: string) => Promise<IpcResponse<{ suggestions: string[] }>>;
+    improveText: (text: string, projectContext?: string) => Promise<IpcResponse<{ improvedText: string; explanation: string }>>;
+    summarizeText: (text: string) => Promise<IpcResponse<{ summary: string; keyPoints: string[] }>>;
   };
 
   // 🔔 알림 API
@@ -260,6 +268,16 @@ export interface ElectronAPI {
   shell: {
     openExternal: (url: string) => Promise<IpcResponse<boolean>>;
     showItemInFolder: (fullPath: string) => Promise<IpcResponse<boolean>>;
+  };
+
+  // 🔐 OAuth API (Google Docs 연동)
+  oauth: {
+    startGoogleAuth: () => Promise<IpcResponse<{ authUrl: string }>>;
+    handleCallback: (code: string) => Promise<IpcResponse<{ accessToken: string; refreshToken: string }>>;
+    getGoogleDocuments: () => Promise<IpcResponse<Array<{ id: string; title: string; modifiedTime: string }>>>;
+    importGoogleDoc: (documentId: string) => Promise<IpcResponse<{ title: string; content: string }>>;
+    getAuthStatus: () => Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string }>>;
+    revokeAuth: () => Promise<IpcResponse<boolean>>;
   };
 }
 

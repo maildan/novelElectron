@@ -205,8 +205,41 @@ html {
   --max-width-container: 1200px;
 }
 
-/* 🔥 Dark 테마 */
-[data-theme="dark"] {
+/* 🔥 Dark 테마 - 작가 친화적 다크 모드 */
+[data-theme="dark"],
+html.dark {
+  /* 기본 배경 - 진한 회색 (순수 검정 피하기) */
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f29;
+  --bg-elevated: #242936;
+  --bg-card: #242936;
+  --bg-hover: #2d3748;
+  
+  /* 텍스트 - 따뜻한 화이트 */
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-inverse: #1a1a1a;
+  
+  /* 강조색 - 부드러운 블루 */
+  --accent-primary: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: #1e3a8a;
+  --accent-dark: #1e40af;
+  
+  /* 경계선 */
+  --border-light: #374151;
+  --border-medium: #4b5563;
+  --border-dark: #6b7280;
+  
+  /* 상태 색상 */
+  --success: #10b981;
+  --success-light: #064e3b;
+  --warning: #f59e0b;
+  --warning-light: #78350f;
+  --error: #ef4444;
+  --error-light: #7f1d1d;
+  
   /* Primary (어둠 속에서도 잘 보이는 밝은 파란색) */
   --color-primary-50: #1e3a8a;
   --color-primary-100: #1e40af;
@@ -262,18 +295,19 @@ html {
 
 body {
   height: 100%;
-  font-family: var(--font-family-sans);
-  background-color: var(--color-neutral-50);
-  color: var(--color-neutral-900);
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   overflow-x: hidden;
   /* 🔥 깜빡임 방지: 테마 전환 애니메이션 제거 */
   transition: none;
 }
 
 /* 🔥 다크 모드 body 스타일 (즉시 적용) */
-html.dark body {
-  background-color: var(--color-neutral-900);
-  color: var(--color-neutral-100);
+html.dark body,
+[data-theme="dark"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* 🔥 루트 컨테이너 */
@@ -526,7 +560,7 @@ p {
   --bg-primary: #0f1419;
   --bg-secondary: #1a1f29;
   --bg-elevated: #242936;
-  --bg-card: #1e293b;
+  --bg-card: #242936;
   --bg-hover: #374151;
   
   /* 텍스트 - 따뜻한 화이트 */
@@ -539,7 +573,7 @@ p {
   --accent-primary: #3b82f6;
   --accent-hover: #2563eb;
   --accent-light: #1e3a8a;
-  --accent-dark: #1d4ed8;
+  --accent-dark: #60a5fa;
   
   /* 경계선 */
   --border-light: #374151;
@@ -554,7 +588,7 @@ p {
   --error: #ef4444;
   --error-light: #7f1d1d;
   
-  /* 그림자 - 다크 모드용 */
+  /* 그림자 - 다크모드용 */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);

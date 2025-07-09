@@ -7,6 +7,8 @@ import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
 import { setupSettingsIpcHandlers } from './handlers/settingsIpcHandlers';
 import { setupTrayIpcHandlers } from './handlers/trayIpcHandlers';
 import { setupProjectIpcHandlers } from './handlers/projectIpcHandlers';
+import { setupOAuthIpcHandlers } from './handlers/oauthIpcHandlers';
+import { setupAIIpcHandlers } from './handlers/aiIpcHandlers';
 
 // #DEBUG: IPC handlers entry point
 Logger.debug('IPC_HANDLERS', 'IPC handlers module loaded');
@@ -45,7 +47,23 @@ export function cleanupAllIpcHandlers(): void {
       'tray:show-success',
       'tray:show-error',
       'tray:toggle-visibility',
-      'tray:test'
+      'tray:test',
+      'ai:analyze-text',
+      'ai:send-message',
+      'ai:get-writing-help',
+      'ai:health-check',
+      'ai:generate-suggestions',
+      'ai:get-usage-stats',
+      'ai:get-project-context',
+      'ai:continue-writing',
+      'ai:improve-text',
+      'ai:summarize-text',
+      'oauth:start-google-auth',
+      'oauth:handle-callback',
+      'oauth:get-google-documents',
+      'oauth:import-google-doc',
+      'oauth:get-auth-status',
+      'oauth:revoke-auth'
     ];
     
     handlersToClean.forEach(channel => {
@@ -106,6 +124,20 @@ export async function setupAllIpcHandlers(): Promise<void> {
       setupTrayIpcHandlers();
       registeredHandlers.add('tray');
       Logger.info('IPC_HANDLERS', 'Tray IPC handlers setup complete');
+    }
+
+    // AI IPC 핸들러
+    if (!registeredHandlers.has('ai')) {
+      setupAIIpcHandlers();
+      registeredHandlers.add('ai');
+      Logger.info('IPC_HANDLERS', 'AI IPC handlers setup complete');
+    }
+
+    // OAuth IPC 핸들러
+    if (!registeredHandlers.has('oauth')) {
+      setupOAuthIpcHandlers();
+      registeredHandlers.add('oauth');
+      Logger.info('IPC_HANDLERS', 'OAuth IPC handlers setup complete');
     }
 
     Logger.info('IPC_HANDLERS', 'All IPC handlers setup complete');

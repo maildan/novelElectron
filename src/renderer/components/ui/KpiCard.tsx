@@ -5,25 +5,25 @@ import { type LucideIcon } from 'lucide-react';
 import { Card } from './Card';
 import { cn } from '../../lib/utils';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수  
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 다크모드 완벽 지원
 const KPI_STYLES = {
   container: 'p-6 transition-all duration-200',
   header: 'flex items-center justify-between mb-4',
   iconContainer: 'w-10 h-10 rounded-lg flex items-center justify-center',
   iconColors: {
-    blue: 'bg-blue-100 text-blue-600',
-    green: 'bg-green-100 text-green-600',
-    purple: 'bg-purple-100 text-purple-600',
-    orange: 'bg-orange-100 text-orange-600',
-    red: 'bg-red-100 text-red-600'
+    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+    green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+    red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
   },
-  value: 'text-2xl font-bold text-gray-900 mb-1',
-  label: 'text-sm text-gray-600 mb-2',
+  value: 'text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1',
+  label: 'text-sm text-slate-600 dark:text-slate-400 mb-2',
   change: 'text-sm font-medium flex items-center gap-1',
   changeColors: {
-    increase: 'text-green-600',
-    decrease: 'text-red-600',
-    neutral: 'text-gray-500'
+    increase: 'text-green-600 dark:text-green-400',
+    decrease: 'text-red-600 dark:text-red-400',
+    neutral: 'text-slate-500 dark:text-slate-400'
   }
 } as const;
 
@@ -88,7 +88,7 @@ export function KpiCard({
         {change && (
           <div className={cn(KPI_STYLES.change, KPI_STYLES.changeColors[change.type])}>
             <span>{formatChange(change.value)}</span>
-            {change.period && <span className="text-xs text-gray-500">({change.period})</span>}
+            {change.period && <span className="text-xs text-slate-500 dark:text-slate-400">({change.period})</span>}
           </div>
         )}
       </div>

@@ -20,39 +20,39 @@ import {
   Lightbulb
 } from 'lucide-react';
 
-// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
+// 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
 const PROJECT_CREATOR_STYLES = {
-  overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4',
-  modal: 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden',
-  header: 'flex items-center justify-between p-6 border-b border-slate-200',
-  title: 'text-2xl font-bold text-slate-900',
-  closeButton: 'text-slate-400 hover:text-slate-600 transition-colors',
-  content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)]',
+  overlay: 'fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4',
+  modal: 'bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-slate-900/50 w-full max-w-4xl max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700',
+  header: 'flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
+  title: 'text-2xl font-bold text-slate-900 dark:text-slate-100',
+  closeButton: 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800',
+  content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)] bg-white dark:bg-slate-900',
   
   // 플랫폼 선택
   platformSection: 'mb-8',
-  sectionTitle: 'text-lg font-semibold text-slate-900 mb-4',
+  sectionTitle: 'text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4',
   platformGrid: 'grid grid-cols-1 md:grid-cols-3 gap-4',
-  platformCard: 'p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-blue-300 hover:bg-blue-50',
-  platformCardSelected: 'border-blue-500 bg-blue-50',
-  platformCardDefault: 'border-slate-200 bg-white',
-  platformIcon: 'w-8 h-8 text-blue-600 mb-2',
-  platformTitle: 'font-semibold text-slate-900 mb-1',
-  platformDescription: 'text-sm text-slate-600',
+  platformCard: 'p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20',
+  platformCardSelected: 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20',
+  platformCardDefault: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800',
+  platformIcon: 'w-8 h-8 text-blue-600 dark:text-blue-400 mb-2',
+  platformTitle: 'font-semibold text-slate-900 dark:text-slate-100 mb-1',
+  platformDescription: 'text-sm text-slate-600 dark:text-slate-400',
   
   // 프로젝트 정보
   formSection: 'mb-6',
-  label: 'block text-sm font-medium text-slate-900 mb-2',
+  label: 'block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2',
   inputGroup: 'mb-4',
   genreGrid: 'grid grid-cols-2 md:grid-cols-4 gap-2 mt-2',
   genreButton: 'p-2 text-sm border rounded-lg transition-colors',
-  genreSelected: 'border-blue-500 bg-blue-50 text-blue-700',
-  genreDefault: 'border-slate-200 text-slate-600 hover:border-slate-300',
+  genreSelected: 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300',
+  genreDefault: 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800',
   
   // 버튼
-  footer: 'flex items-center justify-between p-6 border-t border-slate-200 bg-slate-50',
-  secondaryButton: 'px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors',
-  primaryButton: 'px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50',
+  footer: 'flex items-center justify-between p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
+  secondaryButton: 'px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800',
+  primaryButton: 'px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
 } as const;
 
 // 🔥 플랫폼 옵션 타입 정의
@@ -164,9 +164,37 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
     }
   };
 
-  const handlePlatformSelect = (platformId: string): void => {
+  const handlePlatformSelect = async (platformId: string): Promise<void> => {
     setSelectedPlatform(platformId);
     Logger.debug('PROJECT_CREATOR', `Platform selected: ${platformId}`);
+    
+    // 🔥 Google Docs 선택 시 OAuth 인증 시작
+    if (platformId === 'google-docs') {
+      try {
+        Logger.info('PROJECT_CREATOR', 'Starting Google OAuth authentication');
+        
+        if (window.electronAPI?.oauth?.startGoogleAuth) {
+          const result = await window.electronAPI.oauth.startGoogleAuth();
+          if (result.success) {
+            Logger.info('PROJECT_CREATOR', 'Google OAuth started successfully');
+            // OAuth 완료 후 사용자에게 피드백 제공
+            // TODO: OAuth 완료 상태 UI 업데이트
+          } else {
+            Logger.error('PROJECT_CREATOR', 'Google OAuth failed to start');
+            alert('Google 인증을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
+            setSelectedPlatform('loop'); // 기본값으로 복원
+          }
+        } else {
+          Logger.error('PROJECT_CREATOR', 'Google OAuth API not available');
+          alert('Google Docs 연동 기능이 준비되지 않았습니다.');
+          setSelectedPlatform('loop'); // 기본값으로 복원
+        }
+      } catch (error) {
+        Logger.error('PROJECT_CREATOR', 'Google OAuth error', error);
+        alert('Google 인증 중 오류가 발생했습니다.');
+        setSelectedPlatform('loop'); // 기본값으로 복원
+      }
+    }
   };
 
   const handleGenreSelect = (genreId: string): void => {
