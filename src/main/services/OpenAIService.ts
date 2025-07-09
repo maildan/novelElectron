@@ -41,8 +41,8 @@ export class OpenAIService {
   constructor(config: Partial<OpenAIConfig> = {}) {
     this.config = {
       apiUrl: 'https://loop-openai.onrender.com/api/chat',
-      timeout: 30000, // 30초
-      retries: 3,
+      timeout: 60000, // 🔥 60초로 증가 (서버 응답 시간 고려)
+      retries: 2, // 🔥 재시도 횟수 줄임 (더 빠른 실패)
       ...config,
     };
 
@@ -96,28 +96,116 @@ export class OpenAIService {
   }
 
   /**
-   * 🔥 텍스트 분석 요청
+   * 🔥 텍스트 분석 요청 (개선된 프롬프트)
    */
   public async analyzeText(text: string): Promise<IpcResponse<OpenAIResponse>> {
+    const improvedPrompt = `당신은 전문 작가 어시스턴트입니다. 다음 텍스트를 분석하고 구체적인 개선점을 제시해주세요:
+
+텍스트: "${text}"
+
+다음 항목들을 분석해주세요:
+1. 문장 구조와 가독성
+2. 어조와 톤의 일관성  
+3. 구체적인 개선 제안 (3-5개)
+4. 강점과 약점
+
+구체적이고 실행 가능한 피드백을 한국어로 제공해주세요.`;
+
     return this.sendMessage({
-      message: `다음 텍스트를 분석해주세요: ${text}`,
+      message: improvedPrompt,
       type: 'analysis',
     });
   }
 
   /**
-   * 🔥 글쓰기 도움 요청
+   * 🔥 글쓰기 도움 요청 (개선된 프롬프트)
    */
   public async getWritingHelp(prompt: string, context?: string): Promise<IpcResponse<OpenAIResponse>> {
-    const message = context 
-      ? `컨텍스트: ${context}\n\n요청: ${prompt}`
-      : prompt;
+    let improvedMessage: string;
+
+    if (context) {
+      improvedMessage = `당신은 전문 작가 어시스턴트입니다. 다음 컨텍스트를 바탕으로 구체적인 도움을 제공해주세요:
+
+기존 글 컨텍스트:
+"${context}"
+
+작가의 요청:
+"${prompt}"
+
+다음과 같이 도움을 주세요:
+1. 구체적이고 실용적인 조언
+2. 예시 문장이나 표현 제안
+3. 스타일과 톤 일관성 유지 방법
+4. 즉시 적용 가능한 개선점
+
+한국어로 상세하고 친근하게 답변해주세요.`;
+    } else {
+      improvedMessage = `당신은 전문 작가 어시스턴트입니다. 다음 요청에 대해 구체적이고 실용적인 도움을 제공해주세요:
+
+요청: "${prompt}"
+
+다음과 같이 도움을 주세요:
+1. 단계별 접근 방법
+2. 구체적인 예시와 템플릿
+3. 주의사항과 팁
+4. 추가 리소스나 참고사항
+
+한국어로 상세하고 친근하게 답변해주세요.`;
+    }
 
     return this.sendMessage({
-      message,
+      message: improvedMessage,
       type: 'writing',
       context,
     });
+  }
+
+  /**
+   * 🔥 텍스트 개선 요청 (새로운 기능)
+   */
+  public async improveText(text: string, projectId?: string): Promise<IpcResponse<OpenAIResponse>> {
+    const improvedPrompt = `당신은 전문 편집자입니다. 다음 텍스트를 더 자연스럽고 매력적으로 개선해주세요:
+
+원본 텍스트:
+"${text}"
+
+개선 요청사항:
+1. 문장 구조를 더 자연스럽게 만들어주세요
+2. 어휘를 더 풍부하게 사용해주세요
+3. 가독성을 높여주세요
+4. 감정이나 분위기를 더 잘 전달하도록 해주세요
+
+개선된 텍스트와 함께 어떤 부분이 왜 개선되었는지 간단히 설명해주세요.
+한국어로 답변해주세요.`;
+
+    return this.sendMessage({
+      message: improvedPrompt,
+      type: 'writing',
+    });
+  }
+
+  /**
+   * 🔥 프로젝트 컨텍스트 가져오기 (새로운 기능)
+   */
+  public async getProjectContext(projectId: string): Promise<IpcResponse<{ characters: string[], themes: string[], genre: string }>> {
+    try {
+      // 실제로는 프로젝트 데이터베이스에서 가져와야 하지만, 임시로 기본값 반환
+      return {
+        success: true,
+        data: {
+          characters: ['주인공', '조연'],
+          themes: ['성장', '우정'],
+          genre: '소설'
+        },
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: '프로젝트 컨텍스트를 가져올 수 없습니다',
+        timestamp: new Date(),
+      };
+    }
   }
 
   /**
@@ -140,9 +228,7 @@ export class OpenAIService {
             'User-Agent': 'Loop-Desktop-App/1.0.0',
           },
           body: JSON.stringify({
-            message: request.message,
-            context: request.context,
-            type: request.type || 'chat',
+            message: request.message
           }),
           signal: controller.signal,
         });
@@ -155,23 +241,41 @@ export class OpenAIService {
 
         const data = await response.json();
         
-        // 🔥 응답 데이터 검증
-        if (!data || typeof data.response !== 'string') {
-          throw new Error('Invalid response format from OpenAI API');
+        // 🔥 단순한 응답 처리 (서버가 YAML로 튜닝됨)
+        let responseText = '';
+        
+        if (typeof data === 'string') {
+          responseText = data;
+        } else if (data && typeof data === 'object') {
+          // 서버 응답이 객체인 경우 message 필드 확인
+          responseText = data.message || data.response || data.content || JSON.stringify(data);
+        } else {
+          responseText = String(data || '응답을 받지 못했습니다');
+        }
+        
+        if (!responseText.trim()) {
+          throw new Error('서버에서 빈 응답을 받았습니다');
         }
 
         return {
-          response: data.response,
-          suggestions: data.suggestions || [],
-          analysis: data.analysis,
-          usage: data.usage,
+          response: responseText.trim(),
+          suggestions: [],
+          analysis: undefined,
+          usage: undefined,
         };
 
       } catch (error) {
         lastError = error;
+        
+        // 🔥 상세한 에러 로깅
         Logger.warn(this.componentName, `API request attempt ${attempt} failed`, {
           attempt,
           error: this.getErrorMessage(error),
+          request: {
+            message: request.message?.substring(0, 100) + '...',
+            type: request.type
+          },
+          url: this.config.apiUrl
         });
 
         // 마지막 시도가 아니면 잠시 대기
@@ -181,19 +285,35 @@ export class OpenAIService {
       }
     }
 
-    throw lastError;
+    // 🔥 모든 재시도 실패 시 상세한 에러 정보와 함께 에러 던지기
+    const errorMessage = this.getErrorMessage(lastError);
+    Logger.error(this.componentName, `All ${this.config.retries} attempts failed`, {
+      finalError: errorMessage,
+      request: {
+        message: request.message?.substring(0, 100) + '...',
+        type: request.type
+      }
+    });
+    
+    throw new Error(`OpenAI API 요청 실패: ${errorMessage}`);
   }
 
   /**
-   * 🔥 에러 메시지 추출
+   * 🔥 에러 메시지 추출 (개선된 타임아웃 처리)
    */
   private getErrorMessage(error: unknown): string {
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        return `요청 시간 초과 (${this.config.timeout}ms)`;
+        return `요청 시간 초과 (${this.config.timeout}ms) - 서버 응답이 늦습니다`;
       }
       if (error.message.includes('fetch')) {
-        return '네트워크 연결 오류';
+        return '네트워크 연결 오류 - 인터넷 연결을 확인해주세요';
+      }
+      if (error.message.includes('ENOTFOUND')) {
+        return 'DNS 오류 - 서버 주소를 확인할 수 없습니다';
+      }
+      if (error.message.includes('ECONNREFUSED')) {
+        return '연결 거부 - 서버가 응답하지 않습니다';
       }
       return error.message;
     }

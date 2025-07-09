@@ -1,5 +1,7 @@
 'use client';
 
+// 이거 씀
+
 import React, { useState, useMemo, useCallback, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 

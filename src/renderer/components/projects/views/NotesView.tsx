@@ -1,5 +1,7 @@
 'use client';
 
+// 노트 뷰 쓰고있음
+ 
 import React, { useState } from 'react';
 import { ProjectNote } from '../../../../shared/types';
 import { Plus, Edit3, Save, X as XIcon, Lightbulb, Target, BookOpen } from 'lucide-react';

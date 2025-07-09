@@ -7,6 +7,7 @@ import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
 import { setupTrayIpcHandlers } from './trayIpcHandlers';
 import { setupOAuthIpcHandlers } from './oauthIpcHandlers';
 import { setupProjectIpcHandlers } from './projectIpcHandlers';
+import { setupAIIpcHandlers } from './aiIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -101,6 +102,18 @@ export class HandlersManager {
           'projects:delete-character',
           'projects:delete-structure',
           'projects:delete-note',
+        ]),
+        this.setupHandler('ai', () => setupAIIpcHandlers(), [
+          'ai:analyze-text',
+          'ai:send-message',
+          'ai:get-writing-help',
+          'ai:health-check',
+          'ai:generate-suggestions',
+          'ai:get-usage-stats',
+          'ai:get-project-context',
+          'ai:continue-writing',
+          'ai:improve-text',
+          'ai:summarize-text',
         ]),
         
         // this.setupHandler('database', () => setupDatabaseIpcHandlers(), [...]),

@@ -1,6 +1,7 @@
 // 🔥 기가차드 Loop Main - 978줄을 50줄로 축소한 깔끔한 진입점
 
 import { app } from 'electron';
+import { join } from 'path';
 import { Logger } from '../shared/logger';
 import { ApplicationBootstrapper } from './core/ApplicationBootstrapper';
 import { performanceOptimizer } from './core/PerformanceOptimizer';
@@ -14,10 +15,12 @@ if (process.env.NODE_ENV === 'development') {
 performanceOptimizer.applyAllOptimizations();
 performanceOptimizer.startPerformanceBenchmark();
 
-// 🔥 macOS 보안 설정  
+// 🔥 macOS 보안 설정 및 Dock 아이콘
 if (process.platform === 'darwin') {
-  // 독 아이콘은 기본값 사용 (빈 문자열 에러 방지)
-  // app.dock?.setIcon(''); // 제거: 빈 경로로 인한 이미지 로드 실패
+  // macOS Dock 아이콘 설정
+  const iconPath = join(__dirname, '../../assets/icon.png');
+  app.dock?.setIcon(iconPath);
+  Logger.info('MAIN', '🍎 macOS Dock icon set', { iconPath });
 }
 
 /**

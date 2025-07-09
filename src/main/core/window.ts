@@ -184,19 +184,19 @@ export class WindowManager {
       
       let iconsDir: string;
       if (isDev) {
-        // 개발 환경: 프로젝트 루트의 public/icon
-        iconsDir = join(process.cwd(), 'public', 'icon');
+        // 개발 환경: 프로젝트 루트의 assets 폴더
+        iconsDir = join(process.cwd(), 'assets');
       } else {
-        // 프로덕션 환경: 패키지된 앱의 resources 폴더
-        iconsDir = join(__dirname, '../../../public/icon');
+        // 프로덕션 환경: 패키지된 앱의 assets 폴더
+        iconsDir = join(__dirname, '../../../assets');
       }
       
       if (Platform.isWindows()) {
-        return join(iconsDir, 'tray.ico');
+        return join(iconsDir, 'icon.ico');
       } else if (Platform.isMacOS()) {
-        return join(iconsDir, 'appIcon.png');
+        return join(iconsDir, 'icon.icns');
       } else {
-        return join(iconsDir, 'appIcon.png');
+        return join(iconsDir, 'icon.png');
       }
     } catch (error) {
       Logger.warn('WINDOW', 'Could not find app icon', error);

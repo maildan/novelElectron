@@ -1,5 +1,7 @@
 'use client';
 
+// 프로젝트 생성
+
 import React, { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -17,7 +19,8 @@ import {
   Newspaper,
   Coffee,
   Code,
-  Lightbulb
+  Lightbulb,
+  Target
 } from 'lucide-react';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수 - 작가 친화적 다크모드 완전 지원
@@ -115,6 +118,8 @@ export interface ProjectCreationData {
   readonly genre: string;
   readonly platform: string;
   readonly content?: string;
+  readonly targetWords?: number; // 🔥 목표 단어 수 추가
+  readonly deadline?: Date; // 🔥 완료 목표 날짜 추가
 }
 
 export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProps): React.ReactElement | null {
@@ -122,6 +127,8 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [selectedGenre, setSelectedGenre] = useState<string>('novel');
+  const [targetWords, setTargetWords] = useState<number>(10000); // 🔥 목표 단어 수
+  const [deadline, setDeadline] = useState<string>(''); // 🔥 완료 목표 날짜
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   if (!isOpen) return null;
@@ -140,6 +147,8 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
         genre: selectedGenre,
         platform: selectedPlatform,
         content: selectedPlatform === 'loop' ? getDefaultContent(selectedGenre) : undefined,
+        targetWords: targetWords, // 🔥 목표 단어 수 포함
+        deadline: deadline ? new Date(deadline) : undefined, // 🔥 목표 날짜 포함
       };
 
       Logger.info('PROJECT_CREATOR', 'Creating new project', { 
@@ -155,6 +164,8 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
       setDescription('');
       setSelectedGenre('novel');
       setSelectedPlatform('loop');
+      setTargetWords(10000);
+      setDeadline('');
       onClose();
       
     } catch (error) {
@@ -328,6 +339,73 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
                 })}
               </div>
             </div>
+          </div>
+
+          {/* 🔥 목표 설정 섹션 */}
+          <div className={PROJECT_CREATOR_STYLES.formSection}>
+            <h3 className={PROJECT_CREATOR_STYLES.sectionTitle}>작성 목표 설정</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={PROJECT_CREATOR_STYLES.inputGroup}>
+                <label className={PROJECT_CREATOR_STYLES.label} htmlFor="target-words">
+                  목표 단어 수
+                </label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="target-words"
+                    type="number"
+                    placeholder="10000"
+                    value={targetWords}
+                    onChange={(e) => setTargetWords(Number(e.target.value) || 0)}
+                    min="100"
+                    max="1000000"
+                    step="100"
+                  />
+                  <span className="text-sm text-slate-500 dark:text-slate-400">단어</span>
+                </div>
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  권장: 소설 50,000+ / 에세이 5,000+ / 블로그 1,000+
+                </div>
+              </div>
+
+              <div className={PROJECT_CREATOR_STYLES.inputGroup}>
+                <label className={PROJECT_CREATOR_STYLES.label} htmlFor="deadline">
+                  완료 목표 날짜 (선택사항)
+                </label>
+                <Input
+                  id="deadline"
+                  type="date"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  목표 날짜를 설정하면 일일 권장 작성량을 계산해드립니다
+                </div>
+              </div>
+            </div>
+
+            {/* 🔥 목표 미리보기 */}
+            {targetWords > 0 && (
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
+                  <Target className="w-4 h-4" />
+                  <span className="font-medium">목표 미리보기</span>
+                </div>
+                <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                  총 목표: {targetWords.toLocaleString()}단어
+                  {deadline && (() => {
+                    const days = Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                    const dailyWords = Math.ceil(targetWords / days);
+                    return days > 0 ? (
+                      <span className="block mt-1">
+                        일일 권장: {dailyWords.toLocaleString()}단어 (약 {Math.ceil(dailyWords / 200)}분 소요)
+                      </span>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

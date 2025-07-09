@@ -95,14 +95,14 @@ const electronAPI: ElectronAPI = {
 
   ai: {
     analyzeText: (text: string) => ipcRenderer.invoke('ai:analyze-text', text),
+    improveText: (text: string, projectId?: string) => ipcRenderer.invoke('ai:improve-text', text, projectId),
     generateSuggestions: (prompt: string) => ipcRenderer.invoke('ai:generate-suggestions', prompt),
     getUsageStats: () => ipcRenderer.invoke('ai:get-usage-stats'),
     sendMessage: (message: string, context?: string) => ipcRenderer.invoke('ai:send-message', message, context),
     getWritingHelp: (prompt: string, context?: string) => ipcRenderer.invoke('ai:get-writing-help', prompt, context),
-    healthCheck: () => ipcRenderer.invoke('ai:health-check'),
     getProjectContext: (projectId: string) => ipcRenderer.invoke('ai:get-project-context', projectId),
+    healthCheck: () => ipcRenderer.invoke('ai:health-check'),
     continueWriting: (text: string, context?: string) => ipcRenderer.invoke('ai:continue-writing', text, context),
-    improveText: (text: string, projectContext?: string) => ipcRenderer.invoke('ai:improve-text', text, projectContext),
     summarizeText: (text: string) => ipcRenderer.invoke('ai:summarize-text', text),
   },
 

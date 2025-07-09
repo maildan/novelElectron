@@ -1,5 +1,7 @@
 'use client';
 
+// 삭제 다이어로그 
+
 import React, { useState } from 'react';
 import { X as XIcon, AlertTriangle } from 'lucide-react';
 

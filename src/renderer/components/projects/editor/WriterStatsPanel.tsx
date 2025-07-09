@@ -1,5 +1,7 @@
 'use client';
 
+// AI 및 WPM 도입 예정
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../../ui/Button';
 import {

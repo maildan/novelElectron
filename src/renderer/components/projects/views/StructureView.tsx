@@ -1,5 +1,7 @@
 'use client';
 
+// 스토리 뷰 쓰고있음
+
 import React from 'react';
 import { ProjectStructure } from '../../../../shared/types';
 import { FileText, Hash, Bookmark, Plus } from 'lucide-react';

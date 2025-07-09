@@ -1,5 +1,7 @@
 'use client';
 
+// 캐릭터 뷰
+
 import React, { useState } from 'react';
 import { ProjectCharacter } from '../../../../shared/types';
 import { Plus, Edit3, Save, X as XIcon } from 'lucide-react';

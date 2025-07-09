@@ -1,5 +1,7 @@
 'use client';
 
+// 에디터 툴 바 쓸 예정
+
 import React from 'react';
 import { Button } from '../../ui/Button';
 import { Badge } from '../../ui/Badge';

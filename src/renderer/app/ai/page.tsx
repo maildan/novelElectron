@@ -1,5 +1,7 @@
 'use client';
 
+// AI 탭 이거 씀
+
 import React, { useState, useCallback, useMemo } from 'react';
 import { 
   Sparkles, 

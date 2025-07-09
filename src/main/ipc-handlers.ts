@@ -48,16 +48,6 @@ export function cleanupAllIpcHandlers(): void {
       'tray:show-error',
       'tray:toggle-visibility',
       'tray:test',
-      'ai:analyze-text',
-      'ai:send-message',
-      'ai:get-writing-help',
-      'ai:health-check',
-      'ai:generate-suggestions',
-      'ai:get-usage-stats',
-      'ai:get-project-context',
-      'ai:continue-writing',
-      'ai:improve-text',
-      'ai:summarize-text',
       'oauth:start-google-auth',
       'oauth:handle-callback',
       'oauth:get-google-documents',
@@ -126,12 +116,12 @@ export async function setupAllIpcHandlers(): Promise<void> {
       Logger.info('IPC_HANDLERS', 'Tray IPC handlers setup complete');
     }
 
-    // AI IPC 핸들러
-    if (!registeredHandlers.has('ai')) {
-      setupAIIpcHandlers();
-      registeredHandlers.add('ai');
-      Logger.info('IPC_HANDLERS', 'AI IPC handlers setup complete');
-    }
+    // AI IPC 핸들러는 handlers/index.ts에서 관리하므로 여기서는 제외
+    // if (!registeredHandlers.has('ai')) {
+    //   setupAIIpcHandlers();
+    //   registeredHandlers.add('ai');
+    //   Logger.info('IPC_HANDLERS', 'AI IPC handlers setup complete');
+    // }
 
     // OAuth IPC 핸들러
     if (!registeredHandlers.has('oauth')) {

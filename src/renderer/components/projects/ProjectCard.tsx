@@ -1,5 +1,7 @@
 'use client';
 
+// 프로젝트 카드 컴포넌트
+
 import React from 'react';
 import { 
   MoreHorizontal, 

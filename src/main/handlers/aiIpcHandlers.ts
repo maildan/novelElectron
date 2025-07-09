@@ -121,6 +121,73 @@ export function setupAIIpcHandlers(): void {
     }
   });
 
+  // 🔥 AI 텍스트 개선 (새로운 기능)
+  ipcMain.handle('ai:improve-text', async (_event: IpcMainInvokeEvent, text: string, projectId?: string) => {
+    try {
+      Logger.debug('AI_IPC_HANDLERS', 'AI text improvement requested', {
+        textLength: text?.length || 0,
+        projectId: projectId || 'none',
+      });
+
+      if (!text || typeof text !== 'string' || text.trim().length === 0) {
+        return {
+          success: false,
+          error: '개선할 텍스트가 필요합니다',
+          timestamp: new Date(),
+        };
+      }
+
+      const result = await openAIService.improveText(text.trim(), projectId);
+
+      Logger.debug('AI_IPC_HANDLERS', 'AI text improvement completed', {
+        success: result.success,
+        hasData: !!result.data,
+      });
+
+      return result;
+
+    } catch (error) {
+      Logger.error('AI_IPC_HANDLERS', 'AI text improvement failed', error);
+      return {
+        success: false,
+        error: '텍스트 개선 중 오류가 발생했습니다',
+        timestamp: new Date(),
+      };
+    }
+  });
+
+  // 🔥 AI 프로젝트 컨텍스트 가져오기 (새로운 기능)
+  ipcMain.handle('ai:get-project-context', async (_event: IpcMainInvokeEvent, projectId: string) => {
+    try {
+      Logger.debug('AI_IPC_HANDLERS', 'AI project context requested', { projectId });
+
+      if (!projectId || typeof projectId !== 'string') {
+        return {
+          success: false,
+          error: '프로젝트 ID가 필요합니다',
+          timestamp: new Date(),
+        };
+      }
+
+      const result = await openAIService.getProjectContext(projectId);
+
+      Logger.debug('AI_IPC_HANDLERS', 'AI project context completed', {
+        success: result.success,
+        hasData: !!result.data,
+      });
+
+      return result;
+
+    } catch (error) {
+      Logger.error('AI_IPC_HANDLERS', 'AI project context failed', error);
+      return {
+        success: false,
+        error: '프로젝트 컨텍스트 가져오기 중 오류가 발생했습니다',
+        timestamp: new Date(),
+      };
+    }
+  });
+
   // 🔥 AI 서비스 상태 확인
   ipcMain.handle('ai:health-check', async (_event: IpcMainInvokeEvent) => {
     try {
@@ -233,68 +300,6 @@ export function setupAIIpcHandlers(): void {
     }
   });
 
-  // 🔥 프로젝트 컨텍스트 가져오기 (에디터용)
-  ipcMain.handle('ai:get-project-context', async (_event: IpcMainInvokeEvent, projectId: string) => {
-    try {
-      Logger.debug('AI_IPC_HANDLERS', 'Project context requested', { projectId });
-
-      if (!projectId || typeof projectId !== 'string') {
-        return {
-          success: false,
-          error: '프로젝트 ID가 필요합니다',
-          timestamp: new Date(),
-        };
-      }
-
-      // 🔥 실제 프로젝트 데이터에서 컨텍스트 추출
-      // 사용자 데이터는 절대 학습용으로 사용하지 않음 - 단순 컨텍스트 제공만
-      try {
-        // 향후 실제 프로젝트 데이터 연동 예정
-        // 현재는 기본 컨텍스트 제공
-        const context = {
-          summary: `프로젝트 ${projectId}의 요약 정보`,
-          genre: '일반',
-          characters: ['주인공', '조연'],
-          keywords: ['이야기', '글쓰기', '창작'],
-          wordCount: 0,
-          recentContent: '',
-        };
-
-        return {
-          success: true,
-          data: context,
-          timestamp: new Date(),
-        };
-      } catch (error) {
-        Logger.warn('AI_IPC_HANDLERS', 'Failed to get project context, using defaults', error);
-        
-        // 실패 시 기본 컨텍스트
-        const context = {
-          summary: '프로젝트 요약 정보',
-          genre: '일반',
-          characters: ['주인공'],
-          keywords: ['이야기', '글쓰기'],
-          wordCount: 0,
-          recentContent: '',
-        };
-
-        return {
-          success: true,
-          data: context,
-          timestamp: new Date(),
-        };
-      }
-
-    } catch (error) {
-      Logger.error('AI_IPC_HANDLERS', 'Get project context failed', error);
-      return {
-        success: false,
-        error: '프로젝트 컨텍스트 조회 중 오류가 발생했습니다',
-        timestamp: new Date(),
-      };
-    }
-  });
-
   // 🔥 글쓰기 이어가기 (에디터용)
   ipcMain.handle('ai:continue-writing', async (_event: IpcMainInvokeEvent, projectId: string, currentText: string) => {
     try {
@@ -335,54 +340,6 @@ export function setupAIIpcHandlers(): void {
       return {
         success: false,
         error: '글쓰기 이어가기 중 오류가 발생했습니다',
-        timestamp: new Date(),
-      };
-    }
-  });
-
-  // 🔥 텍스트 개선 (에디터용)
-  ipcMain.handle('ai:improve-text', async (_event: IpcMainInvokeEvent, text: string, projectContext?: string) => {
-    try {
-      Logger.debug('AI_IPC_HANDLERS', 'Text improvement requested', {
-        textLength: text?.length || 0,
-        hasContext: !!projectContext,
-      });
-
-      if (!text) {
-        return {
-          success: false,
-          error: '개선할 텍스트가 필요합니다',
-          timestamp: new Date(),
-        };
-      }
-
-      const message = projectContext
-        ? `프로젝트 컨텍스트: ${projectContext}\n\n다음 텍스트를 더 자연스럽고 매력적으로 개선해주세요:\n\n${text}`
-        : `다음 텍스트를 더 자연스럽고 매력적으로 개선해주세요:\n\n${text}`;
-
-      const result = await openAIService.sendMessage({
-        message,
-        type: 'writing',
-      });
-
-      if (result.success && result.data) {
-        return {
-          success: true,
-          data: {
-            improvedText: result.data.response,
-            explanation: result.data.analysis ? '개선 사항이 적용되었습니다.' : '텍스트가 개선되었습니다.',
-          },
-          timestamp: new Date(),
-        };
-      }
-
-      return result;
-
-    } catch (error) {
-      Logger.error('AI_IPC_HANDLERS', 'Text improvement failed', error);
-      return {
-        success: false,
-        error: '텍스트 개선 중 오류가 발생했습니다',
         timestamp: new Date(),
       };
     }
@@ -444,12 +401,12 @@ export function cleanupAIIpcHandlers(): void {
     'ai:analyze-text',
     'ai:send-message',
     'ai:get-writing-help',
+    'ai:improve-text',
+    'ai:get-project-context',
     'ai:health-check',
     'ai:generate-suggestions',
     'ai:get-usage-stats',
-    'ai:get-project-context',
     'ai:continue-writing',
-    'ai:improve-text',
     'ai:summarize-text',
   ];
 

@@ -72,6 +72,7 @@
     "@tiptap/extension-underline": "^2.24.0",
     "@tiptap/react": "^2.24.0",
     "@tiptap/starter-kit": "^2.24.0",
+    "@tiptap/suggestion": "^2.25.0",
     "@uiw/codemirror-extensions-basic-setup": "^4.23.14",
     "@uiw/react-codemirror": "^4.23.14",
     "active-win": "8.2.1",

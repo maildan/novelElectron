@@ -61,7 +61,7 @@ export class BrowserDetector extends BaseManager {
   private hasAccessibilityPermission = false; // 🔥 권한 상태 추적
 
   // 🔥 지원하는 브라우저 목록 (확장)
-  private readonly supportedBrowsers = [
+private readonly supportedBrowsers = [
     'Google Chrome',
     'Safari',
     'Firefox',
