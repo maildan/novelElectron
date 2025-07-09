@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/analytics/page": "/analytics",
+  "/page": "/",
+  "/ai/page": "/ai",
+  "/settings/page": "/settings",
+  "/projects/page": "/projects",
+  "/projects/[id]/page": "/projects/[id]"
+}

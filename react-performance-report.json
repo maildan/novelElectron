@@ -1,0 +1,1568 @@
+{
+  "timestamp": "2025-07-08T05:54:25.569Z",
+  "totalFiles": 52,
+  "totalIssues": 156,
+  "averageScore": 85,
+  "files": [
+    {
+      "file": "src/renderer/components/projects/views/NotesView.tsx",
+      "issues": [
+        {
+          "line": 183,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setSelectedType('all')}"
+        },
+        {
+          "line": 195,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setSelectedType(type.id)}"
+        },
+        {
+          "line": 219,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}"
+        },
+        {
+          "line": 248,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleEditStart(note)}"
+        },
+        {
+          "line": 261,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setEditForm(prev => ({ ...prev, content: e.target.value }))}"
+        },
+        {
+          "line": 67,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 68,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 76,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 77,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 85,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 86,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 111,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 112,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 138,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "? { ...note, ...editForm, updatedAt: new Date() }"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (293줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 293줄"
+        }
+      ],
+      "score": 25
+    },
+    {
+      "file": "src/renderer/components/projects/hooks/useProjectData.ts",
+      "issues": [
+        {
+          "line": 45,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "// 🔥 성능 최적화: 기본 날짜 메모이제이션 (new Date() 반복 생성 방지)"
+        },
+        {
+          "line": 212,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date(result.data.lastModified));"
+        },
+        {
+          "line": 275,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: JSON 파싱",
+          "suggestion": "useMemo로 결과 캐싱",
+          "code": "const backupData = JSON.parse(backup);"
+        },
+        {
+          "line": 301,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const backupData = { title: currentTitle, content: currentContent, lastModified: new Date() };"
+        },
+        {
+          "line": 312,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "lastModified: new Date()"
+        },
+        {
+          "line": 316,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date());"
+        },
+        {
+          "line": 343,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "setLastSaved(new Date());"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (511줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 511줄"
+        },
+        {
+          "line": 1,
+          "type": "too-many-states",
+          "severity": "medium",
+          "message": "과도한 useState 사용 (11개)",
+          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
+          "code": "useState 사용 횟수: 11"
+        }
+      ],
+      "score": 55
+    },
+    {
+      "file": "src/renderer/components/projects/ProjectCreator.tsx",
+      "issues": [
+        {
+          "line": 192,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "<div className={PROJECT_CREATOR_STYLES.modal} onClick={e => e.stopPropagation()}>"
+        },
+        {
+          "line": 221,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handlePlatformSelect(platform.id)}"
+        },
+        {
+          "line": 255,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setTitle(e.target.value)}"
+        },
+        {
+          "line": 268,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setDescription(e.target.value)}"
+        },
+        {
+          "line": 287,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleGenreSelect(genre.id)}"
+        },
+        {
+          "line": 183,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "diary: `${new Date().toLocaleDateString('ko-KR')} 일기\\n\\n오늘 있었던 일들을 기록해보세요.\\n\\n소중한 순간들을 글로 남겨보세요.`,"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (321줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 321줄"
+        },
+        {
+          "line": 1,
+          "type": "too-many-states",
+          "severity": "medium",
+          "message": "과도한 useState 사용 (6개)",
+          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
+          "code": "useState 사용 횟수: 6"
+        }
+      ],
+      "score": 60
+    },
+    {
+      "file": "src/renderer/components/projects/editor/WriterSidebar.tsx",
+      "issues": [
+        {
+          "line": 64,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<div className={showLeftSidebar ? SIDEBAR_STYLES.leftSidebar : SIDEBAR_STYLES.leftSidebarCollapsed}>"
+        },
+        {
+          "line": 75,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={`flex-1 py-2 text-xs font-medium ${activeTab === 'structure' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-slate-500 dark:text-slate-400'}`}"
+        },
+        {
+          "line": 76,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setActiveTab('structure')}"
+        },
+        {
+          "line": 81,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={`flex-1 py-2 text-xs font-medium ${activeTab === 'characters' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-slate-500 dark:text-slate-400'}`}"
+        },
+        {
+          "line": 82,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setActiveTab('characters')}"
+        },
+        {
+          "line": 87,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={`flex-1 py-2 text-xs font-medium ${activeTab === 'notes' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-slate-500 dark:text-slate-400'}`}"
+        },
+        {
+          "line": 88,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setActiveTab('notes')}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (166줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 166줄"
+        }
+      ],
+      "score": 60
+    },
+    {
+      "file": "src/renderer/components/projects/views/CharactersView.tsx",
+      "issues": [
+        {
+          "line": 166,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}"
+        },
+        {
+          "line": 173,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}"
+        },
+        {
+          "line": 179,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}"
+        },
+        {
+          "line": 216,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleEditStart(character)}"
+        },
+        {
+          "line": 70,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 71,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 106,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date()"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (241줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 241줄"
+        }
+      ],
+      "score": 60
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "issues": [
+        {
+          "line": 216,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleFeatureClick(feature)}"
+        },
+        {
+          "line": 309,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => setInputMessage(e.target.value)}"
+        },
+        {
+          "line": 333,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleSuggestionClick(suggestion)}"
+        },
+        {
+          "line": 127,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "timestamp: new Date(Date.now() - 60000)"
+        },
+        {
+          "line": 162,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "timestamp: new Date()"
+        },
+        {
+          "line": 177,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "timestamp: new Date()"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (346줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 346줄"
+        }
+      ],
+      "score": 65
+    },
+    {
+      "file": "src/renderer/components/dashboard/DashboardMain.tsx",
+      "issues": [
+        {
+          "line": 555,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => Logger.info('DASHBOARD', 'File clicked', { file: file.name })}"
+        },
+        {
+          "line": 220,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "goal: p.dueDate ? new Date(p.dueDate).toLocaleDateString() : '목표 미설정',"
+        },
+        {
+          "line": 230,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "name: `session-${new Date(session.startTime).toLocaleDateString()}.md`,"
+        },
+        {
+          "line": 310,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const date = new Date(dateString);"
+        },
+        {
+          "line": 311,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const now = new Date();"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (581줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 581줄"
+        },
+        {
+          "line": 1,
+          "type": "too-many-states",
+          "severity": "medium",
+          "message": "과도한 useState 사용 (6개)",
+          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
+          "code": "useState 사용 횟수: 6"
+        }
+      ],
+      "score": 65
+    },
+    {
+      "file": "src/renderer/components/projects/editor/WriterToolbar.tsx",
+      "issues": [
+        {
+          "line": 83,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<header className={`${TOOLBAR_STYLES.header} ${showHeader ? TOOLBAR_STYLES.headerVisible : TOOLBAR_STYLES.headerHidden}`}>"
+        },
+        {
+          "line": 95,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={showLeftSidebar ? TOOLBAR_STYLES.iconButtonActive : TOOLBAR_STYLES.iconButton}"
+        },
+        {
+          "line": 103,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => onTitleChange(e.target.value)}"
+        },
+        {
+          "line": 139,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={isFocusMode ? TOOLBAR_STYLES.iconButtonActive : TOOLBAR_STYLES.iconButton}"
+        },
+        {
+          "line": 171,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={showRightSidebar ? TOOLBAR_STYLES.iconButtonActive : TOOLBAR_STYLES.iconButton}"
+        },
+        {
+          "line": 70,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const now = new Date();"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (180줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 180줄"
+        }
+      ],
+      "score": 65
+    },
+    {
+      "file": "src/renderer/components/layout/AppSidebar.tsx",
+      "issues": [
+        {
+          "line": 156,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleNavigate(item)}"
+        },
+        {
+          "line": 161,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<Icon className={collapsed ? SIDEBAR_STYLES.iconCollapsed : SIDEBAR_STYLES.icon} />"
+        },
+        {
+          "line": 199,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<div className={collapsed ? SIDEBAR_STYLES.logoCollapsed : SIDEBAR_STYLES.logoSection}>"
+        },
+        {
+          "line": 207,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => {"
+        },
+        {
+          "line": 249,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => {"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (281줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 281줄"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/renderer/components/projects/editor/AIAssistant.tsx",
+      "issues": [
+        {
+          "line": 78,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<div className={showRightSidebar ? STYLES.rightSidebar : STYLES.rightSidebarCollapsed}>"
+        },
+        {
+          "line": 178,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleAIAction('improve')}"
+        },
+        {
+          "line": 196,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleAIAction('character')}"
+        },
+        {
+          "line": 214,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleAIAction('plot')}"
+        },
+        {
+          "line": 232,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleAIAction('dialogue')}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (251줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 251줄"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/renderer/components/projects/editor/MarkdownEditor.tsx",
+      "issues": [
+        {
+          "line": 292,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => editor.chain().focus().toggleBold().run()}"
+        },
+        {
+          "line": 301,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => editor.chain().focus().toggleItalic().run()}"
+        },
+        {
+          "line": 310,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => editor.chain().focus().toggleUnderline().run()}"
+        },
+        {
+          "line": 319,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => editor.chain().focus().toggleStrike().run()}"
+        },
+        {
+          "line": 328,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => editor.chain().focus().toggleCode().run()}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (344줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 344줄"
+        }
+      ],
+      "score": 70
+    },
+    {
+      "file": "src/renderer/app/projects/page.tsx",
+      "issues": [
+        {
+          "line": 95,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),"
+        },
+        {
+          "line": 96,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: project.updatedAt ? new Date(project.updatedAt) :"
+        },
+        {
+          "line": 97,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "project.lastModified ? new Date(project.lastModified) : new Date(),"
+        },
+        {
+          "line": 151,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (277줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 277줄"
+        }
+      ],
+      "score": 75
+    },
+    {
+      "file": "src/renderer/components/projects/ProjectGrid.tsx",
+      "issues": [
+        {
+          "line": 200,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => handleSearchChange(e.target.value)}"
+        },
+        {
+          "line": 214,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleStatusFilter(filter.value)}"
+        },
+        {
+          "line": 228,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => handleSort('updatedAt')}"
+        },
+        {
+          "line": 88,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 배열 정렬",
+          "suggestion": "useMemo로 결과 캐싱",
+          "code": "filtered.sort((a, b) => {"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (300줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 300줄"
+        }
+      ],
+      "score": 75
+    },
+    {
+      "file": "src/renderer/components/projects/components/ProjectHeader.tsx",
+      "issues": [
+        {
+          "line": 109,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 변경 핸들러",
+          "suggestion": "useCallback으로 메모이제이션",
+          "code": "onChange={(e) => onTitleChange(e.target.value)}"
+        },
+        {
+          "line": 134,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={sidebarCollapsed ? PROJECT_HEADER_STYLES.iconButton : PROJECT_HEADER_STYLES.iconButtonActive}"
+        },
+        {
+          "line": 142,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={isFocusMode ? PROJECT_HEADER_STYLES.iconButtonActive : PROJECT_HEADER_STYLES.iconButton}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (152줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 152줄"
+        }
+      ],
+      "score": 80
+    },
+    {
+      "file": "src/renderer/components/projects/editor/WriterStatsPanel.tsx",
+      "issues": [
+        {
+          "line": 43,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "<div className={showRightSidebar ? STATS_STYLES.rightSidebar : STATS_STYLES.rightSidebarCollapsed}>"
+        },
+        {
+          "line": 59,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setWordGoal(Math.max(500, writerStats.wordGoal - 500))}"
+        },
+        {
+          "line": 66,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => setWordGoal(writerStats.wordGoal + 500)}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (154줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 154줄"
+        }
+      ],
+      "score": 80
+    },
+    {
+      "file": "src/renderer/contexts/GlobalMonitoringContext.tsx",
+      "issues": [
+        {
+          "line": 49,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: JSON 파싱",
+          "suggestion": "useMemo로 결과 캐싱",
+          "code": "const parsed = JSON.parse(savedState);"
+        },
+        {
+          "line": 54,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "startTime: parsed.startTime ? new Date(parsed.startTime) : null,"
+        },
+        {
+          "line": 89,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "startTime: new Date(),"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (165줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 165줄"
+        }
+      ],
+      "score": 80
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "issues": [
+        {
+          "line": 208,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const date = new Date(session.createdAt);"
+        },
+        {
+          "line": 240,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const duration = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (483줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 483줄"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/renderer/components/dashboard/DashboardContent.tsx",
+      "issues": [
+        {
+          "line": 209,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 스타일 객체 사용",
+          "suggestion": "COMPONENT_STYLES 상수로 분리하거나 useMemo 사용",
+          "code": "<div className=\"bg-blue-600 h-2 rounded-full\" style={{ width: '95%' }} />"
+        },
+        {
+          "line": 218,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 스타일 객체 사용",
+          "suggestion": "COMPONENT_STYLES 상수로 분리하거나 useMemo 사용",
+          "code": "<div className=\"bg-green-600 h-2 rounded-full\" style={{ width: '88%' }} />"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (227줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 227줄"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/renderer/components/projects/components/WriterSidebar.tsx",
+      "issues": [
+        {
+          "line": 93,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => onViewChange(item.id)}"
+        },
+        {
+          "line": 116,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={() => onViewChange(item.id)}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (261줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 261줄"
+        }
+      ],
+      "score": 85
+    },
+    {
+      "file": "src/renderer/components/projects/ProjectCard.tsx",
+      "issues": [
+        {
+          "line": 272,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "인라인 이벤트 핸들러",
+          "suggestion": "useCallback으로 메모이제이션하거나 컴포넌트 외부로 분리",
+          "code": "onClick={(event) => handleActionClick(event, action.id, action.onClick.bind(null, project))}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (286줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 286줄"
+        }
+      ],
+      "score": 90
+    },
+    {
+      "file": "src/renderer/components/projects/ProjectEditor.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (294줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 294줄"
+        },
+        {
+          "line": 1,
+          "type": "too-many-states",
+          "severity": "medium",
+          "message": "과도한 useState 사용 (6개)",
+          "suggestion": "useReducer 또는 상태 관리 라이브러리 고려",
+          "code": "useState 사용 횟수: 6"
+        }
+      ],
+      "score": 90
+    },
+    {
+      "file": "src/renderer/components/projects/components/ShareDialog.tsx",
+      "issues": [
+        {
+          "line": 132,
+          "type": "inline-object",
+          "severity": "medium",
+          "message": "조건부 className 인라인 생성",
+          "suggestion": "clsx/cn 유틸리티와 미리 정의된 클래스 사용",
+          "code": "className={copiedUrl ? SHARE_DIALOG_STYLES.copiedButton : SHARE_DIALOG_STYLES.copyButton}"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (182줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 182줄"
+        }
+      ],
+      "score": 90
+    },
+    {
+      "file": "src/renderer/components/projects/editor/WriterStats.ts",
+      "issues": [
+        {
+          "line": 79,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "const now = new Date();"
+        },
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (104줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 104줄"
+        }
+      ],
+      "score": 90
+    },
+    {
+      "file": "src/renderer/components/projects/views/StructureView.tsx",
+      "issues": [
+        {
+          "line": 48,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "createdAt: new Date(),"
+        },
+        {
+          "line": 49,
+          "type": "missing-memo",
+          "severity": "medium",
+          "message": "비용이 큰 연산: 날짜 객체 생성",
+          "suggestion": "useMemo 또는 상수로 분리",
+          "code": "updatedAt: new Date(),"
+        }
+      ],
+      "score": 90
+    },
+    {
+      "file": "src/renderer/.next/types/cache-life.d.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (142줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 142줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/layout.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (124줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 124줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/AppSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (184줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 184줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/KeyboardSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (119줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 119줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/PerformanceSettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (118줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 118줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/components/sections/UISettingsSection.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (148줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 148줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/constants/settings.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (128줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 128줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/constants/styles.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (103줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 103줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (236줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 236줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/app/settings/types/index.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (137줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 137줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/dashboard/QuickStartCard.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (124줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 124줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/layout/AppHeader.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (144줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 144줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/pages/AnalyticsPageClient.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (160줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 160줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/components/ConfirmDeleteDialog.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (103줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 103줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/editor/EditorConfig.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (178줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 178줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/editor/EditorShortcuts.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (266줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 266줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/editor/EditorStyles.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (164줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 164줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/editor/ShortcutHelp.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (120줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 120줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/hooks/useAutoSave.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (165줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 165줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/projects/hooks/useProjectActions.ts",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (116줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 116줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Avatar.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (210줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 210줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Badge.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (107줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 107줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Input.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (248줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 248줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/KpiCard.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (106줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 106줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Textarea.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (216줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 216줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Toggle.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (122줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 122줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/components/ui/Tooltip.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (227줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 227줄"
+        }
+      ],
+      "score": 95
+    },
+    {
+      "file": "src/renderer/providers/ThemeProvider.tsx",
+      "issues": [
+        {
+          "line": 1,
+          "type": "large-component",
+          "severity": "medium",
+          "message": "큰 컴포넌트 (198줄)",
+          "suggestion": "더 작은 컴포넌트로 분리 고려",
+          "code": "전체 컴포넌트 크기: 198줄"
+        }
+      ],
+      "score": 95
+    }
+  ]
+}

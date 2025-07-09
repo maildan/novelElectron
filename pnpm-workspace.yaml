@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - electron
+  - electron-chromedriver
+  - electron-winstaller
+  - spectron
+  - uiohook-napi
+
