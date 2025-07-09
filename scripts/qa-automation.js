@@ -62,19 +62,21 @@ class QAAutomation {
     async runFullQA() {
         console.log('🔥 기가차드 전역 QA 시작!\n');
         try {
-            // 1. 타입 안전성 체크
+            // 1. 마크업 기능 검증 (사용자 요청 우선순위)
+            await this.checkMarkupFunctionality();
+            // 2. 타입 안전성 체크
             await this.checkTypeScript();
-            // 2. 코드 품질 체크
+            // 3. 코드 품질 체크
             await this.checkCodeQuality();
-            // 3. Electron 특화 체크
+            // 4. Electron 특화 체크
             await this.checkElectronSpecific();
-            // 4. 성능 및 최적화 체크
+            // 5. 성능 및 최적화 체크
             await this.checkPerformance();
-            // 5. 보안 체크
+            // 6. 보안 체크
             await this.checkSecurity();
-            // 6. 접근성 체크
+            // 7. 접근성 체크
             await this.checkAccessibility();
-            // 7. 결과 리포트 생성
+            // 8. 결과 리포트 생성
             await this.generateReport();
         }
         catch (error) {
@@ -128,21 +130,31 @@ class QAAutomation {
             const content = fs.readFileSync(file, 'utf8');
             const lines = content.split('\n');
             lines.forEach((line, index) => {
-                // any 타입 사용 패턴 검사
+                // any 타입 사용 패턴 검사 (더 엄격하게)
                 const anyPatterns = [
-                    /:\s*any\s*[;,=}]/,
-                    /\(\s*\w+:\s*any\s*\)/,
-                    /any\[\]/,
-                    /any\s*=>/
+                    { pattern: /:\s*any\s*[;,=}]/, desc: '변수/파라미터에 any 타입' },
+                    { pattern: /\(\s*\w+:\s*any\s*\)/, desc: '함수 파라미터에 any 타입' },
+                    { pattern: /any\[\]/, desc: 'any 배열 타입' },
+                    { pattern: /any\s*=>/, desc: '함수 반환값에 any 타입' },
+                    { pattern: /as\s+any/, desc: 'any로 타입 어서션' },
+                    { pattern: /<any>/, desc: 'any 제네릭 타입' },
+                    { pattern: /Promise<any>/, desc: 'Promise에 any 타입' },
+                    { pattern: /Record<string,\s*any>/, desc: 'Record에 any 타입' },
+                    { pattern: /commands:\s*any/, desc: 'TipTap commands에 any 타입' },
                 ];
-                anyPatterns.forEach(pattern => {
-                    if (pattern.test(line) && !line.includes('// @allow-any')) {
+                
+                anyPatterns.forEach(({ pattern, desc }) => {
+                    if (pattern.test(line) && 
+                        !line.includes('// @allow-any') && 
+                        !line.includes('// eslint-disable-next-line @typescript-eslint/no-explicit-any') &&
+                        !file.includes('legacy') && 
+                        !file.includes('migration')) {
                         issues.push({
                             file: path.relative(process.cwd(), file),
                             line: index + 1,
-                            description: `any 타입 사용 발견: ${line.trim()}`,
+                            description: `${desc}: ${line.trim()}`,
                             recommendation: 'any 대신 구체적인 타입을 사용하거나 unknown + 타입 가드를 사용하세요',
-                            priority: 'high'
+                            priority: 'critical' // any 타입을 critical로 변경
                         });
                     }
                 });
@@ -1118,7 +1130,85 @@ class QAAutomation {
             });
         }
     }
+    /**
+     * 🔥 마크업 기능 검증 (사용자 요청 사항)
+     */
+    async checkMarkupFunctionality() {
+        console.log('🔍 마크업 기능 검증...');
+        const issues = [];
+        
+        try {
+            // MarkdownEditor.tsx에서 마크업 처리 로직 확인
+            const markdownEditorPath = path.join(this.srcPath, 'renderer/components/projects/editor/MarkdownEditor.tsx');
+            if (fs.existsSync(markdownEditorPath)) {
+                const content = fs.readFileSync(markdownEditorPath, 'utf8');
+                
+                // 필수 마크업 패턴 확인
+                const requiredPatterns = [
+                    { pattern: /textBefore === '#'/, name: 'H1 처리' },
+                    { pattern: /textBefore === '##'/, name: 'H2 처리' },
+                    { pattern: /textBefore === '###'/, name: 'H3 처리' },
+                    { pattern: /textBefore === '-'/, name: '불릿 리스트 처리' },
+                    { pattern: /\/\^\d\+\\\.\$\/\.test\(textBefore\)/, name: '번호 리스트 처리' },
+                    { pattern: /\.setHeading\(\{ level: 1 \}\)/, name: 'H1 명령어' },
+                    { pattern: /\.setHeading\(\{ level: 2 \}\)/, name: 'H2 명령어' },
+                    { pattern: /\.setHeading\(\{ level: 3 \}\)/, name: 'H3 명령어' },
+                    { pattern: /\.toggleBulletList\(\)/, name: '불릿 리스트 명령어' },
+                    { pattern: /\.toggleOrderedList\(\)/, name: '번호 리스트 명령어' },
+                ];
+                
+                requiredPatterns.forEach(({ pattern, name }) => {
+                    if (!pattern.test(content)) {
+                        issues.push({
+                            file: 'MarkdownEditor.tsx',
+                            line: 0,
+                            description: `마크업 기능 누락: ${name}`,
+                            recommendation: `${name} 처리 로직을 추가하세요`,
+                            priority: 'high'
+                        });
+                    }
+                });
+                
+                // 에러 처리 확인
+                const hasErrorHandling = /try\s*\{[\s\S]*?\}\s*catch\s*\([\s\S]*?\)\s*\{/.test(content);
+                if (!hasErrorHandling) {
+                    issues.push({
+                        file: 'MarkdownEditor.tsx',
+                        line: 0,
+                        description: 'try-catch 에러 처리가 없습니다',
+                        recommendation: '마크업 처리에 에러 처리를 추가하세요',
+                        priority: 'medium'
+                    });
+                }
+                
+                // setTimeout 사용 확인 (QA 가이드에서 금지)
+                const hasSetTimeout = /setTimeout/.test(content);
+                if (hasSetTimeout) {
+                    issues.push({
+                        file: 'MarkdownEditor.tsx',
+                        line: 0,
+                        description: 'setTimeout 사용 발견 (QA 가이드 위반)',
+                        recommendation: '직접적인 동기 명령어 체인을 사용하세요',
+                        priority: 'high'
+                    });
+                }
+            }
+            
+            this.results.push({
+                category: '마크업 기능 검증',
+                severity: issues.some(i => i.priority === 'high') ? 'high' : 'medium',
+                issues,
+                score: Math.max(0, 100 - (issues.length * 15))
+            });
+            
+        } catch (error) {
+            console.error('마크업 기능 검증 실패:', error);
+        }
+    }
+
+    // ...existing code...
 }
+
 /**
  * 🔥 메인 실행
  */
