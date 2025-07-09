@@ -519,3 +519,201 @@ p {
 .animate-shimmer {
   animation: shimmer 2s ease-in-out infinite;
 }
+
+/* 🔥 기가차드 작가 친화적 색상 시스템 - 다크 모드 */
+:root[data-theme="dark"], .dark {
+  /* 기본 배경 - 진한 회색 (순수 검정 피하기) */
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f29;
+  --bg-elevated: #242936;
+  --bg-card: #1e293b;
+  --bg-hover: #374151;
+  
+  /* 텍스트 - 따뜻한 화이트 */
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-inverse: #1a1a1a;
+  
+  /* 강조색 - 부드러운 블루 */
+  --accent-primary: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: #1e3a8a;
+  --accent-dark: #1d4ed8;
+  
+  /* 경계선 */
+  --border-light: #374151;
+  --border-medium: #4b5563;
+  --border-dark: #6b7280;
+  
+  /* 상태 색상 */
+  --success: #10b981;
+  --success-light: #064e3b;
+  --warning: #f59e0b;
+  --warning-light: #78350f;
+  --error: #ef4444;
+  --error-light: #7f1d1d;
+  
+  /* 그림자 - 다크 모드용 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* 🔥 기가차드 작가 친화적 컴포넌트 스타일 */
+
+/* 카드 컴포넌트 - 그라데이션 제거, 단순화 */
+.writer-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.writer-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 12px 0 rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 아이콘 통일 - 단색으로 */
+.writer-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--accent-light);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.writer-icon svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent-primary);
+}
+
+/* 텍스트 가독성 최우선 */
+.writer-text-primary {
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+}
+
+.writer-text-secondary {
+  color: var(--text-secondary);
+  font-family: var(--font-primary);
+}
+
+.writer-text-muted {
+  color: var(--text-muted);
+  font-family: var(--font-primary);
+}
+
+/* 버튼 스타일 - 차분하게 */
+.writer-button-primary {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: 8px;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-primary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.writer-button-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.writer-button-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-primary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.writer-button-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+/* 입력 필드 - 작가 친화적 */
+.writer-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.writer-input:focus {
+  outline: 2px solid var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+}
+
+/* 집중 모드 */
+.focus-mode {
+  background: var(--bg-primary);
+}
+
+.focus-mode .sidebar { 
+  display: none; 
+}
+
+.focus-mode .header { 
+  opacity: 0.3; 
+}
+
+.focus-mode .main-content { 
+  max-width: 800px; 
+  margin: 0 auto; 
+}
+
+/* 독서 모드 */
+.reading-mode {
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--text-primary);
+}
+
+/* 접근성 개선 - 포커스 가시성 */
+.focusable:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* GPU 가속 활용 */
+.card-transition {
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .writer-card {
+    padding: var(--space-4);
+  }
+  
+  .writer-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .writer-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}
