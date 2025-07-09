@@ -1,6 +1,6 @@
 'use client';
 
-// 프로젝트 검색 및 관리 컴포넌트
+// 프로젝트 검색 및 관리 컴포넌트}|
 
 import React, { useState, useMemo } from 'react';
 import { Search, Plus, Filter, SortAsc, SortDesc } from 'lucide-react';

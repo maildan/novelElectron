@@ -8,8 +8,12 @@ import Focus from '@tiptap/extension-focus';
 import Typography from '@tiptap/extension-typography';
 import CharacterCount from '@tiptap/extension-character-count';
 import Underline from '@tiptap/extension-underline';
+import { SlashCommand, slashSuggestion } from './SlashCommands';
+import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Link } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 import { handleEditorKeyDown, bindShortcutsToEditor, ALL_SHORTCUTS } from './EditorShortcuts';
+import { TaskList, TaskItem, Callout, Toggle, Highlight } from './AdvancedNotionFeatures';
+import './MarkdownEditor.css';
 
 // 🔥 작가 친화적 TipTap 에디터 스타일
 const EDITOR_STYLES = {
@@ -65,7 +69,13 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
               default: return '소제목...';
             }
           }
-          return '이야기를 시작해보세요...';
+          if (node.type.name === 'callout') {
+            return '콜아웃 내용을 입력하세요...';
+          }
+          if (node.type.name === 'toggle') {
+            return '토글 내용을 입력하세요...';
+          }
+          return '/ 를 입력하여 명령어를 사용하거나 이야기를 시작해보세요...';
         },
         showOnlyWhenEditable: true,
         showOnlyCurrent: false,
@@ -85,6 +95,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
         closeSingleQuote: "'",
         ellipsis: '...',
         emDash: '--',
+      }),
+      
+      // 🔥 노션 스타일 확장들
+      TaskList,
+      TaskItem,
+      Callout,
+      Toggle,
+      Highlight,
+      
+      // 🔥 슬래시 명령어 확장
+      SlashCommand.configure({
+        suggestion: slashSuggestion,
       }),
       
       // 🔥 문자 수 카운트
@@ -114,16 +136,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '#') {
             event.preventDefault();
             event.stopPropagation();
-            // heading 노드 타입이 있는지 확인
-            const headingType = state.schema.nodes.heading;
-            if (!headingType) {
-              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
-              return false;
-            }
             
-            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 1 });
-            tr.delete($from.pos - 1, $from.pos); // # 문자 삭제
+            // 더 안전한 방식으로 헤딩 처리
+            const tr = state.tr.delete($from.pos - 1, $from.pos);
             dispatch(tr);
+            
+            // 다음 틱에서 헤딩 적용
+            setTimeout(() => {
+              if (editor) {
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+              }
+            }, 0);
+            
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H1 applied');
             return true;
           }
@@ -132,16 +156,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '##') {
             event.preventDefault();
             event.stopPropagation();
-            // heading 노드 타입이 있는지 확인
-            const headingType = state.schema.nodes.heading;
-            if (!headingType) {
-              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
-              return false;
-            }
             
-            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 2 });
-            tr.delete($from.pos - 2, $from.pos); // ## 문자 삭제
+            // 더 안전한 방식으로 헤딩 처리
+            const tr = state.tr.delete($from.pos - 2, $from.pos);
             dispatch(tr);
+            
+            // 다음 틱에서 헤딩 적용
+            setTimeout(() => {
+              if (editor) {
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+              }
+            }, 0);
+            
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H2 applied');
             return true;
           }
@@ -150,16 +176,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '###') {
             event.preventDefault();
             event.stopPropagation();
-            // heading 노드 타입이 있는지 확인
-            const headingType = state.schema.nodes.heading;
-            if (!headingType) {
-              Logger.warn('TIPTAP_EDITOR', 'Heading node type not found');
-              return false;
-            }
             
-            const tr = state.tr.setBlockType($from.before(), $from.after(), headingType, { level: 3 });
-            tr.delete($from.pos - 3, $from.pos); // ### 문자 삭제
+            // 더 안전한 방식으로 헤딩 처리
+            const tr = state.tr.delete($from.pos - 3, $from.pos);
             dispatch(tr);
+            
+            // 다음 틱에서 헤딩 적용
+            setTimeout(() => {
+              if (editor) {
+                editor.chain().focus().toggleHeading({ level: 3 }).run();
+              }
+            }, 0);
+            
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H3 applied');
             return true;
           }
@@ -168,24 +196,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (textBefore === '-') {
             event.preventDefault();
             event.stopPropagation();
-            // listItem 및 bulletList 노드 타입 확인
-            const listItemType = state.schema.nodes.listItem;
-            const bulletListType = state.schema.nodes.bulletList;
             
-            if (!listItemType || !bulletListType) {
-              Logger.warn('TIPTAP_EDITOR', 'List node types not found');
-              return false;
-            }
+            // 문자 삭제 후 명령어 실행
+            const tr = state.tr.delete($from.pos - 1, $from.pos);
+            dispatch(tr);
             
-            const tr = state.tr.setBlockType($from.before(), $from.after(), listItemType);
-            tr.delete($from.pos - 1, $from.pos); // - 문자 삭제
-            const blockRange = $from.blockRange();
-            if (blockRange) {
-              const wrappedTr = tr.wrap(blockRange, [{ type: bulletListType }]);
-              dispatch(wrappedTr || tr);
-            } else {
-              dispatch(tr);
-            }
+            // 다음 틱에서 리스트 토글
+            setTimeout(() => {
+              if (editor) {
+                editor.chain().focus().toggleBulletList().run();
+              }
+            }, 0);
+            
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Bullet list applied');
             return true;
           }
@@ -194,24 +216,18 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           if (/^\d+\.$/.test(textBefore)) {
             event.preventDefault();
             event.stopPropagation();
-            // listItem 및 orderedList 노드 타입 확인
-            const listItemType = state.schema.nodes.listItem;
-            const orderedListType = state.schema.nodes.orderedList;
             
-            if (!listItemType || !orderedListType) {
-              Logger.warn('TIPTAP_EDITOR', 'List node types not found');
-              return false;
-            }
+            // 문자 삭제 후 명령어 실행
+            const tr = state.tr.delete($from.pos - textBefore.length, $from.pos);
+            dispatch(tr);
             
-            const tr = state.tr.setBlockType($from.before(), $from.after(), listItemType);
-            tr.delete($from.pos - textBefore.length, $from.pos); // 번호 문자 삭제
-            const blockRange = $from.blockRange();
-            if (blockRange) {
-              const wrappedTr = tr.wrap(blockRange, [{ type: orderedListType }]);
-              dispatch(wrappedTr || tr);
-            } else {
-              dispatch(tr);
-            }
+            // 다음 틱에서 리스트 토글
+            setTimeout(() => {
+              if (editor) {
+                editor.chain().focus().toggleOrderedList().run();
+              }
+            }, 0);
+            
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Ordered list applied');
             return true;
           }
@@ -307,6 +323,24 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
       }
     };
   }, [editor]);
+
+  // 🔥 ESC 키 핸들러 (집중모드 해제)
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape' && isFocusMode) {
+        // 집중모드 해제 이벤트 발생
+        const exitFocusEvent = new CustomEvent('editor:exitFocus');
+        window.dispatchEvent(exitFocusEvent);
+        Logger.info('TIPTAP_EDITOR', 'ESC pressed - exiting focus mode');
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    
+    return () => {
+      window.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isFocusMode]);
 
   // 🔥 로딩 중 표시
   if (!isReady) {

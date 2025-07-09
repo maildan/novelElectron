@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronLeft,
   Save,
@@ -10,12 +10,12 @@ import {
   Sidebar,
   Eye,
   EyeOff,
-  Palette,
   MessageCircle,
   Sun,
   Moon,
   Copy,
   FileDown,
+  Maximize2,
   Focus
 } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
@@ -117,7 +117,28 @@ export function ProjectHeader({
     }
     
     Logger.info('PROJECT_HEADER', `Theme changed to ${newDarkMode ? 'dark' : 'light'}`);
-};
+  };
+
+  // 🔥 집중모드 토글
+  const toggleFocusMode = (): void => {
+    const focusEvent = new CustomEvent('project:toggleFocus');
+    window.dispatchEvent(focusEvent);
+    Logger.info('PROJECT_HEADER', 'Focus mode toggled');
+  };
+
+  // 🔥 콘텐츠 복사
+  const copyContent = (): void => {
+    const copyEvent = new CustomEvent('project:copy');
+    window.dispatchEvent(copyEvent);
+    Logger.info('PROJECT_HEADER', 'Content copy triggered');
+  };
+
+  // 🔥 AI 기능 활성화
+  const triggerAI = (): void => {
+    const aiEvent = new CustomEvent('project:ai');
+    window.dispatchEvent(aiEvent);
+    Logger.info('PROJECT_HEADER', 'AI feature triggered');
+  };
   
   // 🔥 복사 기능 (현재 텍스트 클립보드에 복사)
   const handleCopy = async (): Promise<void> => {
@@ -130,17 +151,20 @@ export function ProjectHeader({
     }
   };
 
-  // 🔥 에디터 전용모드 토글
-  const handleEditorOnlyMode = (): void => {
-    const isEditorOnly = document.body.classList.contains('editor-only-mode');
+  // 🔥 집중모드 토글 (에디터만 표시)
+  const handleFocusMode = (): void => {
+    const isFocusMode = document.body.classList.contains('focus-mode');
     
-    if (isEditorOnly) {
-      document.body.classList.remove('editor-only-mode');
-      Logger.info('PROJECT_HEADER', 'Editor-only mode disabled');
+    if (isFocusMode) {
+      document.body.classList.remove('focus-mode');
+      Logger.info('PROJECT_HEADER', 'Focus mode disabled');
     } else {
-      document.body.classList.add('editor-only-mode');
-      Logger.info('PROJECT_HEADER', 'Editor-only mode enabled');
+      document.body.classList.add('focus-mode');
+      Logger.info('PROJECT_HEADER', 'Focus mode enabled');
     }
+    
+    // 포커스 모드 상태를 부모 컴포넌트에 전달
+    onToggleFocusMode();
   };
 
   // 🔥 헤더 액션 정의 (CRUD + 복사, 공유 개선)
@@ -152,15 +176,16 @@ export function ProjectHeader({
     { icon: Trash2, label: '삭제', shortcut: 'Cmd+Del', onClick: onDelete },
   ];
 
-  // 🔥 툴바 확장 액션들 (AI 채팅, 테마 원클릭, 에디터 전용모드)
+  // 🔥 툴바 확장 액션들 (AI 채팅, 테마 원클릭, 집중모드)
   const toolbarActions: HeaderAction[] = [
-    { icon: MessageCircle, label: 'AI 채팅', onClick: () => toggleSlideBar('ai') },
+    { icon: Copy, label: '콘텐츠 복사', shortcut: 'Cmd+C', onClick: copyContent },
+    { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: toggleFocusMode },
+    { icon: MessageCircle, label: 'AI 채팅', onClick: triggerAI },
     { 
       icon: isDarkMode ? Sun : Moon, 
       label: isDarkMode ? '라이트 모드로 변경' : '다크 모드로 변경', 
       onClick: toggleTheme 
     },
-    { icon: Focus, label: '에디터 전용모드', onClick: handleEditorOnlyMode },
   ];
 
   return (
@@ -233,16 +258,6 @@ export function ProjectHeader({
             <Sidebar size={16} />
             <div className={PROJECT_HEADER_STYLES.tooltip}>
               사이드바 토글
-            </div>
-          </button>
-          
-          <button 
-            className={isFocusMode ? PROJECT_HEADER_STYLES.iconButtonActive : PROJECT_HEADER_STYLES.iconButton}
-            onClick={onToggleFocusMode}
-          >
-            {isFocusMode ? <EyeOff size={16} /> : <Eye size={16} />}
-            <div className={PROJECT_HEADER_STYLES.tooltip}>
-              {isFocusMode ? '포커스 모드 해제' : '포커스 모드'}
             </div>
           </button>
         </div>

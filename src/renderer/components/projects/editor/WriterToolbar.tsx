@@ -1,6 +1,6 @@
 'use client';
 
-// 에디터 툴 바 쓸 예정
+// 에디터 툴 바 쓸 예정 지금 안씀
 
 import React from 'react';
 import { Button } from '../../ui/Button';

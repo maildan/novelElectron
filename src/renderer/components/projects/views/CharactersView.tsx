@@ -1,6 +1,6 @@
 'use client';
 
-// 캐릭터 뷰
+// 캐릭터 뷰 쓰고있음
 
 import React, { useState } from 'react';
 import { ProjectCharacter } from '../../../../shared/types';
