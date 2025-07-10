@@ -4,7 +4,13 @@ import { BaseWindowDetectionStrategy } from './WindowDetectionStrategy';
 import { WindowInfo, Result, AppCategory } from '../../../shared/types';
 import { Logger } from '../../../shared/logger';
 import { Platform } from '../../utils/platform';
-import { getAppCategory } from '../appCategories';
+import { 
+  getAppCategory, 
+  APP_CATEGORIES, 
+  APP_CATEGORY_MAPPING,
+  getCategoryStats,
+  getAppsByCategory 
+} from '../appCategories';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

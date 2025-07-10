@@ -98,60 +98,88 @@ export class TrayManager extends BaseManager {
    */
   private async createTrayIcon(): Promise<void> {
     try {
-      // 플랫폼별 아이콘 경로
+      // 🔥 플랫폼별 기본 아이콘 생성
+      let defaultIcon: Electron.NativeImage;
+      
+      // 🔥 fs 모듈 가져오기
+      const fs = require('fs');
+      
+      // 플랫폼별 아이콘 경로 얻기
       const iconPath = this.getTrayIconPath();
       
-      if (!iconPath) {
-        throw new Error('Tray icon path not found for current platform');
-      }
-
-      // 🔥 파일 존재 여부 확인
-      const fs = await import('fs/promises');
-      try {
-        await fs.access(iconPath);
-        Logger.debug(this.componentName, 'Tray icon file exists', { iconPath });
-      } catch (fileError) {
-        Logger.error(this.componentName, 'Tray icon file not found', { iconPath, error: fileError });
-        throw new Error(`Tray icon file not found: ${iconPath}`);
-      }
-
-      // 아이콘 이미지 생성
-      const icon = nativeImage.createFromPath(iconPath);
-      
-      if (icon.isEmpty()) {
-        Logger.error(this.componentName, 'Failed to create image from path', { iconPath });
-        throw new Error(`Failed to load tray icon from: ${iconPath}`);
+      if (iconPath && fs.existsSync(iconPath)) {
+        // 파일이 실제로 존재하는 경우에만 아이콘 생성
+        Logger.info(this.componentName, '✅ Using tray icon from verified path', { iconPath });
+        
+        try {
+          defaultIcon = nativeImage.createFromPath(iconPath);
+          
+          // 아이콘이 비어있는지 추가 검증
+          if (defaultIcon.isEmpty()) {
+            Logger.warn(this.componentName, '⚠️ Icon is empty despite file existing, using fallback');
+            
+            // 대체 아이콘: 앱 기본 아이콘 사용
+            const appIconPath = path.join(process.cwd(), 'assets', 'icon.png');
+            if (fs.existsSync(appIconPath)) {
+              defaultIcon = nativeImage.createFromPath(appIconPath);
+            } else {
+              // 그래도 없으면 빈 아이콘 생성
+              defaultIcon = nativeImage.createEmpty();
+            }
+          }
+        } catch (iconError) {
+          Logger.error(this.componentName, '❌ Failed to create icon despite file check', { iconPath, error: iconError });
+          // 빈 아이콘으로 대체
+          defaultIcon = nativeImage.createEmpty();
+        }
+      } else {
+        // 아이콘 경로가 없거나 파일이 존재하지 않는 경우 기본 아이콘 사용
+        Logger.warn(this.componentName, '⚠️ Icon file not found, using fallback icon', { iconPath });
+        
+        // 앱 기본 아이콘 시도
+        const appIconPath = path.join(process.cwd(), 'assets', 'icon.png');
+        if (fs.existsSync(appIconPath)) {
+          defaultIcon = nativeImage.createFromPath(appIconPath);
+        } else {
+          // 그래도 없으면 빈 아이콘 생성
+          defaultIcon = nativeImage.createEmpty();
+        }
       }
 
       // macOS 템플릿 이미지 설정
       if (Platform.isMacOS()) {
-        // 🔥 macOS Template 이미지 최적화 - 16px 사용으로 메뉴바에서 선명함
-        const templateIcon = nativeImage.createFromPath(iconPath);
-        templateIcon.setTemplateImage(true); // 다크/라이트 모드 자동 변경
-        this.tray = new Tray(templateIcon);
+        Logger.info(this.componentName, '🍎 Creating macOS template image');
         
-        // 🔥 Retina 디스플레이 지원 - 2x 이미지 추가
-        const retinaIconPath = iconPath.replace('16.png', '32.png');
-        try {
-          const fs = await import('fs/promises');
-          await fs.access(retinaIconPath);
-          const retinaIcon = nativeImage.createFromPath(retinaIconPath);
-          retinaIcon.setTemplateImage(true);
-          // Note: Electron이 자동으로 고해상도 이미지를 선택함
-          Logger.debug(this.componentName, 'macOS Retina template image available', { retinaIconPath });
-        } catch {
-          Logger.debug(this.componentName, 'Retina template image not found, using standard');
+        // 템플릿 모드 설정 (다크/라이트 모드 자동 변경)
+        defaultIcon.setTemplateImage(true);
+        this.tray = new Tray(defaultIcon);
+        
+        // Retina 디스플레이 지원 시도
+        if (iconPath) {
+          // icon_16x16.png -> icon_16x16@2x.png
+          const retinaIconPath = iconPath.replace('icon_16x16.png', 'icon_16x16@2x.png');
+          try {
+            if (fs.existsSync(retinaIconPath)) {
+              const retinaIcon = nativeImage.createFromPath(retinaIconPath);
+              retinaIcon.setTemplateImage(true);
+              // Tray 아이콘에 적용
+              this.tray.setImage(retinaIcon);
+              Logger.info(this.componentName, '✨ macOS Retina image applied successfully', { retinaIconPath });
+            }
+          } catch (error) {
+            // 무시 - 기본 아이콘을 계속 사용
+            Logger.debug(this.componentName, 'Retina image application failed, using standard resolution');
+          }
         }
-        
-        Logger.debug(this.componentName, 'macOS template image applied with Retina support', { iconPath });
       } else {
-        this.tray = new Tray(icon);
+        // Windows/Linux용 기본 아이콘 설정
+        this.tray = new Tray(defaultIcon);
       }
 
       Logger.info(this.componentName, 'Tray icon created successfully', { 
         iconPath, 
         platform: process.platform,
-        isEmpty: icon.isEmpty()
+        isEmpty: defaultIcon.isEmpty()
       });
 
     } catch (error) {
@@ -319,35 +347,68 @@ export class TrayManager extends BaseManager {
       
       let iconsDir: string;
       if (isDev) {
-        // 개발 환경: 프로젝트 루트의 public/icon
-        iconsDir = path.join(process.cwd(), 'public', 'icon');
+        // 개발 환경: 프로젝트 루트의 assets 폴더
+        iconsDir = path.join(process.cwd(), 'assets');
       } else {
-        // 프로덕션 환경: 패키지된 앱의 resources 폴더
-        const appPath = app.getAppPath();
-        iconsDir = path.join(appPath, '..', 'public', 'icon');
+        // 프로덕션 환경: 패키지된 앱의 assets 폴더
+        iconsDir = path.join(__dirname, '../../../assets');
       }
       
-      Logger.debug(this.componentName, 'Icon directory paths', {
+      // 🔥 아이콘 경로 존재 여부 미리 확인
+      const fs = require('fs');
+      
+      Logger.info(this.componentName, '🔄 Resolving tray icon path', {
         iconsDir,
         isDev,
         platform: process.platform
       });
       
       if (Platform.isMacOS()) {
-        // 🔥 macOS - 16px 템플릿 이미지 (메뉴바에 최적화)
-        const iconPath = path.join(iconsDir, 'trayTemplate16.png');
-        Logger.debug(this.componentName, 'macOS tray icon path resolved', { iconPath });
-        return iconPath;
+        // 🔥 macOS - icon_16x16.png (메뉴바에 최적화된 사이즈)
+        const iconPath = path.join(iconsDir, 'icon.iconset', 'icon_16x16.png');
+        
+        // 실제 파일 존재 확인
+        if (fs.existsSync(iconPath)) {
+          Logger.info(this.componentName, '🍎 macOS tray icon path resolved', { iconPath });
+          return iconPath;
+        }
+        
+        // 대체 아이콘 경로
+        const fallbackPath = path.join(iconsDir, 'icon.png');
+        if (fs.existsSync(fallbackPath)) {
+          Logger.info(this.componentName, '🍎 macOS using fallback icon', { fallbackPath });
+          return fallbackPath;
+        }
+        
+        Logger.warn(this.componentName, '⚠️ macOS icon not found, using null');
+        return null;
       } else if (Platform.isWindows()) {
-        // Windows - ICO 파일 권장
-        const iconPath = path.join(iconsDir, 'tray.ico');
-        Logger.debug(this.componentName, 'Windows tray icon path resolved', { iconPath });
-        return iconPath;
+        // Windows - ICO 파일
+        const iconPath = path.join(iconsDir, 'icon.ico');
+        if (fs.existsSync(iconPath)) {
+          Logger.info(this.componentName, '🪟 Windows tray icon path resolved', { iconPath });
+          return iconPath;
+        }
+        
+        // 대체 아이콘 경로
+        const fallbackPath = path.join(iconsDir, 'icon.png');
+        if (fs.existsSync(fallbackPath)) {
+          Logger.info(this.componentName, '🪟 Windows using fallback icon', { fallbackPath });
+          return fallbackPath;
+        }
+        
+        Logger.warn(this.componentName, '⚠️ Windows icon not found, using null');
+        return null;
       } else if (Platform.isLinux()) {
         // Linux - PNG 파일
-        const iconPath = path.join(iconsDir, 'tray.png');
-        Logger.debug(this.componentName, 'Linux tray icon path resolved', { iconPath });
-        return iconPath;
+        const iconPath = path.join(iconsDir, 'icon.png');
+        if (fs.existsSync(iconPath)) {
+          Logger.info(this.componentName, '🐧 Linux tray icon path resolved', { iconPath });
+          return iconPath;
+        }
+        
+        Logger.warn(this.componentName, '⚠️ Linux icon not found, using null');
+        return null;
       }
       
       return null;

@@ -11,19 +11,28 @@ if (process.env.NODE_ENV === 'development') {
   require('dotenv').config();
 }
 
-// 🔥 앱 이름 설정
+// 🔥 앱 이름 설정 (원래는 'Electron'으로 표시되는 것을 수정)
 app.setName('Loop');
+app.setAppUserModelId('com.gigachad.loop'); // Windows 작업 표시줄 아이콘 ID
 
 // 🔥 기가차드 하드웨어 극한 최적화 적용 (500-1000% 성능 향상)
 performanceOptimizer.applyAllOptimizations();
 performanceOptimizer.startPerformanceBenchmark();
 
-// 🔥 macOS 보안 설정 및 Dock 아이콘
+// 🔥 플랫폼별 아이콘 설정
+const iconPath = join(__dirname, '../../assets/icon.png');
+const iconIcoPath = join(__dirname, '../../assets/icon.ico');
+
+// macOS Dock 아이콘 설정
 if (process.platform === 'darwin') {
-  // macOS Dock 아이콘 설정
-  const iconPath = join(__dirname, '../../assets/icon.png');
   app.dock?.setIcon(iconPath);
   Logger.info('MAIN', '🍎 macOS Dock icon set', { iconPath });
+}
+
+// Windows 아이콘 설정 (TaskBar 및 알트탭에서 표시)
+if (process.platform === 'win32') {
+  app.setPath('userData', app.getPath('userData').replace('Electron', 'Loop'));
+  Logger.info('MAIN', '🪟 Windows app data path set to Loop');
 }
 
 /**

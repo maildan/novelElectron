@@ -48,6 +48,9 @@ export class WindowManager {
         titleBarStyle: Platform.isMacOS() ? 'default' : 'default', // 🔥 메뉴바 표시 강제
       };
 
+      const iconPath = this.getAppIcon();
+      Logger.info('WINDOW', 'Creating window with icon', { iconPath });
+      
       const window = new BrowserWindow({
         ...settings,
         webPreferences: {
@@ -57,18 +60,23 @@ export class WindowManager {
           preload: join(__dirname, '../../preload/preload.js'),
           webSecurity: true,
         },
-        icon: this.getAppIcon(),
-        // 🔥 macOS 전용 설정
+        icon: iconPath,
+        // macOS 전용 설정
         ...(Platform.isMacOS() && {
-          titleBarStyle: 'default', // 🔥 메뉴바 표시를 위해 default로 변경
+          titleBarStyle: 'default',
           trafficLightPosition: { x: 20, y: 20 },
-          transparent: false, // 🔥 투명도 제거로 성능 개선
-          vibrancy: undefined, // 🔥 vibrancy 제거로 성능 개선
-          autoHideMenuBar: false, // 🔥 메뉴바 강제 표시
+          transparent: false,
+          vibrancy: undefined,
+          autoHideMenuBar: false,
         }),
-        // 🔥 성능 최적화 설정
-        show: false, // 🔥 준비될 때까지 숨김
-        backgroundColor: '#ffffff', // 🔥 배경색 설정으로 깜빡임 방지
+        // Windows/Linux 설정
+        ...((Platform.isWindows() || Platform.isLinux()) ? {
+          autoHideMenuBar: true, // Windows/Linux에서 메뉴바 자동 숨김
+          frame: true // 표준 창 프레임 사용
+        } : {}),
+        title: 'Loop',
+        show: false, // 준비될 때까지 숨김
+        backgroundColor: '#ffffff', // 배경색 설정으로 깜빡임 방지
       });
 
       // 보안 설정
@@ -192,11 +200,17 @@ export class WindowManager {
       }
       
       if (Platform.isWindows()) {
-        return join(iconsDir, 'icon.ico');
+        const iconPath = join(iconsDir, 'icon.ico');
+        Logger.info('WINDOW', '🪟 Using Windows icon', { iconPath });
+        return iconPath;
       } else if (Platform.isMacOS()) {
-        return join(iconsDir, 'icon.icns');
+        const iconPath = join(iconsDir, 'icon.icns');
+        Logger.info('WINDOW', '🍎 Using macOS icon', { iconPath });
+        return iconPath;
       } else {
-        return join(iconsDir, 'icon.png');
+        const iconPath = join(iconsDir, 'icon.png');
+        Logger.info('WINDOW', '🐧 Using Linux icon', { iconPath });
+        return iconPath;
       }
     } catch (error) {
       Logger.warn('WINDOW', 'Could not find app icon', error);

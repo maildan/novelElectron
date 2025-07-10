@@ -4,7 +4,13 @@ import { BaseWindowDetectionStrategy } from './WindowDetectionStrategy';
 import { Result, WindowInfo, AppCategory } from '../../../shared/types';
 import { Logger } from '../../../shared/logger';
 import { Platform } from '../../utils/platform';
-import { getAppCategory } from '../appCategories';
+import { 
+  getAppCategory, 
+  APP_CATEGORIES, 
+  APP_CATEGORY_MAPPING,
+  getCategoryStats,
+  getAppsByCategory 
+} from '../appCategories';
 import getActiveWindow from 'active-win';
 
 /**
@@ -158,16 +164,39 @@ export class MacDetectionStrategy extends BaseWindowDetectionStrategy {
   }
 
   /**
-   * 🔥 Loop 전용 필드로 윈도우 정보 향상
+   * 🔥 Loop 전용 필드로 윈도우 정보 향상 (개선된 카테고리 분류)
    */
   private enhanceWithLoopFields(windowInfo: WindowInfo): WindowInfo {
-    const appCategory = getAppCategory(windowInfo.owner.name);
+    const appName = windowInfo.owner.name;
+    const bundleId = windowInfo.owner.bundleId;
+    
+    // 🔥 1차: 앱 이름으로 카테고리 분류
+    let appCategory = getAppCategory(appName);
+    
+    // 🔥 2차: Bundle ID로 추가 분류 (macOS 특화)
+    if (appCategory === APP_CATEGORIES.UNKNOWN && bundleId) {
+      appCategory = this.getCategoryByBundleId(bundleId);
+    }
+    
+    // 🔥 3차: 창 제목으로 추가 분류
+    if (appCategory === APP_CATEGORIES.UNKNOWN) {
+      appCategory = this.getCategoryByWindowTitle(windowInfo.title, appName);
+    }
+    
+    // 🔥 카테고리 분류 로깅
+    Logger.debug(this.componentName, '🏷️ 앱 카테고리 분류 완료', {
+      appName,
+      bundleId,
+      windowTitle: windowInfo.title,
+      category: appCategory,
+      method: this.getCategorizationMethod(appName, bundleId, appCategory)
+    });
     
     return {
       ...windowInfo,
       loopTimestamp: Date.now(),
       loopAppCategory: appCategory,
-      loopSessionId: `${windowInfo.owner.name}-${Date.now()}`,
+      loopSessionId: `${appName}-${Date.now()}`,
       loopLanguageDetected: 'unknown',
       loopIMEState: 'unknown',
       loopPlatformInfo: {
@@ -187,5 +216,133 @@ export class MacDetectionStrategy extends BaseWindowDetectionStrategy {
         idleTime: 0,
       },
     };
+  }
+
+  /**
+   * 🔥 Bundle ID로 카테고리 분류 (macOS 특화)
+   */
+  private getCategoryByBundleId(bundleId: string): AppCategory {
+    // macOS Bundle ID 기반 카테고리 매핑
+    const bundleIdMapping: Record<string, AppCategory> = {
+      // 브라우저
+      'com.google.Chrome': APP_CATEGORIES.BROWSER,
+      'org.mozilla.firefox': APP_CATEGORIES.BROWSER,
+      'com.apple.Safari': APP_CATEGORIES.BROWSER,
+      'com.microsoft.edgemac': APP_CATEGORIES.BROWSER,
+      'com.operasoftware.Opera': APP_CATEGORIES.BROWSER,
+      'com.brave.Browser': APP_CATEGORIES.BROWSER,
+      'company.thebrowser.Browser': APP_CATEGORIES.BROWSER, // Arc
+      
+      // 개발 도구
+      'com.microsoft.VSCode': APP_CATEGORIES.DEVELOPMENT,
+      'com.apple.dt.Xcode': APP_CATEGORIES.DEVELOPMENT,
+      'com.jetbrains.intellij': APP_CATEGORIES.DEVELOPMENT,
+      'com.github.atom': APP_CATEGORIES.DEVELOPMENT,
+      'com.sublimetext.4': APP_CATEGORIES.DEVELOPMENT,
+      
+      // 텍스트 에디터
+      'com.coteditor.CotEditor': APP_CATEGORIES.TEXT_EDITOR,
+      'com.barebones.bbedit': APP_CATEGORIES.TEXT_EDITOR,
+      'com.macromates.textmate': APP_CATEGORIES.TEXT_EDITOR,
+      
+      // Office 제품군
+      'com.microsoft.Word': APP_CATEGORIES.OFFICE,
+      'com.microsoft.Excel': APP_CATEGORIES.OFFICE,
+      'com.microsoft.Powerpoint': APP_CATEGORIES.OFFICE,
+      'com.apple.iWork.Pages': APP_CATEGORIES.OFFICE,
+      'com.apple.iWork.Numbers': APP_CATEGORIES.OFFICE,
+      'com.apple.iWork.Keynote': APP_CATEGORIES.OFFICE,
+      
+      // 커뮤니케이션
+      'com.tinyspeck.slackmacgap': APP_CATEGORIES.COMMUNICATION,
+      'com.hnc.Discord': APP_CATEGORIES.COMMUNICATION,
+      'com.microsoft.teams': APP_CATEGORIES.COMMUNICATION,
+      'com.apple.MobileSMS': APP_CATEGORIES.COMMUNICATION,
+      
+      // 노트/메모
+      'com.apple.Notes': APP_CATEGORIES.NOTE_TAKING,
+      'com.evernote.Evernote': APP_CATEGORIES.NOTE_TAKING,
+      'md.obsidian': APP_CATEGORIES.NOTE_TAKING,
+      'com.notion.osx': APP_CATEGORIES.NOTE_TAKING,
+      
+      // AI 도구
+      'com.openai.chat': APP_CATEGORIES.AI_ASSISTANT,
+      'com.anthropic.claude': APP_CATEGORIES.AI_ASSISTANT,
+      
+      // 시스템
+      'com.apple.finder': APP_CATEGORIES.SYSTEM,
+      'com.apple.ActivityMonitor': APP_CATEGORIES.SYSTEM,
+      'com.apple.systempreferences': APP_CATEGORIES.SYSTEM,
+    };
+    
+    return bundleIdMapping[bundleId] || APP_CATEGORIES.UNKNOWN;
+  }
+
+  /**
+   * 🔥 창 제목으로 카테고리 추가 분류
+   */
+  private getCategoryByWindowTitle(title: string, appName: string): AppCategory {
+    const lowerTitle = title.toLowerCase();
+    
+    // 창 제목 키워드 기반 분류
+    if (lowerTitle.includes('github') || lowerTitle.includes('gitlab') || lowerTitle.includes('code')) {
+      return APP_CATEGORIES.DEVELOPMENT;
+    }
+    
+    if (lowerTitle.includes('docs') || lowerTitle.includes('document') || lowerTitle.includes('write')) {
+      return APP_CATEGORIES.OFFICE;
+    }
+    
+    if (lowerTitle.includes('chat') || lowerTitle.includes('message') || lowerTitle.includes('slack')) {
+      return APP_CATEGORIES.COMMUNICATION;
+    }
+    
+    if (lowerTitle.includes('note') || lowerTitle.includes('memo') || lowerTitle.includes('journal')) {
+      return APP_CATEGORIES.NOTE_TAKING;
+    }
+    
+    if (lowerTitle.includes('ai') || lowerTitle.includes('gpt') || lowerTitle.includes('claude')) {
+      return APP_CATEGORIES.AI_ASSISTANT;
+    }
+    
+    return APP_CATEGORIES.UNKNOWN;
+  }
+
+  /**
+   * 🔥 카테고리 분류 방법 반환
+   */
+  private getCategorizationMethod(appName: string, bundleId: string | undefined, category: AppCategory): string {
+    if (APP_CATEGORY_MAPPING[appName]) {
+      return 'app-name-exact';
+    }
+    
+    if (bundleId && this.getCategoryByBundleId(bundleId) !== APP_CATEGORIES.UNKNOWN) {
+      return 'bundle-id';
+    }
+    
+    if (category !== APP_CATEGORIES.UNKNOWN) {
+      return 'title-keyword';
+    }
+    
+    return 'fallback-unknown';
+  }
+
+  /**
+   * 🔥 카테고리 분류 신뢰도 계산
+   */
+  private calculateCategoryConfidence(appName: string, bundleId: string | undefined, category: AppCategory): number {
+    if (category === APP_CATEGORIES.UNKNOWN) {
+      return 0.1; // 매우 낮은 신뢰도
+    }
+    
+    if (APP_CATEGORY_MAPPING[appName]) {
+      return 0.95; // 매우 높은 신뢰도 (정확한 매칭)
+    }
+    
+    if (bundleId && this.getCategoryByBundleId(bundleId) !== APP_CATEGORIES.UNKNOWN) {
+      return 0.85; // 높은 신뢰도 (Bundle ID 매칭)
+    }
+    
+    return 0.7; // 중간 신뢰도 (키워드 기반)
   }
 }

@@ -5,6 +5,7 @@ import { MarkdownEditor } from './editor/MarkdownEditor';
 import { EditorProvider } from './editor/EditorProvider';
 import { ShortcutHelp } from './editor/ShortcutHelp';
 import { WriterSidebar } from './components/WriterSidebar';
+import { WriterStatsPanel } from './editor/WriterStatsPanel'; // 🔥 AI 창작 파트너 패널 추가
 import { ProjectHeader } from './components/ProjectHeader'; // 🔥 새로운 모듈화된 헤더
 import { ConfirmDeleteDialog } from './components/ConfirmDeleteDialog';
 import { ShareDialog } from './components/ShareDialog';
@@ -58,6 +59,7 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
   const uiState = useUIState();
   const [currentView, setCurrentView] = useState<string>('write'); // 🔥 실제 뷰 상태 관리
   const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [showRightSidebar, setShowRightSidebar] = useState<boolean>(false); // 🔥 AI 사이드바 상태 추가
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [showShareDialog, setShowShareDialog] = useState<boolean>(false);
   const editorRef = useRef<any>(null);
@@ -74,6 +76,12 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
 
   const handleBack = useCallback(() => window.history.back(), []);
   const handleToggleSidebar = useCallback(() => setCollapsed((prev) => !prev), []);
+  
+  // 🔥 AI 사이드바 토글 핸들러 추가
+  const handleToggleAISidebar = useCallback(() => {
+    setShowRightSidebar((prev) => !prev);
+    Logger.info('PROJECT_EDITOR', `AI sidebar ${!showRightSidebar ? 'opened' : 'closed'}`);
+  }, [showRightSidebar]);
   
   // 🔥 공유 기능 핸들러
   const handleShare = useCallback(() => {
@@ -256,6 +264,8 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
           onBack={handleBack}
           sidebarCollapsed={collapsed}
           onToggleSidebar={handleToggleSidebar}
+          showRightSidebar={showRightSidebar}
+          onToggleAISidebar={handleToggleAISidebar}
           isFocusMode={uiState.isFocusMode}
           onToggleFocusMode={uiState.toggleFocusMode}
           onSave={projectData.forceSave}
@@ -308,6 +318,16 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
               />
             )}
           </div>
+          
+          {/* 🔥 AI 창작 파트너 사이드바 (우측) */}
+          <WriterStatsPanel
+            showRightSidebar={showRightSidebar}
+            toggleRightSidebar={handleToggleAISidebar}
+            writerStats={projectData.writerStats}
+            setWordGoal={projectData.setWordGoal}
+            currentText={projectData.content}
+            projectId={projectId}
+          />
         </div>
       </div>
 

@@ -58,36 +58,8 @@ const NOTES_STYLES = {
   editTextarea: 'w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none',
 } as const;
 
-// 기본 메모 데이터
-const DEFAULT_NOTES: ProjectNote[] = [
-  {
-    id: '1',
-    projectId: '',
-    title: '💡 핵심 아이디어',
-    content: '• 주인공의 숨겨진 과거\n• 반전 포인트 3개\n• 감정적 클라이맥스',
-    type: 'idea',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    projectId: '',
-    title: '🎯 스토리 목표',
-    content: '독자가 느껴야 할 감정:\n- 긴장감\n- 경이로움\n- 카타르시스',
-    type: 'goal',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    projectId: '',
-    title: '📝 참고 자료',
-    content: '• 관련 영화: 인셉션, 매트릭스\n• 참고 소설: 1984\n• 연구 자료: 인공지능 윤리학',
-    type: 'reference',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+// 기본 메모 데이터 (새 프로젝트에만 사용됨)
+const DEFAULT_NOTES: ProjectNote[] = [];
 
 const NOTE_TYPES = [
   { id: 'idea', label: '아이디어', icon: Lightbulb },
@@ -132,24 +104,61 @@ export function NotesView({ projectId, notes: propNotes, onNotesChange }: NotesV
     Logger.debug('NOTES_VIEW', 'Edit started', { id: note.id });
   };
 
-  const handleEditSave = (): void => {
+  const handleEditSave = async (): Promise<void> => {
     if (!editingId || !editForm) return;
     
-    const updatedNotes = notes.map(note => 
-      note.id === editingId 
-        ? { ...note, ...editForm, updatedAt: new Date() }
-        : note
-    );
-    
-    setNotes(updatedNotes);
-    setEditingId(null);
-    setEditForm({});
-    
-    if (onNotesChange) {
-      onNotesChange(updatedNotes);
+    try {
+      // 🔥 실제 DB에 저장 (window.electronAPI가 있다면)
+      // @ts-ignore: window.electronAPI는 preload에서 주입됨
+      if (window.electronAPI?.projects?.upsertNote) {
+        const noteToSave = {
+          ...editForm,
+          id: editingId,
+          projectId,
+          updatedAt: new Date()
+        };
+        
+        const result = await window.electronAPI.projects.upsertNote(noteToSave);
+        
+        if (result.success && result.data) {
+          const updatedNotes = notes.map(note => 
+            note.id === editingId ? result.data! : note
+          );
+          
+          setNotes(updatedNotes);
+          setEditingId(null);
+          setEditForm({});
+          
+          if (onNotesChange) {
+            onNotesChange(updatedNotes);
+          }
+          
+          Logger.info('NOTES_VIEW', 'Note saved to DB', { id: editingId });
+        } else {
+          throw new Error(result.error || 'Failed to save note');
+        }
+      } else {
+        // 로컬 상태만 업데이트 (API 없는 경우)
+        const updatedNotes = notes.map(note => 
+          note.id === editingId 
+            ? { ...note, ...editForm, updatedAt: new Date() }
+            : note
+        );
+        
+        setNotes(updatedNotes);
+        setEditingId(null);
+        setEditForm({});
+        
+        if (onNotesChange) {
+          onNotesChange(updatedNotes);
+        }
+        
+        Logger.info('NOTES_VIEW', 'Note updated locally', { id: editingId });
+      }
+    } catch (error) {
+      Logger.error('NOTES_VIEW', 'Failed to save note', error);
+      alert('노트 저장에 실패했습니다.');
     }
-    
-    Logger.info('NOTES_VIEW', 'Note updated', { id: editingId });
   };
 
   const handleEditCancel = (): void => {

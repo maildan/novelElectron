@@ -73,13 +73,18 @@ export class MenuManager extends BaseManager {
     try {
       Logger.debug(this.componentName, 'Starting menu manager...');
       
-      // 🔥 메뉴 설정 강제 실행
-      if (this.applicationMenu) {
+      // 🔥 플랫폼별 메뉴 설정
+      if (Platform.isWindows() || Platform.isLinux()) {
+        // 윈도우/리눅스에서는 메뉴바 완전 제거
+        Menu.setApplicationMenu(null);
+        Logger.info(this.componentName, '✅ Menu bar completely hidden on Windows/Linux');
+      } else if (this.applicationMenu) {
+        // macOS에서만 최소 메뉴 설정
         Menu.setApplicationMenu(this.applicationMenu);
-        Logger.info(this.componentName, '✅ Application menu set successfully');
+        Logger.info(this.componentName, '✅ Minimal macOS menu set successfully');
       } else {
-        Logger.error(this.componentName, '❌ Application menu is null!');
-        // 메뉴가 없으면 기본 메뉴라도 생성
+        Logger.error(this.componentName, '❌ macOS menu is null!');
+        // macOS에서 메뉴가 없으면 기본 메뉴라도 생성
         this.createBasicMenu();
       }
 
@@ -89,7 +94,7 @@ export class MenuManager extends BaseManager {
         if (currentMenu) {
           Logger.info(this.componentName, '🎉 Menu verification: Menu is active!');
         } else {
-          Logger.error(this.componentName, '💀 Menu verification: No menu found!');
+          Logger.info(this.componentName, '🎯 Menu verification: No menu set (expected on Windows/Linux)');
         }
       }
 
@@ -165,7 +170,7 @@ export class MenuManager extends BaseManager {
   }
 
   /**
-   * 🔥 애플리케이션 메뉴 생성 (기본 메뉴 제거됨)
+   * 🔥 애플리케이션 메뉴 생성 (윈도우에서는 완전 숨김)
    */
   private createApplicationMenu(): void {
     const template: MenuItemConstructorOptions[] = [];
@@ -184,13 +189,19 @@ export class MenuManager extends BaseManager {
         ]
       });
     } else {
-      // Windows/Linux - 빈 메뉴 또는 최소 메뉴
-      // 기본 메뉴들 제거됨
+      // 🔥 Windows/Linux - 메뉴 완전 제거 (빈 템플릿)
+      // 아무것도 추가하지 않음으로써 메뉴바 완전 숨김
+      Logger.info(this.componentName, 'Windows/Linux menu completely hidden');
     }
 
-    // 빈 메뉴 생성 (기본 파일, 편집, 보기, 도움말 메뉴 제거됨)
-    this.applicationMenu = Menu.buildFromTemplate(template);
-    Logger.info(this.componentName, 'Minimal application menu created (default menus removed)');
+    // 🔥 윈도우에서는 null로 설정하여 메뉴바 완전 제거
+    if (Platform.isWindows() || Platform.isLinux()) {
+      this.applicationMenu = null;
+      Logger.info(this.componentName, 'Menu bar completely hidden on Windows/Linux');
+    } else {
+      this.applicationMenu = Menu.buildFromTemplate(template);
+      Logger.info(this.componentName, 'Minimal macOS menu created');
+    }
   }
 
   /**

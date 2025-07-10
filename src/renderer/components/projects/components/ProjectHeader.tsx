@@ -16,7 +16,8 @@ import {
   Copy,
   FileDown,
   Maximize2,
-  Focus
+  Focus,
+  Sparkles  // 🔥 AI 아이콘 추가
 } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 
@@ -68,6 +69,10 @@ interface ProjectHeaderProps {
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
   
+  // 🔥 AI 창작 파트너 사이드바 컨트롤
+  showRightSidebar?: boolean;
+  onToggleAISidebar?: () => void;
+  
   // 🔥 포커스 모드 컨트롤
   isFocusMode: boolean;
   onToggleFocusMode: () => void;
@@ -85,6 +90,8 @@ export function ProjectHeader({
   onBack,
   sidebarCollapsed,
   onToggleSidebar,
+  showRightSidebar = false,
+  onToggleAISidebar,
   isFocusMode,
   onToggleFocusMode,
   onSave,
@@ -160,8 +167,15 @@ export function ProjectHeader({
     { icon: Trash2, label: '삭제', shortcut: 'Cmd+Del', onClick: onDelete },
   ];
 
-  // 🔥 툴바 확장 액션들 (테마 원클릭, 집중모드)
+  // 🔥 툴바 확장 액션들 (AI 창작 파트너, 테마 원클릭, 집중모드)
   const toolbarActions: HeaderAction[] = [
+    { 
+      icon: Sparkles, 
+      label: '창작 파트너', 
+      shortcut: 'AI 도움',
+      onClick: onToggleAISidebar || (() => {}),
+      isActive: showRightSidebar
+    },
     { icon: Copy, label: '콘텐츠 복사', shortcut: 'Cmd+C', onClick: copyContent },
     { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: handleFocusMode },
     { 
@@ -235,7 +249,7 @@ export function ProjectHeader({
           {toolbarActions.map((action, index) => (
             <button
               key={`toolbar-${index}`}
-              className={`${PROJECT_HEADER_STYLES.iconButton} group relative`}
+              className={`${action.isActive ? PROJECT_HEADER_STYLES.iconButtonActive : PROJECT_HEADER_STYLES.iconButton} group relative`}
               onClick={action.onClick}
             >
               <action.icon size={16} />
@@ -248,6 +262,21 @@ export function ProjectHeader({
           
           {/* 구분선 */}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          
+          {/* 🔥 AI 창작 파트너 토글 */}
+          {onToggleAISidebar && (
+            <button 
+              className={`${showRightSidebar ? PROJECT_HEADER_STYLES.iconButtonActive : PROJECT_HEADER_STYLES.iconButton} group relative`}
+              onClick={onToggleAISidebar}
+            >
+              <Sparkles size={16} />
+              {/* 🔥 Context7 패턴: 올바른 툴팁 구현 */}
+              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 shadow-lg">
+                <div>✨ 창작 파트너</div>
+                <div className="text-blue-200 text-xs mt-1">함께 써봐요</div>
+              </div>
+            </button>
+          )}
           
           {/* UI 컨트롤들 */}
           <button 

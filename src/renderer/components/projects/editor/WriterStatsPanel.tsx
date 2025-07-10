@@ -1,6 +1,6 @@
 'use client';
 
-// AI 및 WPM 도입 예정
+// AI 및 WPM 도입 - 기가차드 완벽 구현
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../../ui/Button';
@@ -16,7 +16,11 @@ import {
   TrendingUp,
   Clock,
   Target,
-  BookOpen
+  BookOpen,
+  Send,
+  BarChart2,
+  Brain,
+  AlignLeft
 } from 'lucide-react';
 import { formatTime, calculateWriterStats, type WriterStats } from './WriterStats';
 import { Logger } from '../../../../shared/logger';
@@ -30,6 +34,12 @@ interface WriterStatsPanelProps {
   projectId?: string; // 🔥 현재 프로젝트 ID
 }
 
+// 채팅 메시지 타입
+interface ChatMessage {
+  role: 'user' | 'ai';
+  content: string;
+}
+
 const STATS_STYLES = {
   rightSidebar: 'w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300 ease-in-out',
   rightSidebarCollapsed: 'w-0 overflow-hidden transition-all duration-300 ease-in-out',
@@ -40,6 +50,24 @@ const STATS_STYLES = {
   statTitle: 'text-xs font-medium text-slate-600 dark:text-slate-400 mb-1',
   statValue: 'text-lg font-bold text-slate-900 dark:text-slate-100',
   statSubtext: 'text-xs text-slate-500 dark:text-slate-400',
+  
+  // 🔥 탭 스타일 추가
+  tabs: 'flex border-b border-slate-200 dark:border-slate-800',
+  tab: 'px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer',
+  tabActive: 'px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 cursor-pointer',
+  tabContent: 'p-4 flex-1 overflow-y-auto',
+  
+  // 🔥 AI 채팅 스타일 - UI 잘림 문제 해결
+  chatContainer: 'flex flex-col h-full',
+  chatMessages: 'flex-1 overflow-y-auto px-2 py-3 space-y-3',
+  chatMessage: 'p-3 rounded-lg text-sm break-words whitespace-pre-wrap', // 개선: 긴 텍스트 개행 및 줄바꿈 보존
+  userMessage: 'bg-blue-100 dark:bg-blue-900/40 ml-8 mr-2 text-slate-800 dark:text-slate-200',
+  aiMessage: 'bg-slate-100 dark:bg-slate-800 ml-2 mr-8 text-slate-800 dark:text-slate-200',
+  chatInputContainer: 'flex p-2 border-t border-slate-200 dark:border-slate-800',
+  chatInput: 'flex-1 rounded-l-md px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:focus:ring-blue-500',
+  chatSendButton: 'flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed',
+  loadingDots: 'flex space-x-1 items-center justify-center py-2',
+  loadingDot: 'w-2 h-2 bg-slate-400 rounded-full animate-pulse',
 } as const;
 
 export function WriterStatsPanel({
@@ -51,16 +79,89 @@ export function WriterStatsPanel({
   projectId
 }: WriterStatsPanelProps): React.ReactElement {
   
+  // 🔥 탭 관리
+  const [activeTab, setActiveTab] = useState<'stats' | 'ai'>('stats');
+  
   // 🔥 AI 기능 상태 관리
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [aiResults, setAiResults] = useState<Record<string, string>>({});
-
+  
+  // 🔥 AI 채팅 상태 관리
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [userInput, setUserInput] = useState<string>('');
+  const [isAiTyping, setIsAiTyping] = useState<boolean>(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  
   // 🔥 실제 세션 관리
   const [sessionStartTime] = useState<number>(() => Date.now());
   const [realTimeStats, setRealTimeStats] = useState<WriterStats | null>(null);
   const [lastWordCount, setLastWordCount] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  
+  // 🔥 OpenAI 채팅 통합 - Loop API로 직접 호출하는 방식으로 변경
+  const sendMessageToOpenAI = useCallback(async (content: string): Promise<void> => {
+    try {
+      // 사용자 메시지 추가
+      const userMessage: ChatMessage = { role: 'user', content };
+      setMessages(prev => [...prev, userMessage]);
+      
+      // AI 응답 로딩 상태 시작
+      setIsAiTyping(true);
+      
+      // Loop OpenAI 서비스 직접 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          message: content,
+          context: projectId ? `Project ID: ${projectId}` : undefined
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      Logger.info('AI_CHAT', 'API 응답 성공', { responseLength: data.response?.length || 0 });
+      
+      // AI 응답 추가
+      const aiMessage: ChatMessage = { 
+        role: 'ai', 
+        content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      Logger.error('AI_CHAT', 'Failed to get AI response', error);
+      
+      // 오류 메시지 추가
+      const errorMessage: ChatMessage = { 
+        role: 'ai', 
+        content: "죄송합니다. 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요." 
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsAiTyping(false);
+      // 입력 필드 비우기
+      setUserInput('');
+      // 채팅창 스크롤 맨 아래로
+      setTimeout(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [messages, projectId]);
+  
+  // 채팅 메시지 제출 처리
+  const handleChatSubmit = useCallback((e?: React.FormEvent): void => {
+    e?.preventDefault();
+    if (userInput.trim() && !isAiTyping) {
+      sendMessageToOpenAI(userInput.trim());
+    }
+  }, [userInput, isAiTyping, sendMessageToOpenAI]);
+  
   // 🔥 실시간 통계 계산
   useEffect(() => {
     if (currentText) {
@@ -93,6 +194,68 @@ export function WriterStatsPanel({
   // 🔥 실제 사용할 통계 데이터 (실시간 계산된 것 우선)
   const displayStats = realTimeStats || writerStats;
 
+  // 🔥 AI 채팅창 스크롤 자동 조정
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+  
+  // 🔥 AI 채팅 전송 - 실제 API 연동
+  const handleSendMessage = async () => {
+    if (!userInput.trim()) return;
+    
+    // 사용자 메시지 추가
+    const newMessage = { role: 'user' as const, content: userInput };
+    setMessages(prev => [...prev, newMessage]);
+    setUserInput('');
+    setIsAiTyping(true);
+    
+    try {
+      Logger.info('WRITER_STATS', '실제 OpenAI API 호출', { message: userInput });
+      
+      // Loop OpenAI 서비스 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ message: userInput })
+      });
+      
+      if (!response.ok) {
+        Logger.error('WRITER_STATS', 'API 응답 에러', { status: response.status, statusText: response.statusText });
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      Logger.info('WRITER_STATS', 'API 응답 성공', { responseLength: data.response?.length || 0 });
+      
+      // AI 응답 추가
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+      }]);
+      
+    } catch (error) {
+      const err = error as Error;
+      Logger.error('WRITER_STATS', 'AI 채팅 에러', err);
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: '죄송합니다, 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해 주세요.' 
+      }]);
+    } finally {
+      setIsAiTyping(false);
+      // 채팅창 스크롤 맨 아래로
+      setTimeout(() => {
+        if (chatEndRef.current) {
+          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+  
   // 🔥 AI 기능 핸들러들
   const handleAIImproveText = useCallback(async () => {
     if (!currentText || currentText.trim().length === 0) {
@@ -102,17 +265,39 @@ export function WriterStatsPanel({
 
     setAiLoading('improve');
     try {
-      Logger.info('WRITER_STATS', 'Requesting text improvement');
-      const result = await window.electronAPI.ai.improveText(currentText, projectId);
+      Logger.info('WRITER_STATS', 'Requesting text improvement', { textLength: currentText.length });
       
-      if (result.success && result.data?.improvedText) {
-        setAiResults(prev => ({ ...prev, improve: result.data!.improvedText }));
-        Logger.info('WRITER_STATS', 'Text improvement completed');
-      } else {
-        Logger.error('WRITER_STATS', 'Text improvement failed', result.error);
+      // Loop OpenAI 서비스 직접 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          message: `다음 텍스트의 문장을 더 생생하고 흥미롭게 개선해주세요. 2-3개 예시를 들어 어떻게 개선할 수 있는지 보여주세요:\n\n${currentText.substring(0, 500)}...` 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      Logger.info('WRITER_STATS', 'Text improvement completed', { responseLength: data.response?.length || 0 });
+      
+      setAiResults(prev => ({ 
+        ...prev, 
+        improve: data.response || '문장 개선에 대한 제안을 생성하지 못했습니다. 다시 시도해주세요.'
+      }));
+      
     } catch (error) {
-      Logger.error('WRITER_STATS', 'Text improvement error', error);
+      const err = error as Error;
+      Logger.error('WRITER_STATS', 'Text improvement error', err);
+      setAiResults(prev => ({ 
+        ...prev, 
+        improve: '죄송합니다, 문장 개선 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      }));
     } finally {
       setAiLoading(null);
     }
@@ -126,20 +311,41 @@ export function WriterStatsPanel({
 
     setAiLoading('character');
     try {
-      Logger.info('WRITER_STATS', 'Requesting character analysis');
-      const contextResult = await window.electronAPI.ai.getProjectContext(projectId);
+      Logger.info('WRITER_STATS', 'Requesting character analysis', { projectId });
       
-      if (contextResult.success && contextResult.data) {
-        const analysisPrompt = `등장인물 분석: ${contextResult.data!.characters?.join(', ')}`;
-        const result = await window.electronAPI.ai.getWritingHelp(analysisPrompt, currentText);
-        
-        if (result.success && result.data?.response) {
-          setAiResults(prev => ({ ...prev, character: result.data!.response }));
-          Logger.info('WRITER_STATS', 'Character analysis completed');
-        }
+      // 텍스트 준비
+      const analysisText = currentText ? currentText : "프로젝트에 대한 캐릭터 분석을 진행합니다.";
+      
+      // Loop OpenAI 서비스 직접 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          message: `다음 이야기에 등장하는 캐릭터들을 분석해주세요. 각 캐릭터의 강점, 약점, 동기, 발전 방향 등을 제시해주세요:\n\n${analysisText.substring(0, 1000)}...` 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      Logger.info('WRITER_STATS', 'Character analysis completed', { responseLength: data.response?.length || 0 });
+      
+      setAiResults(prev => ({ 
+        ...prev, 
+        character: data.response || '캐릭터 분석을 생성하지 못했습니다. 다시 시도해주세요.' 
+      }));
     } catch (error) {
-      Logger.error('WRITER_STATS', 'Character analysis error', error);
+      const err = error as Error;
+      Logger.error('WRITER_STATS', 'Character analysis error', err);
+      setAiResults(prev => ({ 
+        ...prev, 
+        character: '죄송합니다, 캐릭터 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      }));
     } finally {
       setAiLoading(null);
     }
@@ -153,15 +359,38 @@ export function WriterStatsPanel({
 
     setAiLoading('plot');
     try {
-      Logger.info('WRITER_STATS', 'Requesting plot analysis');
-      const result = await window.electronAPI.ai.getWritingHelp('플롯 구조 분석', currentText);
+      Logger.info('WRITER_STATS', 'Requesting plot analysis', { textLength: currentText.length });
       
-      if (result.success && result.data?.response) {
-        setAiResults(prev => ({ ...prev, plot: result.data!.response }));
-        Logger.info('WRITER_STATS', 'Plot analysis completed');
+      // Loop OpenAI 서비스 직접 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          message: `다음 이야기의 플롯 구조를 3막 구조에 맞춰 분석하고, 흐름과 페이스를 평가한 다음, 개선점을 제시해주세요:\n\n${currentText.substring(0, 1000)}...` 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      Logger.info('WRITER_STATS', 'Plot analysis completed', { responseLength: data.response?.length || 0 });
+      
+      setAiResults(prev => ({ 
+        ...prev, 
+        plot: data.response || '플롯 분석을 생성하지 못했습니다. 다시 시도해주세요.' 
+      }));
     } catch (error) {
-      Logger.error('WRITER_STATS', 'Plot analysis error', error);
+      const err = error as Error;
+      Logger.error('WRITER_STATS', 'Plot analysis error', err);
+      setAiResults(prev => ({ 
+        ...prev, 
+        plot: '죄송합니다, 플롯 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      }));
     } finally {
       setAiLoading(null);
     }
@@ -175,15 +404,38 @@ export function WriterStatsPanel({
 
     setAiLoading('dialogue');
     try {
-      Logger.info('WRITER_STATS', 'Requesting dialogue improvement');
-      const result = await window.electronAPI.ai.getWritingHelp('대화문 개선', currentText);
+      Logger.info('WRITER_STATS', 'Requesting dialogue improvement', { textLength: currentText.length });
       
-      if (result.success && result.data?.response) {
-        setAiResults(prev => ({ ...prev, dialogue: result.data!.response }));
-        Logger.info('WRITER_STATS', 'Dialogue improvement completed');
+      // Loop OpenAI 서비스 직접 호출
+      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          message: `다음 이야기에서 대화를 분석하고, 더 자연스럽고 캐릭터를 잘 표현하는 대화 예시를 제안해주세요:\n\n${currentText.substring(0, 800)}...` 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      Logger.info('WRITER_STATS', 'Dialogue improvement completed', { responseLength: data.response?.length || 0 });
+      
+      setAiResults(prev => ({ 
+        ...prev, 
+        dialogue: data.response || '대화 개선 제안을 생성하지 못했습니다. 다시 시도해주세요.' 
+      }));
     } catch (error) {
-      Logger.error('WRITER_STATS', 'Dialogue improvement error', error);
+      const err = error as Error;
+      Logger.error('WRITER_STATS', 'Dialogue improvement error', err);
+      setAiResults(prev => ({ 
+        ...prev, 
+        dialogue: '죄송합니다, 대화 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      }));
     } finally {
       setAiLoading(null);
     }
@@ -192,268 +444,349 @@ export function WriterStatsPanel({
   return (
     <div className={showRightSidebar ? STATS_STYLES.rightSidebar : STATS_STYLES.rightSidebarCollapsed}>
       <div className={STATS_STYLES.rightSidebarHeader}>
-        <h2 className={STATS_STYLES.rightSidebarTitle}>작가 통계</h2>
+        <h2 className={STATS_STYLES.rightSidebarTitle}>
+          {activeTab === 'stats' ? '작가 통계' : 'AI 창작 파트너'}
+        </h2>
         <button className={STATS_STYLES.iconButton} onClick={toggleRightSidebar}>
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
       
-      <div className="p-3 overflow-y-auto">
-        {/* 단어 수 진행률 */}
-        <div className={STATS_STYLES.statCard}>
-          <div className="flex justify-between items-center mb-1">
-            <span className={STATS_STYLES.statTitle}>단어 목표</span>
-            <div className="flex items-center">
-              <button 
-                className={STATS_STYLES.iconButton} 
-                onClick={() => setWordGoal(Math.max(500, displayStats.wordGoal - 500))}
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-              <span className="text-xs mx-1">{displayStats.wordGoal.toLocaleString()}</span>
-              <button 
-                className={STATS_STYLES.iconButton} 
-                onClick={() => setWordGoal(displayStats.wordGoal + 500)}
-              >
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-          
-          <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-2">
-            <div 
-              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${Math.min(100, displayStats.progress)}%` }}
-            />
-          </div>
-          
-          <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-            <span>{displayStats.wordCount.toLocaleString()} 단어</span>
-            <span>{displayStats.progress}%</span>
-          </div>
+      {/* 탭 네비게이션 */}
+      <div className={STATS_STYLES.tabs}>
+        <div 
+          className={activeTab === 'stats' ? STATS_STYLES.tabActive : STATS_STYLES.tab}
+          onClick={() => setActiveTab('stats')}
+        >
+          통계
         </div>
-        
-        {/* 작성 통계 */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <div className={STATS_STYLES.statCard}>
-            <span className={STATS_STYLES.statTitle}>단어 수</span>
-            <div className={STATS_STYLES.statValue}>{displayStats.wordCount.toLocaleString()}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              {displayStats.wordCount > lastWordCount ? '↗' : displayStats.wordCount < lastWordCount ? '↘' : '→'} 
-              실시간
-            </div>
-          </div>
-          
-          <div className={STATS_STYLES.statCard}>
-            <span className={STATS_STYLES.statTitle}>문자 수</span>
-            <div className={STATS_STYLES.statValue}>{displayStats.charCount.toLocaleString()}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">공백 포함</div>
-          </div>
-          
-          <div className={STATS_STYLES.statCard}>
-            <span className={STATS_STYLES.statTitle}>단락 수</span>
-            <div className={STATS_STYLES.statValue}>{displayStats.paragraphCount}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">구조 분석</div>
-          </div>
-          
-          <div className={STATS_STYLES.statCard}>
-            <span className={STATS_STYLES.statTitle}>읽기 시간</span>
-            <div className={STATS_STYLES.statValue}>{displayStats.readingTime}분</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">200 WPM 기준</div>
-          </div>
-        </div>
-        
-        {/* 세션 통계 */}
-        <div className={STATS_STYLES.statCard}>
-          <span className={STATS_STYLES.statTitle}>현재 세션</span>
-          <div className="flex justify-between items-center">
-            <div>
-              <div className={STATS_STYLES.statValue}>{formatTime(displayStats.sessionTime)}</div>
-              <div className={STATS_STYLES.statSubtext}>글쓰기 시간</div>
-            </div>
-            <div className="text-right">
-              <div className={STATS_STYLES.statValue}>
-                {displayStats.wpm > 0 ? displayStats.wpm : 0}
-              </div>
-              <div className={STATS_STYLES.statSubtext}>WPM</div>
-            </div>
-          </div>
-          {/* 🔥 WPM 성능 표시기 */}
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-              <span>타이핑 속도</span>
-              <span>
-                {displayStats.wpm < 30 ? '천천히' : 
-                 displayStats.wpm < 60 ? '보통' : 
-                 displayStats.wpm < 90 ? '빠름' : '매우 빠름'}
-              </span>
-            </div>
-            <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1">
-              <div 
-                className={`h-1 rounded-full transition-all duration-300 ${
-                  displayStats.wpm < 30 ? 'bg-red-400' :
-                  displayStats.wpm < 60 ? 'bg-yellow-400' :
-                  displayStats.wpm < 90 ? 'bg-green-400' : 'bg-blue-400'
-                }`}
-                style={{ width: `${Math.min(100, (displayStats.wpm / 120) * 100)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-        
-        {/* 🌟 창작 파트너 */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-2 animate-pulse"></div>
-              <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 파트너</h3>
-            </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">✨ 함께 써봐요</div>
-          </div>
-          
-          {/* 환영 메시지 */}
-          {Object.keys(aiResults).length === 0 && (
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
-              <div className="flex items-start">
-                <div className="text-2xl mr-3">🌟</div>
-                <div>
-                  <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    오늘도 멋진 이야기를 써보시네요!
-                  </div>
-                  <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    무엇을 도와드릴까요? 새로운 아이디어가 필요하거나, 막힌 부분을 뚫고 싶으시면 언제든 말씀해주세요.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <div className="space-y-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="w-full justify-start hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800"
-              onClick={handleAIImproveText}
-              disabled={aiLoading === 'improve' || !currentText}
-            >
-              {aiLoading === 'improve' ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin text-blue-500" />
-              ) : (
-                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-              )}
-              ✨ 문장을 더 매력적으로 만들어봐요
-            </Button>
-            
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800"
-              onClick={handleAICharacterAnalysis}
-              disabled={aiLoading === 'character' || !projectId}
-            >
-              {aiLoading === 'character' ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin text-purple-500" />
-              ) : (
-                <Users className="w-4 h-4 mr-2 text-purple-500" />
-              )}
-              👥 캐릭터들이 잘 살아있는지 볼까요?
-            </Button>
-            
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="w-full justify-start hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
-              onClick={handleAIPlotCheck}
-              disabled={aiLoading === 'plot' || !currentText}
-            >
-              {aiLoading === 'plot' ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin text-green-500" />
-              ) : (
-                <Map className="w-4 h-4 mr-2 text-green-500" />
-              )}
-              🗺️ 이야기 흐름을 함께 점검해볼까요?
-            </Button>
-            
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="w-full justify-start hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
-              onClick={handleAIDialogueImprovement}
-              disabled={aiLoading === 'dialogue' || !currentText}
-            >
-              {aiLoading === 'dialogue' ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin text-orange-500" />
-              ) : (
-                <Speech className="w-4 h-4 mr-2 text-orange-500" />
-              )}
-              💬 대화가 자연스럽게 들리나요?
-            </Button>
-          </div>
-          
-          {/* 🌟 창작 파트너 분석 결과 */}
-          {Object.keys(aiResults).length > 0 && (
-            <div className="mt-4">
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center">
-                  <div className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 조언</div>
-                  <div className="w-1 h-1 bg-slate-400 rounded-full mx-2"></div>
-                  <div className="text-xs text-slate-500">함께 만든 결과</div>
-                </div>
-                <button 
-                  onClick={() => setAiResults({})}
-                  className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                >
-                  모두 지우기
-                </button>
-              </div>
-              <div className="space-y-3 max-h-48 overflow-y-auto">
-                {Object.entries(aiResults).map(([key, result]) => (
-                  <div key={key} className={`border p-4 rounded-lg transition-all duration-200 ${
-                    key === 'improve' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' :
-                    key === 'character' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' :
-                    key === 'plot' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' :
-                    key === 'dialogue' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' :
-                    'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-                  }`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center">
-                        {key === 'improve' && <Sparkles className="w-4 h-4 mr-2 text-blue-500" />}
-                        {key === 'character' && <Users className="w-4 h-4 mr-2 text-purple-500" />}
-                        {key === 'plot' && <Map className="w-4 h-4 mr-2 text-green-500" />}
-                        {key === 'dialogue' && <Speech className="w-4 h-4 mr-2 text-orange-500" />}
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {key === 'improve' ? '✨ 문장 개선 조언' :
-                           key === 'character' ? '👥 캐릭터 분석' :
-                           key === 'plot' ? '🗺️ 플롯 점검' :
-                           key === 'dialogue' ? '💬 대화 개선' : key}
-                        </span>
-                      </div>
-                      <button 
-                        onClick={() => setAiResults(prev => {
-                          const newResults = { ...prev };
-                          delete newResults[key];
-                          return newResults;
-                        })}
-                        className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
-                      {result}
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        💡 <span className="italic">이 조언이 도움이 되셨나요? 더 구체적인 도움이 필요하시면 언제든 말씀해주세요!</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        <div 
+          className={activeTab === 'ai' ? STATS_STYLES.tabActive : STATS_STYLES.tab}
+          onClick={() => setActiveTab('ai')}
+        >
+          AI
         </div>
       </div>
+      
+      {/* 통계 탭 */}
+      {activeTab === 'stats' && (
+        <div className="p-3 overflow-y-auto">
+          {/* 단어 수 진행률 */}
+          <div className={STATS_STYLES.statCard}>
+            <div className="flex justify-between items-center mb-1">
+              <span className={STATS_STYLES.statTitle}>단어 목표</span>
+              <div className="flex items-center">
+                <button 
+                  className={STATS_STYLES.iconButton} 
+                  onClick={() => setWordGoal(Math.max(500, displayStats.wordGoal - 500))}
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <span className="text-xs mx-1">{displayStats.wordGoal.toLocaleString()}</span>
+                <button 
+                  className={STATS_STYLES.iconButton} 
+                  onClick={() => setWordGoal(displayStats.wordGoal + 500)}
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-2">
+              <div 
+                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${Math.min(100, displayStats.progress)}%` }}
+              />
+            </div>
+            
+            <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+              <span>{displayStats.wordCount.toLocaleString()} 단어</span>
+              <span>{displayStats.progress}%</span>
+            </div>
+          </div>
+          
+          {/* 작성 통계 */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className={STATS_STYLES.statCard}>
+              <span className={STATS_STYLES.statTitle}>단어 수</span>
+              <div className={STATS_STYLES.statValue}>{displayStats.wordCount.toLocaleString()}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {displayStats.wordCount > lastWordCount ? '↗' : displayStats.wordCount < lastWordCount ? '↘' : '→'} 
+                실시간
+              </div>
+            </div>
+            
+            <div className={STATS_STYLES.statCard}>
+              <span className={STATS_STYLES.statTitle}>문자 수</span>
+              <div className={STATS_STYLES.statValue}>{displayStats.charCount.toLocaleString()}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">공백 포함</div>
+            </div>
+            
+            <div className={STATS_STYLES.statCard}>
+              <span className={STATS_STYLES.statTitle}>단락 수</span>
+              <div className={STATS_STYLES.statValue}>{displayStats.paragraphCount}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">구조 분석</div>
+            </div>
+            
+            <div className={STATS_STYLES.statCard}>
+              <span className={STATS_STYLES.statTitle}>읽기 시간</span>
+              <div className={STATS_STYLES.statValue}>{displayStats.readingTime}분</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">200 WPM 기준</div>
+            </div>
+          </div>
+          
+          {/* 세션 통계 */}
+          <div className={STATS_STYLES.statCard}>
+            <span className={STATS_STYLES.statTitle}>현재 세션</span>
+            <div className="flex justify-between items-center">
+              <div>
+                <div className={STATS_STYLES.statValue}>{formatTime(displayStats.sessionTime)}</div>
+                <div className={STATS_STYLES.statSubtext}>글쓰기 시간</div>
+              </div>
+              <div className="text-right">
+                <div className={STATS_STYLES.statValue}>
+                  {displayStats.wpm > 0 ? displayStats.wpm : 0}
+                </div>
+                <div className={STATS_STYLES.statSubtext}>WPM</div>
+              </div>
+            </div>
+            {/* 🔥 WPM 성능 표시기 */}
+            <div className="mt-2">
+              <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                <span>타이핑 속도</span>
+                <span>
+                  {displayStats.wpm < 30 ? '천천히' : 
+                   displayStats.wpm < 60 ? '보통' : 
+                   displayStats.wpm < 90 ? '빠름' : '매우 빠름'}
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1">
+                <div 
+                  className={`h-1 rounded-full transition-all duration-300 ${
+                    displayStats.wpm < 30 ? 'bg-red-400' :
+                    displayStats.wpm < 60 ? 'bg-yellow-400' :
+                    displayStats.wpm < 90 ? 'bg-green-400' : 'bg-blue-400'
+                  }`}
+                  style={{ width: `${Math.min(100, (displayStats.wpm / 120) * 100)}%` }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* 🌟 창작 파트너 */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-2 animate-pulse"></div>
+                <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 파트너</h3>
+              </div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">✨ 함께 써봐요</div>
+            </div>
+            
+            {/* 환영 메시지 */}
+            {Object.keys(aiResults).length === 0 && (
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
+                <div className="flex items-start">
+                  <div className="text-2xl mr-3">🌟</div>
+                  <div>
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      오늘도 멋진 이야기를 써보시네요!
+                    </div>
+                    <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      무엇을 도와드릴까요? 새로운 아이디어가 필요하거나, 막힌 부분을 뚫고 싶으시면 언제든 말씀해주세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full justify-start hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800"
+                onClick={handleAIImproveText}
+                disabled={aiLoading === 'improve' || !currentText}
+              >
+                {aiLoading === 'improve' ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin text-blue-500" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                )}
+                ✨ 문장을 더 매력적으로 만들어봐요
+              </Button>
+              
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800"
+                onClick={handleAICharacterAnalysis}
+                disabled={aiLoading === 'character' || !projectId}
+              >
+                {aiLoading === 'character' ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin text-purple-500" />
+                ) : (
+                  <Users className="w-4 h-4 mr-2 text-purple-500" />
+                )}
+                👥 캐릭터들이 잘 살아있는지 볼까요?
+              </Button>
+              
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full justify-start hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
+                onClick={handleAIPlotCheck}
+                disabled={aiLoading === 'plot' || !currentText}
+              >
+                {aiLoading === 'plot' ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin text-green-500" />
+                ) : (
+                  <Map className="w-4 h-4 mr-2 text-green-500" />
+                )}
+                🗺️ 이야기 흐름을 함께 점검해볼까요?
+              </Button>
+              
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full justify-start hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                onClick={handleAIDialogueImprovement}
+                disabled={aiLoading === 'dialogue' || !currentText}
+              >
+                {aiLoading === 'dialogue' ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin text-orange-500" />
+                ) : (
+                  <Speech className="w-4 h-4 mr-2 text-orange-500" />
+                )}
+                💬 대화가 자연스럽게 들리나요?
+              </Button>
+            </div>
+            
+            {/* 🌟 창작 파트너 분석 결과 */}
+            {Object.keys(aiResults).length > 0 && (
+              <div className="mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center">
+                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 조언</div>
+                    <div className="w-1 h-1 bg-slate-400 rounded-full mx-2"></div>
+                    <div className="text-xs text-slate-500">함께 만든 결과</div>
+                  </div>
+                  <button 
+                    onClick={() => setAiResults({})}
+                    className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  >
+                    모두 지우기
+                  </button>
+                </div>
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  {Object.entries(aiResults).map(([key, result]) => (
+                    <div key={key} className={`border p-4 rounded-lg transition-all duration-200 ${
+                      key === 'improve' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' :
+                      key === 'character' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' :
+                      key === 'plot' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' :
+                      key === 'dialogue' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' :
+                      'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                    }`}>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          {key === 'improve' && <Sparkles className="w-4 h-4 mr-2 text-blue-500" />}
+                          {key === 'character' && <Users className="w-4 h-4 mr-2 text-purple-500" />}
+                          {key === 'plot' && <Map className="w-4 h-4 mr-2 text-green-500" />}
+                          {key === 'dialogue' && <Speech className="w-4 h-4 mr-2 text-orange-500" />}
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {key === 'improve' ? '✨ 문장 개선 조언' :
+                             key === 'character' ? '👥 캐릭터 분석' :
+                             key === 'plot' ? '🗺️ 플롯 점검' :
+                             key === 'dialogue' ? '💬 대화 개선' : key}
+                          </span>
+                        </div>
+                        <button 
+                          onClick={() => setAiResults(prev => {
+                            const newResults = { ...prev };
+                            delete newResults[key];
+                            return newResults;
+                          })}
+                          className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap break-words max-h-80 overflow-y-auto">
+                        {result}
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          💡 <span className="italic">이 조언이 도움이 되셨나요? 더 구체적인 도움이 필요하시면 언제든 말씀해주세요!</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* AI 챗봇 탭 */}
+      {activeTab === 'ai' && (
+        <div className={`${STATS_STYLES.chatContainer} h-full`}>
+          <div className={STATS_STYLES.chatMessages}>
+            {messages.length === 0 ? (
+              <div className="text-center py-8 px-4 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                <Sparkles className="mx-auto w-10 h-10 mb-3 text-blue-500 opacity-90" />
+                <p className="text-sm font-medium">AI 창작 파트너에게 질문하세요</p>
+                <p className="text-xs mt-2 leading-relaxed">
+                  작품 구조, 캐릭터, 대화, 문체 등에 대한 도움을 받을 수 있습니다.<br />
+                  예시: &ldquo;판타지 소설의 마법 체계를 만들어줘&rdquo; 또는 &ldquo;이 캐릭터를 더 흥미롭게 만드는 방법은?&rdquo;
+                </p>
+              </div>
+            ) : (
+              <>
+                {messages.map((message, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`${STATS_STYLES.chatMessage} ${
+                      message.role === 'user' ? STATS_STYLES.userMessage : STATS_STYLES.aiMessage
+                    }`}
+                  >
+                    {message.content}
+                  </div>
+                ))}
+                {isAiTyping && (
+                  <div className={`${STATS_STYLES.chatMessage} ${STATS_STYLES.aiMessage}`}>
+                    <div className={STATS_STYLES.loadingDots}>
+                      <span className={`${STATS_STYLES.loadingDot} animate-pulse`}></span>
+                      <span className={`${STATS_STYLES.loadingDot} animate-pulse delay-150`}></span>
+                      <span className={`${STATS_STYLES.loadingDot} animate-pulse delay-300`}></span>
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </>
+            )}
+          </div>
+          
+          <div className={STATS_STYLES.chatInputContainer}>
+            <input 
+              type="text" 
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleChatSubmit()}
+              placeholder="메시지 보내기..."
+              className={STATS_STYLES.chatInput}
+              disabled={isAiTyping}
+            />
+            <button 
+              className={STATS_STYLES.chatSendButton}
+              onClick={() => handleChatSubmit()}
+              disabled={isAiTyping || !userInput.trim()}
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
