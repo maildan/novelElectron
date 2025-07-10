@@ -241,112 +241,134 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
    */
   private async getActiveWindowViaPowerShell(): Promise<Result<WindowInfo>> {
     try {
-      const { exec } = require('child_process');
-      const { promisify } = require('util');
-      const execAsync = promisify(exec);
-      
-      // PowerShell 명령어 타임아웃 설정 (3초)
-      const execOptions = {
-        timeout: 3000,
-        maxBuffer: 1024 * 1024 // 1MB
-      };
-
-      // 🔥 향상된 PowerShell 스크립트 - 마커 기반 견고한 출력
-      const script = `
-        # 에러 출력 설정 (에러 안전성 향상)
-        $ErrorActionPreference = "SilentlyContinue"
-        
-        # 명시적 출력 마커 (이 부분이 중요!)
-        Write-Output "LOOP_JSON_START"
-        
-        try {
-            # .NET API 정의 - try 안으로 이동하여 실패해도 마커가 출력되도록
-            Add-Type @"
-            using System;
-            using System.Runtime.InteropServices;
-            using System.Text;
-            public class APIFuncs {
-              [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-              public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int cch);
-              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-              public static extern IntPtr GetForegroundWindow();
-              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-              public static extern Int32 GetWindowThreadProcessId(IntPtr hWnd, out Int32 lpdwProcessId);
-              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-              public static extern Int32 GetWindowTextLength(IntPtr hWnd);
-            }
+      // PowerShell 명령 준비
+      const powershellCmd = `
+        Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          using System.Text;
+          
+          public class WindowAPI {
+            [DllImport("user32.dll")]
+            public static extern IntPtr GetForegroundWindow();
+            
+            [DllImport("user32.dll")]
+            public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+            
+            [DllImport("user32.dll")]
+            public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+          }
 "@
-            
-            # 현재 활성 창 핸들 가져오기
-            $w = [APIFuncs]::GetForegroundWindow()
-            
-            # 창 텍스트 길이 가져오기
-            $len = [APIFuncs]::GetWindowTextLength($w)
-            $sb = New-Object text.stringbuilder -ArgumentList ($len + 1)
-            $rtnlen = [APIFuncs]::GetWindowText($w,$sb,$sb.Capacity)
-            
-            # PID 가져오기 및 예외처리
-            $pid = 0
-            [APIFuncs]::GetWindowThreadProcessId($w, [ref]$pid)
-            
-            # 프로세스 정보 가져오기
-            $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
-            $processName = if ($process) { $process.ProcessName } else { "Unknown" }
-            
-            # 결과 생성 (모든 필드에 기본값 보장)
-            $result = @{
-              id = if ([int]$w -gt 0) { [int]$w } else { 0 }
-              title = if ($sb.ToString()) { $sb.ToString() } else { "Empty Title" }
-              processId = if ($pid -gt 0) { $pid } else { 0 }
-              processName = if ($processName) { $processName } else { "Unknown" }
-            }
-            
-            # 결과 JSON 출력
-            $result | ConvertTo-Json
-        }
-        catch {
-            # 오류 발생 시 기본 JSON 반환 - 오류 정보 포함
-            @{
-              id = 0
-              title = "PowerShell Error: $($_.Exception.Message)" 
-              processId = 0
-              processName = "Error"
-              errorCode = if ($_.Exception.HResult) { $_.Exception.HResult } else { -1 }
-            } | ConvertTo-Json
-        }
+
+        $hwnd = [WindowAPI]::GetForegroundWindow()
+        $pid = 0
+        [void][WindowAPI]::GetWindowThreadProcessId($hwnd, [ref]$pid)
         
-        # 항상 종료 마커 출력 - try/catch와 무관하게 실행
-        Write-Output "LOOP_JSON_END"
+        $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+        $title = ""
+        
+        if ($process) {
+          $sb = New-Object System.Text.StringBuilder(256)
+          [void][WindowAPI]::GetWindowText($hwnd, $sb, $sb.Capacity)
+          $title = $sb.ToString()
+          
+          # 결과를 JSON으로 출력
+          $result = @{
+            id = $hwnd.ToInt64()
+            title = $title
+            processId = $pid
+            processName = $process.ProcessName
+          }
+          
+          $result | ConvertTo-Json -Compress
+        } else {
+          # 프로세스를 찾을 수 없는 경우 기본값 반환
+          @{
+            id = 0
+            title = "Unknown Window"
+            processId = 0
+            processName = "Unknown"
+          } | ConvertTo-Json -Compress
+        }
       `;
 
-      const { stdout } = await execAsync(
-        `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "${script.replace(/"/g, '\\"')}"`,
-        execOptions
-      );
+      // PowerShell 명령 실행
+      Logger.debug(this.componentName, '🚀 PowerShell 명령 실행');
+      const { stdout, stderr } = await execAsync(`powershell -Command "${powershellCmd}"`, {
+        maxBuffer: 1024 * 1024, // 1MB 버퍼 증가
+        timeout: 5000 // 5초 타임아웃
+      });
       
-      // 🔥 JSON 파싱 오류 처리 강화
-      let result;
-      try {
-        // LOOP_JSON_START와 LOOP_JSON_END 사이의 내용만 추출
-        const jsonMatch = stdout.match(/LOOP_JSON_START\s*([\s\S]*?)\s*LOOP_JSON_END/);
-        let jsonStr = jsonMatch ? jsonMatch[1].trim() : stdout.trim();
+      // 에러 로그
+      if (stderr) {
+        Logger.warn(this.componentName, '⚠️ PowerShell stderr 출력', { stderr });
+      }
+
+      // 출력값 확인 및 기본값 처리
+      if (!stdout || stdout.trim() === '') {
+        Logger.warn(this.componentName, '⚠️ 빈 PowerShell 출력');
         
-        // 디버깅을 위한 로깅
-        Logger.debug(this.componentName, '👉 PowerShell 출력 변환 전', { 
-          rawOutput: stdout,
-          extractedJson: jsonStr,
-          hasMarkers: !!jsonMatch
-        });
+        // 기본값 제공
+        return {
+          success: true,
+          data: {
+            id: 0,
+            title: '🔄 Window Detection (Empty Output)',
+            owner: {
+              name: 'System',
+              processId: 0
+            },
+            bounds: { x: 0, y: 0, width: 0, height: 0 },
+            isMinimized: false,
+            isMaximized: false,
+            appCategory: APP_CATEGORIES.SYSTEM
+          }
+        };
+      }
+
+      // 결과 파싱
+      let result: any = {};
+      let jsonStr = stdout;
+      
+      // PowerShell 출력 디버그 로깅
+      Logger.debug(this.componentName, '👉 PowerShell 출력 변환 전', {
+        rawOutput: stdout?.substring(0, 200),
+        length: stdout?.length || 0
+      });
+      
+      try {
+        // PowerShell 출력 정리 (앞뒤 줄바꿈 및 공백 제거)
+        jsonStr = jsonStr.replace(/^\s*[\r\n]+/, '').trim();
+        
+        // 첫 번째 { 위치와 마지막 } 위치 찾기
+        const firstBrace = jsonStr.indexOf('{');
+        const lastBrace = jsonStr.lastIndexOf('}');
+        
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+          // JSON 객체 부분만 추출
+          jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+        }
         
         // 빈 출력 검사 및 기본값 제공
         if (!jsonStr || jsonStr.length === 0) {
           throw new Error('빈 PowerShell 출력');
         }
         
+        // 디버깅을 위한 정제된 JSON 로깅
+        Logger.debug(this.componentName, '🔄 정제된 JSON 문자열', { 
+          jsonStr: jsonStr.substring(0, 200),
+          length: jsonStr.length
+        });
+        
+        // 추가 안전장치: JSON 파싱 시도 전 유효성 확인
+        if (!jsonStr.startsWith('{') || !jsonStr.endsWith('}')) {
+          throw new Error('유효하지 않은 JSON 형식');
+        }
+        
         result = JSON.parse(jsonStr);
       } catch (jsonError) {
         Logger.error(this.componentName, '❌ PowerShell JSON 파싱 실패', { 
-          stdout, 
+          stdout: stdout?.substring(0, 200), 
           error: jsonError,
           errorType: jsonError instanceof Error ? jsonError.name : 'Unknown'
         });
@@ -362,6 +384,40 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
         Logger.info(this.componentName, '⚠️ PowerShell 감지 실패, 다음 주기에 재시도');
       }
 
+      // 프로세스 이름에서 불필요한 문자 제거 및 정규화
+      const normalizedProcessName = (result.processName || 'Unknown')
+        .replace(/\.exe$/i, '')  // .exe 확장자 제거
+        .toLowerCase();            // 소문자로 통일
+      
+      // 앱 카테고리 할당 (기본값 방지)
+      const processTitle = result.title || 'Unknown';
+      const appCategory = getAppCategory(normalizedProcessName);
+      
+      // 🔥 앱 카테고리 매핑 향상된 로깅
+      Logger.debug(this.componentName, '🔍 앱 카테고리 매핑', { 
+        processName: normalizedProcessName,
+        processTitle: processTitle?.substring(0, 30),
+        category: appCategory
+      });
+      
+      // 🔥 생산성 통계를 위한 추가 로깅 (유용한 통계 정보)
+      const isProductivityApp = [
+        APP_CATEGORIES.DEVELOPMENT, 
+        APP_CATEGORIES.CREATIVE_WRITING,
+        APP_CATEGORIES.OFFICE,
+        APP_CATEGORIES.NOTE_TAKING,
+        APP_CATEGORIES.WRITING_TOOLS
+      ].includes(appCategory as any);
+      
+      if (isProductivityApp) {
+        Logger.info(this.componentName, '📊 생산성 앱 감지됨', {
+          app: normalizedProcessName,
+          title: processTitle?.substring(0, 30),
+          category: appCategory,
+          timestamp: new Date().toISOString()
+        });
+      }
+
       const windowInfo: Partial<WindowInfo> = {
         id: result.id || 0,
         title: result.title || 'Unknown',
@@ -374,8 +430,8 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
         
         // 🔥 Loop 전용 필드들 추가 (PowerShell 방식)
         loopTimestamp: Date.now(),
-        loopAppCategory: getAppCategory(result.processName || 'Unknown'),
-        loopSessionId: `${result.processName}-${Date.now()}`,
+        loopAppCategory: appCategory,
+        loopSessionId: `${normalizedProcessName}-${Date.now()}`,
         loopLanguageDetected: 'unknown',
         loopIMEState: 'unknown',
         loopPlatformInfo: {
@@ -471,6 +527,13 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
       // Windows에서만 동적으로 언어 감지기 로드
       let imeState: 'enabled' | 'disabled' | 'unknown' = 'unknown';
       let languageDetected = 'unknown';
+      
+      // 앱 카테고리 로깅
+      Logger.debug(this.componentName, '🔍 앱 카테고리 세부 정보', {
+        processName: windowInfo.owner?.name,
+        category: windowInfo.loopAppCategory,
+        title: windowInfo.title?.substring(0, 50)
+      });
       
       if (Platform.isWindows()) {
         try {
