@@ -79,26 +79,27 @@ export class MacOSKeycodeTranslator {
     const startTime = performance.now();
     
     try {
-      // 🔥 숫자키 사전 필터링 (macOS 키코드 기준)
-      if (keycode >= 29 && keycode <= 38) { // macOS 숫자키 0-9
-        const numberChar = String.fromCharCode(48 + (keycode - 29)); // '0' + offset
-        Logger.debug(MacOSKeycodeTranslator.componentName, '❌ 숫자키 감지 - 직접 반환', {
+      // 🔥 1순위: 직접 매핑 확인 (숫자키, 특수문자, 기능키)
+      const directMapping = this.getDirectMapping(keycode);
+      if (directMapping) {
+        Logger.debug(MacOSKeycodeTranslator.componentName, '✅ 직접 매핑 사용', {
           keycode,
-          numberChar,
-          reason: 'number-key-filtered'
+          character: directMapping.character,
+          language: directMapping.language,
+          reason: 'direct-mapping-found'
         });
         
         return {
-          character: numberChar,
-          inputSource: 'Number Key',
-          language: 'en',
+          character: directMapping.character,
+          inputSource: 'direct-mapping',
+          language: directMapping.language,
           isSuccess: true,
-          method: 'fallback',
+          method: 'cache',
           processingTime: performance.now() - startTime
         };
       }
       
-      // 🔥 캐시 확인
+      // 🔥 2순위: 캐시 확인
       const cacheKey = this.generateCacheKey(keycode, modifiers);
       const cachedResult = this.getCachedResult(cacheKey);
       
@@ -618,6 +619,39 @@ except:
       cacheHitRate: 0, // TODO: 구현 필요
       maxCacheSize: this.CACHE_MAX_SIZE
     };
+  }
+
+  /**
+   * 🔥 직접 키코드 매핑 (숫자키, 특수문자용)
+   */
+  private getDirectMapping(keycode: number): { character: string; language: 'en' | 'unknown' } | null {
+    // 🔥 macOS uIOhook 키코드 → 직접 문자 매핑
+    const DIRECT_MAPPINGS: Record<number, string> = {
+      // 숫자 키 (상단 행)
+      29: '1', 18: '2', 19: '3', 20: '4', 21: '5',
+      23: '6', 22: '7', 26: '8', 28: '9', 25: '0',
+      
+      // 특수문자 (숫자 행)
+      27: '-', 24: '=',
+      
+      // 특수문자 (기타)
+      33: '[', 30: ']', 42: '\\',
+      39: ';', 41: "'", 43: ',', 47: '.', 44: '/',
+      49: ' ', // Space
+      
+      // 기능키들
+      53: 'Escape', 51: 'Backspace', 48: 'Tab', 36: 'Enter',
+    };
+    
+    const character = DIRECT_MAPPINGS[keycode];
+    if (character) {
+      return {
+        character,
+        language: character.match(/[0-9\s]/) ? 'en' : 'unknown'
+      };
+    }
+    
+    return null;
   }
 }
 

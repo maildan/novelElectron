@@ -57,7 +57,7 @@ interface HeaderAction {
 }
 
 // 슬라이드바 타입 (테마 제거)
-type SlidebarType = 'ai' | null;
+type SlidebarType = null;
 
 interface ProjectHeaderProps {
   title: string;
@@ -144,12 +144,6 @@ export function ProjectHeader({
       Logger.error('PROJECT_HEADER', 'Failed to copy content', error);
     }
   };
-
-  // 🔥 AI 기능 활성화 (슬라이드바 토글)
-  const triggerAI = (): void => {
-    setActiveSlideBar(activeSlideBar === 'ai' ? null : 'ai');
-    Logger.info('PROJECT_HEADER', 'AI sidebar toggled');
-  };
   
   // 🔥 집중모드 토글 (에디터만 표시) - 통합된 단일 함수
   const handleFocusMode = (): void => {
@@ -166,11 +160,10 @@ export function ProjectHeader({
     { icon: Trash2, label: '삭제', shortcut: 'Cmd+Del', onClick: onDelete },
   ];
 
-  // 🔥 툴바 확장 액션들 (AI 채팅, 테마 원클릭, 집중모드)
+  // 🔥 툴바 확장 액션들 (테마 원클릭, 집중모드)
   const toolbarActions: HeaderAction[] = [
     { icon: Copy, label: '콘텐츠 복사', shortcut: 'Cmd+C', onClick: copyContent },
     { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: handleFocusMode },
-    { icon: MessageCircle, label: 'AI 채팅', onClick: triggerAI },
     { 
       icon: isDarkMode ? Sun : Moon, 
       label: isDarkMode ? '라이트 모드로 변경' : '다크 모드로 변경', 
@@ -277,94 +270,6 @@ export function ProjectHeader({
           onClick={() => setActiveSlideBar(null)}
         />
       )}
-
-      {/* 🔥 AI 채팅 슬라이드바 */}
-      <div className={`${PROJECT_HEADER_STYLES.slidebar} ${
-        activeSlideBar === 'ai' ? PROJECT_HEADER_STYLES.slidebarOpen : PROJECT_HEADER_STYLES.slidebarClosed
-      }`}>
-        <div className={PROJECT_HEADER_STYLES.slidebarHeader}>
-          <h3 className={PROJECT_HEADER_STYLES.slidebarTitle}>AI 어시스턴트</h3>
-          <button 
-            className={PROJECT_HEADER_STYLES.iconButton}
-            onClick={() => setActiveSlideBar(null)}
-          >
-            ✕
-          </button>
-        </div>
-        <div className={PROJECT_HEADER_STYLES.slidebarContent}>
-          {/* 채팅 인터페이스 */}
-          <div className="flex flex-col h-full">
-            {/* 채팅 메시지 영역 */}
-            <div className="flex-1 overflow-y-auto mb-4 space-y-3">
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
-                <p className="text-sm text-blue-900 dark:text-blue-100">
-                  안녕하세요! 글쓰기를 도와드릴 AI 어시스턴트입니다. 어떻게 도와드릴까요?
-                </p>
-              </div>
-            </div>
-            
-            {/* 빠른 액션 버튼들 */}
-            <div className="space-y-2 mb-4">
-              <button 
-                className="w-full p-3 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={async () => {
-                  try {
-                    const result = await window.electronAPI.ai.improveText('선택된 텍스트 샘플');
-                    Logger.info('PROJECT_HEADER', 'Text improvement result', result);
-                  } catch (error) {
-                    Logger.error('PROJECT_HEADER', 'Text improvement failed', error);
-                  }
-                }}
-              >
-                <div className="font-medium text-gray-900 dark:text-gray-100">✨ 문장 개선</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">선택한 텍스트를 더 자연스럽게 개선합니다</div>
-              </button>
-              <button 
-                className="w-full p-3 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={async () => {
-                  try {
-                    const result = await window.electronAPI.ai.analyzeText('캐릭터 분석을 위한 텍스트');
-                    Logger.info('PROJECT_HEADER', 'Character analysis result', result);
-                  } catch (error) {
-                    Logger.error('PROJECT_HEADER', 'Character analysis failed', error);
-                  }
-                }}
-              >
-                <div className="font-medium text-gray-900 dark:text-gray-100">🎭 등장인물 분석</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">캐릭터의 일관성을 검토합니다</div>
-              </button>
-              <button 
-                className="w-full p-3 text-left border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                onClick={async () => {
-                  try {
-                    const result = await window.electronAPI.ai.getWritingHelp('플롯 구성에 대한 조언을 주세요');
-                    Logger.info('PROJECT_HEADER', 'Plot analysis result', result);
-                  } catch (error) {
-                    Logger.error('PROJECT_HEADER', 'Plot analysis failed', error);
-                  }
-                }}
-              >
-                <div className="font-medium text-gray-900 dark:text-gray-100">📖 플롯 체크</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">스토리 흐름을 분석합니다</div>
-              </button>
-            </div>
-            
-            {/* 채팅 입력 영역 */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="AI에게 질문하거나 도움을 요청하세요..."
-                  className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  전송
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   );
 }

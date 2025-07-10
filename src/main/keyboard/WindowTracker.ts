@@ -91,9 +91,12 @@ export class WindowTracker extends BaseManager {
     // 🔥 플랫폼별 전략 초기화
     this.initializeDetectionStrategy();
 
+    Logger.info(this.componentName, 'WindowTracker 생성자 완료', {
+      strategy: this.detectionStrategy?.strategyName || 'fallback'
+    });
+
     Logger.info(this.componentName, 'WindowTracker 생성 완료', {
-      platform: Platform.getPlatformName(),
-      strategyName: this.detectionStrategy?.strategyName || 'none'
+      platform: Platform.getPlatformName()
     });
   }
 
@@ -103,9 +106,11 @@ export class WindowTracker extends BaseManager {
   private async initializeDetectionStrategy(): Promise<void> {
     try {
       if (Platform.isMacOS()) {
-        Logger.info(this.componentName, 'macOS 감지 - active-win fallback 사용');
-        // macOS는 active-win fallback만 사용
-        this.detectionStrategy = null;
+        Logger.info(this.componentName, 'macOS 감지 - MacDetectionStrategy 사용');
+        // macOS 전략 사용
+        const { MacDetectionStrategy } = await import('./strategies/MacDetectionStrategy');
+        this.detectionStrategy = new MacDetectionStrategy();
+        await this.detectionStrategy.initialize();
       } else if (Platform.isWindows()) {
         Logger.info(this.componentName, 'Windows 감지 - WindowsWindowStrategy 로드');
         // Windows 전략 동적 로드
@@ -120,7 +125,7 @@ export class WindowTracker extends BaseManager {
         this.detectionStrategy = null;
       }
     } catch (error) {
-      Logger.error(this.componentName, '전략 초기화 실패', error);
+      Logger.error(this.componentName, '전략 초기화 실패 - fallback 사용', error);
       this.detectionStrategy = null;
     }
   }
@@ -131,10 +136,12 @@ export class WindowTracker extends BaseManager {
   protected async doInitialize(): Promise<void> {
     Logger.info(this.componentName, 'WindowTracker 초기화 시작');
     
-    // 전략 초기화가 아직 안 된 경우 대기
-    if (!this.detectionStrategy && Platform.isWindows()) {
-      await this.initializeDetectionStrategy();
-    }
+    // 🔥 플랫폼별 전략 초기화
+    await this.initializeDetectionStrategy();
+    
+    Logger.info(this.componentName, 'WindowTracker 초기화 완료', {
+      strategyName: this.detectionStrategy?.strategyName || 'fallback'
+    });
   }
 
   protected async doStart(): Promise<void> {

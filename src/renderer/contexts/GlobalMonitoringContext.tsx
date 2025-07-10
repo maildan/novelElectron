@@ -87,7 +87,7 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
 
   const startMonitoring = useCallback(async (): Promise<void> => {
     try {
-      Logger.info('MONITORING_CONTEXT', 'Starting monitoring');
+      Logger.info('MONITORING_CONTEXT', '🚀 모니터링 시작 요청');
       
       // 🔥 버튼 깜빡임 방지: 즉시 상태 업데이트 (낙관적 업데이트)
       setState(prev => ({
@@ -105,11 +105,26 @@ export function MonitoringProvider({ children }: { children: React.ReactNode }):
           isMonitoring: false,
           startTime: null,
         }));
-        Logger.error('MONITORING_CONTEXT', 'Failed to start monitoring', result.error);
+        
+        // 🔥 권한 관련 에러인지 확인
+        const isPermissionError = result.error && (
+          result.error.includes('권한') || 
+          result.error.includes('permission') ||
+          result.error.includes('accessibility')
+        );
+        
+        if (isPermissionError) {
+          Logger.warn('MONITORING_CONTEXT', '⚠️ 권한 필요:', result.error);
+          // TODO: 권한 요청 모달 표시
+          alert(`접근성 권한이 필요합니다.\n\n시스템 설정 → 보안 및 개인정보보호 → 개인정보보호 → 접근성\n에서 Loop 앱을 허용해주세요.`);
+        } else {
+          Logger.error('MONITORING_CONTEXT', '❌ 모니터링 시작 실패:', result.error);
+        }
+        
         throw new Error(result.error || 'Failed to start monitoring');
       }
       
-      Logger.info('MONITORING_CONTEXT', 'Monitoring started successfully');
+      Logger.info('MONITORING_CONTEXT', '✅ 모니터링 시작 성공!');
     } catch (error) {
       Logger.error('MONITORING_CONTEXT', 'Error starting monitoring', error);
       

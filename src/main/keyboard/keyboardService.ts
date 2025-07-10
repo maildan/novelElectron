@@ -101,11 +101,13 @@ export class KeyboardService extends EventEmitter {
   // 🔥 모니터링 시작 - 권한 체크 및 자동 요청 포함
   public async startMonitoring(): Promise<IpcResponse<boolean>> {
     try {
+      Logger.info('KEYBOARD', '🚀 키보드 모니터링 시작 요청');
+      
       // #DEBUG: Starting keyboard monitoring
       this.performanceTracker.start('MONITORING_START');
       
       if (this.state.isActive) {
-        Logger.warn('KEYBOARD', 'Monitoring already active');
+        Logger.warn('KEYBOARD', '⚠️ 모니터링이 이미 활성화되어 있음');
         return {
           success: true,
           data: true,
@@ -120,12 +122,14 @@ export class KeyboardService extends EventEmitter {
       
       // 현재 권한 상태 확인
       const hasPermission = await unifiedPermissionManager.checkAccessibilityPermission();
+      Logger.info('KEYBOARD', `권한 상태 확인: ${hasPermission ? '✅ 허용됨' : '❌ 거부됨'}`);
       
       if (!hasPermission) {
         Logger.warn('KEYBOARD', '❌ 접근성 권한이 없습니다 - 자동 요청 시작');
         
         // 🔥 권한 요청 (macOS 시스템 다이얼로그 자동 표시)
         const requestResult = await unifiedPermissionManager.requestAccessibilityPermission();
+        Logger.info('KEYBOARD', '권한 요청 결과:', requestResult);
         
         if (!requestResult.success || !requestResult.data) {
           Logger.error('KEYBOARD', '❌ 접근성 권한 요청 실패');
@@ -144,43 +148,99 @@ export class KeyboardService extends EventEmitter {
       }
 
       if (!this.uiohook) {
+        Logger.error('KEYBOARD', '❌ uiohook이 초기화되지 않았음');
         throw new Error('uiohook not initialized');
       }
 
-      // 🔥 WindowTracker는 별도 명령으로만 시작 (자동 시작 제거)
-      // WindowTracker 자동 시작 로직 제거됨 - 명시적 요청시에만 시작
+      // 🔥 uiohook 상태 추가 검증
+      if (typeof this.uiohook.start !== 'function') {
+        Logger.error('KEYBOARD', '❌ uiohook.start 함수가 없음');
+        throw new Error('uiohook.start function not available');
+      }
+
+      // 🔥 WindowTracker 초기화 및 시작 (권한이 있는 경우에만)
+      if (this.windowTracker && !this.windowTracker.isRunning()) {
+        Logger.info('KEYBOARD', '🪟 WindowTracker 초기화 시작');
+        await this.windowTracker.initialize();
+        await this.windowTracker.start();
+        Logger.info('KEYBOARD', '✅ WindowTracker 시작 완료');
+      } else if (!this.windowTracker) {
+        Logger.warn('KEYBOARD', '⚠️ WindowTracker가 없음 (권한 부족)');
+      } else {
+        Logger.info('KEYBOARD', '✅ WindowTracker가 이미 실행 중');
+      }
 
       // 🔥 LanguageDetector 초기화 및 시작
       if (!this.languageDetector.isRunning()) {
+        Logger.info('KEYBOARD', '🌐 LanguageDetector 초기화 시작');
         await this.languageDetector.initialize();
         await this.languageDetector.start();
-        Logger.info('KEYBOARD', 'LanguageDetector initialized and started with monitoring');
+        Logger.info('KEYBOARD', '✅ LanguageDetector 시작 완료');
+      } else {
+        Logger.info('KEYBOARD', '✅ LanguageDetector가 이미 실행 중');
       }
 
+      Logger.info('KEYBOARD', '⌨️ uiohook 이벤트 리스너 설정 시작');
+      
       // 키보드 이벤트 리스너 설정
       this.uiohook.on('keydown', (rawEvent: UiohookKeyboardEvent) => {
-        this.handleKeyEvent('keydown', rawEvent).catch(error => {
-          Logger.error('KEYBOARD', 'Failed to handle keydown event', error);
+        Logger.debug('KEYBOARD', '🔥 keydown 이벤트 수신!', { 
+          keycode: rawEvent.keycode, 
+          keychar: rawEvent.keychar,
+          time: Date.now() 
+        });
+        
+        // 🔥 비동기 처리로 이벤트 블로킹 방지
+        setImmediate(async () => {
+          try {
+            await this.handleKeyEventWithTimeout('keydown', rawEvent);
+          } catch (error) {
+            Logger.error('KEYBOARD', 'Failed to handle keydown event', error);
+            // 🔥 에러가 발생해도 모니터링 계속 유지
+          }
         });
       });
+      
       this.uiohook.on('keyup', (rawEvent: UiohookKeyboardEvent) => {
-        this.handleKeyEvent('keyup', rawEvent).catch(error => {
-          Logger.error('KEYBOARD', 'Failed to handle keyup event', error);
+        Logger.debug('KEYBOARD', '🔥 keyup 이벤트 수신!', { 
+          keycode: rawEvent.keycode, 
+          keychar: rawEvent.keychar,
+          time: Date.now() 
+        });
+        
+        // 🔥 비동기 처리로 이벤트 블로킹 방지
+        setImmediate(async () => {
+          try {
+            await this.handleKeyEventWithTimeout('keyup', rawEvent);
+          } catch (error) {
+            Logger.error('KEYBOARD', 'Failed to handle keyup event', error);
+            // 🔥 에러가 발생해도 모니터링 계속 유지
+          }
         });
       });
 
-      // 모니터링 시작
-      this.uiohook.start();
+      Logger.info('KEYBOARD', '🔥 uiohook 시작');
+      
+      // 🔥 모니터링 시작 (에러 처리 추가)
+      try {
+        this.uiohook.start();
+        Logger.info('KEYBOARD', '✅ uiohook.start() 호출 완료 - 이제 키보드 이벤트를 기다리는 중...');
+      } catch (uiohookError) {
+        Logger.error('KEYBOARD', '❌ uiohook.start() 실패', uiohookError);
+        throw new Error(`Failed to start uiohook: ${uiohookError instanceof Error ? uiohookError.message : 'Unknown uiohook error'}`);
+      }
       
       this.state.isActive = true;
       this.state.startTime = new Date();
       this.state.totalEvents = 0;
 
       const startTime = this.performanceTracker.end('MONITORING_START');
-      Logger.info('KEYBOARD', 'Keyboard monitoring started', {
+      Logger.info('KEYBOARD', '🎉 키보드 모니터링 시작 완료!', {
         language: this.state.language,
         inputMethod: this.state.inputMethod,
-        startTime: `${startTime.toFixed(2)}ms`
+        startTime: `${startTime.toFixed(2)}ms`,
+        hasWindowTracker: !!this.windowTracker,
+        hasLanguageDetector: this.languageDetector.isRunning()
       });
 
       return {
@@ -272,14 +332,15 @@ export class KeyboardService extends EventEmitter {
       let isComposing = false;
       let hangulResult: any = null; // 🔥 스코프 확장
       
-      // 🔥 기가차드 수정: LanguageDetector 결과를 절대적으로 존중
-      const shouldProcessAsKorean = detectedLanguage === 'ko';
+      // 🔥 기가차드 수정: LanguageDetector 결과를 절대적으로 존중하되 숫자/특수문자는 제외
+      const shouldProcessAsKorean = detectedLanguage === 'ko' && this.isValidAlphabetKey(enhancedEvent.keycode);
       
       if (shouldProcessAsKorean) {
         Logger.debug('KEYBOARD', 'Korean input confirmed, processing with HangulComposer', {
           keycode: enhancedEvent.keycode,
           keychar: enhancedEvent.keychar,
-          detectedLanguage
+          detectedLanguage,
+          isValidAlphabet: true
         });
         
         // 🔥 LanguageDetector에서 감지된 한글 문자 우선 사용
@@ -474,6 +535,37 @@ export class KeyboardService extends EventEmitter {
     }
   }
 
+  /**
+   * 🔥 타임아웃 기능이 있는 키 이벤트 핸들러 (블로킹 방지)
+   */
+  private async handleKeyEventWithTimeout(
+    type: 'keydown' | 'keyup', 
+    rawEvent: UiohookKeyboardEvent
+  ): Promise<void> {
+    const timeoutMs = 100; // 100ms 타임아웃
+    
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Event handling timeout')), timeoutMs);
+    });
+    
+    try {
+      await Promise.race([
+        this.handleKeyEvent(type, rawEvent),
+        timeoutPromise
+      ]);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Event handling timeout') {
+        Logger.warn('KEYBOARD', `⚠️ 키 이벤트 처리 타임아웃 (${timeoutMs}ms)`, {
+          type,
+          keycode: rawEvent.keycode,
+          keychar: rawEvent.keychar
+        });
+      } else {
+        throw error;
+      }
+    }
+  }
+
   // 🔥 한글 키보드 레이아웃 감지 (HANGUL_KEY_MAP 활용)
   private isKoreanKeyboardLayout(rawEvent: UiohookKeyboardEvent): boolean {
     try {
@@ -612,12 +704,14 @@ export class KeyboardService extends EventEmitter {
       const isAlphabetKey = (keycode >= 65 && keycode <= 90) || (keycode >= 97 && keycode <= 122);
       
       if (!isAlphabetKey) {
-        // 숫자, 특수문자, 제어문자는 무조건 한글이 아님
-        Logger.debug('KEYBOARD', '❌ 비알파벳 키는 한글 처리 안함', { 
+        // 숫자, 특수문자, 제어문자는 한글 조합에서 제외
+        const keyType = this.getKeyType(keycode);
+        Logger.debug('KEYBOARD', `✅ ${keyType} 키는 한글 조합 제외 (정상)`, { 
           keycode, 
           keychar: rawEvent.keychar,
-          isControl: keycode <= 31,
-          isSpecial: (keycode >= 32 && keycode <= 47) || (keycode >= 58 && keycode <= 64)
+          actualChar: String.fromCharCode(keycode),
+          keyType,
+          reason: '한글은 알파벳 키만 조합 가능'
         });
         return false;
       }
@@ -1127,6 +1221,27 @@ export class KeyboardService extends EventEmitter {
     });
     
     return hasMapping;
+  }
+
+  // 🔥 키 타입 분류 유틸리티
+  private getKeyType(keycode: number): string {
+    if (keycode >= 48 && keycode <= 57) return '숫자';
+    if (keycode >= 65 && keycode <= 90) return '대문자';
+    if (keycode >= 97 && keycode <= 122) return '소문자';
+    if (keycode <= 31) return '제어문자';
+    if ((keycode >= 32 && keycode <= 47) || (keycode >= 58 && keycode <= 64) || (keycode >= 91 && keycode <= 96) || (keycode >= 123 && keycode <= 126)) return '특수문자';
+    if (keycode === 32) return 'Space';
+    if (keycode >= 112 && keycode <= 123) return '기능키';
+    return '기타';
+  }
+
+  /**
+   * 🔥 알파벳 키인지 확인 (숫자/특수문자 제외)
+   */
+  private isValidAlphabetKey(keycode: number): boolean {
+    // 알파벳 키코드 범위: A-Z (대소문자 모두)
+    return (keycode >= 65 && keycode <= 90) ||   // A-Z
+           (keycode >= 97 && keycode <= 122);    // a-z
   }
 }
 

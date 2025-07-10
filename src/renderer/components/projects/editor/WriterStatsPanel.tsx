@@ -301,15 +301,38 @@ export function WriterStatsPanel({
           </div>
         </div>
         
-        {/* AI 작가 도우미 */}
+        {/* 🌟 창작 파트너 */}
         <div className="mt-6">
-          <h3 className="text-sm font-medium mb-2">AI 작가 도우미</h3>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mr-2 animate-pulse"></div>
+              <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 파트너</h3>
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">✨ 함께 써봐요</div>
+          </div>
+          
+          {/* 환영 메시지 */}
+          {Object.keys(aiResults).length === 0 && (
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
+              <div className="flex items-start">
+                <div className="text-2xl mr-3">🌟</div>
+                <div>
+                  <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    오늘도 멋진 이야기를 써보시네요!
+                  </div>
+                  <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    무엇을 도와드릴까요? 새로운 아이디어가 필요하거나, 막힌 부분을 뚫고 싶으시면 언제든 말씀해주세요.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="space-y-2">
             <Button 
               size="sm" 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800"
               onClick={handleAIImproveText}
               disabled={aiLoading === 'improve' || !currentText}
             >
@@ -318,13 +341,13 @@ export function WriterStatsPanel({
               ) : (
                 <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
               )}
-              문장 개선 제안
+              ✨ 문장을 더 매력적으로 만들어봐요
             </Button>
             
             <Button 
               size="sm" 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800"
               onClick={handleAICharacterAnalysis}
               disabled={aiLoading === 'character' || !projectId}
             >
@@ -333,13 +356,13 @@ export function WriterStatsPanel({
               ) : (
                 <Users className="w-4 h-4 mr-2 text-purple-500" />
               )}
-              등장인물 성격 분석
+              👥 캐릭터들이 잘 살아있는지 볼까요?
             </Button>
             
             <Button 
               size="sm" 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
               onClick={handleAIPlotCheck}
               disabled={aiLoading === 'plot' || !currentText}
             >
@@ -348,13 +371,13 @@ export function WriterStatsPanel({
               ) : (
                 <Map className="w-4 h-4 mr-2 text-green-500" />
               )}
-              플롯 구조 확인
+              🗺️ 이야기 흐름을 함께 점검해볼까요?
             </Button>
             
             <Button 
               size="sm" 
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
               onClick={handleAIDialogueImprovement}
               disabled={aiLoading === 'dialogue' || !currentText}
             >
@@ -363,36 +386,46 @@ export function WriterStatsPanel({
               ) : (
                 <Speech className="w-4 h-4 mr-2 text-orange-500" />
               )}
-              대화문 개선
+              💬 대화가 자연스럽게 들리나요?
             </Button>
           </div>
           
-          {/* 🔥 AI 결과 표시 */}
+          {/* 🌟 창작 파트너 분석 결과 */}
           {Object.keys(aiResults).length > 0 && (
             <div className="mt-4">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">AI 분석 결과</h4>
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center">
+                  <div className="text-sm font-medium text-slate-700 dark:text-slate-300">창작 조언</div>
+                  <div className="w-1 h-1 bg-slate-400 rounded-full mx-2"></div>
+                  <div className="text-xs text-slate-500">함께 만든 결과</div>
+                </div>
                 <button 
                   onClick={() => setAiResults({})}
-                  className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                  className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                 >
                   모두 지우기
                 </button>
               </div>
               <div className="space-y-3 max-h-48 overflow-y-auto">
                 {Object.entries(aiResults).map(([key, result]) => (
-                  <div key={key} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                  <div key={key} className={`border p-4 rounded-lg transition-all duration-200 ${
+                    key === 'improve' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' :
+                    key === 'character' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' :
+                    key === 'plot' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' :
+                    key === 'dialogue' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' :
+                    'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                  }`}>
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center">
                         {key === 'improve' && <Sparkles className="w-4 h-4 mr-2 text-blue-500" />}
                         {key === 'character' && <Users className="w-4 h-4 mr-2 text-purple-500" />}
                         {key === 'plot' && <Map className="w-4 h-4 mr-2 text-green-500" />}
                         {key === 'dialogue' && <Speech className="w-4 h-4 mr-2 text-orange-500" />}
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {key === 'improve' ? '문장 개선' :
-                           key === 'character' ? '등장인물 분석' :
-                           key === 'plot' ? '플롯 분석' :
-                           key === 'dialogue' ? '대화문 개선' : key}
+                          {key === 'improve' ? '✨ 문장 개선 조언' :
+                           key === 'character' ? '👥 캐릭터 분석' :
+                           key === 'plot' ? '🗺️ 플롯 점검' :
+                           key === 'dialogue' ? '💬 대화 개선' : key}
                         </span>
                       </div>
                       <button 
@@ -401,13 +434,18 @@ export function WriterStatsPanel({
                           delete newResults[key];
                           return newResults;
                         })}
-                        className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                        className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                       >
                         ✕
                       </button>
                     </div>
                     <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
                       {result}
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        💡 <span className="italic">이 조언이 도움이 되셨나요? 더 구체적인 도움이 필요하시면 언제든 말씀해주세요!</span>
+                      </div>
                     </div>
                   </div>
                 ))}

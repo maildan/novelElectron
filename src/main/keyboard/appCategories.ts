@@ -10,6 +10,7 @@ export const APP_CATEGORIES = {
   BROWSER: 'browser' as const,
   CLOUD_STORAGE: 'cloud-storage' as const,
   COMMUNICATION: 'communication' as const,
+  CREATIVE_WRITING: 'creative-writing' as const,     // 🔥 새 카테고리: 창작 도구
   DESIGN: 'design' as const,
   DEVELOPMENT: 'development' as const,
   E_COMMERCE: 'e-commerce' as const,
@@ -18,12 +19,18 @@ export const APP_CATEGORIES = {
   FINANCE: 'finance' as const,
   MARKETING: 'marketing' as const,
   MEDIA_PRODUCTION: 'media-production' as const,
+  NOTE_TAKING: 'note-taking' as const,              // 🔥 새 카테고리: 노트/메모
   OFFICE: 'office' as const,
   PRODUCTIVITY: 'productivity' as const,
   PROJECT_MANAGEMENT: 'project-management' as const,
+  READING: 'reading' as const,                      // 🔥 새 카테고리: 독서/리서치
+  RESEARCH: 'research' as const,                    // 🔥 새 카테고리: 연구
   SECURITY: 'security' as const,
+  SOCIAL_MEDIA: 'social-media' as const,           // 🔥 새 카테고리: 소셜미디어
   SYSTEM: 'system' as const,
+  TEXT_EDITOR: 'text-editor' as const,             // 🔥 새 카테고리: 텍스트 에디터
   UNKNOWN: 'unknown' as const,
+  WRITING_TOOLS: 'writing-tools' as const,         // 🔥 새 카테고리: 글쓰기 도구
 } as const;
 
 /**

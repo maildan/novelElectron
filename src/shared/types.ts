@@ -460,6 +460,7 @@ export type AppCategory =
   | 'browser'
   | 'cloud-storage'
   | 'communication'
+  | 'creative-writing'     // 🔥 새 카테고리
   | 'design'
   | 'development'
   | 'e-commerce'
@@ -468,12 +469,18 @@ export type AppCategory =
   | 'finance'
   | 'marketing'
   | 'media-production'
+  | 'note-taking'          // 🔥 새 카테고리
   | 'office'
   | 'productivity'
   | 'project-management'
+  | 'reading'              // 🔥 새 카테고리
+  | 'research'             // 🔥 새 카테고리
   | 'security'
+  | 'social-media'         // 🔥 새 카테고리
   | 'system'
-  | 'unknown';
+  | 'text-editor'          // 🔥 새 카테고리
+  | 'unknown'
+  | 'writing-tools';       // 🔥 새 카테고리
 
 // 🔥 키보드 엔진 설정 타입
 export interface KeyboardEngineConfig {

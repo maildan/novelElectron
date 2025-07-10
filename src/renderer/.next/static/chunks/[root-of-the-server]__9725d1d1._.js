@@ -1392,7 +1392,7 @@ function MonitoringProvider({ children }) {
     const startMonitoring = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$15$2e$3$2e$4_$40$babel$2b$core$40$7$2e$27$2e$7_react$2d$dom$40$19$2e$1$2e$0_react$40$19$2e$1$2e$0_$5f$react$40$19$2e$1$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "MonitoringProvider.useCallback[startMonitoring]": async ()=>{
             try {
-                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('MONITORING_CONTEXT', 'Starting monitoring');
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('MONITORING_CONTEXT', '🚀 모니터링 시작 요청');
                 // 🔥 버튼 깜빡임 방지: 즉시 상태 업데이트 (낙관적 업데이트)
                 setState({
                     "MonitoringProvider.useCallback[startMonitoring]": (prev)=>({
@@ -1412,10 +1412,18 @@ function MonitoringProvider({ children }) {
                                 startTime: null
                             })
                     }["MonitoringProvider.useCallback[startMonitoring]"]);
-                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('MONITORING_CONTEXT', 'Failed to start monitoring', result.error);
+                    // 🔥 권한 관련 에러인지 확인
+                    const isPermissionError = result.error && (result.error.includes('권한') || result.error.includes('permission') || result.error.includes('accessibility'));
+                    if (isPermissionError) {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].warn('MONITORING_CONTEXT', '⚠️ 권한 필요:', result.error);
+                        // TODO: 권한 요청 모달 표시
+                        alert(`접근성 권한이 필요합니다.\n\n시스템 설정 → 보안 및 개인정보보호 → 개인정보보호 → 접근성\n에서 Loop 앱을 허용해주세요.`);
+                    } else {
+                        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('MONITORING_CONTEXT', '❌ 모니터링 시작 실패:', result.error);
+                    }
                     throw new Error(result.error || 'Failed to start monitoring');
                 }
-                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('MONITORING_CONTEXT', 'Monitoring started successfully');
+                __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].info('MONITORING_CONTEXT', '✅ 모니터링 시작 성공!');
             } catch (error) {
                 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].error('MONITORING_CONTEXT', 'Error starting monitoring', error);
                 // 🔥 에러 시 상태 롤백 확실히 실행
@@ -1515,7 +1523,7 @@ function MonitoringProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/renderer/contexts/GlobalMonitoringContext.tsx",
-        lineNumber: 191,
+        lineNumber: 206,
         columnNumber: 5
     }, this);
 }

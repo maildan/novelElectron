@@ -376,20 +376,28 @@ export class HangulComposer extends BaseManager {
               fullChar: `${this.compositionState.initial}${combined}${this.compositionState.final}`
             });
           } else {
-            // 조합 불가 - 이전 글자 완성하고 새 조합 시작
+            // 🔥 조합 불가 시 이전 글자 완성하고 새 조합 시작
             completed = this.buildCharacter();
-            Logger.debug(this.componentName, '❌ 복합모음 조합 불가', { 
+            Logger.debug(this.componentName, '🔥 복합모음 조합 불가로 이전 글자 완성', { 
               first: this.compositionState.medial, 
               second: char,
-              completed
+              completed,
+              action: 'complete-and-start-new'
             });
             
-            // 🔥 중성으로 새로운 조합 시작 (ㅇ 없이도 가능)
+            // 🔥 상태 초기화 후 새로운 조합 시작 (중성으로 시작)
+            this.resetComposition();
             this.compositionState.isComposing = true;
             this.compositionState.initial = 'ㅇ'; // 묵음 초성 자동 추가
             this.compositionState.medial = char;
             this.compositionState.final = '';
-            this.compositionState.composed = char;
+            this.compositionState.composed = this.buildCharacter();
+            
+            Logger.debug(this.componentName, '🔥 새로운 중성 조합 시작', { 
+              newInitial: 'ㅇ',
+              newMedial: char,
+              newComposed: this.compositionState.composed
+            });
           }
         }
       } else {
@@ -544,6 +552,16 @@ export class HangulComposer extends BaseManager {
    * 🔥 완전한 중성 조합 (모든 한국어 복합모음 지원)
    */
   private combineMedials(first: string, second: string): string | null {
+    // 🔥 조합 가능성 사전 검사 (잘못된 조합 시도 방지)
+    if (first === second) {
+      Logger.debug(this.componentName, '❌ 동일한 모음 연속 입력 - 조합 불가', {
+        first,
+        second,
+        reason: 'same-vowel-repetition'
+      });
+      return null;
+    }
+
     const combinations: Record<string, Record<string, string>> = {
       // 🔥 ㅗ 계열 복합모음 (3개)
       'ㅗ': { 
@@ -796,7 +814,7 @@ export class HangulComposer extends BaseManager {
     
     // 숫자 키 (0-9)
     if (charCode >= 48 && charCode <= 57) {
-      Logger.debug(this.componentName, '❌ 숫자 키 감지', { key, charCode });
+      Logger.debug(this.componentName, '🔢 숫자키는 한글 처리 제외', { key, charCode, isValid: false });
       return true;
     }
     

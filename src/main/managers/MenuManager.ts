@@ -133,86 +133,27 @@ export class MenuManager extends BaseManager {
   }
 
   /**
-   * 🔥 기본 메뉴 액션들 등록
+   * 🔥 기본 메뉴 액션들 등록 (최소한만 유지)
    */
   private registerDefaultMenuActions(): void {
-    // 파일 메뉴 액션들
+    // Loop 전용 필수 액션들만 유지
     this.registerMenuAction({
-      id: 'file.new-session',
-      label: '새 타이핑 세션',
-      accelerator: Platform.getModifierKey() + '+N',
-      action: () => this.handleNewSession()
-    });
-
-    this.registerMenuAction({
-      id: 'file.save-session',
-      label: '세션 저장',
-      accelerator: Platform.getModifierKey() + '+S',
-      action: () => this.handleSaveSession()
-    });
-
-    this.registerMenuAction({
-      id: 'file.export-data',
-      label: '데이터 내보내기',
-      action: () => this.handleExportData()
-    });
-
-    // 편집 메뉴 액션들
-    this.registerMenuAction({
-      id: 'edit.preferences',
-      label: '환경설정',
-      accelerator: Platform.getModifierKey() + '+,',
-      action: () => this.handlePreferences()
-    });
-
-    // 보기 메뉴 액션들
-    this.registerMenuAction({
-      id: 'view.toggle-devtools',
-      label: '개발자 도구',
-      accelerator: Platform.isMacOS() ? 'Cmd+Alt+I' : 'F12',
-      action: () => this.handleToggleDevTools(),
-      visible: process.env.NODE_ENV === 'development'
-    });
-
-    this.registerMenuAction({
-      id: 'view.reload',
-      label: '새로고침',
-      accelerator: Platform.getModifierKey() + '+R',
-      action: () => this.handleReload(),
-      visible: process.env.NODE_ENV === 'development'
-    });
-
-    // 윈도우 메뉴 액션들 (macOS)
-    if (Platform.isMacOS()) {
-      this.registerMenuAction({
-        id: 'window.minimize',
-        label: '최소화',
-        accelerator: 'Cmd+M',
-        action: () => this.handleMinimize()
-      });
-
-      this.registerMenuAction({
-        id: 'window.close',
-        label: '윈도우 닫기',
-        accelerator: 'Cmd+W',
-        action: () => this.handleCloseWindow()
-      });
-    }
-
-    // 도움말 메뉴 액션들
-    this.registerMenuAction({
-      id: 'help.about',
+      id: 'app.about',
       label: Platform.isMacOS() ? 'Loop에 관하여' : '정보',
       action: () => this.handleAbout()
     });
 
-    this.registerMenuAction({
-      id: 'help.shortcuts',
-      label: '단축키 도움말',
-      action: () => this.handleShortcutsHelp()
-    });
+    // 개발 환경에서만 개발자 도구 허용
+    if (process.env.NODE_ENV === 'development') {
+      this.registerMenuAction({
+        id: 'dev.toggle-devtools',
+        label: '개발자 도구',
+        accelerator: Platform.isMacOS() ? 'Cmd+Alt+I' : 'F12',
+        action: () => this.handleToggleDevTools()
+      });
+    }
 
-    Logger.debug(this.componentName, 'Default menu actions registered');
+    Logger.debug(this.componentName, 'Minimal menu actions registered');
   }
 
   /**
@@ -224,132 +165,58 @@ export class MenuManager extends BaseManager {
   }
 
   /**
-   * 🔥 애플리케이션 메뉴 생성
+   * 🔥 애플리케이션 메뉴 생성 (기본 메뉴 제거됨)
    */
   private createApplicationMenu(): void {
     const template: MenuItemConstructorOptions[] = [];
 
     if (Platform.isMacOS()) {
-      // macOS 앱 메뉴
+      // macOS 앱 메뉴 (최소한만 유지)
       template.push({
         label: app.getName(),
         submenu: [
-          this.createMenuItemFromAction('help.about'),
-          { type: 'separator' },
-          this.createMenuItemFromAction('edit.preferences'),
-          { type: 'separator' },
-          { role: 'services', submenu: [] },
-          { type: 'separator' },
-          { role: 'hide' },
-          { role: 'hideOthers' },
-          { role: 'unhide' },
+          { 
+            label: 'Loop에 관하여',
+            click: () => this.handleAbout()
+          },
           { type: 'separator' },
           { role: 'quit' }
         ]
       });
+    } else {
+      // Windows/Linux - 빈 메뉴 또는 최소 메뉴
+      // 기본 메뉴들 제거됨
     }
 
-    // 파일 메뉴
-    template.push({
-      label: '파일',
-      submenu: [
-        this.createMenuItemFromAction('file.new-session'),
-        { type: 'separator' },
-        this.createMenuItemFromAction('file.save-session'),
-        this.createMenuItemFromAction('file.export-data'),
-        { type: 'separator' },
-        Platform.isMacOS() ? { role: 'close' } : { role: 'quit' }
-      ]
-    });
-
-    // 편집 메뉴 (Windows/Linux는 환경설정 포함)
-    const editSubmenu: MenuItemConstructorOptions[] = [
-      { role: 'undo' },
-      { role: 'redo' },
-      { type: 'separator' },
-      { role: 'cut' },
-      { role: 'copy' },
-      { role: 'paste' },
-      { role: 'selectAll' }
-    ];
-
-    if (!Platform.isMacOS()) {
-      editSubmenu.push(
-        { type: 'separator' },
-        this.createMenuItemFromAction('edit.preferences')
-      );
-    }
-
-    template.push({
-      label: '편집',
-      submenu: editSubmenu
-    });
-
-    // 보기 메뉴
-    const viewSubmenu: MenuItemConstructorOptions[] = [
-      { role: 'reload' },
-      { role: 'forceReload' },
-      { role: 'toggleDevTools' },
-      { type: 'separator' },
-      { role: 'resetZoom' },
-      { role: 'zoomIn' },
-      { role: 'zoomOut' },
-      { type: 'separator' },
-      { role: 'togglefullscreen' }
-    ];
-
-    template.push({
-      label: '보기',
-      submenu: viewSubmenu
-    });
-
-    // 윈도우 메뉴 (macOS)
-    if (Platform.isMacOS()) {
-      template.push({
-        label: '윈도우',
-        submenu: [
-          this.createMenuItemFromAction('window.minimize'),
-          this.createMenuItemFromAction('window.close'),
-          { type: 'separator' },
-          { role: 'front' }
-        ]
-      });
-    }
-
-    // 도움말 메뉴
-    const helpSubmenu: MenuItemConstructorOptions[] = [
-      this.createMenuItemFromAction('help.shortcuts')
-    ];
-
-    if (!Platform.isMacOS()) {
-      helpSubmenu.push(this.createMenuItemFromAction('help.about'));
-    }
-
-    template.push({
-      label: '도움말',
-      submenu: helpSubmenu
-    });
-
+    // 빈 메뉴 생성 (기본 파일, 편집, 보기, 도움말 메뉴 제거됨)
     this.applicationMenu = Menu.buildFromTemplate(template);
-    Logger.info(this.componentName, 'Application menu created');
+    Logger.info(this.componentName, 'Minimal application menu created (default menus removed)');
   }
 
   /**
-   * 🔥 컨텍스트 메뉴 생성
+   * 🔥 컨텍스트 메뉴 생성 (간소화됨)
    */
   private createContextMenu(): void {
     const template: MenuItemConstructorOptions[] = [
-      this.createMenuItemFromAction('file.new-session'),
-      { type: 'separator' },
-      this.createMenuItemFromAction('file.save-session'),
-      { type: 'separator' },
-      this.createMenuItemFromAction('edit.preferences'),
-      { type: 'separator' },
-      this.createMenuItemFromAction('help.shortcuts')
+      { 
+        label: 'Loop에 관하여',
+        click: () => this.handleAbout()
+      }
     ];
 
+    // 개발 환경에서만 개발자 도구 추가
+    if (process.env.NODE_ENV === 'development') {
+      template.push(
+        { type: 'separator' },
+        { 
+          label: '개발자 도구',
+          click: () => this.handleToggleDevTools()
+        }
+      );
+    }
+
     this.contextMenu = Menu.buildFromTemplate(template);
-    Logger.info(this.componentName, 'Context menu created');
+    Logger.info(this.componentName, 'Minimal context menu created');
   }
 
   /**
@@ -379,68 +246,8 @@ export class MenuManager extends BaseManager {
   }
 
   /**
-   * 🔥 메뉴 액션 핸들러들
+   * 🔥 메뉴 액션 핸들러들 (필수만 유지)
    */
-  private async handleNewSession(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('menu-action', {
-          action: 'new-session',
-          timestamp: Date.now()
-        });
-      }
-      Logger.info(this.componentName, 'New session action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle new session', error);
-    }
-  }
-
-  private async handleSaveSession(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('menu-action', {
-          action: 'save-session',
-          timestamp: Date.now()
-        });
-      }
-      Logger.info(this.componentName, 'Save session action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle save session', error);
-    }
-  }
-
-  private async handleExportData(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('menu-action', {
-          action: 'export-data',
-          timestamp: Date.now()
-        });
-      }
-      Logger.info(this.componentName, 'Export data action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle export data', error);
-    }
-  }
-
-  private async handlePreferences(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('menu-action', {
-          action: 'preferences',
-          timestamp: Date.now()
-        });
-      }
-      Logger.info(this.componentName, 'Preferences action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle preferences', error);
-    }
-  }
-
   private async handleToggleDevTools(): Promise<void> {
     try {
       const mainWindow = this.getMainWindow();
@@ -454,42 +261,6 @@ export class MenuManager extends BaseManager {
       Logger.info(this.componentName, 'Toggle dev tools action triggered');
     } catch (error) {
       Logger.error(this.componentName, 'Failed to toggle dev tools', error);
-    }
-  }
-
-  private async handleReload(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.reload();
-      }
-      Logger.info(this.componentName, 'Reload action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle reload', error);
-    }
-  }
-
-  private async handleMinimize(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.minimize();
-      }
-      Logger.info(this.componentName, 'Minimize action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle minimize', error);
-    }
-  }
-
-  private async handleCloseWindow(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.close();
-      }
-      Logger.info(this.componentName, 'Close window action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle close window', error);
     }
   }
 
@@ -512,21 +283,6 @@ export class MenuManager extends BaseManager {
       Logger.info(this.componentName, 'About dialog shown');
     } catch (error) {
       Logger.error(this.componentName, 'Failed to show about dialog', error);
-    }
-  }
-
-  private async handleShortcutsHelp(): Promise<void> {
-    try {
-      const mainWindow = this.getMainWindow();
-      if (mainWindow) {
-        mainWindow.webContents.send('menu-action', {
-          action: 'shortcuts-help',
-          timestamp: Date.now()
-        });
-      }
-      Logger.info(this.componentName, 'Shortcuts help action triggered');
-    } catch (error) {
-      Logger.error(this.componentName, 'Failed to handle shortcuts help', error);
     }
   }
 

@@ -26,20 +26,32 @@ export async function setupKeyboardIpcHandlers(): Promise<void> {
       (
         async (event) => {
           // #DEBUG: IPC call - start monitoring
-          Logger.debug('KEYBOARD_IPC', 'IPC: Start monitoring requested');
+          Logger.info('KEYBOARD_IPC', '🚀 모니터링 시작 요청 받음');
           
-          // 🔥 자동 권한 요청 (VS Code 스타일)
-          const { ensurePermissionsForKeyboard } = await import('../utils/AutoPermissionManager');
-          const hasPermission = await ensurePermissionsForKeyboard();
-          
-          keyboardService.setAccessibilityPermission(hasPermission);
+          try {
+            // 🔥 현재 권한 상태 확인
+            const { ensurePermissionsForKeyboard } = await import('../utils/AutoPermissionManager');
+            const hasPermission = await ensurePermissionsForKeyboard();
+            
+            Logger.info('KEYBOARD_IPC', `권한 상태 확인: ${hasPermission ? '✅ 허용됨' : '❌ 거부됨'}`);
+            
+            // 🔥 권한 상태를 키보드 서비스에 전달
+            keyboardService.setAccessibilityPermission(hasPermission);
 
-          if (!hasPermission) {
-            throw new Error('Accessibility permission required to start monitoring');
+            // 🔥 권한이 없어도 시도해보고, 키보드 서비스에서 처리하도록 변경
+            const result = await keyboardService.startMonitoring();
+            
+            if (result.success) {
+              Logger.info('KEYBOARD_IPC', '✅ 모니터링 시작 성공');
+            } else {
+              Logger.warn('KEYBOARD_IPC', '⚠️ 모니터링 시작 실패:', result.error);
+            }
+            
+            return result.data;
+          } catch (error) {
+            Logger.error('KEYBOARD_IPC', '❌ 모니터링 시작 중 예외 발생:', error);
+            throw error;
           }
-          
-          const result = await keyboardService.startMonitoring();
-          return result.data;
         },
         'KEYBOARD_IPC',
         'Start keyboard monitoring'

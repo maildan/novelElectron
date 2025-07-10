@@ -938,15 +938,8 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
       return true;
     }
     
-    // 🔥 숫자키 필터링 (0-9)
-    if (keycode >= 29 && keycode <= 38) { // macOS 숫자키 키코드 범위
-      Logger.debug(this.componentName, '❌ 숫자 키 감지 - 한글 처리 제외', { 
-        keycode, 
-        keychar,
-        reason: 'number-key-filtered'
-      });
-      return true;
-    }
+    // 🔥 숫자키는 한글 입력에서 유효할 수 있으므로 필터링하지 않음
+    // 한국어 IME에서 숫자키도 한글로 변환될 수 있음
     
     // 🔥 macOS 시스템 키 (Fn, Command, Option 등)
     const systemKeyCodes = [
