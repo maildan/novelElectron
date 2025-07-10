@@ -244,30 +244,39 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
       const { exec } = require('child_process');
       const { promisify } = require('util');
       const execAsync = promisify(exec);
+      
+      // PowerShell 명령어 타임아웃 설정 (3초)
+      const execOptions = {
+        timeout: 3000,
+        maxBuffer: 1024 * 1024 // 1MB
+      };
 
-      // 🔥 안정적인 PowerShell 스크립트
+      // 🔥 향상된 PowerShell 스크립트 - 마커 기반 견고한 출력
       const script = `
-        # 에러 출력 억제
+        # 에러 출력 설정 (에러 안전성 향상)
         $ErrorActionPreference = "SilentlyContinue"
         
-        # .NET API 정의
-        Add-Type @"
-        using System;
-        using System.Runtime.InteropServices;
-        using System.Text;
-        public class APIFuncs {
-          [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-          public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int cch);
-          [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-          public static extern IntPtr GetForegroundWindow();
-          [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-          public static extern Int32 GetWindowThreadProcessId(IntPtr hWnd, out Int32 lpdwProcessId);
-          [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
-          public static extern Int32 GetWindowTextLength(IntPtr hWnd);
-        }
-"@
+        # 명시적 출력 마커 (이 부분이 중요!)
+        Write-Output "LOOP_JSON_START"
         
         try {
+            # .NET API 정의 - try 안으로 이동하여 실패해도 마커가 출력되도록
+            Add-Type @"
+            using System;
+            using System.Runtime.InteropServices;
+            using System.Text;
+            public class APIFuncs {
+              [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+              public static extern int GetWindowText(IntPtr hwnd, StringBuilder lpString, int cch);
+              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
+              public static extern IntPtr GetForegroundWindow();
+              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
+              public static extern Int32 GetWindowThreadProcessId(IntPtr hWnd, out Int32 lpdwProcessId);
+              [DllImport("user32.dll", SetLastError=true, CharSet=CharSet.Auto)]
+              public static extern Int32 GetWindowTextLength(IntPtr hWnd);
+            }
+"@
+            
             # 현재 활성 창 핸들 가져오기
             $w = [APIFuncs]::GetForegroundWindow()
             
@@ -276,7 +285,7 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
             $sb = New-Object text.stringbuilder -ArgumentList ($len + 1)
             $rtnlen = [APIFuncs]::GetWindowText($w,$sb,$sb.Capacity)
             
-            # PID 가져오기
+            # PID 가져오기 및 예외처리
             $pid = 0
             [APIFuncs]::GetWindowThreadProcessId($w, [ref]$pid)
             
@@ -284,47 +293,73 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
             $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
             $processName = if ($process) { $process.ProcessName } else { "Unknown" }
             
-            # 결과 생성
+            # 결과 생성 (모든 필드에 기본값 보장)
             $result = @{
-              id = [int]$w
-              title = $sb.ToString()
-              processId = $pid
-              processName = $processName
+              id = if ([int]$w -gt 0) { [int]$w } else { 0 }
+              title = if ($sb.ToString()) { $sb.ToString() } else { "Empty Title" }
+              processId = if ($pid -gt 0) { $pid } else { 0 }
+              processName = if ($processName) { $processName } else { "Unknown" }
             }
             
-            # 명확하게 JSON만 출력
-            Write-Output "LOOP_JSON_START"
+            # 결과 JSON 출력
             $result | ConvertTo-Json
-            Write-Output "LOOP_JSON_END"
         }
         catch {
-            # 오류 발생 시 기본 JSON 반환
-            Write-Output "LOOP_JSON_START"
-            @{ id = 0; title = "Error"; processId = 0; processName = "Unknown" } | ConvertTo-Json
-            Write-Output "LOOP_JSON_END"
+            # 오류 발생 시 기본 JSON 반환 - 오류 정보 포함
+            @{
+              id = 0
+              title = "PowerShell Error: $($_.Exception.Message)" 
+              processId = 0
+              processName = "Error"
+              errorCode = if ($_.Exception.HResult) { $_.Exception.HResult } else { -1 }
+            } | ConvertTo-Json
         }
+        
+        # 항상 종료 마커 출력 - try/catch와 무관하게 실행
+        Write-Output "LOOP_JSON_END"
       `;
 
-      const { stdout } = await execAsync(`powershell -Command "${script.replace(/"/g, '\\"')}"`);
+      const { stdout } = await execAsync(
+        `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "${script.replace(/"/g, '\\"')}"`,
+        execOptions
+      );
       
-      // 🔥 JSON 파싱 오류 처리 개선
+      // 🔥 JSON 파싱 오류 처리 강화
       let result;
       try {
         // LOOP_JSON_START와 LOOP_JSON_END 사이의 내용만 추출
         const jsonMatch = stdout.match(/LOOP_JSON_START\s*([\s\S]*?)\s*LOOP_JSON_END/);
-        const jsonStr = jsonMatch ? jsonMatch[1].trim() : stdout;
-        Logger.debug(this.componentName, '👉 PowerShell 출력 변환 전', { jsonStr });
+        let jsonStr = jsonMatch ? jsonMatch[1].trim() : stdout.trim();
+        
+        // 디버깅을 위한 로깅
+        Logger.debug(this.componentName, '👉 PowerShell 출력 변환 전', { 
+          rawOutput: stdout,
+          extractedJson: jsonStr,
+          hasMarkers: !!jsonMatch
+        });
+        
+        // 빈 출력 검사 및 기본값 제공
+        if (!jsonStr || jsonStr.length === 0) {
+          throw new Error('빈 PowerShell 출력');
+        }
         
         result = JSON.parse(jsonStr);
       } catch (jsonError) {
-        Logger.error(this.componentName, '❌ PowerShell JSON 파싱 실패', { stdout, error: jsonError });
-        // 기본값 제공
+        Logger.error(this.componentName, '❌ PowerShell JSON 파싱 실패', { 
+          stdout, 
+          error: jsonError,
+          errorType: jsonError instanceof Error ? jsonError.name : 'Unknown'
+        });
+        // 기본값 제공 - 오류 안전성 향상
         result = {
           id: 0,
-          title: 'Unknown (파싱 에러)',
+          title: '⚠️ Window Detection Error',
           processId: 0,
-          processName: 'Unknown'
+          processName: 'PowerShell Error'
         };
+        
+        // 오류 발생 시 재시도 계획 로그
+        Logger.info(this.componentName, '⚠️ PowerShell 감지 실패, 다음 주기에 재시도');
       }
 
       const windowInfo: Partial<WindowInfo> = {

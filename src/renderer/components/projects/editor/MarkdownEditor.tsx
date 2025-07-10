@@ -21,8 +21,8 @@ const EDITOR_STYLES = {
   editor: 'flex-1 p-6 prose prose-slate max-w-none focus:outline-none',
   focused: 'prose-lg', // 포커스 모드에서 더 큰 글자
   placeholder: 'text-slate-400 pointer-events-none',
-  bubble: 'flex gap-2 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg',
-  bubbleButton: 'px-3 py-1 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition-colors'
+  bubble: 'flex flex-nowrap gap-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-50 overflow-visible whitespace-nowrap',
+  bubbleButton: 'px-2 py-1 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded transition-colors flex items-center justify-center min-w-[30px]'
 } as const;
 
 interface MarkdownEditorProps {

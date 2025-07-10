@@ -108,6 +108,8 @@ export function WriterStatsPanel({
       // AI 응답 로딩 상태 시작
       setIsAiTyping(true);
       
+      console.log('📨 AI 요청 시작:', content.substring(0, 30) + '...');
+      
       // Loop OpenAI 서비스 직접 호출
       const response = await fetch('https://loop-openai.onrender.com/api/chat', {
         method: 'POST',
@@ -116,17 +118,29 @@ export function WriterStatsPanel({
           'Accept': 'application/json'
         },
         body: JSON.stringify({ 
-          message: content,
-          context: projectId ? `Project ID: ${projectId}` : undefined
+          message: content
         })
       });
+      
+      console.log('📩 AI 응답 상태:', response.status, response.statusText);
       
       if (!response.ok) {
         throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
       }
       
       const data = await response.json();
-      Logger.info('AI_CHAT', 'API 응답 성공', { responseLength: data.response?.length || 0 });
+      console.log('✅ AI 응답 성공:', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
+      
+      try {
+        // 안전하게 Logger 사용 시도 (Electron API 에러 방지)
+        if (typeof window !== 'undefined' && window.electronAPI) {
+          Logger.info('AI_CHAT', 'API 응답 성공');
+        } else {
+          console.info('AI_CHAT: API 응답 성공');
+        }
+      } catch (logError) {
+        console.log('⚠️ Logger 접근 실패:', logError);
+      }
       
       // AI 응답 추가
       const aiMessage: ChatMessage = { 
@@ -135,7 +149,19 @@ export function WriterStatsPanel({
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      Logger.error('AI_CHAT', 'Failed to get AI response', error);
+      const err = error as Error;
+      console.error('❌ AI 응답 에러:', err);
+      
+      try {
+        // 안전하게 Logger 사용 시도 (Electron API 에러 방지)
+        if (typeof window !== 'undefined' && window.electronAPI) {
+          Logger.error('AI_CHAT', 'Failed to get AI response', err);
+        } else {
+          console.error('AI_CHAT ERROR:', err.message);
+        }
+      } catch (logError) {
+        console.log('⚠️ Logger 접근 실패:', logError);
+      }
       
       // 오류 메시지 추가
       const errorMessage: ChatMessage = { 
@@ -750,7 +776,17 @@ export function WriterStatsPanel({
                       message.role === 'user' ? STATS_STYLES.userMessage : STATS_STYLES.aiMessage
                     }`}
                   >
-                    {message.content}
+                    {message.role === 'ai' && (
+                      <>
+                        {/* 마크다운 해석 방지: 마크다운 특수 문자를 이스케이프 처리 */}
+                        {message.content
+                          .replace(/^# (.*)/gm, '**$1**') // # 헤더를 볼드로
+                          .replace(/^## (.*)/gm, '**$1**') // ## 헤더를 볼드로 
+                          .replace(/^### (.*)/gm, '**$1**') // ### 헤더를 볼드로
+                        }
+                      </>
+                    )}
+                    {message.role === 'user' && message.content}
                   </div>
                 ))}
                 {isAiTyping && (

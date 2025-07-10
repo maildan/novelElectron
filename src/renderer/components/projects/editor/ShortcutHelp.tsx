@@ -24,6 +24,11 @@ interface ShortcutHelpProps {
   isWriterStatsOpen?: boolean;
 }
 
+// 정적 메서드: 숨겨진 가이드를 다시 표시
+export function resetShortcutHelpVisibility(): void {
+  localStorage.setItem('shortcutHelp.isVisible', 'true');
+}
+
 export function ShortcutHelp({ className = '', isWriterStatsOpen = false }: ShortcutHelpProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(true);
@@ -45,9 +50,11 @@ export function ShortcutHelp({ className = '', isWriterStatsOpen = false }: Shor
   };
   
   const handleHideGuide = (): void => {
-    setIsVisible(false);
-    setIsOpen(false);
-    localStorage.setItem('shortcutHelp.isVisible', 'false');
+    if (confirm('단축키 가이드를 항상 숨기시겠습니까? 설정 페이지에서 다시 표시할 수 있습니다.')) {
+      setIsVisible(false);
+      setIsOpen(false);
+      localStorage.setItem('shortcutHelp.isVisible', 'false');
+    }
   };
   
   const handleBackdropClick = (event: React.MouseEvent): void => {
@@ -121,7 +128,12 @@ export function ShortcutHelp({ className = '', isWriterStatsOpen = false }: Shor
             <div className={HELP_STYLES.content}>
               <div className={HELP_STYLES.helpText}>
                 <div dangerouslySetInnerHTML={{ 
-                  __html: getShortcutHelp().replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                  __html: getShortcutHelp()
+                    .replace(/\n/g, '<br>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/# (.*?)(\n|<br>)/g, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>')
+                    .replace(/## (.*?)(\n|<br>)/g, '<h2 class="text-lg font-bold mt-3 mb-2">$1</h2>')
+                    .replace(/### (.*?)(\n|<br>)/g, '<h3 class="text-md font-bold mt-2 mb-1">$1</h3>')
                 }} />
               </div>
             </div>
