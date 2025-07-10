@@ -58,12 +58,12 @@ const STATS_STYLES = {
   tabContent: 'p-4 flex-1 overflow-y-auto',
   
   // 🔥 AI 채팅 스타일 - UI 잘림 문제 해결
-  chatContainer: 'flex flex-col h-full',
-  chatMessages: 'flex-1 overflow-y-auto px-2 py-3 space-y-3',
-  chatMessage: 'p-3 rounded-lg text-sm break-words whitespace-pre-wrap', // 개선: 긴 텍스트 개행 및 줄바꿈 보존
+  chatContainer: 'flex flex-col h-full overflow-hidden',
+  chatMessages: 'flex-1 overflow-y-auto px-2 py-3 space-y-3 max-h-[calc(100%-60px)]',
+  chatMessage: 'p-3 rounded-lg text-sm break-words whitespace-pre-wrap max-w-[90%]', // 개선: 긴 텍스트 개행 및 줄바꿈 보존, 너비 제한
   userMessage: 'bg-blue-100 dark:bg-blue-900/40 ml-8 mr-2 text-slate-800 dark:text-slate-200',
-  aiMessage: 'bg-slate-100 dark:bg-slate-800 ml-2 mr-8 text-slate-800 dark:text-slate-200',
-  chatInputContainer: 'flex p-2 border-t border-slate-200 dark:border-slate-800',
+  aiMessage: 'bg-slate-100 dark:bg-slate-800 ml-2 mr-8 text-slate-800 dark:text-slate-200 overflow-auto',
+  chatInputContainer: 'flex p-2 border-t border-slate-200 dark:border-slate-800 mt-auto',
   chatInput: 'flex-1 rounded-l-md px-3 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-blue-600 dark:focus:ring-blue-500',
   chatSendButton: 'flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed',
   loadingDots: 'flex space-x-1 items-center justify-center py-2',
@@ -733,12 +733,12 @@ export function WriterStatsPanel({
         <div className={`${STATS_STYLES.chatContainer} h-full`}>
           <div className={STATS_STYLES.chatMessages}>
             {messages.length === 0 ? (
-              <div className="text-center py-8 px-4 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                <Sparkles className="mx-auto w-10 h-10 mb-3 text-blue-500 opacity-90" />
+              <div className="text-center py-6 px-3 text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm mx-2">
+                <Sparkles className="mx-auto w-8 h-8 mb-2 text-blue-500 opacity-90" />
                 <p className="text-sm font-medium">AI 창작 파트너에게 질문하세요</p>
                 <p className="text-xs mt-2 leading-relaxed">
                   작품 구조, 캐릭터, 대화, 문체 등에 대한 도움을 받을 수 있습니다.<br />
-                  예시: &ldquo;판타지 소설의 마법 체계를 만들어줘&rdquo; 또는 &ldquo;이 캐릭터를 더 흥미롭게 만드는 방법은?&rdquo;
+                  예시: &ldquo;판타지 소설의 마법 체계를 만들어줘&rdquo;<br />또는 &ldquo;이 캐릭터를 더 흥미롭게 만드는 방법은?&rdquo;
                 </p>
               </div>
             ) : (

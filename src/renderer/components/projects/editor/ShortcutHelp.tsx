@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { HelpCircle, X as XIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { HelpCircle, X as XIcon, EyeOff } from 'lucide-react';
 import { getShortcutHelp } from './EditorShortcuts';
 
 // 🔥 단축키 도움말 스타일
 const HELP_STYLES = {
   trigger: 'fixed bottom-4 right-4 z-50 w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-lg transition-colors cursor-pointer',
+  hidden: 'hidden',
   modal: 'fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50',
   panel: 'bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden',
   header: 'flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700',
@@ -14,15 +15,27 @@ const HELP_STYLES = {
   closeButton: 'w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors',
   content: 'p-6 overflow-y-auto',
   helpText: 'prose prose-slate dark:prose-invert max-w-none text-sm',
+  footer: 'p-4 border-t border-slate-200 dark:border-slate-700 flex justify-between',
+  hideButton: 'flex items-center text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100',
 } as const;
 
 interface ShortcutHelpProps {
   className?: string;
+  isWriterStatsOpen?: boolean;
 }
 
-export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.ReactElement {
+export function ShortcutHelp({ className = '', isWriterStatsOpen = false }: ShortcutHelpProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
+  const [isVisible, setIsVisible] = useState<boolean>(true);
+  
+  // localStorage에서 가이드 표시 여부 상태 불러오기
+  useEffect(() => {
+    const savedVisibility = localStorage.getItem('shortcutHelp.isVisible');
+    if (savedVisibility !== null) {
+      setIsVisible(savedVisibility === 'true');
+    }
+  }, []);
+  
   const handleToggle = (): void => {
     setIsOpen(prev => !prev);
   };
@@ -30,7 +43,13 @@ export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.React
   const handleClose = (): void => {
     setIsOpen(false);
   };
-
+  
+  const handleHideGuide = (): void => {
+    setIsVisible(false);
+    setIsOpen(false);
+    localStorage.setItem('shortcutHelp.isVisible', 'false');
+  };
+  
   const handleBackdropClick = (event: React.MouseEvent): void => {
     if (event.target === event.currentTarget) {
       handleClose();
@@ -38,7 +57,7 @@ export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.React
   };
 
   // 🔥 Escape 키로 닫기 및 F1 키로 열기
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEscape = (event: KeyboardEvent): void => {
       if (event.key === 'Escape' && isOpen) {
         handleClose();
@@ -57,6 +76,18 @@ export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.React
       window.removeEventListener('shortcut:help', handleHelpShortcut);
     };
   }, [isOpen]);
+  
+  // WriterStatsPanel이 열려있을 때 숨기기
+  useEffect(() => {
+    if (isWriterStatsOpen) {
+      setIsOpen(false);
+    }
+  }, [isWriterStatsOpen]);
+
+  // 가이드 숨김 상태면 아무것도 표시하지 않음
+  if (!isVisible) {
+    return <></>;
+  }
 
   return (
     <>
@@ -92,24 +123,21 @@ export function ShortcutHelp({ className = '' }: ShortcutHelpProps): React.React
                 <div dangerouslySetInnerHTML={{ 
                   __html: getShortcutHelp().replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
                 }} />
-                
-                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2">📖 마크다운 단축키</h3>
-                  <div className="space-y-1 text-sm">
-                    <div><code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"># 스페이스</code> → 제목 1</div>
-                    <div><code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">## 스페이스</code> → 제목 2</div>
-                    <div><code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">### 스페이스</code> → 제목 3</div>
-                    <div><code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">- 스페이스</code> → 불릿 리스트</div>
-                    <div><code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">1. 스페이스</code> → 번호 리스트</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    <strong>💡 팁:</strong> 텍스트를 선택하고 단축키를 누르면 선택된 텍스트에 포맷이 적용됩니다.
-                  </p>
-                </div>
               </div>
+            </div>
+            
+            {/* 🔥 푸터 추가 - 가이드 숨기기 버튼 */}
+            <div className={HELP_STYLES.footer}>
+              <div></div> {/* 왼쪽 빈 공간 */}
+              <button
+                className={HELP_STYLES.hideButton}
+                onClick={handleHideGuide}
+                title="이 가이드를 항상 숨기기"
+                aria-label="가이드 숨기기"
+              >
+                <EyeOff size={16} className="mr-2" />
+                가이드 숨기기
+              </button>
             </div>
           </div>
         </div>

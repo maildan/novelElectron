@@ -245,7 +245,12 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
       const { promisify } = require('util');
       const execAsync = promisify(exec);
 
+      // 🔥 안정적인 PowerShell 스크립트
       const script = `
+        # 에러 출력 억제
+        $ErrorActionPreference = "SilentlyContinue"
+        
+        # .NET API 정의
         Add-Type @"
         using System;
         using System.Runtime.InteropServices;
@@ -262,35 +267,72 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
         }
 "@
         
-        $w = [APIFuncs]::GetForegroundWindow()
-        $len = [APIFuncs]::GetWindowTextLength($w)
-        $sb = New-Object text.stringbuilder -ArgumentList ($len + 1)
-        $rtnlen = [APIFuncs]::GetWindowText($w,$sb,$sb.Capacity)
-        $pid = 0
-        [APIFuncs]::GetWindowThreadProcessId($w, [ref]$pid)
-        
-        $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
-        $processName = if ($process) { $process.ProcessName } else { "Unknown" }
-        
-        $result = @{
-          id = [int]$w
-          title = $sb.ToString()
-          processId = $pid
-          processName = $processName
+        try {
+            # 현재 활성 창 핸들 가져오기
+            $w = [APIFuncs]::GetForegroundWindow()
+            
+            # 창 텍스트 길이 가져오기
+            $len = [APIFuncs]::GetWindowTextLength($w)
+            $sb = New-Object text.stringbuilder -ArgumentList ($len + 1)
+            $rtnlen = [APIFuncs]::GetWindowText($w,$sb,$sb.Capacity)
+            
+            # PID 가져오기
+            $pid = 0
+            [APIFuncs]::GetWindowThreadProcessId($w, [ref]$pid)
+            
+            # 프로세스 정보 가져오기
+            $process = Get-Process -Id $pid -ErrorAction SilentlyContinue
+            $processName = if ($process) { $process.ProcessName } else { "Unknown" }
+            
+            # 결과 생성
+            $result = @{
+              id = [int]$w
+              title = $sb.ToString()
+              processId = $pid
+              processName = $processName
+            }
+            
+            # 명확하게 JSON만 출력
+            Write-Output "LOOP_JSON_START"
+            $result | ConvertTo-Json
+            Write-Output "LOOP_JSON_END"
         }
-        
-        $result | ConvertTo-Json
+        catch {
+            # 오류 발생 시 기본 JSON 반환
+            Write-Output "LOOP_JSON_START"
+            @{ id = 0; title = "Error"; processId = 0; processName = "Unknown" } | ConvertTo-Json
+            Write-Output "LOOP_JSON_END"
+        }
       `;
 
       const { stdout } = await execAsync(`powershell -Command "${script.replace(/"/g, '\\"')}"`);
-      const result = JSON.parse(stdout);
+      
+      // 🔥 JSON 파싱 오류 처리 개선
+      let result;
+      try {
+        // LOOP_JSON_START와 LOOP_JSON_END 사이의 내용만 추출
+        const jsonMatch = stdout.match(/LOOP_JSON_START\s*([\s\S]*?)\s*LOOP_JSON_END/);
+        const jsonStr = jsonMatch ? jsonMatch[1].trim() : stdout;
+        Logger.debug(this.componentName, '👉 PowerShell 출력 변환 전', { jsonStr });
+        
+        result = JSON.parse(jsonStr);
+      } catch (jsonError) {
+        Logger.error(this.componentName, '❌ PowerShell JSON 파싱 실패', { stdout, error: jsonError });
+        // 기본값 제공
+        result = {
+          id: 0,
+          title: 'Unknown (파싱 에러)',
+          processId: 0,
+          processName: 'Unknown'
+        };
+      }
 
       const windowInfo: Partial<WindowInfo> = {
-        id: result.id,
+        id: result.id || 0,
         title: result.title || 'Unknown',
         owner: {
           name: result.processName || 'Unknown',
-          processId: result.processId,
+          processId: result.processId || 0,
         },
         bounds: { x: 0, y: 0, width: 0, height: 0 },
         memoryUsage: 0,

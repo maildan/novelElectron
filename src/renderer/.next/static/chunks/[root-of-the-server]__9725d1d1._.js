@@ -313,19 +313,19 @@ const TOOLTIP_STYLES = {
     arrow: 'absolute w-2 h-2 bg-slate-900 transform rotate-45',
     positions: {
         top: {
-            tooltip: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',
+            tooltip: 'bottom-full left-1/2 transform -translate-x-1/2 mb-3',
             arrow: 'top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2'
         },
         bottom: {
-            tooltip: 'top-full left-1/2 transform -translate-x-1/2 mt-2',
+            tooltip: 'top-full left-1/2 transform -translate-x-1/2 mt-3',
             arrow: 'bottom-full left-1/2 transform -translate-x-1/2 translate-y-1/2'
         },
         left: {
-            tooltip: 'right-full top-1/2 transform -translate-y-1/2 mr-2',
+            tooltip: 'right-full top-1/2 transform -translate-y-1/2 mr-3',
             arrow: 'left-full top-1/2 transform -translate-y-1/2 -translate-x-1/2'
         },
         right: {
-            tooltip: 'left-full top-1/2 transform -translate-y-1/2 ml-2',
+            tooltip: 'left-full top-1/2 transform -translate-y-1/2 ml-3',
             arrow: 'right-full top-1/2 transform -translate-y-1/2 translate-x-1/2'
         }
     },

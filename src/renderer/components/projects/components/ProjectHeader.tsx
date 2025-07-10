@@ -167,15 +167,8 @@ export function ProjectHeader({
     { icon: Trash2, label: '삭제', shortcut: 'Cmd+Del', onClick: onDelete },
   ];
 
-  // 🔥 툴바 확장 액션들 (AI 창작 파트너, 테마 원클릭, 집중모드)
+  // 🔥 툴바 확장 액션들 (테마 원클릭, 집중모드, 복사)
   const toolbarActions: HeaderAction[] = [
-    { 
-      icon: Sparkles, 
-      label: '창작 파트너', 
-      shortcut: 'AI 도움',
-      onClick: onToggleAISidebar || (() => {}),
-      isActive: showRightSidebar
-    },
     { icon: Copy, label: '콘텐츠 복사', shortcut: 'Cmd+C', onClick: copyContent },
     { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: handleFocusMode },
     { 
@@ -235,7 +228,7 @@ export function ProjectHeader({
             >
               <action.icon size={16} />
               {/* 🔥 Context7 패턴: 올바른 툴팁 구현 */}
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                 <div>{action.label}</div>
                 {action.shortcut && <div className="text-gray-400 text-xs mt-1">{action.shortcut}</div>}
               </div>
