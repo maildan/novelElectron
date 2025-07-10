@@ -424,6 +424,27 @@ export interface WindowInfo {
     keystrokeCount: number;
     sessionDuration: number;
   };
+  
+  // 🔥 Loop 추가 전용 필드들
+  loopLanguageDetected?: string;        // 감지된 언어 (한글/영문)
+  loopIMEState?: 'enabled' | 'disabled' | 'unknown';  // IME 상태
+  loopPlatformInfo?: {
+    platform: NodeJS.Platform;
+    version: string;
+    architecture: string;
+  };
+  loopPermissions?: {
+    accessibility: boolean;
+    screenRecording: boolean;
+    inputMonitoring: boolean;
+  };
+  loopSessionMetadata?: {
+    startTime: number;
+    endTime?: number;
+    totalKeystrokes: number;
+    activeTime: number;    // 실제 활성 시간 (밀리초)
+    idleTime: number;      // 비활성 시간 (밀리초)
+  };
 }
 
 // 🔥 간단한 윈도우 정보 (하위 호환성)

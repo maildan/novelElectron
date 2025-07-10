@@ -938,6 +938,16 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
       return true;
     }
     
+    // 🔥 숫자키 필터링 (0-9)
+    if (keycode >= 29 && keycode <= 38) { // macOS 숫자키 키코드 범위
+      Logger.debug(this.componentName, '❌ 숫자 키 감지 - 한글 처리 제외', { 
+        keycode, 
+        keychar,
+        reason: 'number-key-filtered'
+      });
+      return true;
+    }
+    
     // 🔥 macOS 시스템 키 (Fn, Command, Option 등)
     const systemKeyCodes = [
       58, 59, 60, 61, 62, 63, 64, 65, // F1-F8
@@ -955,6 +965,16 @@ export class MacOSLanguageDetector extends BaseLanguageDetector {
     // 🔥 keychar 기반 특수 문자 필터링 (강화)
     if (keychar) {
       const char = String.fromCharCode(keychar);
+      
+      // 🔥 숫자 문자 필터링 (0-9)
+      if (char >= '0' && char <= '9') {
+        Logger.debug(this.componentName, '❌ 숫자 문자 감지 - 한글 처리 제외', { 
+          char, 
+          charCode: keychar,
+          reason: 'number-char-filtered'
+        });
+        return true;
+      }
       
       // 🔥 태국, 아랍, 힌두 등 다른 언어 문자 필터링
       const unicodeValue = keychar;

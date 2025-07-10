@@ -79,6 +79,25 @@ export class MacOSKeycodeTranslator {
     const startTime = performance.now();
     
     try {
+      // 🔥 숫자키 사전 필터링 (macOS 키코드 기준)
+      if (keycode >= 29 && keycode <= 38) { // macOS 숫자키 0-9
+        const numberChar = String.fromCharCode(48 + (keycode - 29)); // '0' + offset
+        Logger.debug(MacOSKeycodeTranslator.componentName, '❌ 숫자키 감지 - 직접 반환', {
+          keycode,
+          numberChar,
+          reason: 'number-key-filtered'
+        });
+        
+        return {
+          character: numberChar,
+          inputSource: 'Number Key',
+          language: 'en',
+          isSuccess: true,
+          method: 'fallback',
+          processingTime: performance.now() - startTime
+        };
+      }
+      
       // 🔥 캐시 확인
       const cacheKey = this.generateCacheKey(keycode, modifiers);
       const cachedResult = this.getCachedResult(cacheKey);

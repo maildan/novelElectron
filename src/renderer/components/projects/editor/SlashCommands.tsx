@@ -91,7 +91,7 @@ const SLASH_COMMANDS: SlashCommand[] = [
     description: '할 일 목록',
     icon: CheckSquare,
     command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).toggleTaskList().run();
+      editor.chain().focus().deleteRange(range).toggleList('taskList', 'taskItem').run();
     },
   },
   {

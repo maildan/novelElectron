@@ -1,5 +1,5 @@
 {
-  "productName": "Loop Typing Analytics",
+  "productName": "Loop",
   "appId": "com.loop.typing-analytics", 
   "directories": {
     "output": "release"

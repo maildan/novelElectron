@@ -107,6 +107,12 @@ export class LanguageDetectorFactory {
    */
   private static createWindowsDetector(): BaseLanguageDetector {
     try {
+      // 🔥 Windows 플랫폼 체크 먼저 수행
+      if (!Platform.isWindows()) {
+        Logger.warn(this.componentName, 'Windows가 아닌 환경에서 Windows 감지기 요청됨, Fallback 사용');
+        return new FallbackLanguageDetector();
+      }
+
       if (!WindowsLanguageDetector) {
         // 동기 require 사용 (테스트 환경 호환성)
         const windowsModule = require('../windows/WindowsLanguageDetector');

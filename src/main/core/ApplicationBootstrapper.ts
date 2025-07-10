@@ -41,6 +41,9 @@ export class ApplicationBootstrapper {
     try {
       Logger.info('BOOTSTRAPPER', 'Starting bootstrap process...');
 
+      // 🔥 앱 이름 설정 (Electron → Loop)
+      this.setupAppName();
+
       // 1. Electron 이벤트 설정
       this.setupElectronEvents();
 
@@ -207,6 +210,15 @@ export class ApplicationBootstrapper {
     } catch (error) {
       Logger.error('BOOTSTRAPPER', 'Failed to setup app icons', error);
     }
+  }
+
+  /**
+   * 🔥 앱 이름 설정 (Electron → Loop)
+   */
+  private setupAppName(): void {
+    app.setName('Loop');
+    app.setAppUserModelId('com.loop.app');
+    Logger.info('BOOTSTRAPPER', 'App name set to Loop');
   }
 }
 

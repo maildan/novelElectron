@@ -108,7 +108,28 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
     }
   }, [projectId]);
   
-  const handleDownload = useCallback(() => Logger.info('PROJECT_EDITOR', 'Download action'), []);
+  // 🔥 내보내기 기능 핸들러 (Markdown 파일로 내보내기)
+  const handleDownload = useCallback(async () => {
+    try {
+      const content = projectData.content || '';
+      const title = projectData.title || '제목없음';
+      
+      // Markdown 파일로 내보내기
+      const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/[^a-zA-Z0-9가-힣\s]/g, '_')}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      Logger.info('PROJECT_EDITOR', 'Project exported as markdown', { title });
+    } catch (error) {
+      Logger.error('PROJECT_EDITOR', 'Export failed', error);
+    }
+  }, [projectData.content, projectData.title]);
   // 🔥 뷰 변경 핸들러 (실제 구현)
   const handleViewChange = useCallback((view: string) => {
     Logger.info('PROJECT_EDITOR', 'View changed:', view);
@@ -153,8 +174,30 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
       return;
     }
     
-    // 🔥 뒤로가기 (Esc)
+    // 🔥 ESC 키 우선순위 (QA 가이드: 다이얼로그 > 슬라이드바 > 집중모드 > 뒤로가기)
     if (key === 'Escape') {
+      // 1순위: 다이얼로그가 열려있는 경우
+      if (showDeleteDialog || showShareDialog) {
+        // 다이얼로그는 자체적으로 ESC 처리, 여기서는 무시
+        return;
+      }
+      
+      // 2순위: 집중모드인 경우 집중모드 해제
+      if (uiState.isFocusMode) {
+        event.preventDefault();
+        uiState.toggleFocusMode();
+        Logger.info('PROJECT_EDITOR', 'Focus mode disabled by ESC');
+        return;
+      }
+      
+      // 3순위: 전역 ESC 이벤트 발생 (ProjectHeader에서 슬라이드바 처리)
+      const escapeEvent = new CustomEvent('global:escape', { 
+        detail: { source: 'ProjectEditor' } 
+      });
+      window.dispatchEvent(escapeEvent);
+      
+      // 4순위: 마지막 수단으로 뒤로가기
+      event.preventDefault();
       handleBack();
       Logger.info('PROJECT_EDITOR', 'Back shortcut triggered');
       return;

@@ -11,6 +11,9 @@ if (process.env.NODE_ENV === 'development') {
   require('dotenv').config();
 }
 
+// 🔥 앱 이름 설정
+app.setName('Loop');
+
 // 🔥 기가차드 하드웨어 극한 최적화 적용 (500-1000% 성능 향상)
 performanceOptimizer.applyAllOptimizations();
 performanceOptimizer.startPerformanceBenchmark();

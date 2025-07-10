@@ -9,7 +9,7 @@ import Typography from '@tiptap/extension-typography';
 import CharacterCount from '@tiptap/extension-character-count';
 import Underline from '@tiptap/extension-underline';
 import { SlashCommand, slashSuggestion } from './SlashCommands';
-import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Link } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Link, Quote, Palette, MoreHorizontal } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 import { handleEditorKeyDown, bindShortcutsToEditor, ALL_SHORTCUTS } from './EditorShortcuts';
 import { TaskList, TaskItem, Callout, Toggle, Highlight } from './AdvancedNotionFeatures';
@@ -122,32 +122,31 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
         'data-placeholder': '이야기를 시작해보세요...',
       },
       
-      // 🔥 강화된 노션 스타일 키보드 핸들러
+      // 🔥 TipTap 공식 마크다운 처리 방식 (완전히 동기적 실행)
       handleKeyDown: (view, event) => {
-        const { state, dispatch } = view;
-        const { selection } = state;
-        
-        // 🔥 Space 키 마크다운 처리 최우선 (노션 스타일)
         if (event.key === ' ') {
+          const { state } = view;
+          const { selection } = state;
           const { $from } = selection;
           const textBefore = $from.parent.textContent.slice(0, $from.parentOffset);
+          
+          // TipTap의 에디터 인스턴스에 직접 접근
+          const editorInstance = (view as any).editor;
+          if (!editorInstance) return false;
           
           // # 처리 (제목 1)
           if (textBefore === '#') {
             event.preventDefault();
             event.stopPropagation();
             
-            // 더 안전한 방식으로 헤딩 처리
-            const tr = state.tr.delete($from.pos - 1, $from.pos);
-            dispatch(tr);
-            
-            // 다음 틱에서 헤딩 적용
-            setTimeout(() => {
-              if (editor) {
-                editor.chain().focus().toggleHeading({ level: 1 }).run();
-              }
-            }, 0);
-            
+            // 텍스트 삭제 후 헤딩 적용을 체인으로 연결
+            editorInstance
+              .chain()
+              .focus()
+              .deleteRange({ from: $from.pos - 1, to: $from.pos })
+              .setHeading({ level: 1 })
+              .run();
+              
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H1 applied');
             return true;
           }
@@ -157,17 +156,13 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             event.preventDefault();
             event.stopPropagation();
             
-            // 더 안전한 방식으로 헤딩 처리
-            const tr = state.tr.delete($from.pos - 2, $from.pos);
-            dispatch(tr);
-            
-            // 다음 틱에서 헤딩 적용
-            setTimeout(() => {
-              if (editor) {
-                editor.chain().focus().toggleHeading({ level: 2 }).run();
-              }
-            }, 0);
-            
+            editorInstance
+              .chain()
+              .focus()
+              .deleteRange({ from: $from.pos - 2, to: $from.pos })
+              .setHeading({ level: 2 })
+              .run();
+              
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H2 applied');
             return true;
           }
@@ -177,17 +172,13 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             event.preventDefault();
             event.stopPropagation();
             
-            // 더 안전한 방식으로 헤딩 처리
-            const tr = state.tr.delete($from.pos - 3, $from.pos);
-            dispatch(tr);
-            
-            // 다음 틱에서 헤딩 적용
-            setTimeout(() => {
-              if (editor) {
-                editor.chain().focus().toggleHeading({ level: 3 }).run();
-              }
-            }, 0);
-            
+            editorInstance
+              .chain()
+              .focus()
+              .deleteRange({ from: $from.pos - 3, to: $from.pos })
+              .setHeading({ level: 3 })
+              .run();
+              
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: H3 applied');
             return true;
           }
@@ -197,17 +188,13 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             event.preventDefault();
             event.stopPropagation();
             
-            // 문자 삭제 후 명령어 실행
-            const tr = state.tr.delete($from.pos - 1, $from.pos);
-            dispatch(tr);
-            
-            // 다음 틱에서 리스트 토글
-            setTimeout(() => {
-              if (editor) {
-                editor.chain().focus().toggleBulletList().run();
-              }
-            }, 0);
-            
+            editorInstance
+              .chain()
+              .focus()
+              .deleteRange({ from: $from.pos - 1, to: $from.pos })
+              .toggleBulletList()
+              .run();
+              
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Bullet list applied');
             return true;
           }
@@ -217,28 +204,16 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             event.preventDefault();
             event.stopPropagation();
             
-            // 문자 삭제 후 명령어 실행
-            const tr = state.tr.delete($from.pos - textBefore.length, $from.pos);
-            dispatch(tr);
-            
-            // 다음 틱에서 리스트 토글
-            setTimeout(() => {
-              if (editor) {
-                editor.chain().focus().toggleOrderedList().run();
-              }
-            }, 0);
-            
+            editorInstance
+              .chain()
+              .focus()
+              .deleteRange({ from: $from.pos - textBefore.length, to: $from.pos })
+              .toggleOrderedList()
+              .run();
+              
             Logger.debug('TIPTAP_EDITOR', '✅ Markdown: Ordered list applied');
             return true;
           }
-        }
-        
-        // 🔥 Space 외의 키는 단축키 시스템에서 처리
-        // 단, Ctrl/Cmd와 조합된 키만 단축키로 처리
-        const isShortcutKey = event.ctrlKey || event.metaKey || event.altKey || ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(event.key);
-        
-        if (isShortcutKey && handleEditorKeyDown(editor, event)) {
-          return true;
         }
         
         return false;
@@ -324,7 +299,7 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
     };
   }, [editor]);
 
-  // 🔥 ESC 키 핸들러 (집중모드 해제)
+  // 🔥 ESC 키 핸들러 (집중모드 해제) 및 복사 이벤트 리스너
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent): void => {
       if (event.key === 'Escape' && isFocusMode) {
@@ -335,12 +310,25 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
       }
     };
 
+    // 🔥 QA 가이드: 에디터 내용 복사 이벤트 리스너
+    const handleCopyContent = (event: CustomEvent): void => {
+      if (editor && event.detail && event.detail.callback) {
+        const textContent = editor.getText();
+        event.detail.callback(textContent);
+        Logger.info('TIPTAP_EDITOR', 'Content copied via header button', { 
+          length: textContent.length 
+        });
+      }
+    };
+
     window.addEventListener('keydown', handleEscKey);
+    window.addEventListener('project:copyContent', handleCopyContent as EventListener);
     
     return () => {
       window.removeEventListener('keydown', handleEscKey);
+      window.removeEventListener('project:copyContent', handleCopyContent as EventListener);
     };
-  }, [isFocusMode]);
+  }, [isFocusMode, editor]);
 
   // 🔥 로딩 중 표시
   if (!isReady) {
@@ -358,9 +346,17 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
 
   return (
     <div className={EDITOR_STYLES.container}>
-      {/* 🔥 Bubble Menu (선택 시 나타나는 툴바) */}
+      {/* 🔥 Enhanced Bubble Menu (선택 시 나타나는 고급 툴바) */}
       {editor && (
-        <BubbleMenu editor={editor} className={EDITOR_STYLES.bubble}>
+        <BubbleMenu 
+          editor={editor} 
+          className={EDITOR_STYLES.bubble}
+          shouldShow={({ editor, view, state, oldState, from, to }) => {
+            // 텍스트가 선택되었을 때만 표시
+            return from !== to;
+          }}
+        >
+          {/* 기본 포맷팅 버튼들 */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`${EDITOR_STYLES.bubbleButton} ${
@@ -368,8 +364,9 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             }`}
             title="볼드 (Ctrl+B)"
           >
-            <strong>B</strong>
+            <Bold size={14} />
           </button>
+          
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`${EDITOR_STYLES.bubbleButton} ${
@@ -377,8 +374,9 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             }`}
             title="이탤릭 (Ctrl+I)"
           >
-            <em>I</em>
+            <Italic size={14} />
           </button>
+          
           <button
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={`${EDITOR_STYLES.bubbleButton} ${
@@ -386,8 +384,9 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             }`}
             title="언더라인 (Ctrl+U)"
           >
-            <u>U</u>
+            <UnderlineIcon size={14} />
           </button>
+          
           <button
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={`${EDITOR_STYLES.bubbleButton} ${
@@ -395,16 +394,72 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
             }`}
             title="취소선 (Ctrl+Shift+S)"
           >
-            <s>S</s>
+            <Strikethrough size={14} />
           </button>
+          
+          {/* 구분선 */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          
+          {/* 고급 포맷팅 */}
           <button
             onClick={() => editor.chain().focus().toggleCode().run()}
             className={`${EDITOR_STYLES.bubbleButton} ${
               editor.isActive('code') ? 'bg-blue-200 dark:bg-blue-800' : ''
             }`}
-            title="코드"
+            title="인라인 코드 (Ctrl+`)"
           >
-            Code
+            <Code size={14} />
+          </button>
+          
+          {/* 구분선 */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          
+          {/* 링크 버튼 */}
+          <button
+            onClick={() => {
+              const url = window.prompt('링크 URL을 입력하세요:');
+              if (url) {
+                // 기본 링크 처리 (확장 없이)
+                const selection = editor.view.state.selection;
+                const { from, to } = selection;
+                editor.chain().focus().insertContent(`<a href="${url}" target="_blank">${editor.view.state.doc.textBetween(from, to) || url}</a>`).run();
+              }
+            }}
+            className={`${EDITOR_STYLES.bubbleButton} ${
+              editor.isActive('link') ? 'bg-blue-200 dark:bg-blue-800' : ''
+            }`}
+            title="링크 추가"
+          >
+            <Link size={14} />
+          </button>
+          
+          {/* 인용구 버튼 */}
+          <button
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            className={`${EDITOR_STYLES.bubbleButton} ${
+              editor.isActive('blockquote') ? 'bg-blue-200 dark:bg-blue-800' : ''
+            }`}
+            title="인용구"
+          >
+            <Quote size={14} />
+          </button>
+          
+          {/* 구분선 */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          
+          {/* 추가 옵션 */}
+          <button
+            onClick={() => {
+              // 헤딩 레벨 변경
+              const level = window.prompt('헤딩 레벨 (1-3):');
+              if (level && ['1', '2', '3'].includes(level)) {
+                editor.chain().focus().setHeading({ level: parseInt(level) as 1 | 2 | 3 }).run();
+              }
+            }}
+            className={EDITOR_STYLES.bubbleButton}
+            title="헤딩 설정"
+          >
+            <MoreHorizontal size={14} />
           </button>
         </BubbleMenu>
       )}

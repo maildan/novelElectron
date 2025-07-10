@@ -1,45 +1,67 @@
-// 🔥 TipTap 에디터에 추가할 노션 기능들
+// 🔥 TipTap 에디터에 추가할 노션 기능들 (기본 기능만)
 // src/renderer/components/projects/editor/AdvancedNotionFeatures.ts
 
-import { Node, Mark } from '@tiptap/core';
+import { Node, Mark, mergeAttributes } from '@tiptap/core';
 
-// 1. 체크박스 확장
+// 🔥 1. TaskList 확장 (기본 기능만)
 export const TaskList = Node.create({
   name: 'taskList',
-  group: 'block',
+  group: 'block list',
   content: 'taskItem+',
   parseHTML() {
     return [{ tag: 'ul[data-type="taskList"]' }];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ['ul', { 'data-type': 'taskList', ...HTMLAttributes }, 0];
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+    return ['ul', mergeAttributes(HTMLAttributes, { 'data-type': 'taskList', class: 'task-list' }), 0];
   },
 });
 
+// 🔥 2. TaskItem 확장 (기본 기능만)
 export const TaskItem = Node.create({
   name: 'taskItem',
   content: 'paragraph block*',
   defining: true,
+  
   addAttributes() {
     return {
       checked: {
         default: false,
         parseHTML: (element: HTMLElement) => element.getAttribute('data-checked') === 'true',
-        renderHTML: (attributes: any) => ({
-          'data-checked': attributes.checked,
-        }),
+        renderHTML: (attributes: { checked: boolean }) => ({ 'data-checked': attributes.checked }),
       },
     };
   },
+  
   parseHTML() {
     return [{ tag: 'li[data-type="taskItem"]' }];
   },
-  renderHTML({ HTMLAttributes }) {
-    return ['li', { 'data-type': 'taskItem', ...HTMLAttributes }, 0];
+  
+  renderHTML({ node, HTMLAttributes }: { node: any; HTMLAttributes: Record<string, any> }) {
+    return [
+      'li',
+      mergeAttributes(HTMLAttributes, { 
+        'data-type': 'taskItem',
+        'data-checked': node.attrs.checked,
+        class: 'task-item' 
+      }),
+      [
+        'label',
+        { class: 'task-checkbox-wrapper' },
+        [
+          'input',
+          {
+            type: 'checkbox',
+            checked: node.attrs.checked ? 'checked' : null,
+            class: 'task-checkbox',
+          },
+        ],
+        ['span', { class: 'task-content' }, 0],
+      ],
+    ];
   },
 });
 
-// 2. 콜아웃 확장
+// 🔥 3. 콜아웃 확장 (타입 안전)
 export const Callout = Node.create({
   name: 'callout',
   group: 'block',
@@ -48,13 +70,13 @@ export const Callout = Node.create({
     return {
       type: {
         default: 'info',
-        renderHTML: (attributes: any) => ({
+        renderHTML: (attributes: { type: string }) => ({
           'data-type': attributes.type,
         }),
       },
       icon: {
         default: '💡',
-        renderHTML: (attributes: any) => ({
+        renderHTML: (attributes: { icon: string }) => ({
           'data-icon': attributes.icon,
         }),
       },
@@ -63,12 +85,12 @@ export const Callout = Node.create({
   parseHTML() {
     return [{ tag: 'div[data-callout]' }];
   },
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
     return ['div', { 'data-callout': true, ...HTMLAttributes }, 0];
   },
 });
 
-// 3. 토글 확장
+// 🔥 4. 토글 확장 (타입 안전)
 export const Toggle = Node.create({
   name: 'toggle',
   group: 'block',
@@ -77,13 +99,13 @@ export const Toggle = Node.create({
     return {
       open: {
         default: false,
-        renderHTML: (attributes: any) => ({
+        renderHTML: (attributes: { open: boolean }) => ({
           'data-open': attributes.open,
         }),
       },
       summary: {
         default: '토글 제목',
-        renderHTML: (attributes: any) => ({
+        renderHTML: (attributes: { summary: string }) => ({
           'data-summary': attributes.summary,
         }),
       },
@@ -92,7 +114,7 @@ export const Toggle = Node.create({
   parseHTML() {
     return [{ tag: 'details[data-toggle]' }];
   },
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
     return ['details', { 'data-toggle': true, ...HTMLAttributes }, 
       ['summary', {}, HTMLAttributes['data-summary'] || '토글 제목'],
       ['div', { class: 'toggle-content' }, 0]
@@ -100,7 +122,7 @@ export const Toggle = Node.create({
   },
 });
 
-// 4. 하이라이트 확장
+// 🔥 5. 하이라이트 확장 (타입 안전)
 export const Highlight = Mark.create({
   name: 'highlight',
   addAttributes() {
@@ -108,7 +130,7 @@ export const Highlight = Mark.create({
       color: {
         default: 'yellow',
         parseHTML: (element: HTMLElement) => element.getAttribute('data-color'),
-        renderHTML: (attributes: any) => {
+        renderHTML: (attributes: { color: string }) => {
           if (!attributes.color) {
             return {};
           }
@@ -122,7 +144,7 @@ export const Highlight = Mark.create({
   parseHTML() {
     return [{ tag: 'mark[data-highlight]' }];
   },
-  renderHTML({ HTMLAttributes }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
     return ['mark', { 'data-highlight': true, ...HTMLAttributes }, 0];
   },
 });
@@ -134,11 +156,11 @@ export const extendedSlashCommands = [
     description: '☑️ 할 일 목록',
     icon: '☑️',
     searchTerms: ['checkbox', 'todo', 'task', '체크', '할일'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
-        .toggleTaskList()
+        .toggleList('taskList', 'taskItem')
         .run();
     },
   },
@@ -147,7 +169,7 @@ export const extendedSlashCommands = [
     description: '💡 정보 강조',
     icon: '💡',
     searchTerms: ['callout', 'info', '콜아웃', '정보'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -160,7 +182,7 @@ export const extendedSlashCommands = [
     description: '⚠️ 경고 메시지',
     icon: '⚠️',
     searchTerms: ['warning', 'caution', '경고', '주의'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -173,7 +195,7 @@ export const extendedSlashCommands = [
     description: '❌ 에러 메시지',
     icon: '❌',
     searchTerms: ['error', 'danger', '에러', '오류'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -186,7 +208,7 @@ export const extendedSlashCommands = [
     description: '▼ 접을 수 있는 섹션',
     icon: '▼',
     searchTerms: ['toggle', 'collapse', '토글', '접기'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -199,7 +221,7 @@ export const extendedSlashCommands = [
     description: '🖍️ 텍스트 강조',
     icon: '🖍️',
     searchTerms: ['highlight', 'mark', '하이라이트', '강조'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -214,7 +236,7 @@ export const extendedSlashCommands = [
     description: '🔢 LaTeX 수식',
     icon: '🔢',
     searchTerms: ['math', 'latex', 'formula', '수식', '공식'],
-    command: ({ editor, range }: any) => {
+    command: ({ editor, range }: { editor: any; range: any }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -229,46 +251,46 @@ export const extendedKeyboardShortcuts = [
   {
     key: 'Mod-Shift-1',
     description: '제목 1',
-    command: ({ editor }: any) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
   },
   {
     key: 'Mod-Shift-2',
     description: '제목 2',
-    command: ({ editor }: any) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
   },
   {
     key: 'Mod-Shift-3',
     description: '제목 3',
-    command: ({ editor }: any) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     key: 'Mod-Shift-7',
     description: '번호 리스트',
-    command: ({ editor }: any) => editor.chain().focus().toggleOrderedList().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleOrderedList().run(),
   },
   {
     key: 'Mod-Shift-8',
     description: '불릿 리스트',
-    command: ({ editor }: any) => editor.chain().focus().toggleBulletList().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleBulletList().run(),
   },
   {
     key: 'Mod-Shift-9',
     description: '체크박스',
-    command: ({ editor }: any) => editor.chain().focus().toggleTaskList().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleList('taskList', 'taskItem').run(),
   },
   {
     key: 'Mod-Shift-.',
     description: '인용구',
-    command: ({ editor }: any) => editor.chain().focus().toggleBlockquote().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleBlockquote().run(),
   },
   {
     key: 'Mod-Alt-C',
     description: '코드 블록',
-    command: ({ editor }: any) => editor.chain().focus().toggleCodeBlock().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleCodeBlock().run(),
   },
   {
     key: 'Mod-Shift-H',
     description: '하이라이트',
-    command: ({ editor }: any) => editor.chain().focus().toggleHighlight().run(),
+    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHighlight().run(),
   },
 ];

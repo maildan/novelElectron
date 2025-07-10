@@ -352,6 +352,108 @@ export class WindowsLanguageDetector extends BaseLanguageDetector {
     };
   }
 
+  /**
+   * 🔥 Windows IME 상태 감지
+   */
+  public async detectIMEState(): Promise<{
+    isIMEActive: boolean;
+    inputMethod: string;
+    language: string;
+    confidence: number;
+  }> {
+    try {
+      // 키보드 레이아웃으로 IME 상태 판단
+      const layout = await this.getCurrentKeyboardLayout();
+      
+      if (!layout) {
+        return {
+          isIMEActive: false,
+          inputMethod: 'unknown',
+          language: 'unknown',
+          confidence: 0.0
+        };
+      }
+
+      // 한국어 레이아웃인지 확인
+      const isKoreanLayout = layout === 0x0412 || // 한국어
+                           layout === 0x040D ||   // 한국어 (구 버전)
+                           WINDOWS_KEYBOARD_LAYOUTS[layout] === 'ko';
+
+      if (isKoreanLayout) {
+        return {
+          isIMEActive: true,
+          inputMethod: 'Korean IME',
+          language: 'ko-KR',
+          confidence: 0.95
+        };
+      }
+
+      // 기타 IME 언어들
+      const layoutInfo = WINDOWS_KEYBOARD_LAYOUTS[layout];
+      if (layoutInfo && layoutInfo !== 'en') {
+        return {
+          isIMEActive: true,
+          inputMethod: `${layoutInfo} IME`,
+          language: layoutInfo === 'ko' ? 'ko-KR' : `${layoutInfo}-${layoutInfo.toUpperCase()}`,
+          confidence: 0.85
+        };
+      }
+
+      // 영어 또는 알 수 없는 레이아웃
+      return {
+        isIMEActive: false,
+        inputMethod: 'Direct Input',
+        language: 'en-US',
+        confidence: 0.8
+      };
+
+    } catch (error) {
+      Logger.warn(this.componentName, 'IME 상태 감지 실패', error);
+      return {
+        isIMEActive: false,
+        inputMethod: 'unknown',
+        language: 'unknown',
+        confidence: 0.0
+      };
+    }
+  }
+
+  /**
+   * 🔥 Windows 한글 입력 모드 감지
+   */
+  public async detectHangulInputMode(): Promise<{
+    isHangulMode: boolean;
+    inputMode: 'english' | 'hangul' | 'unknown';
+    confidence: number;
+  }> {
+    try {
+      const imeState = await this.detectIMEState();
+      
+      if (imeState.language === 'ko-KR' && imeState.isIMEActive) {
+        // 추가적으로 레지스트리나 시스템 상태 확인 가능
+        return {
+          isHangulMode: true,
+          inputMode: 'hangul',
+          confidence: imeState.confidence
+        };
+      }
+
+      return {
+        isHangulMode: false,
+        inputMode: imeState.language.startsWith('en') ? 'english' : 'unknown',
+        confidence: imeState.confidence
+      };
+
+    } catch (error) {
+      Logger.warn(this.componentName, '한글 입력 모드 감지 실패', error);
+      return {
+        isHangulMode: false,
+        inputMode: 'unknown',
+        confidence: 0.0
+      };
+    }
+  }
+
   public getPerformanceStats() {
     return {
       ...super.getPerformanceStats(),
@@ -368,5 +470,20 @@ export class WindowsLanguageDetector extends BaseLanguageDetector {
   }
 }
 
-export const windowsLanguageDetector = new WindowsLanguageDetector();
+// 🔥 Windows에서만 인스턴스 생성 (조건부 export)
+let windowsLanguageDetector: WindowsLanguageDetector | null = null;
+
+if (Platform.isWindows()) {
+  try {
+    windowsLanguageDetector = new WindowsLanguageDetector();
+  } catch (error) {
+    Logger.error('WINDOWS_LANGUAGE_DETECTOR', 'Windows 언어 감지기 생성 실패', error);
+    windowsLanguageDetector = null;
+  }
+} else {
+  Logger.debug('WINDOWS_LANGUAGE_DETECTOR', 'Windows가 아닌 플랫폼에서는 생성하지 않음');
+  windowsLanguageDetector = null;
+}
+
+export { windowsLanguageDetector };
 export default windowsLanguageDetector;

@@ -64,8 +64,9 @@ export class KeyboardService extends EventEmitter {
     
     if (hasPermission && !this.windowTracker) {
       try {
-        // 🔥 권한 정보를 WindowTracker에 전달
-        this.windowTracker = new WindowTracker({}, hasPermission);
+        // 🔥 WindowTracker 생성 후 권한 설정
+        this.windowTracker = new WindowTracker({});
+        this.windowTracker.setAccessibilityPermission(hasPermission);
         Logger.info('KEYBOARD', 'WindowTracker initialized with accessibility permission');
       } catch (error) {
         Logger.error('KEYBOARD', 'Failed to initialize WindowTracker', error);
@@ -1084,14 +1085,27 @@ export class KeyboardService extends EventEmitter {
   private isValidHangulInput(key: string): boolean {
     if (!key || key.length !== 1) return false;
     
-    // 알파벳 키만 한글로 매핑 가능
     const charCode = key.charCodeAt(0);
-    const isAlphabet = (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
     
-    if (!isAlphabet) {
-      Logger.debug('KEYBOARD', '❌ 비알파벳 키는 한글 처리 불가', { 
+    // 🔥 확장된 유효 키 범위: 알파벳 + 숫자 + 기본 특수문자
+    const isAlphabet = (charCode >= 65 && charCode <= 90) || (charCode >= 97 && charCode <= 122);
+    const isNumber = (charCode >= 48 && charCode <= 57); // 0-9
+    const isBasicSymbol = [
+      32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, // 기본 기호들
+      58, 59, 60, 61, 62, 63, 64, // : ; < = > ? @
+      91, 92, 93, 94, 95, 96, // [ \ ] ^ _ `
+      123, 124, 125, 126 // { | } ~
+    ].includes(charCode);
+    
+    const isValidKey = isAlphabet || isNumber || isBasicSymbol;
+    
+    if (!isValidKey) {
+      Logger.debug('KEYBOARD', '❌ 지원하지 않는 키 타입', { 
         key, 
         charCode,
+        isAlphabet,
+        isNumber,
+        isBasicSymbol,
         isValid: false
       });
       return false;

@@ -32,9 +32,9 @@ const PROJECT_HEADER_STYLES = {
   iconButton: 'flex items-center justify-center w-9 h-9 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 relative group',
   iconButtonActive: 'flex items-center justify-center w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 relative group',
   
-  // 툴팁 스타일
-  tooltip: 'absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50',
-  tooltipWithShortcut: 'absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50',
+  // 🔥 툴팁 스타일 (완전히 보이도록 z-index 극대화)
+  tooltip: 'absolute top-full mt-3 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[9999] shadow-lg border border-gray-600',
+  tooltipWithShortcut: 'absolute top-full mt-3 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[9999] shadow-lg border border-gray-600',
   shortcut: 'block text-gray-400 text-xs mt-1',
   
   // 슬라이드바 스타일
@@ -119,58 +119,48 @@ export function ProjectHeader({
     Logger.info('PROJECT_HEADER', `Theme changed to ${newDarkMode ? 'dark' : 'light'}`);
   };
 
-  // 🔥 집중모드 토글
-  const toggleFocusMode = (): void => {
-    const focusEvent = new CustomEvent('project:toggleFocus');
-    window.dispatchEvent(focusEvent);
-    Logger.info('PROJECT_HEADER', 'Focus mode toggled');
+  // 🔥 에디터 내용 복사 (QA 가이드: 에디터 내용 복사 구현)
+  const copyContent = async (): Promise<void> => {
+    try {
+      // 에디터에서 텍스트 내용 가져오기 위한 이벤트 발생
+      const copyEvent = new CustomEvent('project:copyContent', {
+        detail: { 
+          callback: async (content: string) => {
+            try {
+              await navigator.clipboard.writeText(content);
+              Logger.info('PROJECT_HEADER', 'Editor content copied to clipboard', { 
+                length: content.length 
+              });
+            } catch (error) {
+              Logger.error('PROJECT_HEADER', 'Failed to copy content', error);
+            }
+          }
+        }
+      });
+      window.dispatchEvent(copyEvent);
+      
+      Logger.info('PROJECT_HEADER', 'Copy content event dispatched');
+    } catch (error) {
+      Logger.error('PROJECT_HEADER', 'Failed to copy content', error);
+    }
   };
 
-  // 🔥 콘텐츠 복사
-  const copyContent = (): void => {
-    const copyEvent = new CustomEvent('project:copy');
-    window.dispatchEvent(copyEvent);
-    Logger.info('PROJECT_HEADER', 'Content copy triggered');
-  };
-
-  // 🔥 AI 기능 활성화
+  // 🔥 AI 기능 활성화 (슬라이드바 토글)
   const triggerAI = (): void => {
-    const aiEvent = new CustomEvent('project:ai');
-    window.dispatchEvent(aiEvent);
-    Logger.info('PROJECT_HEADER', 'AI feature triggered');
+    setActiveSlideBar(activeSlideBar === 'ai' ? null : 'ai');
+    Logger.info('PROJECT_HEADER', 'AI sidebar toggled');
   };
   
-  // 🔥 복사 기능 (현재 텍스트 클립보드에 복사)
-  const handleCopy = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(title);
-      Logger.info('PROJECT_HEADER', 'Project title copied to clipboard');
-      // TODO: 토스트 알림 추가
-    } catch (error) {
-      Logger.error('PROJECT_HEADER', 'Failed to copy to clipboard', error);
-    }
-  };
-
-  // 🔥 집중모드 토글 (에디터만 표시)
+  // 🔥 집중모드 토글 (에디터만 표시) - 통합된 단일 함수
   const handleFocusMode = (): void => {
-    const isFocusMode = document.body.classList.contains('focus-mode');
-    
-    if (isFocusMode) {
-      document.body.classList.remove('focus-mode');
-      Logger.info('PROJECT_HEADER', 'Focus mode disabled');
-    } else {
-      document.body.classList.add('focus-mode');
-      Logger.info('PROJECT_HEADER', 'Focus mode enabled');
-    }
-    
-    // 포커스 모드 상태를 부모 컴포넌트에 전달
-    onToggleFocusMode();
+    onToggleFocusMode(); // Props로 전달된 함수 사용
+    Logger.info('PROJECT_HEADER', 'Focus mode toggled');
   };
 
   // 🔥 헤더 액션 정의 (CRUD + 복사, 공유 개선)
   const headerActions: HeaderAction[] = [
     { icon: Save, label: '저장', shortcut: 'Cmd+S', onClick: onSave },
-    { icon: Copy, label: '복사', shortcut: 'Cmd+C', onClick: handleCopy },
+    { icon: Copy, label: '복사', shortcut: 'Cmd+C', onClick: copyContent },
     { icon: Share2, label: '공유', shortcut: 'Cmd+Shift+S', onClick: onShare },
     { icon: FileDown, label: '내보내기', shortcut: 'Cmd+E', onClick: onDownload },
     { icon: Trash2, label: '삭제', shortcut: 'Cmd+Del', onClick: onDelete },
@@ -179,7 +169,7 @@ export function ProjectHeader({
   // 🔥 툴바 확장 액션들 (AI 채팅, 테마 원클릭, 집중모드)
   const toolbarActions: HeaderAction[] = [
     { icon: Copy, label: '콘텐츠 복사', shortcut: 'Cmd+C', onClick: copyContent },
-    { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: toggleFocusMode },
+    { icon: Maximize2, label: '집중모드', shortcut: 'ESC로 해제', onClick: handleFocusMode },
     { icon: MessageCircle, label: 'AI 채팅', onClick: triggerAI },
     { 
       icon: isDarkMode ? Sun : Moon, 
@@ -187,6 +177,20 @@ export function ProjectHeader({
       onClick: toggleTheme 
     },
   ];
+
+  // 🔥 ESC 키 이벤트 리스너 (슬라이드바 우선 닫기)
+  useEffect(() => {
+    const handleGlobalEscape = (event: CustomEvent): void => {
+      if (activeSlideBar) {
+        setActiveSlideBar(null);
+        event.preventDefault(); // 이벤트 처리됨을 표시
+        Logger.info('PROJECT_HEADER', 'Sidebar closed by ESC key');
+      }
+    };
+
+    window.addEventListener('global:escape', handleGlobalEscape as EventListener);
+    return () => window.removeEventListener('global:escape', handleGlobalEscape as EventListener);
+  }, [activeSlideBar]);
 
   return (
     <> 
@@ -219,13 +223,14 @@ export function ProjectHeader({
           {headerActions.map((action, index) => (
             <button
               key={`action-${index}`}
-              className={PROJECT_HEADER_STYLES.iconButton}
+              className={`${PROJECT_HEADER_STYLES.iconButton} group relative`}
               onClick={action.onClick}
             >
               <action.icon size={16} />
-              <div className={PROJECT_HEADER_STYLES.tooltipWithShortcut}>
+              {/* 🔥 Context7 패턴: 올바른 툴팁 구현 */}
+              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                 <div>{action.label}</div>
-                {action.shortcut && <div className={PROJECT_HEADER_STYLES.shortcut}>{action.shortcut}</div>}
+                {action.shortcut && <div className="text-gray-400 text-xs mt-1">{action.shortcut}</div>}
               </div>
             </button>
           ))}
@@ -237,11 +242,12 @@ export function ProjectHeader({
           {toolbarActions.map((action, index) => (
             <button
               key={`toolbar-${index}`}
-              className={PROJECT_HEADER_STYLES.iconButton}
+              className={`${PROJECT_HEADER_STYLES.iconButton} group relative`}
               onClick={action.onClick}
             >
               <action.icon size={16} />
-              <div className={PROJECT_HEADER_STYLES.tooltip}>
+              {/* 🔥 Context7 패턴: 올바른 툴팁 구현 */}
+              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                 {action.label}
               </div>
             </button>
@@ -252,11 +258,12 @@ export function ProjectHeader({
           
           {/* UI 컨트롤들 */}
           <button 
-            className={sidebarCollapsed ? PROJECT_HEADER_STYLES.iconButton : PROJECT_HEADER_STYLES.iconButtonActive}
+            className={`${sidebarCollapsed ? PROJECT_HEADER_STYLES.iconButton : PROJECT_HEADER_STYLES.iconButtonActive} group relative`}
             onClick={onToggleSidebar}
           >
             <Sidebar size={16} />
-            <div className={PROJECT_HEADER_STYLES.tooltip}>
+            {/* 🔥 Context7 패턴: 올바른 툴팁 구현 */}
+            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
               사이드바 토글
             </div>
           </button>
