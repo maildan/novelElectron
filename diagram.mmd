@@ -1,0 +1,16 @@
+graph LR
+  subgraph RendererNextjs ["Renderer (Next.js)"]
+    Dashboard["대시보드 UI"]
+    Stats["통계 뷰어 (WPM 등)"]
+    Dashboard --> IPCChannel
+    Stats --> IPCChannel
+  end
+
+  IPCChannel["IPC 채널 레이어"]
+  IPCChannel --> Unified["UnifiedHandler (Singleton)"]
+
+  subgraph MainProcess ["Main Process (Electron)"]
+    Unified --> WindowTracker["WindowTracker.ts"]
+    Unified --> KeyboardEngine["KeyboardEngine.ts"]
+    Unified --> DBManager["DatabaseManager.ts"]
+  end

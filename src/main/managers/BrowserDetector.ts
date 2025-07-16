@@ -173,7 +173,7 @@ private readonly supportedBrowsers = [
     };
 
     // 🔥 권한 상태를 WindowTracker에 전달
-    this.windowTracker = new WindowTracker({}, this.hasAccessibilityPermission);
+    this.windowTracker = new WindowTracker({});
     
     Logger.info(this.componentName, 'Browser detector instance created', {
       hasAccessibilityPermission: this.hasAccessibilityPermission

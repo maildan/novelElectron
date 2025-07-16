@@ -426,19 +426,21 @@ export class WindowTracker extends BaseManager {
    */
   public getAppStats(): Record<string, { count: number; totalTime: number; category: string }> {
     const stats: Record<string, { count: number; totalTime: number; category: string }> = {};
-    
+
     this.windowHistory.forEach(window => {
-      const appName = window.owner.name;
+      // window.owner 또는 window.owner.name이 undefined일 수 있으므로 안전하게 접근
+      const appName = window?.owner?.name ?? 'unknown';
       if (!stats[appName]) {
         stats[appName] = {
           count: 0,
           totalTime: 0,
-          category: window.loopAppCategory || 'other'
+          category: (window as any)?.loopAppCategory || 'other'
         };
       }
-      stats[appName].count++;
+      // stats[appName]는 위에서 항상 초기화되므로 undefined가 아님
+      stats[appName]!.count++;
     });
-    
+
     return stats;
   }
 

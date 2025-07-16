@@ -8,8 +8,9 @@ import Focus from '@tiptap/extension-focus';
 import Typography from '@tiptap/extension-typography';
 import CharacterCount from '@tiptap/extension-character-count';
 import Underline from '@tiptap/extension-underline';
+import Image from '@tiptap/extension-image';
 import { SlashCommand, slashSuggestion } from './SlashCommands';
-import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Link, Quote, Palette, MoreHorizontal } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, Link, Quote, Palette, MoreHorizontal, ImageIcon, Copy, Clipboard } from 'lucide-react';
 import { Logger } from '../../../../shared/logger';
 import { handleEditorKeyDown, bindShortcutsToEditor, ALL_SHORTCUTS } from './EditorShortcuts';
 import { TaskList, TaskItem, Callout, Toggle, Highlight } from './AdvancedNotionFeatures';
@@ -18,7 +19,7 @@ import './MarkdownEditor.css';
 // 🔥 작가 친화적 TipTap 에디터 스타일
 const EDITOR_STYLES = {
   container: 'w-full h-full flex flex-col',
-  editor: 'flex-1 p-6 prose prose-slate max-w-none focus:outline-none',
+  editor: 'flex-1 p-6 prose max-w-none focus:outline-none text-gray-900 dark:text-gray-100',
   focused: 'prose-lg', // 포커스 모드에서 더 큰 글자
   placeholder: 'text-slate-400 pointer-events-none',
   bubble: 'flex flex-nowrap gap-1 p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-50 overflow-visible whitespace-nowrap',
@@ -33,6 +34,55 @@ interface MarkdownEditorProps {
 
 export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEditorProps): React.ReactElement {
   const [isReady, setIsReady] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false); // 🔥 드래그 오버 상태 추가
+
+  // 🔥 드래그 앤 드롭 피드백을 위한 이벤트 리스너
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      // 에디터 영역을 완전히 벗어날 때만 상태 변경
+      if (!e.relatedTarget || !(e.relatedTarget as Element).closest('.ProseMirror')) {
+        setIsDragOver(false);
+      }
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+    };
+
+    // 전역 이벤트 리스너 등록
+    document.addEventListener('dragover', handleDragOver);
+    document.addEventListener('dragleave', handleDragLeave);
+    document.addEventListener('drop', handleDrop);
+
+    return () => {
+      document.removeEventListener('dragover', handleDragOver);
+      document.removeEventListener('dragleave', handleDragLeave);
+      document.removeEventListener('drop', handleDrop);
+    };
+  }, []);
+
+  // 🔥 복사 기능을 위한 키보드 이벤트 리스너
+  useEffect(() => {
+    const handleCopy = (e: KeyboardEvent) => {
+      const isCtrlC = (e.ctrlKey || e.metaKey) && e.key === 'c';
+      const isCtrlA = (e.ctrlKey || e.metaKey) && e.key === 'a';
+      
+      if (isCtrlC || isCtrlA) {
+        // 기본 복사 동작 허용 (TipTap이 자동으로 처리)
+        console.log('복사 허용:', isCtrlC ? 'Ctrl+C' : 'Ctrl+A');
+      }
+    };
+
+    document.addEventListener('keydown', handleCopy);
+    return () => document.removeEventListener('keydown', handleCopy);
+  }, []);
 
   // 🔥 TipTap 에디터 초기화 (Notion 스타일 + 작가 친화적 설정)
   const editor = useEditor({
@@ -56,6 +106,15 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
       
       // 🔥 언더라인 확장
       Underline,
+      
+      // 🔥 이미지 확장 (드래그앤드롭, 클립보드 붙여넣기 지원)
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-lg shadow-md max-w-full h-auto my-4',
+        },
+        inline: false,
+        allowBase64: true,
+      }),
       
       // 🔥 Placeholder 확장 (작가 친화적)
       Placeholder.configure({
@@ -218,6 +277,72 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
         
         return false;
       },
+      
+      // 🔥 클립보드 처리 (이미지 붙여넣기 지원)
+      handlePaste: (view, event) => {
+        const editorInstance = (view as any).editor;
+        if (!editorInstance) return false;
+        
+        const clipboardData = event.clipboardData;
+        if (!clipboardData) return false;
+        
+        // 이미지 파일 처리
+        const items = Array.from(clipboardData.items);
+        for (const item of items) {
+          if (item.type.indexOf('image') === 0) {
+            event.preventDefault();
+            const file = item.getAsFile();
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const src = e.target?.result as string;
+                if (src) {
+                  editorInstance.chain().focus().setImage({ src }).run();
+                  Logger.info('TIPTAP_EDITOR', 'Image pasted from clipboard');
+                }
+              };
+              reader.readAsDataURL(file);
+              return true;
+            }
+          }
+        }
+        
+        // 텍스트 처리 (기본 동작 허용)
+        return false;
+      },
+      
+      // 🔥 드래그 앤 드롭 처리
+      handleDrop: (view, event) => {
+        const editorInstance = (view as any).editor;
+        if (!editorInstance) return false;
+        
+        // 드래그 오버 클래스 제거
+        const editorElement = view.dom as HTMLElement;
+        editorElement.classList.remove('drag-over');
+        
+        const files = Array.from(event.dataTransfer?.files || []);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length > 0) {
+          event.preventDefault();
+          
+          imageFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const src = e.target?.result as string;
+              if (src) {
+                editorInstance.chain().focus().setImage({ src }).run();
+                Logger.info('TIPTAP_EDITOR', 'Image dropped into editor');
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+          
+          return true;
+        }
+        
+        return false;
+      },
     },
     
     // 🔥 콘텐츠 변경 핸들러
@@ -268,6 +393,41 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
     // 🔥 단축키 바인딩
     const unbindShortcuts = bindShortcutsToEditor(editor);
     
+    // 🔥 클립보드 단축키 추가
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const { key, ctrlKey, metaKey } = event;
+      const modKey = ctrlKey || metaKey; // Windows: Ctrl, Mac: Cmd
+      
+      // Ctrl/Cmd + C: 복사
+      if (modKey && key === 'c' && !event.shiftKey) {
+        const selectedText = editor.state.doc.textBetween(
+          editor.state.selection.from,
+          editor.state.selection.to
+        );
+        if (selectedText) {
+          navigator.clipboard.writeText(selectedText).then(() => {
+            Logger.info('TIPTAP_EDITOR', 'Text copied via keyboard shortcut');
+          }).catch((err) => {
+            Logger.error('TIPTAP_EDITOR', 'Failed to copy text via shortcut', err);
+          });
+        }
+      }
+      
+      // Ctrl/Cmd + V: 붙여넣기
+      if (modKey && key === 'v' && !event.shiftKey) {
+        navigator.clipboard.readText().then((text) => {
+          if (text) {
+            editor.chain().focus().insertContent(text).run();
+            Logger.info('TIPTAP_EDITOR', 'Text pasted via keyboard shortcut');
+          }
+        }).catch((err) => {
+          Logger.error('TIPTAP_EDITOR', 'Failed to paste text via shortcut', err);
+        });
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    
     // 🔥 저장 이벤트 리스너 (Ctrl+S)
     const handleSave = () => {
       const saveEvent = new CustomEvent('project:save');
@@ -284,6 +444,7 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
     // 🔥 정리 함수
     return () => {
       unbindShortcuts();
+      document.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('editor:save', handleSave);
       Logger.debug('TIPTAP_EDITOR', 'Shortcuts and events unbound');
     };
@@ -330,6 +491,55 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
     };
   }, [isFocusMode, editor]);
 
+  // 🔥 에디터 드래그 앤 드롭 시각적 피드백
+  useEffect(() => {
+    if (!editor) return;
+
+    const editorElement = editor.view.dom as HTMLElement;
+    
+    const handleDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      editorElement.classList.add('drag-over');
+      setIsDragOver(true);
+    };
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // 에디터 영역을 완전히 벗어날 때만 상태 변경
+      if (!editorElement.contains(e.relatedTarget as Node)) {
+        editorElement.classList.remove('drag-over');
+        setIsDragOver(false);
+      }
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      editorElement.classList.remove('drag-over');
+      setIsDragOver(false);
+    };
+
+    // 에디터 전용 드래그 이벤트 리스너
+    editorElement.addEventListener('dragenter', handleDragEnter);
+    editorElement.addEventListener('dragover', handleDragOver);
+    editorElement.addEventListener('dragleave', handleDragLeave);
+    editorElement.addEventListener('drop', handleDrop);
+
+    return () => {
+      editorElement.removeEventListener('dragenter', handleDragEnter);
+      editorElement.removeEventListener('dragover', handleDragOver);
+      editorElement.removeEventListener('dragleave', handleDragLeave);
+      editorElement.removeEventListener('drop', handleDrop);
+    };
+  }, [editor]);
+
   // 🔥 로딩 중 표시
   if (!isReady) {
     return (
@@ -345,7 +555,16 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
   }
 
   return (
-    <div className={EDITOR_STYLES.container}>
+    <div className={`${EDITOR_STYLES.container} ${isDragOver ? 'drag-over' : ''}`}>
+      {/* 🔥 드래그 오버 상태 피드백 */}
+      {isDragOver && (
+        <div className="absolute inset-0 border-2 border-dashed border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center z-10 pointer-events-none">
+          <div className="text-blue-600 dark:text-blue-400 text-lg font-medium">
+            📁 파일을 여기에 놓으세요
+          </div>
+        </div>
+      )}
+      
       {/* 🔥 Enhanced Bubble Menu (선택 시 나타나는 고급 툴바) */}
       {editor && (
         <BubbleMenu 
@@ -417,13 +636,8 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           {/* 링크 버튼 */}
           <button
             onClick={() => {
-              const url = window.prompt('링크 URL을 입력하세요:');
-              if (url) {
-                // 기본 링크 처리 (확장 없이)
-                const selection = editor.view.state.selection;
-                const { from, to } = selection;
-                editor.chain().focus().insertContent(`<a href="${url}" target="_blank">${editor.view.state.doc.textBetween(from, to) || url}</a>`).run();
-              }
+              // TODO: 링크 다이얼로그 모달로 교체 필요
+              console.log('링크 기능은 추후 다이얼로그로 구현 예정');
             }}
             className={`${EDITOR_STYLES.bubbleButton} ${
               editor.isActive('link') ? 'bg-blue-200 dark:bg-blue-800' : ''
@@ -447,14 +661,82 @@ export function MarkdownEditor({ content, onChange, isFocusMode }: MarkdownEdito
           {/* 구분선 */}
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
           
+          {/* 이미지 추가 버튼 */}
+          <button
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const src = event.target?.result as string;
+                    if (src) {
+                      editor.chain().focus().setImage({ src }).run();
+                      Logger.info('TIPTAP_EDITOR', 'Image added via file picker');
+                    }
+                  };
+                  reader.readAsDataURL(file);
+                }
+              };
+              input.click();
+            }}
+            className={EDITOR_STYLES.bubbleButton}
+            title="이미지 추가"
+          >
+            <ImageIcon size={14} />
+          </button>
+          
+          {/* 복사 버튼 */}
+          <button
+            onClick={() => {
+              const selectedText = editor.state.doc.textBetween(
+                editor.state.selection.from,
+                editor.state.selection.to
+              );
+              if (selectedText) {
+                navigator.clipboard.writeText(selectedText).then(() => {
+                  Logger.info('TIPTAP_EDITOR', 'Text copied to clipboard');
+                }).catch((err) => {
+                  Logger.error('TIPTAP_EDITOR', 'Failed to copy text', err);
+                });
+              }
+            }}
+            className={EDITOR_STYLES.bubbleButton}
+            title="선택한 텍스트 복사"
+          >
+            <Copy size={14} />
+          </button>
+          
+          {/* 클립보드에서 붙여넣기 버튼 */}
+          <button
+            onClick={async () => {
+              try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                  editor.chain().focus().insertContent(text).run();
+                  Logger.info('TIPTAP_EDITOR', 'Text pasted from clipboard');
+                }
+              } catch (err) {
+                Logger.error('TIPTAP_EDITOR', 'Failed to paste from clipboard', err);
+              }
+            }}
+            className={EDITOR_STYLES.bubbleButton}
+            title="클립보드에서 붙여넣기"
+          >
+            <Clipboard size={14} />
+          </button>
+          
+          {/* 구분선 */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          
           {/* 추가 옵션 */}
           <button
             onClick={() => {
-              // 헤딩 레벨 변경
-              const level = window.prompt('헤딩 레벨 (1-3):');
-              if (level && ['1', '2', '3'].includes(level)) {
-                editor.chain().focus().setHeading({ level: parseInt(level) as 1 | 2 | 3 }).run();
-              }
+              // 기본으로 H2 헤딩 적용 (prompt 대신)
+              editor.chain().focus().setHeading({ level: 2 }).run();
             }}
             className={EDITOR_STYLES.bubbleButton}
             title="헤딩 설정"

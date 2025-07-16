@@ -32,6 +32,45 @@
   outline: none;
 }
 
+/* 🔥 라이트 모드 명시적 텍스트 색상 */
+:root .ProseMirror {
+  color: #1f2937 !important; /* gray-800 */
+}
+
+/* 🔥 다크 모드 명시적 텍스트 색상 */
+:root.dark .ProseMirror {
+  color: #f9fafb !important; /* gray-50 */
+}
+
+/* 🔥 이미지 스타일 */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.ProseMirror img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔥 선택된 이미지 스타일 */
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 🔥 드래그 앤 드롭 영역 스타일 */
+.ProseMirror.drag-over {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  border-style: dashed !important;
+}
+
 .ProseMirror:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -1149,4 +1188,76 @@ body.focus-mode::after {
   align-items: center !important;
   overflow-x: auto !important;
   max-width: 90vw !important;
+}
+
+/* 🔥 드래그 앤 드롭 피드백 스타일 */
+.ProseMirror.drag-over {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border-style: dashed !important;
+  border-width: 2px !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 🔥 드래그 오버 애니메이션 */
+.ProseMirror.drag-over::after {
+  content: '📁 파일을 여기에 놓으세요';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  z-index: 1000;
+  pointer-events: none;
+  animation: dragFeedback 0.3s ease-in-out;
+}
+
+@keyframes dragFeedback {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 🔥 복사 기능 향상 */
+.ProseMirror {
+  /* 텍스트 선택 허용 */
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* 🔥 선택된 텍스트 스타일 */
+.ProseMirror ::selection {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: inherit !important;
+}
+
+.ProseMirror ::-moz-selection {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: inherit !important;
+}
+
+/* 🔥 이미지 복사 지원 */
+.ProseMirror img {
+  -webkit-user-select: all !important;
+  -moz-user-select: all !important;
+  -ms-user-select: all !important;
+  user-select: all !important;
+  cursor: pointer !important;
+}
+
+.ProseMirror img:hover {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
 }

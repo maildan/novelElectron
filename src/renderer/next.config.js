@@ -1,18 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 🔥 Electron 최적화: standalone 모드 사용 (2024-25년 Best Practice)
-  // 이유: 
-  // 1. Electron은 로컬 파일 시스템에서 실행 (서버 없음)
-  // 2. 동적 라우팅 지원 (export보다 유연)
-  // 3. 번들 크기 최소화 + Next.js 서버 내장
-  // 4. 빠른 앱 시작 속도 + SSR 지원
-  output: 'standalone',
+  // 🔥 Electron 기본 설정 - 정적 생성 대신 클라이언트 사이드 라우팅 사용
+  // 동적 라우팅을 위해 output: 'export' 제거
+  
+  // 🔥 Electron용 기본 설정
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   
   // 🔥 성능 최적화 - 이미지 설정
   images: {
     unoptimized: true, // Electron에서는 최적화 비활성화
-    formats: ['image/webp', 'image/avif'], // 🔥 최신 이미지 포맷 사용
-    deviceSizes: [640, 750, 828, 1080, 1200], // 🔥 디바이스별 최적화
   },
   
   // 🔥 성능 최적화 - 번들 분할 및 트리쉐이킹 + 기가차드 극한 최적화

@@ -954,11 +954,10 @@ export class KeyboardService extends EventEmitter {
         40: 'ArrowDown',
         46: 'Delete',
       };
-      
-      if (specialKeys[keycode]) {
-        return specialKeys[keycode];
+      const specialKey = specialKeys[keycode];
+      if (specialKey !== undefined) {
+        return specialKey;
       }
-      
       // 🔥 7. 일반 알파벳 키 (A-Z)
       if (keycode >= 65 && keycode <= 90) {
         return String.fromCharCode(keycode).toLowerCase();

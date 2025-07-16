@@ -98,7 +98,7 @@ export function WriterStatsPanel({
   const [lastWordCount, setLastWordCount] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // 🔥 OpenAI 채팅 통합 - Loop API로 직접 호출하는 방식으로 변경
+  // 🔥 OpenAI 채팅 통합 - Electron API를 통한 IPC 통신으로 변경
   const sendMessageToOpenAI = useCallback(async (content: string): Promise<void> => {
     try {
       // 사용자 메시지 추가
@@ -108,46 +108,91 @@ export function WriterStatsPanel({
       // AI 응답 로딩 상태 시작
       setIsAiTyping(true);
       
-      console.log('📨 AI 요청 시작:', content.substring(0, 30) + '...');
+      console.log('📨 AI 요청 시작 (Electron API):', content.substring(0, 30) + '...');
       
-      // Loop OpenAI 서비스 직접 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ 
-          message: content
-        })
-      });
-      
-      console.log('📩 AI 응답 상태:', response.status, response.statusText);
-      
-      if (!response.ok) {
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      console.log('✅ AI 응답 성공:', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
-      
-      try {
-        // 안전하게 Logger 사용 시도 (Electron API 에러 방지)
-        if (typeof window !== 'undefined' && window.electronAPI) {
-          Logger.info('AI_CHAT', 'API 응답 성공');
-        } else {
-          console.info('AI_CHAT: API 응답 성공');
+      // Electron API를 통한 AI 요청
+      if (typeof window !== 'undefined' && window.electronAPI?.ai?.sendMessage) {
+        const result = await window.electronAPI.ai.sendMessage(content);
+        
+        console.log('📩 AI 응답 상태:', result.success ? 'SUCCESS' : 'FAILED');
+        
+        if (!result.success) {
+          throw new Error(result.error || 'AI 응답 실패');
         }
-      } catch (logError) {
-        console.log('⚠️ Logger 접근 실패:', logError);
+        
+        const responseData = result.data;
+        console.log('✅ AI 응답 성공:', responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response');
+        
+        // AI 응답 추가
+        const aiMessage: ChatMessage = { 
+          role: 'ai', 
+          content: responseData?.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        
+      } else {
+        // Fallback: 직접 fetch (개발 환경 또는 Electron API 미사용시)
+        console.log('⚠️ Electron API 없음, fetch 사용');
+        
+        let response;
+        let data;
+        
+        try {
+          // 첫 번째 시도: 기본 API (로컬 서버)
+          response = await fetch('http://0.0.0.0:8080/api/chat', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+              message: content
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          console.log('✅ AI 응답 성공 (primary):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
+          
+        } catch (primaryError) {
+          console.warn('⚠️ Primary API 실패, fallback 시도:', primaryError);
+          
+          // 두 번째 시도: 클라우드 서버 (fallback)
+          try {
+            response = await fetch('https://loop-openai.onrender.com/api/chat', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ 
+                message: content
+              })
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+            }
+            
+            data = await response.json();
+            console.log('✅ AI 응답 성공 (fallback):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
+            
+          } catch (fallbackError) {
+            console.error('❌ 모든 API 실패:', { primaryError, fallbackError });
+            throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+          }
+        }
+        
+        // AI 응답 추가
+        const aiMessage: ChatMessage = { 
+          role: 'ai', 
+          content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+        };
+        setMessages(prev => [...prev, aiMessage]);
       }
-      
-      // AI 응답 추가
-      const aiMessage: ChatMessage = { 
-        role: 'ai', 
-        content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
-      };
-      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       const err = error as Error;
       console.error('❌ AI 응답 에러:', err);
@@ -227,7 +272,7 @@ export function WriterStatsPanel({
     }
   }, [messages]);
   
-  // 🔥 AI 채팅 전송 - 실제 API 연동
+  // 🔥 AI 채팅 전송 - Electron API를 통한 실제 연동
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
     
@@ -238,35 +283,89 @@ export function WriterStatsPanel({
     setIsAiTyping(true);
     
     try {
-      Logger.info('WRITER_STATS', '실제 OpenAI API 호출', { message: userInput });
+      console.log('📨 AI 채팅 요청 시작 (Electron API):', userInput.substring(0, 30) + '...');
       
-      // Loop OpenAI 서비스 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ message: userInput })
-      });
-      
-      if (!response.ok) {
-        Logger.error('WRITER_STATS', 'API 응답 에러', { status: response.status, statusText: response.statusText });
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      // Electron API를 통한 AI 요청
+      if (typeof window !== 'undefined' && window.electronAPI?.ai?.sendMessage) {
+        const result = await window.electronAPI.ai.sendMessage(userInput.trim());
+        
+        if (!result.success) {
+          throw new Error(result.error || 'AI 응답 실패');
+        }
+        
+        const responseData = result.data;
+        console.log('✅ AI 채팅 응답 성공:', responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response');
+        
+        // AI 응답 메시지 추가
+        const aiMessage = { 
+          role: 'ai' as const, 
+          content: responseData?.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        
+      } else {
+        // Fallback: 직접 fetch (개발 환경 또는 Electron API 미사용시)
+        console.log('⚠️ Electron API 없음, fetch 사용');
+        
+        let response;
+        let data;
+        
+        try {
+          // 첫 번째 시도: 기본 URL
+          response = await fetch('http://0.0.0.0:8080/api/chat', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          console.log('✅ AI 채팅 응답 성공 (primary):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
+          
+        } catch (primaryError) {
+          console.warn('⚠️ Primary API 실패, fallback 시도:', primaryError);
+          
+          // 두 번째 시도: Fallback URL
+          try {
+            response = await fetch('https://loop-openai.onrender.com/api/chat', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({ message: userInput })
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+            }
+            
+            data = await response.json();
+            console.log('✅ AI 채팅 응답 성공 (fallback):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
+            
+          } catch (fallbackError) {
+            console.error('❌ 모든 API 실패:', { primaryError, fallbackError });
+            throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+          }
+        }
+        
+        // AI 응답 메시지 추가
+        const aiMessage = { 
+          role: 'ai' as const, 
+          content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
+        };
+        setMessages(prev => [...prev, aiMessage]);
       }
-      
-      const data = await response.json();
-      Logger.info('WRITER_STATS', 'API 응답 성공', { responseLength: data.response?.length || 0 });
-      
-      // AI 응답 추가
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
-      }]);
       
     } catch (error) {
       const err = error as Error;
-      Logger.error('WRITER_STATS', 'AI 채팅 에러', err);
+      console.error('❌ AI 채팅 에러:', err);
       setMessages(prev => [...prev, { 
         role: 'ai', 
         content: '죄송합니다, 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해 주세요.' 
@@ -293,24 +392,54 @@ export function WriterStatsPanel({
     try {
       Logger.info('WRITER_STATS', 'Requesting text improvement', { textLength: currentText.length });
       
-      // Loop OpenAI 서비스 직접 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+      const requestBody = JSON.stringify({ 
+        message: `다음 텍스트의 문장을 더 생생하고 흥미롭게 개선해주세요. 2-3개 예시를 들어 어떻게 개선할 수 있는지 보여주세요:\n\n${currentText.substring(0, 500)}...` 
+      });
+      
+      const requestOptions = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
-          message: `다음 텍스트의 문장을 더 생생하고 흥미롭게 개선해주세요. 2-3개 예시를 들어 어떻게 개선할 수 있는지 보여주세요:\n\n${currentText.substring(0, 500)}...` 
-        })
-      });
+        body: requestBody
+      };
       
-      if (!response.ok) {
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      let response;
+      let data;
+      
+      try {
+        // 첫 번째 시도: 기본 URL (로컬)
+        Logger.info('WRITER_STATS', 'Trying primary API endpoint');
+        response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+        }
+        
+        data = await response.json();
+        Logger.info('WRITER_STATS', 'Primary API success', { responseLength: data.response?.length || 0 });
+        
+      } catch (primaryError) {
+        Logger.warn('WRITER_STATS', 'Primary API failed, trying fallback', primaryError);
+        
+        // 두 번째 시도: Fallback URL (클라우드)
+        try {
+          Logger.info('WRITER_STATS', 'Trying fallback API endpoint');
+          response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
+          
+          if (!response.ok) {
+            throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          Logger.info('WRITER_STATS', 'Fallback API success', { responseLength: data.response?.length || 0 });
+          
+        } catch (fallbackError) {
+          Logger.error('WRITER_STATS', 'Both APIs failed', { primaryError, fallbackError });
+          throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+        }
       }
-      
-      const data = await response.json();
-      Logger.info('WRITER_STATS', 'Text improvement completed', { responseLength: data.response?.length || 0 });
       
       setAiResults(prev => ({ 
         ...prev, 
@@ -342,8 +471,7 @@ export function WriterStatsPanel({
       // 텍스트 준비
       const analysisText = currentText ? currentText : "프로젝트에 대한 캐릭터 분석을 진행합니다.";
       
-      // Loop OpenAI 서비스 직접 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+      const requestOptions = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -352,14 +480,43 @@ export function WriterStatsPanel({
         body: JSON.stringify({ 
           message: `다음 이야기에 등장하는 캐릭터들을 분석해주세요. 각 캐릭터의 강점, 약점, 동기, 발전 방향 등을 제시해주세요:\n\n${analysisText.substring(0, 1000)}...` 
         })
-      });
+      };
       
-      if (!response.ok) {
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      let response;
+      let data;
+      
+      try {
+        // 첫 번째 시도: 기본 URL
+        Logger.info('WRITER_STATS', 'Trying primary API endpoint for character analysis');
+        response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+        }
+        
+        data = await response.json();
+        Logger.info('WRITER_STATS', 'Primary API success for character analysis', { responseLength: data.response?.length || 0 });
+        
+      } catch (primaryError) {
+        Logger.warn('WRITER_STATS', 'Primary API failed for character analysis, trying fallback', primaryError);
+        
+        // 두 번째 시도: Fallback URL
+        try {
+          Logger.info('WRITER_STATS', 'Trying fallback API endpoint for character analysis');
+          response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
+          
+          if (!response.ok) {
+            throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          Logger.info('WRITER_STATS', 'Fallback API success for character analysis', { responseLength: data.response?.length || 0 });
+          
+        } catch (fallbackError) {
+          Logger.error('WRITER_STATS', 'Both APIs failed for character analysis', { primaryError, fallbackError });
+          throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+        }
       }
-      
-      const data = await response.json();
-      Logger.info('WRITER_STATS', 'Character analysis completed', { responseLength: data.response?.length || 0 });
       
       setAiResults(prev => ({ 
         ...prev, 
@@ -387,8 +544,7 @@ export function WriterStatsPanel({
     try {
       Logger.info('WRITER_STATS', 'Requesting plot analysis', { textLength: currentText.length });
       
-      // Loop OpenAI 서비스 직접 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+      const requestOptions = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -397,14 +553,43 @@ export function WriterStatsPanel({
         body: JSON.stringify({ 
           message: `다음 이야기의 플롯 구조를 3막 구조에 맞춰 분석하고, 흐름과 페이스를 평가한 다음, 개선점을 제시해주세요:\n\n${currentText.substring(0, 1000)}...` 
         })
-      });
+      };
       
-      if (!response.ok) {
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      let response;
+      let data;
+      
+      try {
+        // 첫 번째 시도: 기본 URL
+        Logger.info('WRITER_STATS', 'Trying primary API endpoint for plot analysis');
+        response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+        }
+        
+        data = await response.json();
+        Logger.info('WRITER_STATS', 'Primary API success for plot analysis', { responseLength: data.response?.length || 0 });
+        
+      } catch (primaryError) {
+        Logger.warn('WRITER_STATS', 'Primary API failed for plot analysis, trying fallback', primaryError);
+        
+        // 두 번째 시도: Fallback URL
+        try {
+          Logger.info('WRITER_STATS', 'Trying fallback API endpoint for plot analysis');
+          response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
+          
+          if (!response.ok) {
+            throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          Logger.info('WRITER_STATS', 'Fallback API success for plot analysis', { responseLength: data.response?.length || 0 });
+          
+        } catch (fallbackError) {
+          Logger.error('WRITER_STATS', 'Both APIs failed for plot analysis', { primaryError, fallbackError });
+          throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+        }
       }
-      
-      const data = await response.json();
-      Logger.info('WRITER_STATS', 'Plot analysis completed', { responseLength: data.response?.length || 0 });
       
       setAiResults(prev => ({ 
         ...prev, 
@@ -432,8 +617,7 @@ export function WriterStatsPanel({
     try {
       Logger.info('WRITER_STATS', 'Requesting dialogue improvement', { textLength: currentText.length });
       
-      // Loop OpenAI 서비스 직접 호출
-      const response = await fetch('https://loop-openai.onrender.com/api/chat', {
+      const requestOptions = {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -442,14 +626,43 @@ export function WriterStatsPanel({
         body: JSON.stringify({ 
           message: `다음 이야기에서 대화를 분석하고, 더 자연스럽고 캐릭터를 잘 표현하는 대화 예시를 제안해주세요:\n\n${currentText.substring(0, 800)}...` 
         })
-      });
+      };
       
-      if (!response.ok) {
-        throw new Error(`API 응답 에러: ${response.status} - ${response.statusText}`);
+      let response;
+      let data;
+      
+      try {
+        // 첫 번째 시도: 기본 URL
+        Logger.info('WRITER_STATS', 'Trying primary API endpoint for dialogue improvement');
+        response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
+        }
+        
+        data = await response.json();
+        Logger.info('WRITER_STATS', 'Primary API success for dialogue improvement', { responseLength: data.response?.length || 0 });
+        
+      } catch (primaryError) {
+        Logger.warn('WRITER_STATS', 'Primary API failed for dialogue improvement, trying fallback', primaryError);
+        
+        // 두 번째 시도: Fallback URL
+        try {
+          Logger.info('WRITER_STATS', 'Trying fallback API endpoint for dialogue improvement');
+          response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
+          
+          if (!response.ok) {
+            throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
+          }
+          
+          data = await response.json();
+          Logger.info('WRITER_STATS', 'Fallback API success for dialogue improvement', { responseLength: data.response?.length || 0 });
+          
+        } catch (fallbackError) {
+          Logger.error('WRITER_STATS', 'Both APIs failed for dialogue improvement', { primaryError, fallbackError });
+          throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
+        }
       }
-      
-      const data = await response.json();
-      Logger.info('WRITER_STATS', 'Dialogue improvement completed', { responseLength: data.response?.length || 0 });
       
       setAiResults(prev => ({ 
         ...prev, 

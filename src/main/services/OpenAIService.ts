@@ -209,19 +209,69 @@ export class OpenAIService {
   }
 
   /**
-   * 🔥 실제 API 요청 수행
+   * 🔥 실제 API 요청 수행 (Primary + Fallback URL 지원)
    */
   private async makeRequest(request: OpenAIRequest): Promise<OpenAIResponse> {
+    const primaryUrl = 'https://loop-openai.onrender.com/api/chat';
+    const fallbackUrl = 'http://0.0.0.0:8080/api/chat';
+    
+    // 🔥 Primary URL 시도
+    try {
+      Logger.debug(this.componentName, 'Trying primary API endpoint', { url: primaryUrl });
+      
+      const response = await this.attemptRequest(primaryUrl, request);
+      
+      Logger.info(this.componentName, 'Primary API success', { 
+        url: primaryUrl,
+        responseLength: response.response.length 
+      });
+      
+      return response;
+      
+    } catch (primaryError) {
+      Logger.warn(this.componentName, 'Primary API failed, trying fallback', { 
+        primaryUrl, 
+        error: this.getErrorMessage(primaryError) 
+      });
+      
+      // 🔥 Fallback URL 시도
+      try {
+        Logger.debug(this.componentName, 'Trying fallback API endpoint', { url: fallbackUrl });
+        
+        const response = await this.attemptRequest(fallbackUrl, request);
+        
+        Logger.info(this.componentName, 'Fallback API success', { 
+          url: fallbackUrl,
+          responseLength: response.response.length 
+        });
+        
+        return response;
+        
+      } catch (fallbackError) {
+        Logger.error(this.componentName, 'Both APIs failed', { 
+          primaryError: this.getErrorMessage(primaryError),
+          fallbackError: this.getErrorMessage(fallbackError) 
+        });
+        
+        throw new Error(`모든 API 엔드포인트 실패 - Primary: ${this.getErrorMessage(primaryError)}, Fallback: ${this.getErrorMessage(fallbackError)}`);
+      }
+    }
+  }
+
+  /**
+   * 🔥 단일 URL에 대한 요청 시도
+   */
+  private async attemptRequest(apiUrl: string, request: OpenAIRequest): Promise<OpenAIResponse> {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= this.config.retries; attempt++) {
       try {
-        Logger.debug(this.componentName, `API request attempt ${attempt}/${this.config.retries}`);
+        Logger.debug(this.componentName, `API request attempt ${attempt}/${this.config.retries}`, { url: apiUrl });
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
-        const response = await fetch(this.config.apiUrl, {
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -275,7 +325,7 @@ export class OpenAIService {
             message: request.message?.substring(0, 100) + '...',
             type: request.type
           },
-          url: this.config.apiUrl
+          url: apiUrl
         });
 
         // 마지막 시도가 아니면 잠시 대기
@@ -287,7 +337,7 @@ export class OpenAIService {
 
     // 🔥 모든 재시도 실패 시 상세한 에러 정보와 함께 에러 던지기
     const errorMessage = this.getErrorMessage(lastError);
-    Logger.error(this.componentName, `All ${this.config.retries} attempts failed`, {
+    Logger.error(this.componentName, `All ${this.config.retries} attempts failed for ${apiUrl}`, {
       finalError: errorMessage,
       request: {
         message: request.message?.substring(0, 100) + '...',
@@ -295,7 +345,7 @@ export class OpenAIService {
       }
     });
     
-    throw new Error(`OpenAI API 요청 실패: ${errorMessage}`);
+    throw new Error(`API 요청 실패 (${apiUrl}): ${errorMessage}`);
   }
 
   /**

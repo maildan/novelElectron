@@ -3,15 +3,7 @@
   "pages404": true,
   "caseSensitive": false,
   "basePath": "",
-  "redirects": [
-    {
-      "source": "/:path+/",
-      "destination": "/:path+",
-      "internal": true,
-      "statusCode": 308,
-      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
-    }
-  ],
+  "redirects": [],
   "headers": [],
   "dynamicRoutes": [
     {

@@ -13,7 +13,12 @@ if (process.env.NODE_ENV === 'development') {
 
 // 🔥 앱 이름 설정 (원래는 'Electron'으로 표시되는 것을 수정)
 app.setName('Loop');
-app.setAppUserModelId('com.gigachad.loop'); // Windows 작업 표시줄 아이콘 ID
+app.setAppUserModelId('com.loop.typing-analytics'); // Windows 작업 표시줄 아이콘 ID (appId와 일치시킴)
+Logger.info('MAIN', '🔄 앱 이름 설정 완료', { 
+  name: app.getName(),
+  appId: 'com.loop.typing-analytics', // 직접 값 사용
+  appPath: app.getAppPath()
+});
 
 // 🔥 기가차드 하드웨어 극한 최적화 적용 (500-1000% 성능 향상)
 performanceOptimizer.applyAllOptimizations();

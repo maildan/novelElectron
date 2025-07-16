@@ -51,6 +51,34 @@ html {
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   
+  /* Tailwind 호환 색상 변수 - HSL 형식 */
+  --background: 0 0% 99%; /* #fefcf7 */
+  --foreground: 0 0% 10%; /* #1a1a1a */
+  --card: 0 0% 100%; /* #ffffff */
+  --card-foreground: 0 0% 10%; /* #1a1a1a */
+  --popover: 0 0% 100%; /* #ffffff */
+  --popover-foreground: 0 0% 10%; /* #1a1a1a */
+  --primary: 221 83% 53%; /* #2563eb */
+  --primary-foreground: 0 0% 100%; /* #ffffff */
+  --secondary: 210 40% 98%; /* #f8f6f0 */
+  --secondary-foreground: 0 0% 29%; /* #4a4a4a */
+  --muted: 210 40% 98%; /* #f8f6f0 */
+  --muted-foreground: 0 0% 45%; /* #737373 */
+  --accent: 221 83% 53%; /* #2563eb */
+  --accent-foreground: 0 0% 100%; /* #ffffff */
+  --destructive: 0 84% 60%; /* #dc2626 */
+  --destructive-foreground: 0 0% 100%; /* #ffffff */
+  --border: 220 13% 91%; /* #e5e7eb */
+  --input: 220 13% 91%; /* #e5e7eb */
+  --ring: 221 83% 53%; /* #2563eb */
+  --chart-1: 221 83% 53%; /* #2563eb */
+  --chart-2: 160 60% 45%; /* #059669 */
+  --chart-3: 30 95% 56%; /* #d97706 */
+  --chart-4: 280 100% 70%; /* #a855f7 */
+  --chart-5: 340 75% 55%; /* #ef4444 */
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
   /* 작가 친화적 폰트 스택 */
   --font-primary: "SF Pro Text", -apple-system, BlinkMacSystemFont, 
                   "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -239,6 +267,32 @@ html.dark {
   --warning-light: #78350f;
   --error: #ef4444;
   --error-light: #7f1d1d;
+  
+  /* Tailwind 호환 색상 변수 - HSL 형식 (다크모드) */
+  --background: 220 26% 8%; /* #0f1419 */
+  --foreground: 220 13% 91%; /* #e5e7eb */
+  --card: 220 14% 16%; /* #242936 */
+  --card-foreground: 220 13% 91%; /* #e5e7eb */
+  --popover: 220 14% 16%; /* #242936 */
+  --popover-foreground: 220 13% 91%; /* #e5e7eb */
+  --primary: 217 91% 60%; /* #3b82f6 */
+  --primary-foreground: 0 0% 100%; /* #ffffff */
+  --secondary: 220 14% 16%; /* #242936 */
+  --secondary-foreground: 220 9% 64%; /* #9ca3af */
+  --muted: 220 14% 16%; /* #242936 */
+  --muted-foreground: 220 14% 51%; /* #6b7280 */
+  --accent: 217 91% 60%; /* #3b82f6 */
+  --accent-foreground: 0 0% 100%; /* #ffffff */
+  --destructive: 0 84% 60%; /* #ef4444 */
+  --destructive-foreground: 0 0% 100%; /* #ffffff */
+  --border: 215 14% 34%; /* #4b5563 */
+  --input: 215 14% 34%; /* #4b5563 */
+  --ring: 217 91% 60%; /* #3b82f6 */
+  --chart-1: 217 91% 60%; /* #3b82f6 */
+  --chart-2: 159 62% 48%; /* #10b981 */
+  --chart-3: 43 96% 56%; /* #f59e0b */
+  --chart-4: 280 100% 70%; /* #a855f7 */
+  --chart-5: 0 84% 60%; /* #ef4444 */
   
   /* Primary (어둠 속에서도 잘 보이는 밝은 파란색) */
   --color-primary-50: #1e3a8a;

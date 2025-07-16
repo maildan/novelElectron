@@ -51,7 +51,9 @@ export class LanguageDetectorFactory {
         this.instance = this.createLinuxDetector();
         Logger.info(this.componentName, '✅ Linux IBus/XIM 언어 감지기 생성됨');
       } else {
-        this.instance = new FallbackLanguageDetector();
+        // Unknown platform: use dynamic require for fallback detector
+        const { FallbackLanguageDetector: DynamicFallback } = require('../FallbackLanguageDetector');
+        this.instance = new DynamicFallback();
         Logger.warn(this.componentName, '⚠️ 알 수 없는 플랫폼, Fallback 감지기 사용', {
           platform: process.platform
         });
@@ -70,18 +72,19 @@ export class LanguageDetectorFactory {
         createdAt: this.createdAt
       });
 
-      return this.instance;
+      return this.instance!;
 
     } catch (error) {
       Logger.error(this.componentName, '❌ 언어 감지기 생성 실패, Fallback 사용', {
         error: String(error)
       });
       
-      // 실패 시 Fallback 감지기 사용
-      this.instance = new FallbackLanguageDetector();
+      // 실패 시 Fallback 감지기 사용 (dynamic require)
+      const { FallbackLanguageDetector: ErrorFallback } = require('../FallbackLanguageDetector');
+      this.instance = new ErrorFallback();
       this.createdAt = new Date();
       
-      return this.instance;
+      return this.instance!;
     }
   }
 
@@ -98,6 +101,7 @@ export class LanguageDetectorFactory {
       return new MacOSLanguageDetector();
     } catch (error) {
       Logger.warn(this.componentName, 'macOS 감지기 로드 실패, Fallback 사용', error);
+      const { FallbackLanguageDetector } = require('../FallbackLanguageDetector');
       return new FallbackLanguageDetector();
     }
   }
@@ -110,6 +114,7 @@ export class LanguageDetectorFactory {
       // 🔥 Windows 플랫폼 체크 먼저 수행
       if (!Platform.isWindows()) {
         Logger.warn(this.componentName, 'Windows가 아닌 환경에서 Windows 감지기 요청됨, Fallback 사용');
+        const { FallbackLanguageDetector } = require('../FallbackLanguageDetector');
         return new FallbackLanguageDetector();
       }
 
@@ -121,6 +126,7 @@ export class LanguageDetectorFactory {
       return new WindowsLanguageDetector();
     } catch (error) {
       Logger.warn(this.componentName, 'Windows 감지기 로드 실패, Fallback 사용', error);
+      const { FallbackLanguageDetector } = require('../FallbackLanguageDetector');
       return new FallbackLanguageDetector();
     }
   }
@@ -138,6 +144,7 @@ export class LanguageDetectorFactory {
       return new LinuxLanguageDetector();
     } catch (error) {
       Logger.warn(this.componentName, 'Linux 감지기 로드 실패, Fallback 사용', error);
+      const { FallbackLanguageDetector } = require('../FallbackLanguageDetector');
       return new FallbackLanguageDetector();
     }
   }
