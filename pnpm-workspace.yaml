@@ -1,7 +1,14 @@
 onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - active-win
   - electron
   - electron-chromedriver
   - electron-winstaller
+  - esbuild
+  - node-mac-permissions
+  - prisma
+  - sharp
   - spectron
   - uiohook-napi
-
+  - unrs-resolver
