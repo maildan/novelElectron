@@ -139,7 +139,7 @@ export function WriterStatsPanel({
         
         try {
           // 첫 번째 시도: 기본 API (로컬 서버)
-          response = await fetch('http://0.0.0.0:8080/api/chat', {
+          response = await fetch('https://loop-openai.onrender.com/api/chat', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -162,7 +162,7 @@ export function WriterStatsPanel({
           
           // 두 번째 시도: 클라우드 서버 (fallback)
           try {
-            response = await fetch('https://loop-openai.onrender.com/api/chat', {
+            response = await fetch('http://0.0.0.0:8080/api/chat', {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',

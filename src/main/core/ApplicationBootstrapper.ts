@@ -8,6 +8,7 @@ import { SettingsWatcher } from './SettingsWatcher';
 import { ShutdownManager } from './ShutdownManager';
 import { unifiedPermissionManager } from '../utils/UnifiedPermissionManager';
 import { windowManager } from '../core/window';
+import unifiedHandler from '../keyboard/UnifiedHandler';
 
 /**
  * 🔥 ApplicationBootstrapper - 978줄을 50줄로 축소한 메인 오케스트레이터
@@ -133,6 +134,9 @@ export class ApplicationBootstrapper {
     try {
       // 기존 windowManager 활용 (중복 방지)
       const mainWindow = windowManager.createMainWindow('main');
+      // 글로벌 참조 설정 (이벤트 포워딩 등 기존 코드 호환)
+      (globalThis as unknown as { mainWindow?: typeof mainWindow }).mainWindow = mainWindow;
+      (globalThis as unknown as { unifiedHandler?: typeof unifiedHandler }).unifiedHandler = unifiedHandler;
       
       // 🔥 URL 로딩 추가 (빈 화면 문제 해결)
       await windowManager.loadUrl('main');

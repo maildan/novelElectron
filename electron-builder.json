@@ -5,9 +5,20 @@
     "output": "release"
   },
   "files": [
-    "src/**/*",
+    "dist/main/**/*",
+    "dist/preload/**/*",
+    "dist/renderer/**/*",
     "package.json",
-    "node_modules/**/*"
+    "node_modules/@prisma/client/runtime/**",
+    "node_modules/active-win/**",
+    "node_modules/node-mac-permissions/**",
+    "node_modules/uiohook-napi/**"
+  ],
+  "asarUnpack": [
+    "**/*.node",
+    "**/*.dll",
+    "**/*.dylib",
+    "**/*.so"
   ],
   "extraResources": [
     {
@@ -22,6 +33,7 @@
     "entitlementsInherit": "assets/entitlements.mac.plist",
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
+    "asar": true,
     "target": [
       {
         "target": "dmg",
@@ -63,5 +75,6 @@
     "createStartMenuShortcut": true,
     "shortcutName": "Loop"
   },
-  "publish": null
+  "publish": null,
+  "asar": true
 }

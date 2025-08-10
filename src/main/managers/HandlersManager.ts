@@ -185,6 +185,27 @@ export class HandlersManager extends BaseManager {
     for (const groupName of groupNames) {
       await this.unregisterHandlerGroup(groupName);
     }
+
+    // Defensive cleanup for known channels to avoid duplicate registrations
+    const knownChannels = [
+      'ai:analyze-text',
+      'ai:send-message',
+      'ai:get-writing-help',
+      'ai:improve-text',
+      'ai:get-project-context',
+      'ai:health-check',
+      'ai:generate-suggestions',
+      'ai:get-usage-stats',
+      'ai:continue-writing',
+      'ai:summarize-text',
+    ];
+    for (const channel of knownChannels) {
+      try {
+        ipcMain.removeHandler(channel);
+      } catch {
+        // ignore
+      }
+    }
   }
 
   /**

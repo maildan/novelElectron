@@ -158,7 +158,7 @@ export class KeyboardStatsManager extends BaseManager {
       existing.accuracy = Math.round(((existing.keystrokes - 1) * existing.accuracy + 0) / existing.keystrokes);
     }
     
-    this.languageStats.set(language, existing);
+      this.languageStats.set(language, existing);
   }
 
   /**

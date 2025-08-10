@@ -353,6 +353,9 @@ export class WindowTracker extends BaseManager {
       changeType: this.determineChangeType(previous, newWindow),
     };
     
+    // Emit standardized event name expected by listeners (e.g., BrowserDetector)
+    this.emit('window-changed', changeEvent);
+    // Backwards-compat (temporary): also emit legacy name if any
     this.emit('window-change', changeEvent);
     
     Logger.info(this.componentName, '윈도우 변경 감지', {

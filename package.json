@@ -46,6 +46,7 @@
     "db:studio": "prisma studio",
     "pack": "pnpm build && electron-builder --dir",
     "dist": "pnpm build && electron-builder",
+    "dist:all": "pnpm build",
     "dist:mac": "pnpm build && electron-builder --mac --x64 --arm64",
     "dist:win": "pnpm build && electron-builder --win --x64",
     "dist:linux": "pnpm build && electron-builder --linux",

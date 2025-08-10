@@ -1,6 +1,7 @@
 // 🔥 기가차드 핸들러 통합 관리자
 
 import { Logger } from '../../shared/logger';
+import { ipcMain } from 'electron';
 import { setupKeyboardIpcHandlers } from './keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './dashboardIpcHandlers';
 import { setupSettingsIpcHandlers } from './settingsIpcHandlers';
@@ -159,6 +160,16 @@ export class HandlersManager {
     try {
       // #DEBUG: Setting up individual handler
       Logger.debug('HANDLERS_INDEX', `Setting up ${name} handler`);
+
+      // Make handler setup idempotent by removing previously registered handlers
+      // This prevents 'Attempted to register a second handler' errors on relaunch/reinit
+      for (const channel of channels) {
+        try {
+          ipcMain.removeHandler(channel);
+        } catch {
+          // Ignore if handler was not registered
+        }
+      }
 
       const startTime = Date.now();
       setupFunction();
