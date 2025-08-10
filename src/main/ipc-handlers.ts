@@ -1,6 +1,7 @@
 // 🔥 기가차드 IPC 핸들러 통합 관리
 
 import { ipcMain } from 'electron';
+import type { IpcMainEvent } from 'electron';
 import { Logger } from '../shared/logger';
 import { setupKeyboardIpcHandlers } from './handlers/keyboardIpcHandlers';
 import { setupDashboardIpcHandlers } from './handlers/dashboardIpcHandlers';
@@ -13,10 +14,59 @@ import { setupAIIpcHandlers } from './handlers/aiIpcHandlers';
 // #DEBUG: IPC handlers entry point
 Logger.debug('IPC_HANDLERS', 'IPC handlers module loaded');
 
+// 🔥 렌더러 프로세스에서 발생하는 예외를 로깅
+ipcMain.on('renderer:unhandledRejection', (event: IpcMainEvent, reason: unknown): void => {
+  const reasonDescription = (() => {
+    if (typeof reason === 'string') return reason;
+    if (reason && typeof (reason as { stack?: unknown }).stack === 'string') {
+      return (reason as { stack?: string }).stack as string;
+    }
+    try {
+      return JSON.stringify(reason, Object.getOwnPropertyNames(reason as object));
+    } catch {
+      return String(reason);
+    }
+  })();
+  Logger.error('IPC_HANDLERS', 'Unhandled Rejection in Renderer Process:', { reason: reasonDescription });
+});
+
+ipcMain.on(
+  'renderer:error',
+  (
+    event: IpcMainEvent,
+    message: string,
+    filename: string,
+    lineno: number,
+    colno: number,
+    errorStack: unknown
+  ): void => {
+    const stackDescription = (() => {
+      if (typeof errorStack === 'string') return errorStack;
+      if (errorStack && typeof (errorStack as { stack?: unknown }).stack === 'string') {
+        return (errorStack as { stack?: string }).stack as string;
+      }
+      try {
+        return JSON.stringify(errorStack, Object.getOwnPropertyNames(errorStack as object));
+      } catch {
+        return String(errorStack);
+      }
+    })();
+
+    Logger.error('IPC_HANDLERS', 'Error in Renderer Process:', {
+      message,
+      filename,
+      lineno,
+      colno,
+      stack: stackDescription,
+    });
+  }
+);
+
 // 🔥 등록된 핸들러 추적
 const registeredHandlers = new Set<string>();
 
 // 🔥 기가차드 모든 IPC 핸들러 정리 (중복 등록 방지)
+
 export function cleanupAllIpcHandlers(): void {
   try {
     Logger.debug('IPC_HANDLERS', 'Cleaning up all IPC handlers');

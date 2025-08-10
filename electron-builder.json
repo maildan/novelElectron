@@ -1,6 +1,6 @@
 {
   "productName": "Loop",
-  "appId": "com.loop.typing-analytics", 
+  "appId": "com.loop.typing-analytics",
   "directories": {
     "output": "release"
   },
@@ -8,11 +8,13 @@
     "dist/main/**/*",
     "dist/preload/**/*",
     "dist/renderer/**/*",
+    "dist/shared/**/*",
+    "assets/**/*",
     "package.json",
     "node_modules/@prisma/client/runtime/**",
     "node_modules/active-win/**",
     "node_modules/node-mac-permissions/**",
-    "node_modules/uiohook-napi/**"
+    "node_modules/uiohook-napi/build/Release/uiohook_napi.node"
   ],
   "asarUnpack": [
     "**/*.node",
@@ -24,8 +26,13 @@
     {
       "from": "prisma/schema.prisma",
       "to": "schema.prisma"
+    },
+    {
+      "from": "node_modules/@prisma/client/runtime/query-engine-darwin-arm64",
+      "to": "prisma/query-engine"
     }
   ],
+  "extraFiles": [],
   "mac": {
     "category": "public.app-category.productivity",
     "icon": "assets/icon.icns",
@@ -38,10 +45,6 @@
       {
         "target": "dmg",
         "arch": ["x64", "arm64"]
-      },
-      {
-        "target": "mas",
-        "arch": ["universal"]
       }
     ]
   },

@@ -162,6 +162,12 @@ export class WindowManager {
       Logger.info('WINDOW', 'Window shown', { windowId });
     });
 
+    // 🔥 렌더러 프로세스 크래시 감지
+    window.webContents.on('crashed', (event, killed) => {
+      Logger.error('WINDOW', `Renderer process crashed: ${killed ? 'killed' : 'not killed'}`, { windowId });
+      // 여기에 추가적인 크래시 처리 로직 (예: 재시작) 추가 가능
+    });
+
     window.on('closed', () => {
       this.windows.delete(windowId);
       Logger.info('WINDOW', 'Window closed and removed', { windowId });

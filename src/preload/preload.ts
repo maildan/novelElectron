@@ -143,4 +143,13 @@ const electronAPI: ElectronAPI = {
 // 🔥 안전한 API 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 
+// 🔥 렌더러 프로세스 예외를 메인 프로세스로 전달 (디버깅 강화)
+window.addEventListener('unhandledrejection', event => {
+  ipcRenderer.send('renderer:unhandledRejection', event.reason.stack || event.reason);
+});
+
+window.addEventListener('error', event => {
+  ipcRenderer.send('renderer:error', event.message, event.filename, event.lineno, event.colno, event.error ? (event.error.stack || event.error) : 'No stack');
+});
+
 // Window 글로벌 타입은 shared/types.ts에서 이미 선언됨

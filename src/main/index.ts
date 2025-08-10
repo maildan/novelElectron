@@ -5,6 +5,7 @@ import { join } from 'path';
 import { Logger } from '../shared/logger';
 import { ApplicationBootstrapper } from './core/ApplicationBootstrapper';
 import { performanceOptimizer } from './core/PerformanceOptimizer';
+import { Platform } from './utils/platform';
 
 // 🔥 환경 변수 로딩
 if (process.env.NODE_ENV === 'development') {
@@ -24,20 +25,31 @@ Logger.info('MAIN', '🔄 앱 이름 설정 완료', {
 performanceOptimizer.applyAllOptimizations();
 performanceOptimizer.startPerformanceBenchmark();
 
-// 🔥 플랫폼별 아이콘 설정
-const iconPath = join(__dirname, '../../assets/icon.png');
-const iconIcoPath = join(__dirname, '../../assets/icon.ico');
+// 🔥 플랫폼별 아이콘 설정 (dev/prod 안전 경로)
+const isDev = process.env.NODE_ENV === 'development';
+const assetsDir = isDev ? join(process.cwd(), 'assets') : join(process.resourcesPath, 'assets');
+const iconPngPath = join(assetsDir, 'icon.png');
+const iconIcoPath = join(assetsDir, 'icon.ico');
+const iconIcnsPath = join(assetsDir, 'icon.icns');
 
-// macOS Dock 아이콘 설정
-if (process.platform === 'darwin') {
-  app.dock?.setIcon(iconPath);
-  Logger.info('MAIN', '🍎 macOS Dock icon set', { iconPath });
+// macOS Dock 아이콘은 .icns 사용 권장. 실패해도 앱은 계속 실행.
+if (Platform.isMacOS()) {
+  try {
+    app.dock?.setIcon(iconIcnsPath);
+    Logger.info('MAIN', '🍎 macOS Dock icon set', { icon: iconIcnsPath });
+  } catch (error) {
+    Logger.warn('MAIN', 'Failed to set macOS Dock icon', { icon: iconIcnsPath, error });
+  }
 }
 
-// Windows 아이콘 설정 (TaskBar 및 알트탭에서 표시)
-if (process.platform === 'win32') {
-  app.setPath('userData', app.getPath('userData').replace('Electron', 'Loop'));
-  Logger.info('MAIN', '🪟 Windows app data path set to Loop');
+// Windows 사용자 데이터 경로 정리
+if (Platform.isWindows()) {
+  try {
+    app.setPath('userData', app.getPath('userData').replace('Electron', 'Loop'));
+    Logger.info('MAIN', '🪟 Windows app data path set to Loop');
+  } catch (error) {
+    Logger.warn('MAIN', 'Failed to adjust Windows userData path', { error });
+  }
 }
 
 /**
