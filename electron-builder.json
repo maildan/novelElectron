@@ -61,7 +61,7 @@
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "Loop Typing Analytics"
+    "shortcutName": "Loop"
   },
   "publish": null
 }

@@ -1,20 +1,20 @@
 {
-  "timestamp": "2025-07-08T03:18:36.544Z",
-  "totalIssues": 264,
+  "timestamp": "2025-08-10T15:05:24.635Z",
+  "totalIssues": 266,
   "issuesByType": {
-    "inline-handler": 61,
-    "unnecessary-update": 99,
-    "missing-memo": 87,
-    "inline-style": 2,
-    "inline-conditional": 15
+    "inline-handler": 63,
+    "unnecessary-update": 139,
+    "missing-memo": 51,
+    "inline-conditional": 12,
+    "inline-style": 1
   },
   "issuesBySeverity": {
-    "medium": 264
+    "medium": 266
   },
   "issues": [
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 216,
+      "line": 266,
       "type": "inline-handler",
       "message": "인라인 클릭 핸들러",
       "severity": "medium",
@@ -23,7 +23,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 309,
+      "line": 364,
       "type": "inline-handler",
       "message": "인라인 변경 핸들러",
       "severity": "medium",
@@ -32,7 +32,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 333,
+      "line": 388,
       "type": "inline-handler",
       "message": "인라인 클릭 핸들러",
       "severity": "medium",
@@ -41,7 +41,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 166,
+      "line": 191,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
@@ -50,7 +50,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 181,
+      "line": 232,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
@@ -59,7 +59,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 187,
+      "line": 237,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
@@ -68,7 +68,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 127,
+      "line": 130,
       "type": "missing-memo",
       "message": "비용이 큰 연산: 날짜 객체 생성",
       "severity": "medium",
@@ -77,7 +77,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 162,
+      "line": 187,
       "type": "missing-memo",
       "message": "비용이 큰 연산: 날짜 객체 생성",
       "severity": "medium",
@@ -86,7 +86,7 @@
     },
     {
       "file": "src/renderer/app/ai/page.tsx",
-      "line": 177,
+      "line": 210,
       "type": "missing-memo",
       "message": "비용이 큰 연산: 날짜 객체 생성",
       "severity": "medium",
@@ -94,8 +94,35 @@
       "code": "timestamp: new Date()"
     },
     {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 227,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "timestamp: new Date()"
+    },
+    {
+      "file": "src/renderer/app/ai/page.tsx",
+      "line": 329,
+      "type": "missing-memo",
+      "message": "비용이 큰 연산: 날짜 객체 생성",
+      "severity": "medium",
+      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
+      "code": "{new Date(message.timestamp).toLocaleTimeString('ko-KR', {"
+    },
+    {
       "file": "src/renderer/app/analytics/page.tsx",
-      "line": 102,
+      "line": 387,
+      "type": "inline-handler",
+      "message": "인라인 클릭 핸들러",
+      "severity": "medium",
+      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
+      "code": "onClick={() => setCurrentTab(tab.id)}"
+    },
+    {
+      "file": "src/renderer/app/analytics/page.tsx",
+      "line": 113,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
@@ -104,7 +131,7 @@
     },
     {
       "file": "src/renderer/app/analytics/page.tsx",
-      "line": 103,
+      "line": 114,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
@@ -113,48 +140,12 @@
     },
     {
       "file": "src/renderer/app/analytics/page.tsx",
-      "line": 144,
-      "type": "unnecessary-update",
-      "message": "동일한 값으로 상태 업데이트 가능성",
-      "severity": "medium",
-      "suggestion": "상태 업데이트 전에 값 비교 추가",
-      "code": "setAnalyticsData(convertedData);"
-    },
-    {
-      "file": "src/renderer/app/analytics/page.tsx",
-      "line": 158,
-      "type": "unnecessary-update",
-      "message": "동일한 값으로 상태 업데이트 가능성",
-      "severity": "medium",
-      "suggestion": "상태 업데이트 전에 값 비교 추가",
-      "code": "setAnalyticsData(DEFAULT_ANALYTICS);"
-    },
-    {
-      "file": "src/renderer/app/analytics/page.tsx",
-      "line": 160,
+      "line": 181,
       "type": "unnecessary-update",
       "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
       "suggestion": "상태 업데이트 전에 값 비교 추가",
       "code": "setLoading(false);"
-    },
-    {
-      "file": "src/renderer/app/analytics/page.tsx",
-      "line": 208,
-      "type": "missing-memo",
-      "message": "비용이 큰 연산: 날짜 객체 생성",
-      "severity": "medium",
-      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
-      "code": "const date = new Date(session.createdAt);"
-    },
-    {
-      "file": "src/renderer/app/analytics/page.tsx",
-      "line": 240,
-      "type": "missing-memo",
-      "message": "비용이 큰 연산: 날짜 객체 생성",
-      "severity": "medium",
-      "suggestion": "useMemo나 useCallback으로 메모이제이션하세요",
-      "code": "const duration = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();"
     },
     {
       "file": "src/renderer/app/layout.tsx",
@@ -319,148 +310,157 @@
       "code": "updatedAt: new Date(),"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 364,
-      "type": "inline-handler",
-      "message": "인라인 클릭 핸들러",
+      "file": "src/renderer/app/settings/components/sections/AppSettingsSection.tsx",
+      "line": 43,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onClick={() => handleSectionChange(section.id)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setDisplayTheme(currentTheme);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 395,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/components/sections/AppSettingsSection.tsx",
+      "line": 53,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('app', 'theme', e.target.value as 'light' | 'dark' | 'system')}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setDisplayTheme(newTheme);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 416,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/components/sections/AppSettingsSection.tsx",
+      "line": 56,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('app', 'language', e.target.value)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setTheme(newTheme);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 437,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 69,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('app', 'autoSave', e.target.checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(true);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 455,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 70,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('app', 'minimizeToTray', e.target.checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 475,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 81,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('app', 'fontSize', parseInt(e.target.value))}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSettings(defaultSettings);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 504,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 86,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'enabled', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSettings(defaultSettings);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 521,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 89,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('keyboard', 'language', e.target.value)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setLoading(false);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 541,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 105,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('keyboard', 'trackAllApps', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(true);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 561,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 149,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(e) => handleSettingUpdate('keyboard', 'sessionTimeout', parseInt(e.target.value))}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(false);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 590,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 162,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('ui', 'sidebarCollapsed', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(true);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 606,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 163,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('ui', 'focusMode', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 622,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 180,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('ui', 'showLineNumbers', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(false);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 638,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 193,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('ui', 'showWordCount', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(true);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 666,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 194,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableGPUAcceleration', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setError(null);"
     },
     {
-      "file": "src/renderer/app/settings/page.tsx",
-      "line": 682,
-      "type": "inline-handler",
-      "message": "인라인 변경 핸들러",
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 202,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
       "severity": "medium",
-      "suggestion": "useCallback/useMemo로 메모이제이션하거나 컴포넌트 외부로 분리",
-      "code": "onChange={(checked) => handleSettingUpdate('performance', 'enableHardwareAcceleration', checked)}"
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSettings(defaultSettings);"
+    },
+    {
+      "file": "src/renderer/app/settings/hooks/useSettings.ts",
+      "line": 212,
+      "type": "unnecessary-update",
+      "message": "동일한 값으로 상태 업데이트 가능성",
+      "severity": "medium",
+      "suggestion": "상태 업데이트 전에 값 비교 추가",
+      "code": "setSaving(false);"
     }
   ]
 }
