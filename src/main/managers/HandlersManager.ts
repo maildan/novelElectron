@@ -271,25 +271,129 @@ export class HandlersManager extends BaseManager {
   }
 
   /**
-   * 🔥 기존 IPC 핸들러 등록 - 중복 등록 방지를 위해 handlers/index.ts 사용
+   * 🔥 기존 IPC 핸들러 등록 - 직접 핸들러 등록 (중복 방지)
    */
   public async registerExistingHandlers(): Promise<void> {
     try {
-      Logger.info(this.componentName, 'Using unified handler system from handlers/index.ts');
+      Logger.info(this.componentName, 'Registering IPC handlers directly to avoid duplication');
       
-      // 🔥 기존 중복 등록 코드를 제거하고 단일 핸들러 시스템 사용
-      const { HandlersManager: UnifiedHandlersManager } = await import('../handlers/index');
-      const handlerManager = UnifiedHandlersManager.getInstance();
+      // 🔥 먼저 알려진 모든 핸들러들을 정리
+      const { removeMultipleHandlers } = await import('../utils/ipcHandlerHelper');
+      const allKnownChannels = [
+        // Test handlers
+        'test-ipc', 'test-ipc-detailed',
+        // Keyboard handlers  
+        'keyboard:start-monitoring', 'keyboard:stop-monitoring', 'keyboard:get-status',
+        'keyboard:get-realtime-stats', 'keyboard:set-language', 'permissions:request-all',
+        // Dashboard handlers
+        'dashboard:get-stats', 'dashboard:get-recent-sessions', 'database:get-sessions',
+        // Settings handlers
+        'settings:get', 'settings:set', 'settings:get-all', 'settings:reset',
+        // Tray handlers
+        'tray:get-info', 'tray:set-monitoring-status', 'tray:update-stats',
+        'tray:show-success', 'tray:show-error', 'tray:toggle-visibility', 'tray:test',
+        // OAuth handlers
+        'oauth:start-google-auth', 'oauth:handle-callback', 'oauth:get-google-documents',
+        'oauth:import-google-doc', 'oauth:get-auth-status', 'oauth:revoke-auth',
+        // Project handlers
+        'projects:get-all', 'projects:get-by-id', 'projects:create', 'projects:update',
+        'projects:delete', 'projects:create-sample', 'projects:import-file',
+        'shell:open-external', 'shell:show-item-in-folder',
+        // AI handlers
+        'ai:analyze-text', 'ai:send-message', 'ai:get-writing-help', 'ai:health-check',
+        'ai:generate-suggestions', 'ai:get-usage-stats', 'ai:get-project-context',
+        // Filesystem handlers
+        'fs:read-file'
+      ];
       
-      const success = await handlerManager.setupAllHandlers();
-      if (!success) {
-        throw new Error('Failed to setup unified handlers');
+      removeMultipleHandlers(allKnownChannels);
+      Logger.info(this.componentName, `Cleaned up ${allKnownChannels.length} potential duplicate handlers`);
+
+      // 🔥 직접 핸들러 함수들을 import해서 등록 (circular dependency 방지)
+      const { setupKeyboardIpcHandlers } = await import('../handlers/keyboardIpcHandlers');
+      const { setupDashboardIpcHandlers } = await import('../handlers/dashboardIpcHandlers');
+      const { setupSettingsIpcHandlers } = await import('../handlers/settingsIpcHandlers');
+      const { setupTrayIpcHandlers } = await import('../handlers/trayIpcHandlers');
+      const { setupOAuthIpcHandlers } = await import('../handlers/oauthIpcHandlers');
+      const { setupProjectIpcHandlers } = await import('../handlers/projectIpcHandlers');
+      const { setupAIIpcHandlers } = await import('../handlers/aiIpcHandlers');
+      const { setupFileSystemIpcHandlers } = await import('../handlers/fileSystemIpcHandlers');
+
+      // 🔥 테스트 핸들러 먼저 등록
+      await this.registerTestHandlers();
+
+      // 에러 처리와 함께 순차적으로 등록
+      const handlerSetups = [
+        { name: 'keyboard', setup: setupKeyboardIpcHandlers },
+        { name: 'dashboard', setup: setupDashboardIpcHandlers },
+        { name: 'settings', setup: setupSettingsIpcHandlers },
+        { name: 'tray', setup: setupTrayIpcHandlers },
+        { name: 'oauth', setup: setupOAuthIpcHandlers },
+        { name: 'projects', setup: setupProjectIpcHandlers },
+        { name: 'ai', setup: setupAIIpcHandlers },
+        { name: 'filesystem', setup: setupFileSystemIpcHandlers },
+      ];
+
+      let successCount = 0;
+      for (const { name, setup } of handlerSetups) {
+        try {
+          Logger.debug(this.componentName, `Setting up ${name} handlers`);
+          await setup();
+          successCount++;
+          Logger.info(this.componentName, `✅ ${name} handlers registered successfully`);
+        } catch (error) {
+          Logger.error(this.componentName, `❌ Failed to register ${name} handlers`, error);
+          // 개별 핸들러 실패는 전체를 중단시키지 않음
+        }
       }
       
-      Logger.info(this.componentName, 'Unified IPC handlers registered successfully');
+      Logger.info(this.componentName, 'IPC handlers registration completed', { 
+        successful: successCount, 
+        total: handlerSetups.length 
+      });
+      
     } catch (error) {
-      Logger.error(this.componentName, 'Failed to register unified IPC handlers', error);
+      Logger.error(this.componentName, 'Failed to register IPC handlers', error);
       throw error;
+    }
+  }
+
+  /**
+   * 🔥 테스트 핸들러 등록
+   */
+  private async registerTestHandlers(): Promise<void> {
+    try {
+      const { safeRegisterIpcHandler } = await import('../utils/ipcHandlerHelper');
+      
+      // 기본 통신 테스트
+      safeRegisterIpcHandler('test-ipc', () => {
+        Logger.info('IPC_TEST', 'IPC test handler invoked successfully');
+        return {
+          status: 'ok',
+          timestamp: Date.now(),
+          message: 'IPC communication is working properly'
+        };
+      });
+
+      // 상세한 시스템 상태 체크
+      safeRegisterIpcHandler('test-ipc-detailed', () => {
+        const systemInfo = {
+          status: 'ok',
+          timestamp: Date.now(),
+          node_env: process.env.NODE_ENV,
+          electron_version: process.versions.electron,
+          platform: process.platform,
+          arch: process.arch,
+          cwd: process.cwd(),
+          dirname: __dirname,
+        };
+        Logger.info('IPC_TEST', 'Detailed IPC test completed', systemInfo);
+        return systemInfo;
+      });
+
+      Logger.info(this.componentName, 'Test IPC handlers registered');
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to register test handlers', error);
     }
   }
 

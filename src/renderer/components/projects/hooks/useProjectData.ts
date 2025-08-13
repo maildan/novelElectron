@@ -203,14 +203,44 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
     try {
       setIsLoading(true);
       setError(null);
-      Logger.debug('PROJECT_DATA', 'Loading project', { projectId });
+      Logger.info('PROJECT_DATA', '🔍 LOADING PROJECT START', { projectId });
+      
+      // 🔥 IPC 통신 테스트 및 디버깅
+      Logger.info('PROJECT_DATA', '🔍 ELECTRON API DEBUG', {
+        hasWindow: typeof window !== 'undefined',
+        hasElectronAPI: !!window.electronAPI,
+        hasProjects: !!window.electronAPI?.projects,
+        hasGetById: !!window.electronAPI?.projects?.getById,
+        electronAPIKeys: window.electronAPI ? Object.keys(window.electronAPI) : [],
+        projectsKeys: window.electronAPI?.projects ? Object.keys(window.electronAPI.projects) : []
+      });
+      
+      if (!window.electronAPI?.projects?.getById) {
+        const errorMsg = `ElectronAPI not available: hasElectronAPI=${!!window.electronAPI}, hasProjects=${!!window.electronAPI?.projects}`;
+        Logger.error('PROJECT_DATA', '❌ ELECTRON API NOT AVAILABLE', { errorMsg });
+        throw new Error(errorMsg);
+      }
       
       const result = await window.electronAPI.projects.getById(projectId);
+      Logger.info('PROJECT_DATA', '🔍 PROJECT GETBYID RESULT', { 
+        projectId, 
+        success: result.success, 
+        hasData: !!result.data,
+        error: result.error,
+        dataKeys: result.data ? Object.keys(result.data) : []
+      });
+      
       if (result.success && result.data) {
         setTitle(result.data.title);
         setContent(result.data.content);
         setLastSaved(new Date(result.data.lastModified));
         setSaveStatus('saved'); // 🔥 저장 상태 업데이트
+        
+        Logger.info('PROJECT_DATA', '✅ PROJECT BASIC DATA LOADED', { 
+          projectId, 
+          title: result.data.title,
+          contentLength: result.data.content?.length || 0
+        });
         
         // 🔥 실제 데이터 로드 - 캐릭터 데이터
         try {
@@ -260,8 +290,13 @@ export function useProjectData(projectId: string): UseProjectDataReturn {
           setNotes(defaultNotes);
         }
         
-        Logger.info('PROJECT_DATA', 'Project loaded successfully');
+        Logger.info('PROJECT_DATA', '✅ PROJECT LOADED SUCCESSFULLY', { projectId });
       } else {
+        Logger.error('PROJECT_DATA', '❌ PROJECT GETBYID FAILED', { 
+          projectId, 
+          success: result.success, 
+          error: result.error 
+        });
         throw new Error(result.error || 'Failed to load project');
       }
     } catch (error) {

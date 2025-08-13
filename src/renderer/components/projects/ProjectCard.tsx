@@ -111,7 +111,11 @@ export function ProjectCard({
 
   // 🔥 카드 클릭 핸들러 추가 - 프로젝트 상세 보기
   const handleCardClick = (): void => {
-    Logger.info('PROJECT_CARD', 'Card clicked', { projectId: project.id });
+    Logger.info('PROJECT_CARD', '🖱️ Card clicked', { 
+      projectId: project.id,
+      title: project.title,
+      currentPath: typeof window !== 'undefined' ? window.location.pathname : 'N/A'
+    });
     onView?.(project);
   };
 
@@ -187,6 +191,7 @@ export function ProjectCard({
       className={`${PROJECT_CARD_STYLES.container} cursor-pointer`}
       role="article"
       aria-label={`프로젝트: ${project.title}`}
+      data-project-id={project.id}
       onClick={handleCardClick}
     >
       {/* 헤더 */}

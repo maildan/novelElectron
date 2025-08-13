@@ -137,9 +137,17 @@ export class EventController {
 
       // 네비게이션 차단 (타입 안전)
       contents.on('will-navigate', (event: Event, navigationUrl: string) => {
-        if (!navigationUrl.startsWith('http://localhost') && 
-            !navigationUrl.startsWith('https://localhost') &&
-            !navigationUrl.startsWith('file://')) {
+        const dynamicOrigin = process.env.STATIC_SERVER_ORIGIN || '';
+        const allowedOrigins = [
+          'http://localhost',
+          'https://localhost',
+          'http://127.0.0.1',
+          'https://127.0.0.1',
+          'file://',
+          ...(dynamicOrigin ? [dynamicOrigin] : []),
+        ];
+        const isAllowed = allowedOrigins.some((origin) => navigationUrl.startsWith(origin));
+        if (!isAllowed) {
           Logger.warn(this.componentName, '🚫 Blocked navigation attempt', { url: navigationUrl });
           event.preventDefault();
         }

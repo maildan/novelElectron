@@ -73,6 +73,8 @@ export function cleanupAllIpcHandlers(): void {
     
     // 개별 핸들러 제거 (removeHandler는 없으므로 removeAllListeners 사용)
     const handlersToClean = [
+      'test-ipc',
+      'test-ipc-detailed',
       'keyboard:start-monitoring',
       'keyboard:stop-monitoring', 
       'keyboard:get-status',
@@ -122,6 +124,37 @@ export function cleanupAllIpcHandlers(): void {
   }
 }
 
+// 🔥 기본 IPC 테스트 핸들러 설정
+function setupTestIpcHandlers(): void {
+  // 기본 통신 테스트
+  ipcMain.handle('test-ipc', () => {
+    Logger.info('IPC_TEST', 'IPC test handler invoked successfully');
+    return {
+      status: 'ok',
+      timestamp: Date.now(),
+      message: 'IPC communication is working properly'
+    };
+  });
+
+  // 상세한 시스템 상태 체크
+  ipcMain.handle('test-ipc-detailed', () => {
+    const systemInfo = {
+      status: 'ok',
+      timestamp: Date.now(),
+      node_env: process.env.NODE_ENV,
+      electron_version: process.versions.electron,
+      platform: process.platform,
+      arch: process.arch,
+      cwd: process.cwd(),
+      dirname: __dirname,
+    };
+    Logger.info('IPC_TEST', 'Detailed IPC test completed', systemInfo);
+    return systemInfo;
+  });
+
+  Logger.info('IPC_HANDLERS', 'Test IPC handlers registered');
+}
+
 // 🔥 기가차드 모든 IPC 핸들러 설정
 export async function setupAllIpcHandlers(): Promise<void> {
   try {
@@ -130,6 +163,9 @@ export async function setupAllIpcHandlers(): Promise<void> {
     
     // #DEBUG: Setting up all IPC handlers
     Logger.debug('IPC_HANDLERS', 'Setting up all IPC handlers');
+
+    // 기본 테스트 핸들러 우선 설정
+    setupTestIpcHandlers();
 
     // 키보드 IPC 핸들러
     if (!registeredHandlers.has('keyboard')) {

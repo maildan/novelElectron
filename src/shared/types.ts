@@ -162,6 +162,12 @@ export interface ProjectNote {
 
 // 🔥 메인 Electron API 인터페이스 - Main ↔ Renderer 공통
 export interface ElectronAPI {
+  // 🔧 테스트 API
+  test: {
+    ipc: () => Promise<{ status: string; timestamp: number; message: string }>;
+    ipcDetailed: () => Promise<{ status: string; timestamp: number; node_env: string; electron_version: string; platform: string; arch: string; cwd: string; dirname: string }>;
+  };
+
   // ⌨️ 키보드 API
   keyboard: {
     startMonitoring: () => Promise<IpcResponse<boolean>>;

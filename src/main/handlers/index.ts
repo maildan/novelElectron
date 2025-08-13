@@ -9,6 +9,7 @@ import { setupTrayIpcHandlers } from './trayIpcHandlers';
 import { setupOAuthIpcHandlers } from './oauthIpcHandlers';
 import { setupProjectIpcHandlers } from './projectIpcHandlers';
 import { setupAIIpcHandlers } from './aiIpcHandlers';
+import { setupFileSystemIpcHandlers } from './fileSystemIpcHandlers';
 
 // #DEBUG: Handlers index entry point
 Logger.debug('HANDLERS_INDEX', 'Handlers index module loaded');
@@ -51,6 +52,9 @@ export class HandlersManager {
           'keyboard:get-status',
           'keyboard:set-language',
           'keyboard:get-recent-events',
+        ]),
+        this.setupHandler('fs', () => setupFileSystemIpcHandlers(), [
+          'fs:read-file',
         ]),
         this.setupHandler('dashboard', () => setupDashboardIpcHandlers(), [
           'dashboard:get-stats',

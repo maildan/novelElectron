@@ -6,6 +6,7 @@ import { ProjectGrid } from '../../components/projects/ProjectGrid';
 import { ProjectCreator, type ProjectCreationData } from '../../components/projects/ProjectCreator';
 import { type ProjectData } from '../../components/projects/ProjectCard';
 import { Logger } from '../../../shared/logger';
+import { isElectronEnvironment, waitForElectronAPI, getBrowserFallbackMessage } from '../../utils/electronCheck';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const PROJECTS_PAGE_STYLES = {
@@ -29,6 +30,27 @@ function ProjectsPageContent(): React.ReactElement {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreator, setShowCreator] = useState<boolean>(false);
+
+  // 🔐 내비게이션 보강: push 실패시 하드 내비게이션 폴백
+  const navigateToProject = (id: string): void => {
+    const target = `/projects/${id}`;
+    Logger.info('PROJECTS_PAGE', '↪️ Navigating to project (soft)', { target });
+    try {
+      router.push(target);
+    } catch (e) {
+      Logger.warn('PROJECTS_PAGE', 'router.push threw; will hard-navigate', { target });
+      window.location.assign(target);
+      return;
+    }
+    // 검증: 짧은 지연 후 경로 확인, 실패 시 하드 내비게이션
+    setTimeout(() => {
+      const ok = typeof window !== 'undefined' && window.location.pathname.startsWith(target);
+      if (!ok) {
+        Logger.warn('PROJECTS_PAGE', 'Soft navigation not applied; hard-navigating', { current: window.location.pathname, target });
+        window.location.assign(target);
+      }
+    }, 50);
+  };
 
   // 🔥 URL 쿼리 파라미터에서 create=true 감지 시 자동으로 생성 다이얼로그 열기
   useEffect(() => {
@@ -56,6 +78,19 @@ function ProjectsPageContent(): React.ReactElement {
     try {
       setLoading(true);
       setError(null);
+      
+      // 🔥 Electron 환경 체크
+      if (!isElectronEnvironment()) {
+        Logger.warn('PROJECTS_PAGE', '🌐 Browser environment detected');
+        setError(`브라우저 환경에서 접근 중입니다. Electron 앱에서 실행해주세요.\n\n실행 방법: pnpm dev`);
+        return;
+      }
+
+      // 🔥 ElectronAPI 로드 대기
+      const apiLoaded = await waitForElectronAPI(3000);
+      if (!apiLoaded) {
+        throw new Error('ElectronAPI를 로드할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      }
       
       // 🔥 기가차드 규칙: 타입 안전한 IPC 통신
       const result = await window.electronAPI.projects.getAll();
@@ -124,7 +159,7 @@ function ProjectsPageContent(): React.ReactElement {
         if (result.success && result.data) {
           Logger.info('PROJECTS_PAGE', '✅ Project imported successfully', { projectId: result.data.id });
           // 생성된 프로젝트 에디터로 즉시 이동
-          router.push(`/projects/${result.data.id}`);
+          navigateToProject(result.data.id);
           return;
         } else {
           throw new Error(result.error || 'Failed to import project');
@@ -165,7 +200,7 @@ function ProjectsPageContent(): React.ReactElement {
       // 🔥 생성된 프로젝트 에디터로 즉시 이동 (Google Docs 스타일)
       if (result.data?.id) {
         Logger.info('PROJECTS_PAGE', '🚀 Navigating to new project editor', { id: result.data.id });
-        router.push(`/projects/${result.data.id}`);
+        navigateToProject(result.data.id);
         return; // 성공적으로 이동했으므로 여기서 종료
       }
       
@@ -177,15 +212,33 @@ function ProjectsPageContent(): React.ReactElement {
   };
 
   const handleViewProject = (project: ProjectData): void => {
-    Logger.info('PROJECTS_PAGE', `🔍 View project: ${project.id}`, { title: project.title });
-    // 🔥 프로젝트 에디터로 이동 (보기 = 편집과 동일한 페이지)
-    router.push(`/projects/${project.id}`);
+    Logger.info('PROJECTS_PAGE', '🔍 VIEW PROJECT CLICKED', { 
+      projectId: project.id, 
+      title: project.title,
+      targetUrl: `/projects/${project.id}`,
+      currentUrl: window.location.href,
+      pathname: window.location.pathname
+    });
+
+    // 🔥 라우터를 사용한 네비게이션
+    try {
+      navigateToProject(project.id);
+    } catch (e) {
+      Logger.error('PROJECTS_PAGE', 'navigateToProject threw', e);
+      window.location.assign(`/projects/${project.id}`);
+      return;
+    }
+    
+    Logger.info('PROJECTS_PAGE', '✅ ROUTER PUSH COMPLETED', { 
+      projectId: project.id, 
+      targetUrl: `/projects/${project.id}` 
+    });
   };
 
   const handleEditProject = (project: ProjectData): void => {
     Logger.info('PROJECTS_PAGE', `✏️ Edit project: ${project.id}`, { title: project.title });
     // 🔥 프로젝트 에디터로 이동
-    router.push(`/projects/${project.id}`);
+    navigateToProject(project.id);
   };
 
   const handleShareProject = (project: ProjectData): void => {
@@ -224,18 +277,38 @@ function ProjectsPageContent(): React.ReactElement {
   }
 
   if (error) {
+    const isBrowserError = error.includes('브라우저 환경');
     return (
       <div className={PROJECTS_PAGE_STYLES.container}>
         <div className={PROJECTS_PAGE_STYLES.error}>
-          <h2 className={PROJECTS_PAGE_STYLES.errorTitle}>오류 발생</h2>
-          <p className={PROJECTS_PAGE_STYLES.errorMessage}>{error}</p>
-          <button 
-            onClick={handleRetry}
-            className={PROJECTS_PAGE_STYLES.retryButton}
-            type="button"
-          >
-            다시 시도
-          </button>
+          <h2 className={PROJECTS_PAGE_STYLES.errorTitle}>
+            {isBrowserError ? '🌐 브라우저 환경 감지' : '오류 발생'}
+          </h2>
+          <div className={PROJECTS_PAGE_STYLES.errorMessage}>
+            {error.split('\n').map((line, index) => (
+              <p key={index}>{line}</p>
+            ))}
+          </div>
+          {isBrowserError ? (
+            <div className="mt-6 space-y-3">
+              <p className="text-sm text-gray-600">다음 방법으로 Electron 앱을 실행하세요:</p>
+              <div className="bg-gray-100 p-3 rounded-md font-mono text-sm">
+                <p>$ cd /Users/user/loop/loop</p>
+                <p>$ pnpm dev</p>
+              </div>
+              <p className="text-xs text-gray-500">
+                Electron 앱에서는 모든 기능(프로젝트, IPC, 키보드 모니터링 등)을 사용할 수 있습니다.
+              </p>
+            </div>
+          ) : (
+            <button 
+              onClick={handleRetry}
+              className={PROJECTS_PAGE_STYLES.retryButton}
+              type="button"
+            >
+              다시 시도
+            </button>
+          )}
         </div>
       </div>
     );

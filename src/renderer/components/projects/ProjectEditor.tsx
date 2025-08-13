@@ -52,10 +52,20 @@ export interface ProjectEditorProps {
 
 // 🔥 React.memo로 무한 리렌더링 방지 (11원칙: 성능 최적화)
 export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectEditorProps): React.ReactElement {
-  console.log('🔥 ProjectEditor render started', { projectId }); // 🔥 디버그 로그
+  Logger.info('PROJECT_EDITOR', '🔍 PROJECT EDITOR RENDER STARTED', { projectId }); // 🔥 엄격한 로깅
   
   // 🔥 커스텀 hooks 사용
   const { isLoading, error, ...projectData } = useProjectData(projectId);
+  
+  // 🔥 엄격한 로깅 - 상태 변화 추적
+  Logger.info('PROJECT_EDITOR', '🔍 PROJECT EDITOR STATE', { 
+    projectId, 
+    isLoading, 
+    hasError: !!error, 
+    errorMessage: error,
+    hasTitle: !!projectData.title,
+    titleLength: projectData.title?.length || 0
+  });
   const uiState = useUIState();
   const [currentView, setCurrentView] = useState<string>('write'); // 🔥 실제 뷰 상태 관리
   const [collapsed, setCollapsed] = useState<boolean>(false);
@@ -251,7 +261,25 @@ export const ProjectEditor = memo(function ProjectEditor({ projectId }: ProjectE
   }
 
   if (error) {
-    return <div className="h-screen flex items-center justify-center text-red-500">오류: {error}</div>;
+    Logger.error('PROJECT_EDITOR', '❌ PROJECT EDITOR ERROR STATE', { projectId, error });
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-red-50 rounded-lg border border-red-200 max-w-md">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">🚨 프로젝트 로딩 에러</h1>
+          <p className="text-slate-600 mb-4">프로젝트를 불러올 수 없습니다.</p>
+          <div className="text-left bg-gray-100 p-4 rounded text-sm font-mono mb-4">
+            <p><strong>Project ID:</strong> {projectId}</p>
+            <p><strong>Error:</strong> {error}</p>
+          </div>
+          <button 
+            onClick={() => window.location.href = '/projects'}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            프로젝트 목록으로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

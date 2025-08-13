@@ -1,7 +1,8 @@
 // 🔥 기가차드 윈도우 매니저 - 타입 안전한 윈도우 관리 시스템
 
-import { BrowserWindow, screen } from 'electron';
+import { BrowserWindow, screen, app } from 'electron';
 import { join } from 'path';
+import fs from 'node:fs';
 import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { isObject } from '../../shared/common';
@@ -48,6 +49,19 @@ export class WindowManager {
         titleBarStyle: Platform.isMacOS() ? 'default' : 'default', // 🔥 메뉴바 표시 강제
       };
 
+      // 🔥 Preload 경로 디버깅
+      const preloadPath = app.isPackaged 
+        ? join(process.resourcesPath, 'app.asar', 'dist', 'preload', 'preload.js')
+        : join(__dirname, '../../../dist/preload/preload.js');
+      
+      Logger.info('WINDOW', '🔍 PRELOAD PATH DEBUG', {
+        isPackaged: app.isPackaged,
+        preloadPath,
+        __dirname,
+        processResourcesPath: process.resourcesPath,
+        preloadExists: fs.existsSync(preloadPath)
+      });
+
       const iconPath = this.getAppIcon();
       Logger.info('WINDOW', 'Creating window with icon', { iconPath });
       
@@ -56,9 +70,11 @@ export class WindowManager {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          sandbox: false,
-          preload: join(__dirname, '../../preload/preload.js'),
+          sandbox: process.env.NODE_ENV !== 'development',
+          preload: preloadPath,
           webSecurity: true,
+          allowRunningInsecureContent: false,
+          webviewTag: false,
         },
         icon: iconPath,
         // macOS 전용 설정
@@ -114,9 +130,13 @@ export class WindowManager {
 
     // 네비게이션 보안
     window.webContents.on('will-navigate', (event, navigationUrl) => {
+      const dynamicOrigin = process.env.STATIC_SERVER_ORIGIN || '';
       const allowedOrigins = [
         'http://localhost:4000',
-        'file://'
+        'http://127.0.0.1',
+        'http://localhost',
+        'file://',
+        ...(dynamicOrigin ? [dynamicOrigin] : []),
       ];
 
       const isAllowed = allowedOrigins.some(origin => 
@@ -133,9 +153,13 @@ export class WindowManager {
 
     // 외부 링크 차단 (최신 Electron API 사용)
     window.webContents.on('will-redirect', (event, navigationUrl) => {
+      const dynamicOrigin = process.env.STATIC_SERVER_ORIGIN || '';
       const allowedOrigins = [
         'http://localhost:4000',
-        'file://'
+        'http://127.0.0.1',
+        'http://localhost',
+        'file://',
+        ...(dynamicOrigin ? [dynamicOrigin] : []),
       ];
 
       const isAllowed = allowedOrigins.some(origin => 
@@ -233,10 +257,32 @@ export class WindowManager {
         throw new Error(`Window ${windowId} not found`);
       }
 
-      const targetUrl = url || (process.env.NODE_ENV === 'development'
-        ? 'http://localhost:4000'
-        : `file://${join(__dirname, '../../renderer/.next/server/app/index.html')}`
-      );
+      const fileCandidates: string[] = [];
+      // Primary Next.js app router server output (dev/unpacked run)
+      fileCandidates.push(join(__dirname, '../../renderer/.next/server/app/index.html'));
+      // Fallback to project root dist when running via electron . from root
+      fileCandidates.push(join(process.cwd(), 'dist/renderer/.next/server/app/index.html'));
+      // Optional Next export output
+      fileCandidates.push(join(process.cwd(), 'out/index.html'));
+
+      const existingFile = fileCandidates.find(p => {
+        try { return fs.existsSync(p); } catch { return false; }
+      });
+
+      const targetUrl = url
+        || process.env.STATIC_SERVER_ORIGIN
+        || (process.env.NODE_ENV === 'development'
+              ? 'http://localhost:4000'
+              : (existingFile ? `file://${existingFile}` : 'about:blank')
+           );
+
+      Logger.debug('WINDOW', 'Resolved target URL', {
+        providedUrl: url,
+        staticServerOrigin: process.env.STATIC_SERVER_ORIGIN,
+        nodeEnv: process.env.NODE_ENV,
+        existingFile,
+        targetUrl,
+      });
 
       await window.loadURL(targetUrl);
 

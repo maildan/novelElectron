@@ -32,6 +32,11 @@ import type {
 
 // 🔥 타입 안전한 API 구현
 const electronAPI: ElectronAPI = {
+  // 🔥 IPC 통신 테스트 API 추가
+  test: {
+    ipc: () => ipcRenderer.invoke('test-ipc'),
+    ipcDetailed: () => ipcRenderer.invoke('test-ipc-detailed'),
+  },
   keyboard: {
     startMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.START_MONITORING),
     stopMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.STOP_MONITORING),
@@ -142,6 +147,11 @@ const electronAPI: ElectronAPI = {
 
 // 🔥 안전한 API 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// 🔐 최소 파일 시스템 API (읽기 전용, 허용 경로에 한해)
+contextBridge.exposeInMainWorld('fsAPI', {
+  readFile: (filePath: string) => ipcRenderer.invoke('fs:read-file', filePath),
+} as const);
 
 // 🔥 렌더러 프로세스 예외를 메인 프로세스로 전달 (디버깅 강화)
 window.addEventListener('unhandledrejection', event => {

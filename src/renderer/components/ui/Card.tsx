@@ -68,6 +68,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         aria-label={ariaLabel}
         tabIndex={onClick ? 0 : undefined}
         onKeyDown={onClick ? (e) => {
+          // 키보드 접근성: 카드 자체가 포커스된 경우에만 동작
+          if (e.defaultPrevented) return;
+          if (e.currentTarget !== e.target) return;
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             onClick();

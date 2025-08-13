@@ -489,7 +489,7 @@ export class TrayManager extends BaseManager {
     if (!this.tray) return;
 
     const status = this.isKeyboardMonitoring ? '모니터링 중' : '대기 중';
-    const tooltip = `Loop Typing Analytics - ${status}`;
+    const tooltip = `Loop- ${status}`;
     
     this.tray.setToolTip(tooltip);
     Logger.debug(this.componentName, 'Tray tooltip updated', { tooltip });

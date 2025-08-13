@@ -39,10 +39,18 @@ export class OpenAIService {
   private readonly config: OpenAIConfig;
 
   constructor(config: Partial<OpenAIConfig> = {}) {
+    const envApiUrl = process.env.LOOP_AI_API_URL || process.env.OPENAI_PROXY_URL;
+    const defaultApiUrl = envApiUrl && envApiUrl.trim().length > 0
+      ? envApiUrl
+      : 'https://loop-openai.onrender.com/api/chat';
+
+    const envTimeout = Number(process.env.LOOP_AI_API_TIMEOUT_MS || '60000');
+    const envRetries = Number(process.env.LOOP_AI_API_RETRIES || '2');
+
     this.config = {
-      apiUrl: 'https://loop-openai.onrender.com/api/chat',
-      timeout: 60000, // 🔥 60초로 증가 (서버 응답 시간 고려)
-      retries: 2, // 🔥 재시도 횟수 줄임 (더 빠른 실패)
+      apiUrl: defaultApiUrl,
+      timeout: Number.isFinite(envTimeout) && envTimeout > 0 ? envTimeout : 60000,
+      retries: Number.isFinite(envRetries) && envRetries >= 1 ? envRetries : 2,
       ...config,
     };
 
@@ -212,8 +220,8 @@ export class OpenAIService {
    * 🔥 실제 API 요청 수행 (Primary + Fallback URL 지원)
    */
   private async makeRequest(request: OpenAIRequest): Promise<OpenAIResponse> {
-    const primaryUrl = 'https://loop-openai.onrender.com/api/chat';
-    const fallbackUrl = 'http://0.0.0.0:8080/api/chat';
+    const primaryUrl = this.config.apiUrl || 'https://loop-openai.onrender.com/api/chat';
+    const fallbackUrl = process.env.LOOP_AI_API_FALLBACK_URL || 'http://127.0.0.1:8080/api/chat';
     
     // 🔥 Primary URL 시도
     try {
@@ -252,7 +260,20 @@ export class OpenAIService {
           primaryError: this.getErrorMessage(primaryError),
           fallbackError: this.getErrorMessage(fallbackError) 
         });
-        
+
+        // 옵션: 실패 시 모킹 응답 허용 (개발/오프라인 모드)
+        if ((process.env.AI_MOCK_ON_FAILURE || '').toLowerCase() === 'true') {
+          Logger.warn(this.componentName, 'Returning mocked AI response due to failures');
+          return {
+            response: '현재 AI 서버에 연결할 수 없어 모의 응답을 제공합니다. 네트워크 상태 또는 AI API 설정을 확인하세요.',
+            suggestions: [
+              '인터넷 연결을 확인하세요',
+              '환경변수 LOOP_AI_API_URL을 설정하세요',
+              '방화벽/프록시 설정을 확인하세요'
+            ],
+          };
+        }
+
         throw new Error(`모든 API 엔드포인트 실패 - Primary: ${this.getErrorMessage(primaryError)}, Fallback: ${this.getErrorMessage(fallbackError)}`);
       }
     }

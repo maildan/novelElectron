@@ -7,7 +7,7 @@ if (typeof global === 'undefined') {
 
 import { Inter } from 'next/font/google';
 import { ReactNode, useState, useLayoutEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
 import { MonitoringProvider } from '../contexts/GlobalMonitoringContext';
@@ -43,6 +43,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isClientMounted, setIsClientMounted] = useState<boolean>(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // 🔥 DOM 업데이트 전에 localStorage에서 사이드바 상태 즉시 복원
   useLayoutEffect(() => {
@@ -53,6 +54,15 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
           setSidebarCollapsed(true);
         }
         Logger.debug('LAYOUT', 'Sidebar state restored immediately', { collapsed: savedState === 'true' });
+        
+        // 🔥 ElectronAPI 상태 디버깅
+        Logger.info('LAYOUT', '🔍 ELECTRON API STATUS CHECK', {
+          hasElectronAPI: !!window.electronAPI,
+          electronAPIKeys: window.electronAPI ? Object.keys(window.electronAPI) : [],
+          userAgent: navigator.userAgent,
+          isElectron: navigator.userAgent.toLowerCase().includes('electron')
+        });
+        
       } catch (error) {
         Logger.error('LAYOUT', 'Failed to restore sidebar state', error);
       }
@@ -61,8 +71,15 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
   }, []);
 
   const handleNavigate = (href: string): void => {
-    // Next.js App Router는 자동으로 네비게이션을 처리합니다
-    window.location.href = href;
+    try {
+      // 🔥 Next.js App Router의 클라이언트 사이드 라우팅 사용
+      Logger.debug('LAYOUT', 'Navigating to', { href, currentPath: pathname });
+      router.push(href);
+    } catch (error) {
+      Logger.error('LAYOUT', 'Navigation failed, falling back to window.location', { href, error });
+      // 폴백: 라우터 실패 시 페이지 새로고침
+      window.location.href = href;
+    }
   };
 
   const handleToggleSidebar = (): void => {

@@ -11,6 +11,7 @@
     "dist/shared/**/*",
     "assets/**/*",
     "package.json",
+    "node_modules/.prisma/client/**",
     "node_modules/@prisma/client/runtime/**",
     "node_modules/active-win/**",
     "node_modules/node-mac-permissions/**",
@@ -26,10 +27,6 @@
     {
       "from": "prisma/schema.prisma",
       "to": "schema.prisma"
-    },
-    {
-      "from": "node_modules/@prisma/client/runtime/query-engine-darwin-arm64",
-      "to": "prisma/query-engine"
     }
   ],
   "extraFiles": [],

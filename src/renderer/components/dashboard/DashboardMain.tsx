@@ -31,6 +31,7 @@ import { MonitoringControlPanel } from './MonitoringControlPanel';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { HydrationGuard } from '../ui/HydrationGuard';
 import { Logger } from '../../../shared/logger';
+import { isElectronEnvironment, waitForElectronAPI } from '../../utils/electronCheck';
 import { useMonitoring } from '../../contexts/GlobalMonitoringContext';
 
 // 🔥 작가 친화적 스타일 상수 - 미니멀하고 집중할 수 있는 디자인
@@ -185,6 +186,24 @@ export function DashboardMain(): React.ReactElement {
   // 🔥 대시보드 데이터 로딩 - 메모화로 성능 최적화
   const loadDashboardData = useCallback(async (): Promise<void> => {
     try {
+      // 🔐 환경 감지: 브라우저 환경에서는 Electron API 호출 금지
+      if (!isElectronEnvironment()) {
+        Logger.warn('DASHBOARD', '🌐 Browser environment detected. Using fallback empty state.');
+        // 로딩 상태 해제 및 빈 상태로 표시
+        setLoadingStates({ kpi: false, projects: false, recentFiles: false });
+        setProjects([]);
+        setRecentFiles([]);
+        return;
+      }
+
+      // 🔄 Electron API 로드 대기 (최대 3초)
+      const apiReady = await waitForElectronAPI(3000);
+      if (!apiReady) {
+        Logger.error('DASHBOARD', '❌ ElectronAPI not ready');
+        setLoadingStates({ kpi: false, projects: false, recentFiles: false });
+        return;
+      }
+
       // 🔥 기가차드 규칙: 타입 안전한 IPC 통신 - 병렬 처리
       const [dashboardStatsResult, projectsResult, recentSessionsResult] = await Promise.allSettled([
         window.electronAPI.dashboard.getStats(),
@@ -421,6 +440,10 @@ export function DashboardMain(): React.ReactElement {
           onImportProject={async () => {
             try {
               Logger.info('DASHBOARD', 'Importing project from quick start');
+              if (!isElectronEnvironment() || !window.electronAPI?.projects?.importFile) {
+                Logger.warn('DASHBOARD', '🌐 Cannot import project in browser environment');
+                return;
+              }
               const result = await window.electronAPI.projects.importFile();
               if (result.success) {
                 Logger.info('DASHBOARD', 'Project import initiated');
@@ -432,6 +455,10 @@ export function DashboardMain(): React.ReactElement {
           onOpenSample={async () => {
             try {
               Logger.info('DASHBOARD', 'Opening sample project');
+              if (!isElectronEnvironment() || !window.electronAPI?.projects?.createSample) {
+                Logger.warn('DASHBOARD', '🌐 Cannot open sample project in browser environment');
+                return;
+              }
               const result = await window.electronAPI.projects.createSample();
               if (result.success) {
                 Logger.info('DASHBOARD', 'Sample project opened');

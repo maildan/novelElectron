@@ -1,6 +1,8 @@
 // 🔥 기가차드 Application Bootstrapper - 메인 오케스트레이터
 
 import { app } from 'electron';
+import fs from 'node:fs';
+import path from 'node:path';
 import { Logger } from '../../shared/logger';
 import { ManagerCoordinator } from './ManagerCoordinator';
 import { EventController } from './EventController';
@@ -9,6 +11,7 @@ import { ShutdownManager } from './ShutdownManager';
 import { unifiedPermissionManager } from '../utils/UnifiedPermissionManager';
 import { windowManager } from '../core/window';
 import unifiedHandler from '../keyboard/UnifiedHandler';
+import { startStaticServer } from '../utils/StaticServer';
 
 /**
  * 🔥 ApplicationBootstrapper - 978줄을 50줄로 축소한 메인 오케스트레이터
@@ -132,14 +135,30 @@ export class ApplicationBootstrapper {
    */
   private async handleAppReady(): Promise<void> {
     try {
-      // 기존 windowManager 활용 (중복 방지)
+      // 기존 windowManager 활용 중복 방지)
       const mainWindow = windowManager.createMainWindow('main');
       // 글로벌 참조 설정 (이벤트 포워딩 등 기존 코드 호환)
       (globalThis as unknown as { mainWindow?: typeof mainWindow }).mainWindow = mainWindow;
       (globalThis as unknown as { unifiedHandler?: typeof unifiedHandler }).unifiedHandler = unifiedHandler;
-      
-      // 🔥 URL 로딩 추가 (빈 화면 문제 해결)
-      await windowManager.loadUrl('main');
+
+      // 🔥 PROD에서 내장 정적 서버 기동 후 해당 origin으로 로드
+      let origin: string | undefined;
+      // Start static server when packaged OR explicitly requested OR when build output exists
+      const distNextDir = path.join(process.cwd(), 'dist', 'renderer', '.next');
+      const shouldStartStatic = app.isPackaged
+        || process.env.USE_STATIC_SERVER === 'true'
+        || fs.existsSync(distNextDir);
+
+      if (shouldStartStatic) {
+        const staticServer = await startStaticServer();
+        // 종료 시 close를 위해 보관
+        (globalThis as unknown as { __staticServer?: { origin: string; close: () => void } }).__staticServer = staticServer;
+        origin = staticServer.origin;
+        // Allow window security whitelist to include this origin
+        process.env.STATIC_SERVER_ORIGIN = origin;
+      }
+
+      await windowManager.loadUrl('main', origin);
       
       Logger.info('BOOTSTRAPPER', '🪟 Main window created and URL loaded');
     } catch (error) {
