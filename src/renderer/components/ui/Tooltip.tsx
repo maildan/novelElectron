@@ -5,7 +5,7 @@ import { Logger } from '../../../shared/logger';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const TOOLTIP_STYLES = {
-  trigger: 'inline-block',
+  trigger: 'inline-block relative',
   tooltip: 'absolute z-50 px-3 py-2 text-xs font-medium text-white bg-slate-900 rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-opacity duration-200',
   arrow: 'absolute w-2 h-2 bg-slate-900 transform rotate-45',
   positions: {
@@ -155,15 +155,19 @@ export function Tooltip({
 
   // children에 이벤트 핸들러 추가
   const triggerElement = isValidElement(children) 
-    ? cloneElement(children as React.ReactElement<any>, {
-        onMouseEnter: handleMouseEnter,
-        onMouseLeave: handleMouseLeave,
-        onClick: handleClick,
-        onFocus: handleFocus,
-        onBlur: handleBlur,
-        onKeyDown: handleKeyDown,
-        'aria-describedby': isOpen ? 'tooltip' : undefined,
-      })
+    ? (() => {
+        const child = children as React.ReactElement<any>;
+        const childProps = child.props || {};
+        return cloneElement(child, {
+          onMouseEnter: (e: any) => { childProps.onMouseEnter?.(e); handleMouseEnter(); },
+          onMouseLeave: (e: any) => { childProps.onMouseLeave?.(e); handleMouseLeave(); },
+          onClick: (e: any) => { childProps.onClick?.(e); handleClick(); },
+          onFocus: (e: any) => { childProps.onFocus?.(e); handleFocus(); },
+          onBlur: (e: any) => { childProps.onBlur?.(e); handleBlur(); },
+          onKeyDown: (e: any) => { childProps.onKeyDown?.(e); handleKeyDown(e); },
+          'aria-describedby': isOpen ? 'tooltip' : undefined,
+        });
+      })()
     : children;
 
   // Tooltip 스타일 계산
@@ -195,8 +199,8 @@ export function Tooltip({
           role="tooltip"
           className={tooltipClassName}
           style={{
-            [side === 'top' || side === 'bottom' ? 'marginTop' : 'marginLeft']: 
-              side === 'top' || side === 'left' ? -sideOffset : sideOffset,
+            [side === 'top' || side === 'bottom' ? 'marginTop' as const : 'marginLeft' as const]:
+              (side === 'top' || side === 'left') ? -sideOffset : sideOffset,
           }}
         >
           {content}

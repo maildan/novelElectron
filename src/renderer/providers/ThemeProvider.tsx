@@ -241,7 +241,12 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <div className={THEME_STYLES.root}>
+      <div
+        className={THEME_STYLES.root}
+        // 🔥 확실한 테마 적용: 최상위 div에도 data-theme 동기화
+        data-theme={resolvedTheme}
+        style={{ colorScheme: resolvedTheme }}
+      >
         {children}
       </div>
     </ThemeContext.Provider>

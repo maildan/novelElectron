@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProjectGrid } from '../../components/projects/ProjectGrid';
 import { ProjectCreator, type ProjectCreationData } from '../../components/projects/ProjectCreator';
+import { ProjectEditorModal } from '../../components/projects/ProjectEditorModal';
 import { type ProjectData } from '../../components/projects/ProjectCard';
 import { Logger } from '../../../shared/logger';
 
@@ -29,6 +30,7 @@ function ProjectsPageContent(): React.ReactElement {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreator, setShowCreator] = useState<boolean>(false);
+  const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
 
   // 🔥 URL 쿼리 파라미터에서 create=true 감지 시 자동으로 생성 다이얼로그 열기
   useEffect(() => {
@@ -203,23 +205,30 @@ function ProjectsPageContent(): React.ReactElement {
   };
 
   const handleEditProject = (project: ProjectData): void => {
-    Logger.info('PROJECTS_PAGE', `✏️ Edit project: ${project.id}`, { title: project.title });
-    router.push(`/projects/new?open=${encodeURIComponent(project.id)}`);
+    Logger.info('PROJECTS_PAGE', `✏️ Edit project (modal): ${project.id}`, { title: project.title });
+    setEditingProject(project);
   };
 
   const handleShareProject = (project: ProjectData): void => {
     Logger.info('PROJECTS_PAGE', `Share project: ${project.id}`, { title: project.title });
-    // TODO: 프로젝트 공유 다이얼로그 열기
-    alert(`프로젝트 공유: ${project.title}`);
+    alert('공유 기능은 준비 중입니다.');
   };
 
-  const handleDeleteProject = (project: ProjectData): void => {
+  const handleDeleteProject = async (project: ProjectData): Promise<void> => {
     Logger.info('PROJECTS_PAGE', `Delete project requested: ${project.id}`, { title: project.title });
-    // TODO: 삭제 확인 다이얼로그 후 프로젝트 삭제
     const confirmed = confirm(`정말로 "${project.title}" 프로젝트를 삭제하시겠습니까?`);
-    if (confirmed) {
-      setProjects(prev => prev.filter(p => p.id !== project.id));
-      Logger.info('PROJECTS_PAGE', `Project deleted: ${project.id}`);
+    if (!confirmed) return;
+    try {
+      const result = await window.electronAPI.projects.delete(project.id);
+      if (result.success) {
+        setProjects(prev => prev.filter(p => p.id !== project.id));
+        Logger.info('PROJECTS_PAGE', `Project deleted: ${project.id}`);
+      } else {
+        throw new Error(result.error || 'Failed to delete project');
+      }
+    } catch (err) {
+      Logger.error('PROJECTS_PAGE', 'Failed to delete project', err);
+      alert('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -276,6 +285,15 @@ function ProjectsPageContent(): React.ReactElement {
         isOpen={showCreator}
         onClose={() => setShowCreator(false)}
         onCreate={handleProjectCreated}
+      />
+
+      <ProjectEditorModal
+        isOpen={!!editingProject}
+        project={editingProject ? { id: editingProject.id, title: editingProject.title, description: editingProject.description, genre: editingProject.genre || 'novel' } : null}
+        onClose={() => setEditingProject(null)}
+        onUpdated={(u) => {
+          setProjects(prev => prev.map(p => p.id === u.id ? { ...p, title: u.title, description: u.description, genre: u.genre, updatedAt: new Date() } : p));
+        }}
       />
     </div>
   );

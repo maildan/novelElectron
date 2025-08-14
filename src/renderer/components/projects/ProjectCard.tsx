@@ -96,7 +96,7 @@ export function ProjectCard({
     actionId: string, 
     callback?: (project: ProjectData) => void
   ): void => {
-    event.stopPropagation(); // 🔥 카드 클릭 이벤트 전파 중단
+    event.stopPropagation();
     event.preventDefault();
     Logger.info('PROJECT_CARD', `Action triggered: ${actionId}`, { projectId: project.id });
     callback?.(project);
@@ -193,12 +193,12 @@ export function ProjectCard({
       <div className={PROJECT_CARD_STYLES.header}>
         <h3 className={PROJECT_CARD_STYLES.title}>{project.title}</h3>
         {showActions && onMore && (
-          <Tooltip content="더 보기" side="top">
+          <Tooltip content="더 보기" side="bottom" sideOffset={4}>
             <Button
               variant="ghost"
               size="sm"
               className={PROJECT_CARD_STYLES.moreButton}
-              onClick={handleMoreClick}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleMoreClick(e); }}
               aria-label="프로젝트 옵션 더 보기"
             >
               <MoreHorizontal className={PROJECT_CARD_STYLES.icon} />
@@ -261,17 +261,29 @@ export function ProjectCard({
 
       {/* 액션 버튼 */}
       {showActions && (
-        <div className={PROJECT_CARD_STYLES.footer}>
-          <div className={PROJECT_CARD_STYLES.actionButtons}>
+        <div 
+          className={PROJECT_CARD_STYLES.footer}
+          onClick={(e) => { 
+            // 🔥 액션 버튼 영역 내에서는 카드 열기 동작 방지
+            e.stopPropagation(); 
+          }}
+        >
+          <div 
+            className={PROJECT_CARD_STYLES.actionButtons}
+            onClick={(e) => { 
+              // 🔥 버튼 사이 공간(패딩/갭) 클릭 시에도 부모 클릭 방지
+              e.stopPropagation(); 
+            }}
+          >
             {projectActions.map((action) => {
               const Icon = action.icon;
               return (
-                <Tooltip key={action.id} content={action.label} side="top">
+                <Tooltip key={action.id} content={action.label} side="bottom" sideOffset={4}>
                   <Button
                     variant={action.variant}
                     size="sm"
                     className={PROJECT_CARD_STYLES.actionButton}
-                    onClick={(event) => handleActionClick(event, action.id, action.onClick.bind(null, project))}
+                    onClick={(event) => handleActionClick(event, action.id, action.onClick?.bind(null, project))}
                     aria-label={action.ariaLabel}
                   >
                     <Icon className={PROJECT_CARD_STYLES.icon} />

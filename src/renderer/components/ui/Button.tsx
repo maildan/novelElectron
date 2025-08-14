@@ -61,6 +61,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-label={ariaLabel}
         aria-disabled={isDisabled}
+        onClick={(e) => {
+          if (isDisabled) { e.preventDefault(); e.stopPropagation(); return; }
+          props.onClick?.(e);
+        }}
         {...props}
       >
         {loading && (
