@@ -80,10 +80,17 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         Logger.error('THEME_PROVIDER', 'Error saving theme to backend', error);
       }
 
-      // 🔥 HTML 클래스 업데이트 (즉시)
+      // 🔥 HTML/Body 속성 및 클래스 업데이트 (즉시)
       const root = document.documentElement;
+      const body = document.body;
       root.classList.remove('light', 'dark');
       root.classList.add(resolved);
+      root.setAttribute('data-theme', resolved);
+      (root.style as CSSStyleDeclaration).colorScheme = resolved;
+      if (body) {
+        body.setAttribute('data-theme', resolved);
+        (body.style as CSSStyleDeclaration).colorScheme = resolved;
+      }
       
       // 🔥 로컬 스토리지에도 저장 (백업)
       localStorage.setItem('loop-theme', newTheme);
@@ -165,12 +172,14 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         const resolved = calculateResolvedTheme(savedTheme);
         
         // 4. 현재 HTML과 계산된 테마가 다르면 동기화
-        if (resolved !== currentResolvedTheme) {
+         if (resolved !== currentResolvedTheme) {
           setResolvedTheme(resolved);
           htmlElement.classList.remove('light', 'dark');
           htmlElement.classList.add(resolved);
           htmlElement.setAttribute('data-theme', resolved);
           htmlElement.style.setProperty('color-scheme', resolved);
+          document.body?.setAttribute('data-theme', resolved);
+          document.body?.style.setProperty('color-scheme', resolved);
           Logger.info('THEME_PROVIDER', 'Theme synchronized with calculation', { 
             calculated: resolved, 
             current: currentResolvedTheme 
@@ -178,6 +187,11 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         } else {
           // 이미 올바른 테마가 적용됨
           setResolvedTheme(currentResolvedTheme);
+          // 보수적으로 body에도 동일 속성 보강
+          htmlElement.setAttribute('data-theme', currentResolvedTheme);
+          htmlElement.style.setProperty('color-scheme', currentResolvedTheme);
+          document.body?.setAttribute('data-theme', currentResolvedTheme);
+          document.body?.style.setProperty('color-scheme', currentResolvedTheme);
           Logger.debug('THEME_PROVIDER', 'Theme already synchronized', { 
             theme: savedTheme,
             resolved: currentResolvedTheme 
@@ -194,9 +208,15 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         Logger.error('THEME_PROVIDER', 'Error loading initial theme', error);
         // 에러 시 안전한 폴백
         const root = document.documentElement;
+        const body = document.body;
         root.classList.remove('light', 'dark');
         root.classList.add('light');
         root.setAttribute('data-theme', 'light');
+        root.style.setProperty('color-scheme', 'light');
+        if (body) {
+          body.setAttribute('data-theme', 'light');
+          body.style.setProperty('color-scheme', 'light');
+        }
         setResolvedTheme('light');
       }
     };
@@ -216,10 +236,17 @@ export function ThemeProvider({ children, defaultTheme = 'system' }: ThemeProvid
         const newResolved = getSystemTheme();
         setResolvedTheme(newResolved);
         
-        // HTML 클래스 업데이트
+        // HTML/Body 클래스 및 속성 업데이트
         const root = document.documentElement;
+        const body = document.body;
         root.classList.remove('light', 'dark');
         root.classList.add(newResolved);
+        root.setAttribute('data-theme', newResolved);
+        root.style.setProperty('color-scheme', newResolved);
+        if (body) {
+          body.setAttribute('data-theme', newResolved);
+          body.style.setProperty('color-scheme', newResolved);
+        }
         
         Logger.info('THEME_PROVIDER', 'System theme changed', { 
           theme: 'system', 
