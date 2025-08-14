@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { PrismaClient } from '@prisma/client';
 import ProjectPageClient from './ProjectPageClient';
 
@@ -35,5 +35,9 @@ export async function generateStaticParams() {
 
 // 🔥 서버 컴포넌트 - 클라이언트 컴포넌트 래퍼
 export default function ProjectPage(): React.ReactElement {
-  return <ProjectPageClient />;
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-600">프로젝트를 불러오는 중...</div>}>
+      <ProjectPageClient />
+    </Suspense>
+  );
 }

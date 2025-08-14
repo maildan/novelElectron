@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ProjectEditor } from '../../../components/projects/ProjectEditor';
 import { ProjectErrorBoundary } from '../../../components/projects/ErrorBoundary';
 import { Logger } from '../../../../shared/logger';
@@ -9,7 +9,12 @@ import { Logger } from '../../../../shared/logger';
 // 🔥 클라이언트 컴포넌트 - 동적 라우팅 로직
 export default function ProjectPageClient(): React.ReactElement {
   const params = useParams();
-  const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const searchParams = useSearchParams();
+  const paramId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const openId = searchParams.get('open') || searchParams.get('id') || undefined;
+
+  // 🔥 정적 루트(`/projects/new`)에서 쿼리로 열린 경우 처리
+  const projectId = (paramId === 'new' && openId) ? openId : (paramId || openId);
 
   // 🔥 파라미터 검증
   if (!projectId) {

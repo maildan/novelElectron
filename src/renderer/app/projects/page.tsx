@@ -198,14 +198,13 @@ function ProjectsPageContent(): React.ReactElement {
 
   const handleViewProject = (project: ProjectData): void => {
     Logger.info('PROJECTS_PAGE', `🔍 View project: ${project.id}`, { title: project.title });
-    // 🔥 프로젝트 에디터로 이동 (보기 = 편집과 동일한 페이지)
-    router.push(`/projects/${project.id}`);
+    // 🔥 정적 프리렌더 경로 한계 대응: 쿼리로 실제 ID 전달
+    router.push(`/projects/new?open=${encodeURIComponent(project.id)}`);
   };
 
   const handleEditProject = (project: ProjectData): void => {
     Logger.info('PROJECTS_PAGE', `✏️ Edit project: ${project.id}`, { title: project.title });
-    // 🔥 프로젝트 에디터로 이동
-    router.push(`/projects/${project.id}`);
+    router.push(`/projects/new?open=${encodeURIComponent(project.id)}`);
   };
 
   const handleShareProject = (project: ProjectData): void => {
