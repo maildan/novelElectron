@@ -156,15 +156,15 @@ export function Tooltip({
   // children에 이벤트 핸들러 추가
   const triggerElement = isValidElement(children) 
     ? (() => {
-        const child = children as React.ReactElement<any>;
-        const childProps = child.props || {};
-        return cloneElement(child, {
-          onMouseEnter: (e: any) => { childProps.onMouseEnter?.(e); handleMouseEnter(); },
-          onMouseLeave: (e: any) => { childProps.onMouseLeave?.(e); handleMouseLeave(); },
-          onClick: (e: any) => { childProps.onClick?.(e); handleClick(); },
-          onFocus: (e: any) => { childProps.onFocus?.(e); handleFocus(); },
-          onBlur: (e: any) => { childProps.onBlur?.(e); handleBlur(); },
-          onKeyDown: (e: any) => { childProps.onKeyDown?.(e); handleKeyDown(e); },
+        const child = children as React.ReactElement<Record<string, unknown>>;
+        const childProps = (child.props || {}) as Record<string, unknown>;
+        return cloneElement(child as React.ReactElement<any>, {
+          onMouseEnter: (e: React.MouseEvent) => { (childProps.onMouseEnter as ((e: React.MouseEvent)=>void) | undefined)?.(e); handleMouseEnter(); },
+          onMouseLeave: (e: React.MouseEvent) => { (childProps.onMouseLeave as ((e: React.MouseEvent)=>void) | undefined)?.(e); handleMouseLeave(); },
+          onClick: (e: React.MouseEvent) => { (childProps.onClick as ((e: React.MouseEvent)=>void) | undefined)?.(e); handleClick(); },
+          onFocus: (e: React.FocusEvent) => { (childProps.onFocus as ((e: React.FocusEvent)=>void) | undefined)?.(e); handleFocus(); },
+          onBlur: (e: React.FocusEvent) => { (childProps.onBlur as ((e: React.FocusEvent)=>void) | undefined)?.(e); handleBlur(); },
+          onKeyDown: (e: React.KeyboardEvent) => { (childProps.onKeyDown as ((e: React.KeyboardEvent)=>void) | undefined)?.(e); handleKeyDown(e); },
           'aria-describedby': isOpen ? 'tooltip' : undefined,
         });
       })()

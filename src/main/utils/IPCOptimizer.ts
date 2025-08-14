@@ -1,10 +1,10 @@
 // 🔥 기가차드 IPC Performance Optimizer - 통신 최적화
 
-import { ipcMain, BrowserWindow, IpcMainEvent } from 'electron';
+import { ipcMain, IpcMainEvent, BrowserWindow } from 'electron';
 import { Logger } from '../../shared/logger';
 
 // 🔥 렌더러 프로세스에서만 ipcRenderer 동적 import
-let ipcRenderer: any = null;
+let ipcRenderer: { send: (channel: string, ...args: unknown[]) => void } | null = null;
 
 // 🔥 프로세스 타입 안전한 검사
 const isMainProcess = (): boolean => {
@@ -23,8 +23,7 @@ const isRendererProcess = (): boolean => {
   try {
     // ✅ 타입 안전한 체크
     return typeof window !== 'undefined' && 
-           'electronAPI' in window &&
-           typeof (window as any).electronAPI !== 'undefined';
+           'electronAPI' in window;
   } catch {
     return false;
   }
@@ -120,11 +119,11 @@ export class IPCOptimizer {
    */
   private setupMainProcessOptimization(): void {
     // 고성능 채널 등록 (배치 처리 우회)
-    this.config.priorityChannels.forEach(channel => {
-      ipcMain.on(channel, (event: IpcMainEvent, ...args: any[]) => {
-        this.handleHighPriorityMessage(channel, args, event);
+      this.config.priorityChannels.forEach(channel => {
+        ipcMain.on(channel, (event: IpcMainEvent, ...args: unknown[]) => {
+          this.handleHighPriorityMessage(channel, args, event);
+        });
       });
-    });
 
     // 배치 처리용 채널 등록
     ipcMain.on('ipc:batch-message', (event: IpcMainEvent, messages: IPCMessage[]) => {

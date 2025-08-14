@@ -107,8 +107,8 @@ function ProjectsPageContent(): React.ReactElement {
   /**
    * 🔥 BE 데이터를 FE ProjectData 타입으로 변환
    */
-  const convertToProjectData = (backendProjects: any[]): readonly ProjectData[] => {
-    return backendProjects.map(project => ({
+  const convertToProjectData = (backendProjects: Array<Partial<ProjectData & { lastModified?: Date; createdAt?: Date; updatedAt?: Date }>>): readonly ProjectData[] => {
+    return backendProjects.map((project) => ({
       id: project.id || '',
       title: project.title || '제목 없음',
       description: project.description || '',

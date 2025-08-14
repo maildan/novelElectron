@@ -5,6 +5,8 @@ import { Extension } from '@tiptap/core';
 import { ReactRenderer } from '@tiptap/react';
 import Suggestion from '@tiptap/suggestion';
 import tippy from 'tippy.js';
+import type { Range, Editor } from '@tiptap/core';
+import type { Instance } from 'tippy.js';
 import { 
   Hash, 
   List, 
@@ -29,11 +31,31 @@ interface CommandMenuRef {
 }
 
 // 🔥 슬래시 명령어 정의
+type EditorChain = {
+  focus: () => EditorChain;
+  deleteRange: (range: Range) => EditorChain;
+  setHeading: (opts: { level: 1 | 2 | 3 }) => EditorChain;
+  setParagraph: () => EditorChain;
+  toggleBulletList: () => EditorChain;
+  toggleOrderedList: () => EditorChain;
+  toggleList: (listType: string, itemType: string) => EditorChain;
+  insertContent: (content: unknown) => EditorChain;
+  setMark: (mark: string, attrs?: Record<string, unknown>) => EditorChain;
+  toggleBlockquote: () => EditorChain;
+  toggleCodeBlock: () => EditorChain;
+  setHorizontalRule: () => EditorChain;
+  run: () => boolean;
+};
+
+type EditorLike = {
+  chain: () => EditorChain;
+};
+
 interface SlashCommand {
   title: string;
   description: string;
   icon: React.ComponentType<{ size?: number }>;
-  command: ({ editor, range }: any) => void;
+  command: ({ editor, range }: { editor: EditorLike; range: Range }) => void;
 }
 
 // 🔥 명령어 목록 정의 (Notion 스타일)
@@ -303,10 +325,10 @@ export const slashSuggestion = {
 
   render: () => {
     let component: ReactRenderer;
-    let popup: any;
+    let popup: Instance[] = [];
 
     return {
-      onStart: (props: any) => {
+      onStart: (props: { editor: Editor; clientRect?: () => DOMRect }) => {
         component = new ReactRenderer(CommandMenu, {
           props,
           editor: props.editor,
@@ -327,29 +349,34 @@ export const slashSuggestion = {
         });
       },
 
-      onUpdate(props: any) {
+      onUpdate(props: { editor: Editor; clientRect?: () => DOMRect }) {
         component.updateProps(props);
 
         if (!props.clientRect) {
           return;
         }
 
-        popup[0].setProps({
-          getReferenceClientRect: props.clientRect,
-        });
+        const instance = Array.isArray(popup) ? popup[0] : undefined;
+        if (instance) {
+          instance.setProps({
+            getReferenceClientRect: props.clientRect,
+          });
+        }
       },
 
-      onKeyDown(props: any) {
+      onKeyDown(props: { event: KeyboardEvent }) {
         if (props.event.key === 'Escape') {
-          popup[0].hide();
+          const instance = Array.isArray(popup) ? popup[0] : undefined;
+          if (instance) instance.hide();
           return true;
         }
 
-        return (component.ref as CommandMenuRef)?.onKeyDown(props);
+        return (component.ref as CommandMenuRef)?.onKeyDown({ event: props.event });
       },
 
       onExit() {
-        popup[0].destroy();
+        const instance = Array.isArray(popup) ? popup[0] : undefined;
+        if (instance) instance.destroy();
         component.destroy();
       },
     };

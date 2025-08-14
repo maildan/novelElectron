@@ -19,6 +19,7 @@ interface CodeMirrorEditor {
   replaceRange(replacement: string, from: { line: number; ch: number }, to?: { line: number; ch: number }): void;
   setCursor(pos: { line: number; ch: number }): void;
   getSelection(): string;
+  setSelection(anchor: { line: number; ch: number }, head?: { line: number; ch: number }): void;
   replaceSelection(replacement: string): void;
 }
 
@@ -85,7 +86,7 @@ export const getEditorOptions = () => ({
   // 🔥 노션 스타일 커스텀 키 맵핑 (커서 위치 보존 강화)
   extraKeys: {
     // 🔥 노션 스타일 굵게 (Cmd+B) - 기가차드 수정: 포커스 조작 제거
-    "Cmd-B": function(cm: any) {
+    "Cmd-B": function(cm: CodeMirrorEditor) {
       const cursor = cm.getCursor();
       const selection = cm.getSelection();
       
@@ -98,7 +99,7 @@ export const getEditorOptions = () => ({
     },
     
     // 🔥 노션 스타일 기울임 (Cmd+I) - 기가차드 수정: 포커스 조작 제거
-    "Cmd-I": function(cm: any) {
+    "Cmd-I": function(cm: CodeMirrorEditor) {
       const cursor = cm.getCursor();
       const selection = cm.getSelection();
       
@@ -111,7 +112,7 @@ export const getEditorOptions = () => ({
     },
     
     // 🔥 노션 스타일 링크 (Cmd+K) - 기가차드 수정: 포커스 조작 제거
-    "Cmd-K": function(cm: any) {
+    "Cmd-K": function(cm: CodeMirrorEditor) {
       const cursor = cm.getCursor();
       const selection = cm.getSelection();
       
@@ -129,7 +130,7 @@ export const getEditorOptions = () => ({
     },
     
     // 🔥 기가차드 마크다운 변환: Space 키로 마크업 자동 변환
-    "Space": function(cm: any) {
+    "Space": function(cm: CodeMirrorEditor) {
       const cursor = cm.getCursor();
       const line = cm.getLine(cursor.line);
       const lineStart = line.substring(0, cursor.ch);

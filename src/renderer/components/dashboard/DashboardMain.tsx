@@ -195,7 +195,14 @@ export function DashboardMain(): React.ReactElement {
       // 🔥 대시보드 통계 업데이트
       if (dashboardStatsResult.status === 'fulfilled' && dashboardStatsResult.value.success) {
         const stats = dashboardStatsResult.value.data;
-        updateKpiData(stats);
+        if (stats) {
+          updateKpiData({
+            todayWords: stats.todayWords,
+            weekWords: stats.weekWords,
+            avgWpm: stats.avgWpm,
+            accuracy: stats.accuracy,
+          });
+        }
         setLoadingStates(prev => ({ ...prev, kpi: false }));
         Logger.debug('DASHBOARD', '✅ Dashboard stats loaded', stats);
       } else {
@@ -206,11 +213,11 @@ export function DashboardMain(): React.ReactElement {
 
       // 🔥 프로젝트 데이터 업데이트
       if (projectsResult.status === 'fulfilled' && projectsResult.value.success) {
-        const projectsData = projectsResult.value.data || [];
-        setProjects(projectsData.map((p: any) => ({
+        const projectsData = (projectsResult.value.data || []) as Array<{ id: string; title: string; updatedAt?: Date; progress?: number; description?: string; status?: 'active' | 'completed' | 'paused'; dueDate?: Date }>;
+        setProjects(projectsData.map((p) => ({
           id: p.id || '',
           title: p.title || '제목 없음',
-          status: p.status || 'draft',
+          status: (p.status === 'paused' ? 'active' : p.status) || 'draft',
           progress: p.progress || 0,
           goal: p.dueDate ? new Date(p.dueDate).toLocaleDateString() : '목표 미설정',
         })));
@@ -226,11 +233,11 @@ export function DashboardMain(): React.ReactElement {
       // 🔥 최근 세션 데이터를 파일 형태로 변환
       if (recentSessionsResult.status === 'fulfilled' && recentSessionsResult.value.success) {
         const sessions = recentSessionsResult.value.data || [];
-        setRecentFiles(sessions.slice(0, 3).map((session: any, index: number) => ({
+        setRecentFiles(sessions.slice(0, 3).map((session: import('../../../shared/types').TypingSession, index: number) => ({
           id: session.id || `session-${index}`,
           name: `session-${new Date(session.startTime).toLocaleDateString()}.md`,
           project: session.windowTitle || '알 수 없는 앱',
-          time: formatTimeAgo(session.endTime || session.startTime),
+          time: formatTimeAgo((session.endTime ?? session.startTime).toString()),
           status: '완료',
         })));
         setLoadingStates(prev => ({ ...prev, recentFiles: false }));
@@ -268,7 +275,7 @@ export function DashboardMain(): React.ReactElement {
   /**
    * 🔥 KPI 데이터 업데이트
    */
-  const updateKpiData = (stats: any): void => {
+  const updateKpiData = (stats: { todayWords: number; weekWords: number; avgWpm: number; accuracy: number; dailyGrowth?: number; weeklyGrowth?: number; wpmImprovement?: number; activeProjects?: number; projectGrowth?: number }): void => {
     setKpiData([
       {
         title: '오늘 작성',
@@ -276,8 +283,8 @@ export function DashboardMain(): React.ReactElement {
         icon: Edit,
         color: 'blue' as const,
         change: {
-          value: Math.max(0, stats?.dailyGrowth || 0),
-          type: getChangeType(stats?.dailyGrowth || 0),
+          value: Math.max(0, stats.dailyGrowth ?? 0),
+          type: getChangeType(stats.dailyGrowth ?? 0),
           period: '%',
         },
       },
@@ -292,25 +299,25 @@ export function DashboardMain(): React.ReactElement {
           period: '%',
         },
       },
-      {
+      { 
         title: '평균 속도',
         value: `${Math.round(stats?.avgWpm || 0)} WPM`,
         icon: Zap,
         color: 'purple' as const,
         change: {
-          value: Math.max(0, stats?.wpmImprovement || 0),
-          type: getChangeType(stats?.wpmImprovement || 0),
+          value: Math.max(0, stats.wpmImprovement ?? 0),
+          type: getChangeType(stats.wpmImprovement ?? 0),
           period: '%',
         },
       },
       {
         title: '활성 프로젝트',
-        value: (stats?.activeProjects || 0).toString(),
+        value: (stats.activeProjects ?? 0).toString(),
         icon: Folder,
         color: 'orange' as const,
         change: {
-          value: Math.max(0, stats?.projectGrowth || 0),
-          type: getChangeType(stats?.projectGrowth || 0),
+          value: Math.max(0, stats.projectGrowth ?? 0),
+          type: getChangeType(stats.projectGrowth ?? 0),
           period: '개',
         },
       },

@@ -13,7 +13,7 @@ export class StaticServer {
   private static instance: StaticServer;
   private readonly staticPath: string;
   private readonly indexPath: string;
-  private server: any;
+  private server: import('http').Server | null = null;
   private port: number = 0;
   private readonly basePort = 35821;
 
@@ -68,7 +68,7 @@ export class StaticServer {
 
       // 포트 찾기 시도
       const tryPort = (port: number) => {
-        this.server.listen(port, 'localhost', () => {
+      this.server!.listen(port, 'localhost', () => {
           this.port = port;
           Logger.info('STATIC_SERVER', `🚀 로컬 HTTP 서버 시작됨`, { 
             port: this.port,
@@ -77,7 +77,7 @@ export class StaticServer {
           resolve();
         });
 
-        this.server.on('error', (error: any) => {
+      this.server!.on('error', (error: NodeJS.ErrnoException) => {
           if (error.code === 'EADDRINUSE' && port < this.basePort + 100) {
             tryPort(port + 1);
           } else {
@@ -93,15 +93,16 @@ export class StaticServer {
   /**
    * HTTP 요청 처리 (디렉토리 및 동적 라우팅 지원)
    */
-  private handleRequest(req: any, res: any): void {
+  private handleRequest(req: import('http').IncomingMessage, res: import('http').ServerResponse): void {
     try {
       let filePath = req.url;
       
       // 쿼리 파라미터 제거
-      const urlWithoutQuery = filePath.split('?')[0];
+      const safePath = filePath ?? '/';
+      const urlWithoutQuery = safePath.split('?')[0];
       
       // 🔥 URL 디코딩 (중요: &5Bid&5D → [id] 변환)
-      let decodedPath = decodeURIComponent(urlWithoutQuery);
+      let decodedPath = decodeURIComponent(urlWithoutQuery || '/');
       
       // 루트 경로는 index.html로 리다이렉트
       if (decodedPath === '/') {
@@ -157,7 +158,7 @@ export class StaticServer {
   /**
    * 파일 제공
    */
-  private serveFile(fullPath: string, res: any): void {
+  private serveFile(fullPath: string, res: import('http').ServerResponse): void {
     try {
       const ext = extname(fullPath);
       const mimeTypes: { [key: string]: string } = {
@@ -201,7 +202,7 @@ export class StaticServer {
   /**
    * 동적 라우팅 처리 (Next.js App Router 지원)
    */
-  private handleDynamicRoute(filePath: string, res: any): void {
+  private handleDynamicRoute(filePath: string, res: import('http').ServerResponse): void {
     try {
       // /projects/[id] 동적 라우팅 처리
       if (filePath.startsWith('/projects/')) {
@@ -251,7 +252,7 @@ export class StaticServer {
   /**
    * 404 에러 제공
    */
-  private serve404(res: any): void {
+  private serve404(res: import('http').ServerResponse): void {
     const notFoundPath = join(this.staticPath, '404.html');
     if (existsSync(notFoundPath)) {
       res.writeHead(404, { 

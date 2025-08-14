@@ -13,13 +13,13 @@ import { Logger } from '../../../shared/logger';
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const PROJECT_GRID_STYLES = {
   container: 'space-y-6',
-  header: 'flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between',
+  header: 'flex flex-col gap-4 md:flex-row md:items-center md:justify-between',
   title: 'text-2xl font-bold text-slate-900 dark:text-slate-100',
-  controls: 'flex flex-col gap-3 sm:flex-row sm:items-center',
-  searchContainer: 'relative flex-1 max-w-md',
+  controls: 'flex flex-col gap-3 md:flex-row md:items-center md:flex-wrap',
+  searchContainer: 'relative w-full md:flex-1 md:min-w-[260px] md:max-w-md',
   searchIcon: 'absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400',
   searchInput: 'pl-10',
-  filters: 'flex items-center gap-2',
+  filters: 'flex items-center gap-2 flex-wrap',
   filterButton: 'h-9',
   sortButton: 'h-9 w-9 p-0',
   createButton: 'flex items-center gap-2 whitespace-nowrap',
@@ -28,8 +28,8 @@ const PROJECT_GRID_STYLES = {
   emptyStateIcon: 'w-16 h-16 mx-auto text-slate-400 mb-4',
   emptyStateTitle: 'text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2',
   emptyStateDescription: 'text-slate-500 dark:text-slate-400 mb-6',
-  statsBar: 'flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400',
-  statsItem: 'flex items-center gap-1',
+  statsBar: 'flex items-center gap-4 flex-wrap text-sm text-slate-600 dark:text-slate-400',
+  statsItem: 'flex items-center gap-1 whitespace-nowrap',
 } as const;
 
 // 🔥 기가차드 규칙: 명시적 타입 정의

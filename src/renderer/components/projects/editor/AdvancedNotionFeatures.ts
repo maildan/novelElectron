@@ -2,6 +2,30 @@
 // src/renderer/components/projects/editor/AdvancedNotionFeatures.ts
 
 import { Node, Mark, mergeAttributes } from '@tiptap/core';
+import type { Range } from '@tiptap/core';
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
+
+type EditorChain = {
+  focus: () => EditorChain;
+  deleteRange: (range: Range) => EditorChain;
+  toggleList: (listType: string, itemType: string) => EditorChain;
+  toggleHeading: (opts: { level: 1 | 2 | 3 }) => EditorChain;
+  toggleOrderedList: () => EditorChain;
+  toggleBulletList: () => EditorChain;
+  toggleBlockquote: () => EditorChain;
+  toggleCodeBlock: () => EditorChain;
+  toggleHighlight: () => EditorChain;
+  setHighlight: (attrs: { color: string }) => EditorChain;
+  setCallout: (attrs: { type: string; icon: string }) => EditorChain;
+  setToggle: (attrs: { summary: string; open: boolean }) => EditorChain;
+  insertContent: (content: unknown) => EditorChain;
+  selectTextblockEnd: () => EditorChain;
+  run: () => boolean;
+};
+
+type EditorLike = {
+  chain: () => EditorChain;
+};
 
 // 🔥 1. TaskList 확장 (기본 기능만)
 export const TaskList = Node.create({
@@ -11,7 +35,7 @@ export const TaskList = Node.create({
   parseHTML() {
     return [{ tag: 'ul[data-type="taskList"]' }];
   },
-  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return ['ul', mergeAttributes(HTMLAttributes, { 'data-type': 'taskList', class: 'task-list' }), 0];
   },
 });
@@ -36,12 +60,12 @@ export const TaskItem = Node.create({
     return [{ tag: 'li[data-type="taskItem"]' }];
   },
   
-  renderHTML({ node, HTMLAttributes }: { node: any; HTMLAttributes: Record<string, any> }) {
+  renderHTML({ node, HTMLAttributes }: { node: ProseMirrorNode; HTMLAttributes: Record<string, unknown> }) {
     return [
       'li',
       mergeAttributes(HTMLAttributes, { 
         'data-type': 'taskItem',
-        'data-checked': node.attrs.checked,
+        'data-checked': (node.attrs as { checked?: boolean }).checked,
         class: 'task-item' 
       }),
       [
@@ -85,7 +109,7 @@ export const Callout = Node.create({
   parseHTML() {
     return [{ tag: 'div[data-callout]' }];
   },
-  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return ['div', { 'data-callout': true, ...HTMLAttributes }, 0];
   },
 });
@@ -114,7 +138,7 @@ export const Toggle = Node.create({
   parseHTML() {
     return [{ tag: 'details[data-toggle]' }];
   },
-  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return ['details', { 'data-toggle': true, ...HTMLAttributes }, 
       ['summary', {}, HTMLAttributes['data-summary'] || '토글 제목'],
       ['div', { class: 'toggle-content' }, 0]
@@ -144,7 +168,7 @@ export const Highlight = Mark.create({
   parseHTML() {
     return [{ tag: 'mark[data-highlight]' }];
   },
-  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
     return ['mark', { 'data-highlight': true, ...HTMLAttributes }, 0];
   },
 });
@@ -156,7 +180,7 @@ export const extendedSlashCommands = [
     description: '☑️ 할 일 목록',
     icon: '☑️',
     searchTerms: ['checkbox', 'todo', 'task', '체크', '할일'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -169,7 +193,7 @@ export const extendedSlashCommands = [
     description: '💡 정보 강조',
     icon: '💡',
     searchTerms: ['callout', 'info', '콜아웃', '정보'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -182,7 +206,7 @@ export const extendedSlashCommands = [
     description: '⚠️ 경고 메시지',
     icon: '⚠️',
     searchTerms: ['warning', 'caution', '경고', '주의'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -195,7 +219,7 @@ export const extendedSlashCommands = [
     description: '❌ 에러 메시지',
     icon: '❌',
     searchTerms: ['error', 'danger', '에러', '오류'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -208,7 +232,7 @@ export const extendedSlashCommands = [
     description: '▼ 접을 수 있는 섹션',
     icon: '▼',
     searchTerms: ['toggle', 'collapse', '토글', '접기'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -221,7 +245,7 @@ export const extendedSlashCommands = [
     description: '🖍️ 텍스트 강조',
     icon: '🖍️',
     searchTerms: ['highlight', 'mark', '하이라이트', '강조'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -236,7 +260,7 @@ export const extendedSlashCommands = [
     description: '🔢 LaTeX 수식',
     icon: '🔢',
     searchTerms: ['math', 'latex', 'formula', '수식', '공식'],
-    command: ({ editor, range }: { editor: any; range: any }) => {
+    command: ({ editor, range }: { editor: EditorLike; range: Range }) => {
       editor.chain()
         .focus()
         .deleteRange(range)
@@ -251,46 +275,46 @@ export const extendedKeyboardShortcuts = [
   {
     key: 'Mod-Shift-1',
     description: '제목 1',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
   },
   {
     key: 'Mod-Shift-2',
     description: '제목 2',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
   },
   {
     key: 'Mod-Shift-3',
     description: '제목 3',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     key: 'Mod-Shift-7',
     description: '번호 리스트',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleOrderedList().run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleOrderedList().run(),
   },
   {
     key: 'Mod-Shift-8',
     description: '불릿 리스트',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleBulletList().run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleBulletList().run(),
   },
   {
     key: 'Mod-Shift-9',
     description: '체크박스',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleList('taskList', 'taskItem').run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleList('taskList', 'taskItem').run(),
   },
   {
     key: 'Mod-Shift-.',
     description: '인용구',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleBlockquote().run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleBlockquote().run(),
   },
   {
     key: 'Mod-Alt-C',
     description: '코드 블록',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleCodeBlock().run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleCodeBlock().run(),
   },
   {
     key: 'Mod-Shift-H',
     description: '하이라이트',
-    command: ({ editor }: { editor: any }) => editor.chain().focus().toggleHighlight().run(),
+    command: ({ editor }: { editor: EditorLike }) => editor.chain().focus().toggleHighlight().run(),
   },
 ];

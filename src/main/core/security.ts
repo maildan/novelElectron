@@ -120,8 +120,8 @@ export class SecurityManager {
       }
 
       // 외부 링크 차단
-      app.on('web-contents-created', (event: any, contents: any) => {
-        contents.on('will-navigate', (navigationEvent: any, navigationUrl: any) => {
+      app.on('web-contents-created', (_event: Electron.Event, contents: Electron.WebContents) => {
+        contents.on('will-navigate', (navigationEvent: Electron.Event, navigationUrl: string) => {
           if (!this.isUrlAllowed(navigationUrl)) {
             navigationEvent.preventDefault();
             this.recordSecurityViolation('navigation', navigationUrl, true);
@@ -129,7 +129,7 @@ export class SecurityManager {
           }
         });
 
-        contents.setWindowOpenHandler(({ url }: any) => {
+        contents.setWindowOpenHandler(({ url }: { url: string }) => {
           if (!this.config.allowExternalLinks && !this.isUrlAllowed(url)) {
             this.recordSecurityViolation('window-open', url, true);
             Logger.warn('SECURITY', 'Blocked window open attempt', { url });

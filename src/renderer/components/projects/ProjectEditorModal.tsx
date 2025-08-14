@@ -80,17 +80,17 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }: Proj
     if (!title.trim()) return;
     setIsSaving(true);
     try {
-      const updates = {
+      const updates: Partial<Project> = {
         title: title.trim(),
         description: description.trim(),
         genre,
         lastModified: new Date(),
-      } as any;
+      };
 
       const result = await window.electronAPI.projects.update(project.id, updates);
       if (!result.success) throw new Error(result.error || 'Failed to update project');
 
-      onUpdated({ id: project.id, title: updates.title, description: updates.description, genre, targetWords, deadline: deadline ? new Date(deadline) : undefined });
+      onUpdated({ id: project.id, title: updates.title || title, description: updates.description || description, genre, targetWords, deadline: deadline ? new Date(deadline) : undefined });
       onClose();
     } catch (error) {
       Logger.error('PROJECT_EDITOR_MODAL', 'Failed to update project', error);

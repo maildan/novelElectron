@@ -235,7 +235,8 @@ html {
 
 /* 🔥 Dark 테마 - 작가 친화적 다크 모드 */
 [data-theme="dark"],
-html.dark {
+html.dark,
+body[data-theme="dark"] {
   /* 기본 배경 - 진한 회색 (순수 검정 피하기) */
   --bg-primary: #0f1419;
   --bg-secondary: #1a1f29;
@@ -359,7 +360,8 @@ body {
 
 /* 🔥 다크 모드 body 스타일 (즉시 적용) */
 html.dark body,
-[data-theme="dark"] body {
+[data-theme="dark"] body,
+body[data-theme="dark"] {
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }

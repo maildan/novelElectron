@@ -1,8 +1,8 @@
 {
   "/_not-found/page": "/_not-found",
+  "/analytics/page": "/analytics",
   "/ai/page": "/ai",
   "/page": "/",
-  "/analytics/page": "/analytics",
   "/projects/page": "/projects",
   "/settings/page": "/settings",
   "/projects/[id]/page": "/projects/[id]"
