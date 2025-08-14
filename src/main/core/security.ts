@@ -24,8 +24,14 @@ const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   allowExternalLinks: false,
   allowLocalFileAccess: true,
   trustedOrigins: [
+    'http://localhost',
+    'https://localhost',
     'http://localhost:3000',
+    'http://localhost:4000',
+    'http://localhost:35821',
     'https://localhost:3000',
+    'https://localhost:4000', 
+    'https://localhost:35821',
     'file://'
   ],
   blockedDomains: [
@@ -108,9 +114,9 @@ export class SecurityManager {
       // #DEBUG: Setting up security policies
       Logger.debug('SECURITY', 'Setting up security policies');
 
-      // CSP 헤더 설정
+      // CSP 헤더 설정 - 로컬 HTTP 서버 및 동적 chunk 로딩 지원
       if (this.config.enableCSP) {
-        app.commandLine.appendSwitch('force-csp', "default-src 'self' 'unsafe-inline' data: blob: filesystem:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*;");
+        app.commandLine.appendSwitch('force-csp', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: filesystem: file: http://localhost:35821; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: file: http://localhost:35821; style-src 'self' 'unsafe-inline' data: file: http://localhost:35821; img-src 'self' data: blob: file: http://localhost:35821; font-src 'self' data: file: http://localhost:35821; connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:* file: data:; worker-src 'self' blob: data: http://localhost:35821; child-src 'self' blob: data: http://localhost:35821;");
       }
 
       // 외부 링크 차단

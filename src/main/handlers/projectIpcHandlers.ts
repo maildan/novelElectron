@@ -64,11 +64,47 @@ export function setupProjectIpcHandlers(): void {
       
       const prisma = await prismaService.getClient();
       
+      // 🔥 디버깅: 요청된 ID 상세 로그
+      Logger.info('PROJECT_IPC', `🔍 실제 요청된 프로젝트 ID: "${id}" (길이: ${id.length})`);
+      
       const project = await prisma.project.findUnique({
         where: { id }
       });
       
+      // 🔥 디버깅: 조회 결과 로그
+      Logger.info('PROJECT_IPC', `🔍 DB 조회 결과: ${project ? '찾음' : '없음'}`, { 
+        requestedId: id,
+        found: !!project,
+        projectTitle: project?.title 
+      });
+      
       if (!project) {
+        // 🔥 'new' ID 처리 - 새 프로젝트 템플릿 반환
+        if (id === 'new') {
+          const now = new Date();
+          const newProjectTemplate: Project = {
+            id: 'new',
+            title: '새로운 프로젝트',
+            description: '새로운 이야기를 시작해보세요',
+            content: '',
+            progress: 0,
+            wordCount: 0,
+            genre: '기타',
+            status: 'active',
+            author: '사용자',
+            createdAt: now,
+            lastModified: now,
+            updatedAt: now,
+          };
+          
+          Logger.info('PROJECT_IPC', 'new 프로젝트 템플릿 반환');
+          return {
+            success: true,
+            data: newProjectTemplate,
+            timestamp: new Date(),
+          };
+        }
+        
         return {
           success: false,
           error: '프로젝트를 찾을 수 없습니다.',

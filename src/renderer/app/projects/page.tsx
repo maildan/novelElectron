@@ -49,6 +49,26 @@ function ProjectsPageContent(): React.ReactElement {
     loadProjects();
   }, []);
 
+  // 🔥 앱으로 복귀/탭 포커스 시 목록 새로고침 (생성 후 뒤로가기 등 반영)
+  useEffect(() => {
+    const onFocus = () => {
+      Logger.debug('PROJECTS_PAGE', 'Window focused - refreshing projects');
+      loadProjects();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        Logger.debug('PROJECTS_PAGE', 'Document visible - refreshing projects');
+        loadProjects();
+      }
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
+
   /**
    * 🔥 실제 프로젝트 데이터 로딩 (BE 연동) - 더미 데이터 제거
    */

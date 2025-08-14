@@ -6,6 +6,7 @@ import { Logger } from '../../shared/logger';
 import { WindowInfo } from '../../shared/types';
 import { isObject } from '../../shared/common';
 import { Platform } from '../utils/platform';
+import { StaticServer } from '../utils/StaticServer';
 
 // #DEBUG: Window manager entry point
 Logger.debug('WINDOW', 'Window manager module loaded');
@@ -115,7 +116,8 @@ export class WindowManager {
     // 네비게이션 보안
     window.webContents.on('will-navigate', (event, navigationUrl) => {
       const allowedOrigins = [
-        'http://localhost:4000',
+        'http://localhost',
+        'https://localhost',
         'file://'
       ];
 
@@ -134,7 +136,8 @@ export class WindowManager {
     // 외부 링크 차단 (최신 Electron API 사용)
     window.webContents.on('will-redirect', (event, navigationUrl) => {
       const allowedOrigins = [
-        'http://localhost:4000',
+        'http://localhost',
+        'https://localhost',
         'file://'
       ];
 
@@ -224,7 +227,7 @@ export class WindowManager {
     }
   }
 
-  // 🔥 윈도우 URL 로드
+  // 🔥 윈도우 URL 로드 - 하이브리드 접근 방식
   public async loadUrl(windowId: string, url?: string): Promise<void> {
     try {
       // #DEBUG: Loading URL
@@ -233,16 +236,43 @@ export class WindowManager {
         throw new Error(`Window ${windowId} not found`);
       }
 
-      const targetUrl = url || (process.env.NODE_ENV === 'development'
-        ? 'http://localhost:4000'
-        : `file://${join(__dirname, '../../renderer/.next/server/app/index.html')}`
-      );
+      let targetUrl: string;
+      
+      if (url) {
+        targetUrl = url;
+      } else if (process.env.NODE_ENV === 'development') {
+        // 개발 환경: Next.js 개발 서버 사용 (pnpm dev)
+        targetUrl = 'http://localhost:4000';
+        Logger.info('WINDOW', '🔧 개발 모드 - Next.js 개발 서버 사용', { url: targetUrl });
+      } else {
+        // 프로덕션 환경: 정적 빌드 파일 사용 (pnpm start)
+        const staticServer = StaticServer.getInstance();
+        const isHealthy = await staticServer.checkHealth();
+        
+        if (isHealthy) {
+          targetUrl = staticServer.getMainUrl();
+          Logger.info('WINDOW', '🚀 프로덕션 모드 - 정적 파일 사용', { url: targetUrl });
+        } else {
+          throw new Error('❌ 정적 파일을 찾을 수 없습니다. 먼저 빌드를 실행하세요.');
+        }
+      }
 
       await window.loadURL(targetUrl);
 
-      // 🔥 개발 도구 (개발 환경에서만) - 별창으로 열기
-      if (process.env.NODE_ENV === 'development') {
-        window.webContents.openDevTools({ mode: 'detach' });
+      // 🔥 개발 도구 - 프로덕션에서도 일시적으로 활성화 (디버깅용)
+      window.webContents.openDevTools({ mode: 'detach' });
+      
+      // 콘솔 메시지 로깅
+      window.webContents.on('console-message', (event, level, message, line, sourceId) => {
+        Logger.info('RENDERER_CONSOLE', `[${level}] ${message}`, { line, sourceId });
+      });
+
+      // 🔥 file:// 프로토콜에서 보안 설정 완화
+      if (process.env.NODE_ENV === 'production') {
+        window.webContents.session.webRequest.onBeforeRequest((details, callback) => {
+          // 정적 파일 요청은 모두 허용
+          callback({});
+        });
       }
 
       Logger.info('WINDOW', 'URL loaded successfully', { 

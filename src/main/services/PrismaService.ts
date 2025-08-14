@@ -49,25 +49,53 @@ class PrismaService {
       const fs = await import('fs');
       
       let dbPath: string;
-      if (app.isPackaged) {
+      if (app.isPackaged) { 
         // 패키징된 앱에서는 app.getPath('userData') 사용
         dbPath = path.join(app.getPath('userData'), 'loop.db');
       } else {
-        // 개발 환경에서는 절대 경로 사용
-        dbPath = path.join(__dirname, '../../../prisma/loop.db');
-        // 대안 경로들도 체크
-        if (!fs.existsSync(dbPath)) {
-          dbPath = path.resolve(process.cwd(), 'prisma/loop.db');
-        }
-        if (!fs.existsSync(dbPath)) {
-          dbPath = path.resolve(__dirname, '../../prisma/loop.db');
+        // 개발 환경: dev.db와 loop.db를 모두 탐색 후, 데이터가 있는 쪽을 우선 선택
+        const devCandidates = [
+          path.join(__dirname, '../../../prisma/dev.db'),
+          path.resolve(process.cwd(), 'prisma/dev.db'),
+          path.resolve(__dirname, '../../prisma/dev.db'),
+        ];
+        const loopCandidates = [
+          path.join(__dirname, '../../../prisma/loop.db'),
+          path.resolve(process.cwd(), 'prisma/loop.db'),
+          path.resolve(__dirname, '../../prisma/loop.db'),
+        ];
+        const devPath = devCandidates.find(p => fs.existsSync(p));
+        const loopPath = loopCandidates.find(p => fs.existsSync(p));
+
+        if (devPath && loopPath) {
+          // 두 DB가 모두 존재하면, 프로젝트 수가 더 많은 DB를 선택
+          let devCount = -1;
+          let loopCount = -1;
+          try {
+            const tmp = new PrismaClient({ datasources: { db: { url: `file:${devPath}` } }, log: [] });
+            devCount = await tmp.project.count();
+            await tmp.$disconnect();
+          } catch {}
+          try {
+            const tmp = new PrismaClient({ datasources: { db: { url: `file:${loopPath}` } }, log: [] });
+            loopCount = await tmp.project.count();
+            await tmp.$disconnect();
+          } catch {}
+          dbPath = (loopCount > devCount) ? loopPath : devPath;
+          Logger.info('PRISMA_SERVICE', `🔀 개발용 DB 선택 (dev=${devCount}, loop=${loopCount}) → ${dbPath}`);
+        } else if (devPath) {
+          dbPath = devPath;
+        } else if (loopPath) {
+          dbPath = loopPath;
+        } else {
+          dbPath = path.resolve(process.cwd(), 'prisma/dev.db');
         }
       }
       
-      Logger.debug('PRISMA_SERVICE', `Database path: ${dbPath}`);
-      Logger.debug('PRISMA_SERVICE', `Database exists: ${fs.existsSync(dbPath)}`);
-      Logger.debug('PRISMA_SERVICE', `Current working directory: ${process.cwd()}`);
-      Logger.debug('PRISMA_SERVICE', `__dirname: ${__dirname}`);
+      Logger.info('PRISMA_SERVICE', `🔍 DB 경로 설정: ${dbPath}`);
+      Logger.info('PRISMA_SERVICE', `🔍 DB 파일 존재: ${fs.existsSync(dbPath)}`);
+      Logger.info('PRISMA_SERVICE', `🔍 현재 작업 디렉토리: ${process.cwd()}`);
+      Logger.info('PRISMA_SERVICE', `🔍 __dirname: ${__dirname}`);
 
       this.client = new PrismaClient({
         log: ['error', 'warn'],

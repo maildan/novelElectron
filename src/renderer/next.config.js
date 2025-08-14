@@ -1,11 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 🔥 Electron 기본 설정 - 정적 생성 대신 클라이언트 사이드 라우팅 사용
-  // 동적 라우팅을 위해 output: 'export' 제거
+  // 🔥 프로덕션에서만 정적 빌드 활성화 - 오프라인 지원
+  ...(process.env.NODE_ENV === 'production' && { 
+    output: 'export',
+    trailingSlash: true,
+    skipTrailingSlashRedirect: true,
+  }),
   
-  // 🔥 Electron용 기본 설정
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
+  // 🔥 개발 환경용 설정
+  ...(process.env.NODE_ENV === 'development' && {
+    trailingSlash: true,
+    skipTrailingSlashRedirect: true,
+  }),
   
   // 🔥 성능 최적화 - 이미지 설정
   images: {
