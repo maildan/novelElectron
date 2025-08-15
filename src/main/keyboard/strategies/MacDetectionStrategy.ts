@@ -70,11 +70,13 @@ export class MacDetectionStrategy extends BaseWindowDetectionStrategy {
         owner: {
           name: activeWinResult.owner?.name || 'Unknown App',
           processId: activeWinResult.owner?.processId || 0,
-          bundleId: (activeWinResult.owner as any)?.bundleId,
-          path: (activeWinResult.owner as any)?.path,
+          bundleId: readOptionalString(activeWinResult.owner, 'bundleId'),
+          path: readOptionalString(activeWinResult.owner, 'path'),
         },
         bounds: activeWinResult.bounds || { x: 0, y: 0, width: 0, height: 0 },
-        memoryUsage: activeWinResult.memoryUsage || 0,
+        memoryUsage: typeof (activeWinResult as unknown as { memoryUsage?: number }).memoryUsage === 'number'
+          ? (activeWinResult as unknown as { memoryUsage?: number }).memoryUsage as number
+          : 0,
       };
 
       // 윈도우 정보 검증
@@ -345,4 +347,14 @@ export class MacDetectionStrategy extends BaseWindowDetectionStrategy {
     
     return 0.7; // 중간 신뢰도 (키워드 기반)
   }
+
+}
+
+// 🔒 안전한 optional 속성 읽기 유틸
+function readOptionalString(obj: unknown, key: string): string | undefined {
+  if (obj && typeof obj === 'object' && key in (obj as Record<string, unknown>)) {
+    const val = (obj as Record<string, unknown>)[key];
+    return typeof val === 'string' ? val : undefined;
+  }
+  return undefined;
 }

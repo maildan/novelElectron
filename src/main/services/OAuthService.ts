@@ -2,7 +2,7 @@
 
 import { Logger } from '../../shared/logger';
 import { BaseManager } from '../common/BaseManager';
-import { Result, IpcResponse } from '../../shared/types';
+import { Result, IpcResponse, GoogleDriveFilesResponse, GoogleDriveFile, OAuthTokenResponse, GoogleUserInfo } from '../../shared/types';
 import { GOOGLE_OAUTH_CONFIG } from '../types/oauth';
 import { shell } from 'electron';
 import { createHash, randomBytes } from 'crypto';
@@ -35,7 +35,7 @@ export class OAuthService extends BaseManager {
   private oauthState: OAuthState = { isAuthenticated: false };
   private codeVerifier: string = '';
   private codeChallenge: string = '';
-  private readonly redirectUri = 'http://localhost:3000/oauth/callback';
+  private readonly redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:35821/oauth/callback';
 
   constructor() {
     super({
@@ -52,6 +52,8 @@ export class OAuthService extends BaseManager {
    */
   protected async doInitialize(): Promise<void> {
     Logger.info(this.componentName, 'OAuth service initialized');
+    // 환경변수에서 토큰 부트스트랩
+    await this.bootstrapFromEnv();
     // 저장된 토큰 로드 시도
     await this.loadStoredTokens();
   }
@@ -85,6 +87,25 @@ export class OAuthService extends BaseManager {
     try {
       Logger.info(this.componentName, 'Starting Google OAuth authentication');
 
+      // 환경변수 검증
+      if (!GOOGLE_OAUTH_CONFIG.clientId) {
+        Logger.error(this.componentName, 'GOOGLE_CLIENT_ID가 설정되지 않았습니다');
+        return {
+          success: false,
+          error: 'Google OAuth 설정이 완료되지 않았습니다.\n\n.env 파일에 다음을 추가하세요:\nGOOGLE_CLIENT_ID=your-client-id\nGOOGLE_CLIENT_SECRET=your-client-secret\n\n또는 Google Cloud Console에서 OAuth 2.0 클라이언트 ID를 생성하세요.',
+          timestamp: new Date(),
+        };
+      }
+
+      if (!GOOGLE_OAUTH_CONFIG.clientSecret) {
+        Logger.error(this.componentName, 'GOOGLE_CLIENT_SECRET가 설정되지 않았습니다');
+        return {
+          success: false,
+          error: 'Google Client Secret이 설정되지 않았습니다.\n\n.env 파일에 GOOGLE_CLIENT_SECRET를 추가하세요.',
+          timestamp: new Date(),
+        };
+      }
+
       // PKCE 코드 생성
       this.codeVerifier = this.generateCodeVerifier();
       this.codeChallenge = await this.generateCodeChallenge(this.codeVerifier);
@@ -93,6 +114,14 @@ export class OAuthService extends BaseManager {
       const authUrl = this.buildAuthUrl();
 
       Logger.info(this.componentName, 'OAuth URL generated', { url: authUrl });
+
+      // 🔥 외부 기본 브라우저에서 OAuth 열기 (Google 권장 방식)
+      try {
+        await shell.openExternal(authUrl);
+        Logger.info(this.componentName, 'OAuth URL opened in default browser');
+      } catch (browserError) {
+        Logger.error(this.componentName, 'Failed to open browser', browserError);
+      }
 
       return {
         success: true,
@@ -146,7 +175,7 @@ export class OAuthService extends BaseManager {
         success: true,
         data: {
           accessToken: tokenResponse.access_token,
-          refreshToken: tokenResponse.refresh_token,
+          refreshToken: tokenResponse.refresh_token || '',
         },
         timestamp: new Date(),
       };
@@ -175,8 +204,7 @@ export class OAuthService extends BaseManager {
 
       // 토큰 만료 확인 및 갱신
       await this.ensureValidToken();
-
-      const response = await axios.get('https://www.googleapis.com/drive/v3/files', {
+      const doRequest = async () => axios.get('https://www.googleapis.com/drive/v3/files', {
         headers: {
           Authorization: `Bearer ${this.oauthState.accessToken}`,
         },
@@ -187,8 +215,15 @@ export class OAuthService extends BaseManager {
           pageSize: 50,
         },
       });
+      let response = await doRequest();
+      // 401 대응: 토큰 갱신 후 1회 재시도
+      if (response.status === 401) {
+        await this.refreshAccessToken();
+        response = await doRequest();
+      }
 
-      const documents: GoogleDocument[] = response.data.files.map((file: any) => ({
+      const data = response.data as GoogleDriveFilesResponse;
+      const documents: GoogleDocument[] = data.files.map((file: GoogleDriveFile) => ({
         id: file.id,
         title: file.name,
         modifiedTime: file.modifiedTime,
@@ -205,6 +240,7 @@ export class OAuthService extends BaseManager {
         timestamp: new Date(),
       };
     } catch (error) {
+      // 401 에러 시 재시도 경로가 실패했을 가능성 → 인증 초기화 유도
       Logger.error(this.componentName, 'Failed to get Google documents', error);
       return {
         success: false,
@@ -229,22 +265,26 @@ export class OAuthService extends BaseManager {
 
       await this.ensureValidToken();
 
-      // 문서 메타데이터 가져오기
-      const metaResponse = await axios.get(`https://www.googleapis.com/drive/v3/files/${documentId}`, {
-        headers: {
-          Authorization: `Bearer ${this.oauthState.accessToken}`,
-        },
-        params: {
-          fields: 'name',
-        },
+      // 문서 메타데이터 가져오기 (401 시 재시도)
+      const doMeta = async () => axios.get(`https://www.googleapis.com/drive/v3/files/${documentId}`, {
+        headers: { Authorization: `Bearer ${this.oauthState.accessToken}` },
+        params: { fields: 'name' },
       });
+      let metaResponse = await doMeta();
+      if (metaResponse.status === 401) {
+        await this.refreshAccessToken();
+        metaResponse = await doMeta();
+      }
 
       // 문서 내용 가져오기 (텍스트 형태로)
-      const contentResponse = await axios.get(`https://docs.googleapis.com/v1/documents/${documentId}`, {
-        headers: {
-          Authorization: `Bearer ${this.oauthState.accessToken}`,
-        },
+      const doContent = async () => axios.get(`https://docs.googleapis.com/v1/documents/${documentId}`, {
+        headers: { Authorization: `Bearer ${this.oauthState.accessToken}` },
       });
+      let contentResponse = await doContent();
+      if (contentResponse.status === 401) {
+        await this.refreshAccessToken();
+        contentResponse = await doContent();
+      }
 
       // Google Docs API 응답에서 텍스트 추출
       const content = this.extractTextFromGoogleDoc(contentResponse.data);
@@ -348,8 +388,8 @@ export class OAuthService extends BaseManager {
     return `${GOOGLE_OAUTH_CONFIG.authUrl}?${params.toString()}`;
   }
 
-  private async exchangeCodeForTokens(code: string): Promise<any> {
-    const response = await axios.post(GOOGLE_OAUTH_CONFIG.tokenUrl, {
+  private async exchangeCodeForTokens(code: string): Promise<OAuthTokenResponse> {
+    const response = await axios.post<OAuthTokenResponse>(GOOGLE_OAUTH_CONFIG.tokenUrl, {
       client_id: GOOGLE_OAUTH_CONFIG.clientId,
       client_secret: GOOGLE_OAUTH_CONFIG.clientSecret,
       redirect_uri: this.redirectUri,
@@ -361,8 +401,8 @@ export class OAuthService extends BaseManager {
     return response.data;
   }
 
-  private async getUserInfo(accessToken: string): Promise<any> {
-    const response = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+  private async getUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+    const response = await axios.get<GoogleUserInfo>('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -431,5 +471,80 @@ export class OAuthService extends BaseManager {
   private async clearStoredTokens(): Promise<void> {
     // TODO: 저장된 토큰 삭제
     Logger.debug(this.componentName, 'Clearing stored tokens (not implemented yet)');
+  }
+
+  // (외부 브라우저 플로우 사용)
+
+  /**
+   * 🔥 환경변수에서 토큰 부트스트랩
+   */
+  private async bootstrapFromEnv(): Promise<void> {
+    try {
+      const envAccess = process.env.GOOGLE_ACCESS_TOKEN;
+      const envRefresh = process.env.GOOGLE_REFRESH_TOKEN;
+      
+      if (envAccess && envRefresh) {
+        Logger.info(this.componentName, 'Bootstrapping OAuth tokens from environment variables');
+        
+        // 🔥 기존 토큰의 스코프 검증
+        const hasValidScopes = await this.validateTokenScopes(envAccess);
+        
+        if (!hasValidScopes) {
+          Logger.warn(this.componentName, '🔄 기존 토큰이 필요한 스코프를 포함하지 않음 - 재인증 필요');
+          this.oauthState = { isAuthenticated: false };
+          return;
+        }
+
+        // 상태 업데이트
+        this.oauthState = {
+          isAuthenticated: true,
+          accessToken: envAccess,
+          refreshToken: envRefresh,
+          userEmail: 'user@gmail.com', // 실제 사용자 정보는 getUserInfo로 가져올 수 있음
+          expiresAt: new Date(Date.now() + (3600 * 1000)), // 1시간 후 만료로 설정
+          scopes: GOOGLE_OAUTH_CONFIG.scopes // 🔥 최신 스코프 사용
+        };
+        
+        Logger.info(this.componentName, 'OAuth tokens loaded from environment');
+      } else {
+        Logger.debug(this.componentName, 'No OAuth tokens found in environment variables');
+      }
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to bootstrap tokens from environment', error);
+    }
+  }
+
+  /**
+   * 🔥 토큰 스코프 검증
+   */
+  private async validateTokenScopes(accessToken: string): Promise<boolean> {
+    try {
+      // Google OAuth2 tokeninfo API로 스코프 확인
+      const response = await axios.get('https://www.googleapis.com/oauth2/v1/tokeninfo', {
+        params: { access_token: accessToken }
+      });
+      
+      const tokenScopes = response.data.scope?.split(' ') || [];
+      const requiredScopes = [
+        'https://www.googleapis.com/auth/documents',
+        'https://www.googleapis.com/auth/drive.readonly'
+      ];
+      
+      // 필수 스코프가 모두 포함되어 있는지 확인
+      const hasAllScopes = requiredScopes.every(scope => 
+        tokenScopes.includes(scope)
+      );
+      
+      Logger.info(this.componentName, '토큰 스코프 검증 결과', {
+        tokenScopes,
+        requiredScopes,
+        hasAllScopes
+      });
+      
+      return hasAllScopes;
+    } catch (error) {
+      Logger.warn(this.componentName, '토큰 스코프 검증 실패 - 재인증 필요', error);
+      return false; // 검증 실패 시 재인증 필요
+    }
   }
 }

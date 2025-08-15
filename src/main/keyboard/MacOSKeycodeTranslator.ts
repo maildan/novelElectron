@@ -241,7 +241,7 @@ else:
   /**
    * 🔥 수정자 키 플래그 생성
    */
-  private buildModifierFlags(modifiers: any): number {
+  private buildModifierFlags(modifiers: { shift?: boolean; command?: boolean; option?: boolean; control?: boolean }): number {
     let flags = 0;
     
     if (modifiers.shift) flags |= 0x20000; // NSShiftKeyMask
@@ -298,16 +298,24 @@ else:
   /**
    * 🔥 캐시 관련 메서드들
    */
-  private generateCacheKey(keycode: number, modifiers: any): string {
+  private generateCacheKey(keycode: number, modifiers: { shift?: boolean; command?: boolean; option?: boolean; control?: boolean }): string {
     return `${keycode}_${JSON.stringify(modifiers)}`;
   }
 
-  private getCachedResult(cacheKey: string): any {
+  private getCachedResult(cacheKey: string): { character: string | null; inputSource: string | null; language: 'ko' | 'en' | 'ja' | 'zh' | 'unknown'; isSuccess: boolean } | null {
     const now = Date.now();
     const timestamp = this.cacheTimestamps.get(cacheKey);
     
     if (timestamp && (now - timestamp) < this.CACHE_TTL) {
-      return this.conversionCache.get(cacheKey);
+      const val = this.conversionCache.get(cacheKey);
+      if (typeof val === 'string') {
+        try {
+          return JSON.parse(val) as { character: string | null; inputSource: string | null; language: 'ko' | 'en' | 'ja' | 'zh' | 'unknown'; isSuccess: boolean };
+        } catch {
+          return null;
+        }
+      }
+      return null;
     }
     
     // 만료된 캐시 제거
@@ -316,7 +324,7 @@ else:
     return null;
   }
 
-  private setCachedResult(cacheKey: string, result: any): void {
+  private setCachedResult(cacheKey: string, result: { character: string | null; inputSource: string | null; language: 'ko' | 'en' | 'ja' | 'zh' | 'unknown'; isSuccess: boolean }): void {
     // 캐시 크기 제한
     if (this.conversionCache.size >= this.CACHE_MAX_SIZE) {
       // 가장 오래된 항목 제거
@@ -327,7 +335,7 @@ else:
       }
     }
     
-    this.conversionCache.set(cacheKey, result);
+    this.conversionCache.set(cacheKey, JSON.stringify(result));
     this.cacheTimestamps.set(cacheKey, Date.now());
   }
 

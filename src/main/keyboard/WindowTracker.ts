@@ -280,11 +280,11 @@ export class WindowTracker extends BaseManager {
         owner: {
           name: activeWinResult.owner?.name || 'Unknown App',
           processId: activeWinResult.owner?.processId || 0,
-          bundleId: (activeWinResult.owner as any)?.bundleId,
+          bundleId: readOptionalString(activeWinResult.owner, 'bundleId'),
           path: activeWinResult.owner?.path,
         },
         bounds: activeWinResult.bounds || { x: 0, y: 0, width: 0, height: 0 },
-        memoryUsage: (activeWinResult as any).memoryUsage || 0,
+        memoryUsage: readOptionalNumber(activeWinResult, 'memoryUsage') ?? 0,
       };
 
       return this.enhanceWindowInfo(windowInfo);
@@ -382,8 +382,8 @@ export class WindowTracker extends BaseManager {
   /**
    * 🔥 히스토리에 추가
    */
-  private addToHistory(window: WindowInfo): void {
-    this.windowHistory.unshift(window);
+  private addToHistory(win: WindowInfo): void {
+    this.windowHistory.unshift(win);
     
     // 최대 크기 유지
     if (this.windowHistory.length > this.trackerConfig.maxHistorySize) {
@@ -430,14 +430,14 @@ export class WindowTracker extends BaseManager {
   public getAppStats(): Record<string, { count: number; totalTime: number; category: string }> {
     const stats: Record<string, { count: number; totalTime: number; category: string }> = {};
 
-    this.windowHistory.forEach(window => {
+    this.windowHistory.forEach(win => {
       // window.owner 또는 window.owner.name이 undefined일 수 있으므로 안전하게 접근
-      const appName = window?.owner?.name ?? 'unknown';
+      const appName = win?.owner?.name ?? 'unknown';
       if (!stats[appName]) {
         stats[appName] = {
           count: 0,
           totalTime: 0,
-          category: (window as any)?.loopAppCategory || 'other'
+          category: win.loopAppCategory || 'unknown'
         };
       }
       // stats[appName]는 위에서 항상 초기화되므로 undefined가 아님
@@ -501,3 +501,20 @@ export const windowTracker = new WindowTracker();
 Logger.debug('WINDOW_TRACKER', 'Window tracker module setup complete');
 
 export default windowTracker;
+
+// 🔒 안전한 속성 읽기 유틸리티들 (any 금지)
+function readOptionalString(obj: unknown, key: string): string | undefined {
+  if (obj && typeof obj === 'object' && key in (obj as Record<string, unknown>)) {
+    const val = (obj as Record<string, unknown>)[key];
+    return typeof val === 'string' ? val : undefined;
+  }
+  return undefined;
+}
+
+function readOptionalNumber(obj: unknown, key: string): number | undefined {
+  if (obj && typeof obj === 'object' && key in (obj as Record<string, unknown>)) {
+    const val = (obj as Record<string, unknown>)[key];
+    return typeof val === 'number' ? val : undefined;
+  }
+  return undefined;
+}

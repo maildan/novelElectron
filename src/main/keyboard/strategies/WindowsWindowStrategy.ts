@@ -34,7 +34,7 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
   public readonly supportedPlatforms: NodeJS.Platform[] = ['win32'];
   
   private user32: User32API | null = null;
-  private ffi: any = null;
+  private ffi: { Library: (lib: string, defs: Record<string, unknown>) => unknown } | null = null;
 
   constructor() {
     super('WINDOWS_WINDOW_STRATEGY');
@@ -53,14 +53,17 @@ export class WindowsWindowStrategy extends BaseWindowDetectionStrategy {
       try {
         this.ffi = require('ffi-napi');
         
-        // user32.dll 함수들 로드
-        this.user32 = this.ffi.Library('user32', {
-          'GetForegroundWindow': ['pointer', []],
-          'GetWindowTextW': ['int', ['pointer', 'pointer', 'int']],
-          'GetWindowThreadProcessId': ['int', ['pointer', 'pointer']],
-          'IsWindow': ['bool', ['pointer']],
-          'EnumWindows': ['bool', ['pointer', 'int']],
-        });
+        // user32.dll 함수들 로드 (null 가드 및 명시 캐스팅)
+        if (this.ffi) {
+          const lib = this.ffi.Library('user32', {
+            'GetForegroundWindow': ['pointer', []],
+            'GetWindowTextW': ['int', ['pointer', 'pointer', 'int']],
+            'GetWindowThreadProcessId': ['int', ['pointer', 'pointer']],
+            'IsWindow': ['bool', ['pointer']],
+            'EnumWindows': ['bool', ['pointer', 'int']],
+          }) as unknown;
+          this.user32 = lib as User32API;
+        }
 
         Logger.info(this.componentName, '✅ ffi-napi 로드 성공');
       } catch (error) {

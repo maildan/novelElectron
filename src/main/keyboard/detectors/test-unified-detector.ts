@@ -9,20 +9,20 @@ import type { UiohookKeyboardEvent } from '../../../shared/types';
  * 🔥 통합 언어 감지기 테스트 실행
  */
 async function testUnifiedLanguageDetector(): Promise<void> {
-  console.log('\n🔥 기가차드 통합 언어 감지기 테스트 시작!\n');
+  Logger.info('TEST_UNIFIED_DETECTOR', '통합 언어 감지기 테스트 시작');
   
   try {
     // 플랫폼 정보 출력
     const platformInfo = Platform.getSummary();
-    console.log('📊 플랫폼 정보:', platformInfo);
+    Logger.info('TEST_UNIFIED_DETECTOR', '플랫폼 정보', platformInfo);
     
     // 통합 언어 감지기 초기화
-    console.log('\n⚡ 언어 감지기 초기화 중...');
+    Logger.info('TEST_UNIFIED_DETECTOR', '언어 감지기 초기화 중');
     const detector = new UnifiedLanguageDetector();
     await detector.initialize();
     await detector.start();
     
-    console.log('✅ 언어 감지기 초기화 완료');
+    Logger.info('TEST_UNIFIED_DETECTOR', '언어 감지기 초기화 완료');
     
     // 테스트 키 이벤트들
     const testEvents: UiohookKeyboardEvent[] = [
@@ -42,7 +42,7 @@ async function testUnifiedLanguageDetector(): Promise<void> {
       { keycode: 51, keychar: 51, shiftKey: false, ctrlKey: false, altKey: false, metaKey: false },
     ];
     
-    console.log('\n🧪 키 이벤트 테스트 실행...\n');
+    Logger.info('TEST_UNIFIED_DETECTOR', '키 이벤트 테스트 실행');
     
     for (let i = 0; i < testEvents.length; i++) {
       const event = testEvents[i];
@@ -50,33 +50,33 @@ async function testUnifiedLanguageDetector(): Promise<void> {
       
       const result = await detector.detectLanguage(event);
       
-      console.log(`${i + 1}. 키코드 ${event.keycode} (${String.fromCharCode(event.keychar || event.keycode)}) →`, {
+      Logger.info('TEST_UNIFIED_DETECTOR', '테스트 결과', {
+        index: i + 1,
+        keycode: event.keycode,
+        char: String.fromCharCode(event.keychar || event.keycode),
         language: result.language,
-        confidence: (result.confidence * 100).toFixed(1) + '%',
+        confidence: `${(result.confidence * 100).toFixed(1)}%`,
         method: result.method,
         isComposing: result.isComposing,
-        char: result.detectedChar || 'N/A'
+        detected: result.detectedChar || 'N/A'
       });
     }
     
     // 성능 통계 출력
-    console.log('\n📈 성능 통계:');
-    const stats = detector.getPerformanceStats();
-    console.log(JSON.stringify(stats, null, 2));
+    Logger.info('TEST_UNIFIED_DETECTOR', '성능 통계', detector.getPerformanceStats());
     
     // 헬스체크
-    console.log('\n🏥 헬스체크:');
     const health = await detector.healthCheck();
-    console.log(JSON.stringify(health, null, 2));
+    Logger.info('TEST_UNIFIED_DETECTOR', '헬스체크', health);
     
     // 정리
     await detector.stop();
     await detector.cleanup();
     
-    console.log('\n✅ 테스트 완료!');
+    Logger.info('TEST_UNIFIED_DETECTOR', '테스트 완료');
     
   } catch (error) {
-    console.error('\n❌ 테스트 실패:', error);
+    Logger.error('TEST_UNIFIED_DETECTOR', '테스트 실패', error);
     process.exit(1);
   }
 }
@@ -85,20 +85,20 @@ async function testUnifiedLanguageDetector(): Promise<void> {
  * 🔥 플랫폼별 감지기 직접 테스트
  */
 async function testPlatformSpecificDetector(): Promise<void> {
-  console.log('\n🔥 플랫폼별 감지기 직접 테스트\n');
+  Logger.info('TEST_UNIFIED_DETECTOR', '플랫폼별 감지기 직접 테스트');
   
   try {
     const { LanguageDetectorFactory } = await import('./factory/LanguageDetectorFactory');
     
     // 팩토리 정보 출력
-    console.log('🏭 팩토리 정보:', LanguageDetectorFactory.getInfo());
+    Logger.info('TEST_UNIFIED_DETECTOR', '팩토리 정보', LanguageDetectorFactory.getInfo());
     
     // 플랫폼별 감지기 생성
     const detector = LanguageDetectorFactory.create();
     await detector.initialize();
     await detector.start();
     
-    console.log(`✅ ${detector.constructor.name} 생성 완료`);
+    Logger.info('TEST_UNIFIED_DETECTOR', '감지기 생성 완료', { detector: detector.constructor.name });
     
     // 간단한 테스트
     const testEvent: UiohookKeyboardEvent = {
@@ -111,21 +111,21 @@ async function testPlatformSpecificDetector(): Promise<void> {
     };
     
     const result = await detector.detectLanguage(testEvent);
-    console.log('🧪 테스트 결과:', result);
+    Logger.info('TEST_UNIFIED_DETECTOR', '테스트 결과', result);
     
     // 성능 통계
     if (typeof detector.getPerformanceStats === 'function') {
-      console.log('📊 성능 통계:', detector.getPerformanceStats());
+      Logger.info('TEST_UNIFIED_DETECTOR', '성능 통계', detector.getPerformanceStats());
     }
     
     // 정리
     await detector.stop();
     await detector.cleanup();
     
-    console.log('✅ 플랫폼별 테스트 완료');
+    Logger.info('TEST_UNIFIED_DETECTOR', '플랫폼별 테스트 완료');
     
   } catch (error) {
-    console.error('❌ 플랫폼별 테스트 실패:', error);
+    Logger.error('TEST_UNIFIED_DETECTOR', '플랫폼별 테스트 실패', error);
   }
 }
 

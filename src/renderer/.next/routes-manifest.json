@@ -41,6 +41,12 @@
       "namedRegex": "^/analytics(?:/)?$"
     },
     {
+      "page": "/oauth/callback",
+      "regex": "^/oauth/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/oauth/callback(?:/)?$"
+    },
+    {
       "page": "/projects",
       "regex": "^/projects(?:/)?$",
       "routeKeys": {},

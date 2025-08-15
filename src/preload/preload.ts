@@ -32,6 +32,13 @@ import type {
 
 // 🔥 타입 안전한 API 구현
 const electronAPI: ElectronAPI = {
+  // 🔥 이벤트 리스너 API
+  on: (channel: string, listener: (...args: unknown[]) => void) => {
+    ipcRenderer.on(channel, listener);
+  },
+  removeListener: (channel: string, listener: (...args: unknown[]) => void) => {
+    ipcRenderer.removeListener(channel, listener);
+  },
   keyboard: {
     startMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.START_MONITORING),
     stopMonitoring: () => ipcRenderer.invoke(IPC_CHANNELS.KEYBOARD.STOP_MONITORING),

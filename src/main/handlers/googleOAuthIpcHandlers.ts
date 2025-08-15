@@ -60,17 +60,14 @@ export function setupGoogleOAuthIpcHandlers(): void {
       )
     );
 
-    // 🔥 연결 상태 확인 (임시)
+    // 🔥 연결 상태 확인
     ipcMain.handle(
       'google-oauth:check-connection',
       createSafeAsyncIpcHandler(
         async () => {
           Logger.debug(componentName, '🔍 Google OAuth 연결 상태 확인');
-          // 임시로 항상 false 반환
-          return {
-            success: true,
-            data: { isConnected: false }
-          };
+          const result = await googleOAuthService.getConnectionStatus();
+          return result;
         },
         componentName,
         'Check Google OAuth connection status'
@@ -127,16 +124,14 @@ export function setupGoogleOAuthIpcHandlers(): void {
       )
     );
 
-    // 🔥 Google Docs 문서 목록 조회 (임시)
+    // 🔥 Google Docs 문서 목록 조회
     ipcMain.handle(
       'google-docs:list-documents',
       createSafeAsyncIpcHandler(
         async () => {
-          Logger.info(componentName, '📚 Google Docs 문서 목록 조회 (임시 비활성화)');
-          return {
-            success: false,
-            error: '아직 구현되지 않음'
-          };
+          Logger.info(componentName, '📚 Google Docs 문서 목록 조회');
+          const result = await googleOAuthService.listDocuments();
+          return result;
         },
         componentName,
         'List Google Docs documents'

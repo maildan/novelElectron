@@ -1,5 +1,9 @@
 // 🔥 기가차드 Loop Main - 978줄을 50줄로 축소한 깔끔한 진입점
 
+// 🔥 환경변수 우선 로드
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { app } from 'electron';
 import { join } from 'path';
 import { Logger } from '../shared/logger';
@@ -7,10 +11,15 @@ import { ApplicationBootstrapper } from './core/ApplicationBootstrapper';
 import { performanceOptimizer } from './core/PerformanceOptimizer';
 import { Platform } from './utils/platform';
 
-// 🔥 환경 변수 로딩
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config();
-}
+// 🔥 환경 변수는 위에서 이미 로드됨
+// 🔥 환경변수 로깅(민감값 제외)
+const safeEnv = {
+  NODE_ENV: process.env.NODE_ENV,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? 'set' : 'missing',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? 'set' : 'missing',
+  GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI || 'not set',
+};
+Logger.info('ENV', 'Loaded environment variables', safeEnv);
 
 // 🔥 앱 이름 설정 (원래는 'Electron'으로 표시되는 것을 수정)
 app.setName('Loop');

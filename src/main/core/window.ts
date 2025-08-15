@@ -138,6 +138,8 @@ export class WindowManager {
       const allowedOrigins = [
         'http://localhost',
         'https://localhost',
+        'https://accounts.google.com',
+        'https://oauth2.googleapis.com',
         'file://'
       ];
 

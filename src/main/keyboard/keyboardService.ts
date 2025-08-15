@@ -86,7 +86,7 @@ export class KeyboardService extends EventEmitter {
       this.performanceTracker.start('UIOHOOK_LOAD');
       
       const uiohookModule = await import('uiohook-napi');
-      this.uiohook = uiohookModule.uIOhook as any;
+      this.uiohook = (uiohookModule.uIOhook as unknown as typeof uIOhook);
       
       const loadTime = this.performanceTracker.end('UIOHOOK_LOAD');
       Logger.info('KEYBOARD', 'uiohook-napi loaded successfully', { 
@@ -330,7 +330,7 @@ export class KeyboardService extends EventEmitter {
       // 🔥 2. 한글 특별 처리
       let composedChar: string | undefined;
       let isComposing = false;
-      let hangulResult: any = null; // 🔥 스코프 확장
+      let hangulResult: HangulCompositionResult | null = null; // 🔥 스코프 확장
       
       // 🔥 기가차드 수정: LanguageDetector 결과를 절대적으로 존중하되 숫자/특수문자는 제외
       const shouldProcessAsKorean = detectedLanguage === 'ko' && this.isValidAlphabetKey(enhancedEvent.keycode);
@@ -433,7 +433,7 @@ export class KeyboardService extends EventEmitter {
             key: validKey, // 검증된 한글 문자만 전달
             code: `Key${enhancedEvent.keycode}`,
             keycode: enhancedEvent.keycode, // 🔥 keycode 추가
-            keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar), // 한글 문자 우선, 아니면 유니코드 변환
+            keychar: hangulChar || String.fromCharCode(enhancedEvent.keychar || 0), // 한글 문자 우선, 아니면 유니코드 변환
             timestamp: Date.now(),
             windowTitle: '',
             type
@@ -496,10 +496,10 @@ export class KeyboardService extends EventEmitter {
       const windowTitle = currentWindow?.title || 'Unknown Window';
       
       const processedEvent: ProcessedKeyboardEvent = {
-        key: this.getDisplayKey(enhancedEvent, currentLanguage, composedChar, hangulResult), // 🔥 enhanced event 사용
+        key: this.getDisplayKey(enhancedEvent, currentLanguage, composedChar, hangulResult ?? undefined), // 🔥 enhanced event 사용
         code: `Key${enhancedEvent.keycode}`,
         keycode: enhancedEvent.keycode, // 🔥 keycode 추가
-        keychar: composedChar || hangulResult?.completed || String.fromCharCode(enhancedEvent.keychar), // 🔥 유니코드를 문자로 변환
+        keychar: composedChar || hangulResult?.completed || String.fromCharCode(enhancedEvent.keychar || 0), // 🔥 유니코드를 문자로 변환
         timestamp: Date.now(),
         windowTitle,
         type: type === 'keydown' && (composedChar || hangulResult?.completed) ? 'input' : type, // 🔥 실제 입력 시 'input' 타입
@@ -684,7 +684,7 @@ export class KeyboardService extends EventEmitter {
   }
 
   // 🔥 기가차드 rawEvent에 정확한 keychar 추가하는 함수
-  private enhanceRawEvent(rawEvent: UiohookKeyboardEvent): any {
+  private enhanceRawEvent(rawEvent: UiohookKeyboardEvent): UiohookKeyboardEvent {
     // 🔥 keycode를 유니코드 숫자로 변환 (LanguageDetector 호환)
     const keychar = this.keycodeToKeychar(rawEvent.keycode || 0);
     

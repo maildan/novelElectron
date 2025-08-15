@@ -37,14 +37,8 @@ export class TokenStorageService {
 
       // 설정에 저장 - app 카테고리에 저장
       const settingsManager = getSettingsManager();
-      
-      // encrypted 토큰을 직접 electron-store에 저장 (스키마 무시)
-      const rawStore = (settingsManager as any).store;
-      if (rawStore && rawStore.set) {
-        rawStore.set(`oauth_${service}_tokens`, encrypted.toString('base64'));
-      } else {
-        throw new Error('Store not accessible');
-      }
+      // electron-store store 접근자 메서드 사용 (deep key)
+      settingsManager.setDeep(`app.oauth_${service}_tokens`, encrypted.toString('base64'));
 
       Logger.info(this.componentName, `✅ ${service} 토큰 저장 완료`);
       return true;
@@ -61,13 +55,7 @@ export class TokenStorageService {
   async getTokens(service: 'google' | 'hancom'): Promise<OAuthTokens | null> {
     try {
       const settingsManager = getSettingsManager();
-      const rawStore = (settingsManager as any).store;
-      
-      if (!rawStore || !rawStore.get) {
-        throw new Error('Store not accessible');
-      }
-
-      const encryptedTokens = rawStore.get(`oauth_${service}_tokens`) as string;
+      const encryptedTokens = settingsManager.getDeep(`app.oauth_${service}_tokens`) as string;
       if (!encryptedTokens) {
         Logger.warn(this.componentName, `⚠️ ${service} 토큰이 없습니다`);
         return null;
@@ -99,13 +87,7 @@ export class TokenStorageService {
   async deleteTokens(service: 'google' | 'hancom'): Promise<boolean> {
     try {
       const settingsManager = getSettingsManager();
-      const rawStore = (settingsManager as any).store;
-      
-      if (!rawStore || !rawStore.delete) {
-        throw new Error('Store not accessible');
-      }
-
-      rawStore.delete(`oauth_${service}_tokens`);
+      settingsManager.setDeep(`app.oauth_${service}_tokens`, undefined);
 
       Logger.info(this.componentName, `✅ ${service} 토큰 삭제 완료`);
       return true;

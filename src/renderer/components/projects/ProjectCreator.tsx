@@ -2,7 +2,7 @@
 
 // 프로젝트 생성
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
@@ -131,7 +131,107 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
   const [deadline, setDeadline] = useState<string>(''); // 🔥 완료 목표 날짜
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
+  // 🔥 OAuth 성공 이벤트 리스너 설정
+  useEffect(() => {
+    const handleOAuthSuccess = () => {
+      Logger.info('PROJECT_CREATOR', '🔥 OAuth 성공 이벤트 수신 - Google Docs 목록 새로고침');
+      // Google Docs 목록 새로고침
+      if (selectedPlatform === 'google-docs') {
+        showGoogleDocsList();
+      }
+    };
+
+    if (typeof window !== 'undefined' && window.electronAPI) {
+      // OAuth 성공 이벤트 리스너 등록
+      window.electronAPI.on('oauth-success', handleOAuthSuccess);
+      
+      return () => {
+        // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        window.electronAPI?.removeListener('oauth-success', handleOAuthSuccess);
+      };
+    }
+  }, [selectedPlatform]);
+
   if (!isOpen) return null;
+
+  // 🔥 Google Docs 연동 처리
+  const handleGoogleDocsIntegration = async () => {
+    try {
+      Logger.info('PROJECT_CREATOR', 'Google Docs 연동 시작');
+      
+      if (!window.electronAPI) {
+        alert('데스크톱 앱에서만 사용 가능합니다');
+        return;
+      }
+
+      // 먼저 OAuth 브라우저 인증 시도 (기본 브라우저 자동 오픈)
+      try {
+        const res = await window.electronAPI?.oauth?.startGoogleAuth();
+        Logger.info('PROJECT_CREATOR', 'OAuth browser flow triggered', res);
+      } catch (e) {
+        Logger.warn('PROJECT_CREATOR', 'OAuth browser flow could not be triggered', e);
+      }
+
+      // 연결 상태 확인
+      const connectionResult = await window.electronAPI?.oauth?.getAuthStatus();
+      
+      if (connectionResult && connectionResult.data && connectionResult.data.isAuthenticated) {
+        // 이미 연결된 경우 문서 목록 표시
+        await showGoogleDocsList();
+      } else {
+        // 인증이 필요한 경우 브라우저에서 로그인 안내
+        alert('브라우저에서 Google 계정으로 로그인해주세요. 로그인 완료 후 다시 시도해주세요.');
+      }
+    } catch (error) {
+      Logger.error('PROJECT_CREATOR', 'Google Docs 연동 실패:', error);
+      alert(`Google Docs 연동 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  };
+
+  // 🔥 Google Docs 목록 표시
+  const showGoogleDocsList = async () => {
+    try {
+      const docsResult = await window.electronAPI?.oauth?.getGoogleDocuments();
+      
+      if (docsResult && docsResult.success && docsResult.data) {
+        const docs = docsResult.data;
+        
+        if (docs.length === 0) {
+          alert('Google Docs에서 문서를 찾을 수 없습니다.');
+          return;
+        }
+
+        // 간단한 선택 다이얼로그 (추후 더 예쁜 UI로 교체 가능)
+        const docTitles = docs.map((doc: any, index: number) => `${index + 1}. ${doc.title}`).join('\n');
+        const selection = prompt(`가져올 Google Docs를 선택하세요:\n\n${docTitles}\n\n번호를 입력하세요:`);
+        
+        if (selection) {
+          const selectedIndex = parseInt(selection) - 1;
+          
+          if (selectedIndex >= 0 && selectedIndex < docs.length) {
+            const selectedDoc = docs[selectedIndex];
+            
+            if (selectedDoc) {
+              // 선택한 문서로 프로젝트 생성
+              setTitle(selectedDoc.title);
+              setDescription(`Google Docs에서 가져온 문서: ${selectedDoc.title}`);
+              setSelectedPlatform('google-docs');
+              
+              Logger.info('PROJECT_CREATOR', 'Google Docs 선택됨:', selectedDoc);
+              alert(`"${selectedDoc.title}" 문서가 선택되었습니다. 프로젝트를 생성하세요.`);
+            }
+          } else {
+            alert('올바른 번호를 입력해주세요.');
+          }
+        }
+      } else {
+        throw new Error(docsResult?.error || '문서 목록을 가져올 수 없습니다');
+      }
+    } catch (error) {
+      Logger.error('PROJECT_CREATOR', 'Google Docs 목록 조회 실패:', error);
+      alert(`문서 목록 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  };
 
   const handleCreate = async (): Promise<void> => {
     if (!title.trim()) {
@@ -179,32 +279,9 @@ export function ProjectCreator({ isOpen, onClose, onCreate }: ProjectCreatorProp
     setSelectedPlatform(platformId);
     Logger.debug('PROJECT_CREATOR', `Platform selected: ${platformId}`);
     
-    // 🔥 Google Docs 선택 시 OAuth 인증 시작
+    // 🔥 Google Docs 선택 시 연동 처리 시작
     if (platformId === 'google-docs') {
-      try {
-        Logger.info('PROJECT_CREATOR', 'Starting Google OAuth authentication');
-        
-        if (window.electronAPI?.oauth?.startGoogleAuth) {
-          const result = await window.electronAPI.oauth.startGoogleAuth();
-          if (result.success) {
-            Logger.info('PROJECT_CREATOR', 'Google OAuth started successfully');
-            // OAuth 완료 후 사용자에게 피드백 제공
-            // TODO: OAuth 완료 상태 UI 업데이트
-          } else {
-            Logger.error('PROJECT_CREATOR', 'Google OAuth failed to start');
-            alert('Google 인증을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
-            setSelectedPlatform('loop'); // 기본값으로 복원
-          }
-        } else {
-          Logger.error('PROJECT_CREATOR', 'Google OAuth API not available');
-          alert('Google Docs 연동 기능이 준비되지 않았습니다.');
-          setSelectedPlatform('loop'); // 기본값으로 복원
-        }
-      } catch (error) {
-        Logger.error('PROJECT_CREATOR', 'Google OAuth error', error);
-        alert('Google 인증 중 오류가 발생했습니다.');
-        setSelectedPlatform('loop'); // 기본값으로 복원
-      }
+      await handleGoogleDocsIntegration();
     }
   };
 

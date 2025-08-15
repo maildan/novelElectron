@@ -73,16 +73,39 @@ export interface OAuthStatus {
 export const GOOGLE_OAUTH_CONFIG: GoogleOAuthConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID || '',
   clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-  redirectUri: 'http://localhost:3000/oauth/callback', // 🔥 콜백 URL
+  redirectUri: (process.env.GOOGLE_REDIRECT_URI || 'http://localhost:35821/oauth/callback').trim(), // 🔥 콜백 URL
   scopes: [
     'https://www.googleapis.com/auth/documents',
+    'https://www.googleapis.com/auth/documents.readonly',
+    'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/drive.readonly',
     'https://www.googleapis.com/auth/userinfo.profile',
     'https://www.googleapis.com/auth/userinfo.email'
   ],
   authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
   tokenUrl: 'https://oauth2.googleapis.com/token'
 };
+
+/**
+ * 🔥 OAuth 설정 검증 및 로그
+ */
+export function validateOAuthConfig(): { isValid: boolean; missing: string[] } {
+  const missing: string[] = [];
+  
+  if (!GOOGLE_OAUTH_CONFIG.clientId) {
+    missing.push('GOOGLE_CLIENT_ID');
+  }
+  
+  if (!GOOGLE_OAUTH_CONFIG.clientSecret) {
+    missing.push('GOOGLE_CLIENT_SECRET');
+  }
+  
+  return {
+    isValid: missing.length === 0,
+    missing
+  };
+}
 
 /**
  * 🔥 Google API 엔드포인트

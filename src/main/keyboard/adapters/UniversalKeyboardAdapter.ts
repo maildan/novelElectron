@@ -455,7 +455,7 @@ export class UniversalKeyboardAdapter extends EventEmitter implements IKeyboardI
   /**
    * uIOhook 어댑터 생성
    */
-  private createUiohookAdapter(rawUiohook: typeof import('uiohook-napi').uIOhook): any {
+  private createUiohookAdapter(rawUiohook: typeof import('uiohook-napi').uIOhook): typeof uIOhook {
     const adapter = {
       start: () => {
         rawUiohook.start();
@@ -465,17 +465,15 @@ export class UniversalKeyboardAdapter extends EventEmitter implements IKeyboardI
         rawUiohook.stop();
         this.isListening = false;
       },
-      on: (event: any, callback: (data: UiohookKeyboardEvent) => void) => {
-        // 타입 캐스팅을 통해 uIOhook 오버로드 문제 해결
-        (rawUiohook as any).on(event, callback);
+      on: (event: 'keydown' | 'keyup', callback: (data: UiohookKeyboardEvent) => void) => {
+        (rawUiohook as unknown as { on: (e: string, cb: (data: UiohookKeyboardEvent) => void) => void }).on(event, callback);
       },
-      off: (event: any, callback: (data: UiohookKeyboardEvent) => void) => {
-        // 타입 캐스팅을 통해 uIOhook 오버로드 문제 해결
-        (rawUiohook as any).off(event, callback);
+      off: (event: 'keydown' | 'keyup', callback: (data: UiohookKeyboardEvent) => void) => {
+        (rawUiohook as unknown as { off: (e: string, cb: (data: UiohookKeyboardEvent) => void) => void }).off(event, callback);
       }
     };
 
-    return adapter as any;
+    return adapter as unknown as typeof uIOhook;
   }
 }
 

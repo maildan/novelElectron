@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Logger } from '../../shared/logger';
 
 // 🔥 기가차드 Canvas 고성능 렌더링 시스템
 // WebGL + OffscreenCanvas로 네이티브급 성능 달성
@@ -59,11 +60,11 @@ export class HighPerformanceRenderer {
     const webgl = testCanvas.getContext('webgl');
 
     if (webgl2) {
-      console.log('🚀 WebGL2 지원 - 최고 성능 모드');
+      Logger.info('HIGH_PERF_RENDERER', 'WebGL2 enabled - max performance mode');
     } else if (webgl) {
-      console.log('⚡ WebGL 지원 - 고성능 모드');
+      Logger.info('HIGH_PERF_RENDERER', 'WebGL enabled - high performance mode');
     } else {
-      console.log('💾 Canvas 2D - 호환성 모드');
+      Logger.info('HIGH_PERF_RENDERER', 'Canvas 2D fallback - compatibility mode');
       this.options.enableWebGL = false;
     }
   }
@@ -112,9 +113,9 @@ export class HighPerformanceRenderer {
           canvasElement.width,
           canvasElement.height
         );
-        console.log('🧵 OffscreenCanvas 활성화 - 백그라운드 렌더링');
+        Logger.info('HIGH_PERF_RENDERER', 'OffscreenCanvas enabled - background rendering');
       } catch (error) {
-        console.warn('⚠️ OffscreenCanvas 초기화 실패:', error);
+        Logger.warn('HIGH_PERF_RENDERER', 'OffscreenCanvas init failed', error);
       }
     }
 
@@ -122,9 +123,10 @@ export class HighPerformanceRenderer {
     if (this.ctx instanceof WebGL2RenderingContext || this.ctx instanceof WebGLRenderingContext) {
       const debugInfo = this.ctx.getExtension('WEBGL_debug_renderer_info');
       if (debugInfo) {
-        const vendor = this.ctx.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
-        const renderer = this.ctx.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-        console.log(`🎮 GPU: ${vendor} ${renderer}`);
+        const di = debugInfo as unknown as { UNMASKED_VENDOR_WEBGL: number; UNMASKED_RENDERER_WEBGL: number };
+        const vendor = (this.ctx as unknown as { getParameter: (p: number) => string }).getParameter(di.UNMASKED_VENDOR_WEBGL);
+        const renderer = (this.ctx as unknown as { getParameter: (p: number) => string }).getParameter(di.UNMASKED_RENDERER_WEBGL);
+        Logger.info('HIGH_PERF_RENDERER', 'GPU detected', { vendor, renderer });
       }
     }
   }
@@ -154,8 +156,19 @@ export class HighPerformanceRenderer {
         
         // 🔥 메모리 사용량 (WebGL만)
         if (this.ctx instanceof WebGL2RenderingContext || this.ctx instanceof WebGLRenderingContext) {
-          const memInfo = (this.ctx as any).getParameter?.((this.ctx as any).GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX);
-          this.stats.memoryUsage = memInfo || 0;
+          const gl = this.ctx;
+          // Non-standard NVX extension, guarded
+          const ext = gl.getExtension('GPU_memory_info') as unknown as { GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX?: number } | null;
+          if (ext && typeof ext.GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX === 'number') {
+            try {
+              const total = (gl as unknown as { getParameter: (p: number) => number }).getParameter(ext.GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX as number);
+              this.stats.memoryUsage = typeof total === 'number' ? total : 0;
+            } catch {
+              this.stats.memoryUsage = 0;
+            }
+          } else {
+            this.stats.memoryUsage = 0;
+          }
         }
       }
 

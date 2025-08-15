@@ -162,6 +162,10 @@ export interface ProjectNote {
 
 // 🔥 메인 Electron API 인터페이스 - Main ↔ Renderer 공통
 export interface ElectronAPI {
+  // 🔥 이벤트 리스너 API
+  on: (channel: string, listener: (...args: unknown[]) => void) => void;
+  removeListener: (channel: string, listener: (...args: unknown[]) => void) => void;
+  
   // ⌨️ 키보드 API
   keyboard: {
     startMonitoring: () => Promise<IpcResponse<boolean>>;
@@ -614,3 +618,37 @@ export type IpcChannelType = typeof IPC_CHANNELS;
 
 // 🔥 이 파일을 모듈로 만들기 위한 export
 export {};
+
+// =============================
+// 🔥 Google OAuth/Drive 공통 타입
+// =============================
+
+export interface OAuthTokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number; // seconds
+  scope?: string;
+  token_type?: string;
+}
+
+export interface GoogleUserInfo {
+  id?: string;
+  email: string;
+  verified_email?: boolean;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
+  locale?: string;
+}
+
+export interface GoogleDriveFile {
+  id: string;
+  name: string;
+  modifiedTime: string;
+  webViewLink?: string;
+}
+
+export interface GoogleDriveFilesResponse {
+  files: GoogleDriveFile[];
+}

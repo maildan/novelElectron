@@ -18,10 +18,11 @@ export class GoogleOAuthService {
     this.config = {
       clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      redirectUri: 'http://localhost:3000/oauth/callback',
+      redirectUri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:35821/oauth/callback',
       scopes: [
         'https://www.googleapis.com/auth/documents',
         'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.readonly',
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email'
       ],
@@ -113,6 +114,18 @@ export class GoogleOAuthService {
    */
   async getConnectionStatus(): Promise<Result<boolean>> {
     try {
+      // 1) ENV 우선 사용 (있으면 부트스트랩)
+      const envAccess = process.env.GOOGLE_ACCESS_TOKEN;
+      const envRefresh = process.env.GOOGLE_REFRESH_TOKEN;
+      if (envAccess) {
+        await tokenStorage.saveTokens('google', {
+          access_token: envAccess,
+          refresh_token: envRefresh,
+          token_type: 'Bearer',
+          scope: this.config.scopes.join(' '),
+        });
+      }
+
       const tokens = await tokenStorage.getTokens('google');
       
       if (!tokens) {
@@ -175,6 +188,49 @@ export class GoogleOAuthService {
     } catch (error) {
       Logger.error(this.componentName, '❌ Google Docs 문서 생성 실패', error);
       return createError(error instanceof Error ? error.message : 'Document creation failed');
+    }
+  }
+
+  /**
+   * 🔥 Google Docs 문서 목록 조회
+   */
+  async listDocuments(): Promise<Result<{ id: string; name: string; modifiedTime: string; webViewLink?: string }[]>> {
+    try {
+      const tokens = await tokenStorage.getTokens('google');
+      if (!tokens) {
+        throw new Error('Google 인증이 필요합니다');
+      }
+
+      const url = new URL('https://www.googleapis.com/drive/v3/files');
+      url.searchParams.set('q', "mimeType='application/vnd.google-apps.document'");
+      url.searchParams.set('fields', 'files(id,name,modifiedTime,webViewLink)');
+      url.searchParams.set('orderBy', 'modifiedTime desc');
+      url.searchParams.set('pageSize', '50');
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`List documents failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const files = (data?.files || []).map((f: { id: string; name: string; modifiedTime: string; webViewLink?: string }) => ({
+        id: f.id,
+        name: f.name,
+        modifiedTime: f.modifiedTime,
+        webViewLink: f.webViewLink,
+      }));
+
+      Logger.info(this.componentName, '✅ Google Docs 목록 조회 완료', { count: files.length });
+      return createSuccess(files);
+
+    } catch (error) {
+      Logger.error(this.componentName, '❌ Google Docs 목록 조회 실패', error);
+      return createError(error instanceof Error ? error.message : 'List documents failed');
     }
   }
 
