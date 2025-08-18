@@ -22,11 +22,16 @@ export class StaticServer {
     // dist/renderer/out 경로에서 정적 파일 제공
     this.staticPath = join(__dirname, '..', '..', 'renderer', 'out');
     this.indexPath = join(this.staticPath, 'index.html');
-    
+
     Logger.debug('STATIC_SERVER', 'StaticServer 인스턴스 생성', {
       staticPath: this.staticPath,
       indexPath: this.indexPath
     });
+  }
+
+  // 운영환경 여부 캐시
+  private get isProduction(): boolean {
+    return (process.env.NODE_ENV || '').trim() === 'production';
   }
 
   public static getInstance(): StaticServer {
@@ -47,8 +52,13 @@ export class StaticServer {
         exists
       });
 
+      // 개발 환경에서는 Next.js 개발 서버를 사용하므로 StaticServer를 자동 시작하지 않습니다.
       if (exists && !this.server) {
-        await this.startHttpServer();
+        if (this.isProduction) {
+          await this.startHttpServer();
+        } else {
+          Logger.info('STATIC_SERVER', '개발 환경: StaticServer 자동 시작을 건너뜁니다 (Next.js dev 사용 권장)');
+        }
       }
 
       return exists && this.port > 0;
@@ -59,26 +69,49 @@ export class StaticServer {
   }
 
   /**
-   * 로컬 HTTP 서버 시작
+   * 로컬 HTTP 서버 시작 (Connection closed 오류 방지를 위한 안정성 강화)
    */
   private async startHttpServer(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server = createServer((req, res) => {
+        // 🔥 연결 종료 이벤트 핸들러 추가
+        req.socket.on('close', () => {
+          Logger.debug('STATIC_SERVER', 'Client connection closed', {
+            url: req.url,
+            remoteAddress: req.socket.remoteAddress
+          });
+        });
+
+        req.socket.on('error', (error) => {
+          Logger.warn('STATIC_SERVER', 'Socket error', error);
+        });
+
         this.handleRequest(req, res);
       });
 
+      // 🔥 서버 오류 핸들링 추가
+      this.server.on('error', (err) => {
+        Logger.error('STATIC_SERVER', 'HTTP Server error', err);
+      });
+
+      // 🔥 Keep-alive 설정으로 연결 안정성 향상
+      this.server.keepAliveTimeout = 60000; // 60초
+      this.server.headersTimeout = 65000;   // 65초 (keepAliveTimeout보다 큰 값)
+
       // 포트 찾기 시도
       const tryPort = (port: number) => {
-      this.server!.listen(port, 'localhost', () => {
+        this.server!.listen(port, 'localhost', () => {
           this.port = port;
-          Logger.info('STATIC_SERVER', `🚀 로컬 HTTP 서버 시작됨`, { 
+          Logger.info('STATIC_SERVER', `🚀 로컬 HTTP 서버 시작됨 (안정성 강화)`, {
             port: this.port,
-            url: `http://localhost:${this.port}`
+            url: `http://localhost:${this.port}`,
+            keepAliveTimeout: this.server!.keepAliveTimeout,
+            headersTimeout: this.server!.headersTimeout
           });
           resolve();
         });
 
-      this.server!.on('error', (error: NodeJS.ErrnoException) => {
+        this.server!.on('error', (error: NodeJS.ErrnoException) => {
           if (error.code === 'EADDRINUSE' && port < this.basePort + 100) {
             tryPort(port + 1);
           } else {
@@ -92,30 +125,54 @@ export class StaticServer {
   }
 
   /**
-   * HTTP 요청 처리 (디렉토리 및 동적 라우팅 지원)
+   * HTTP 요청 처리 (디렉토리 및 동적 라우팅 지원) - Connection closed 방지 강화
    */
   private handleRequest(req: import('http').IncomingMessage, res: import('http').ServerResponse): void {
     try {
+      // 🔥 요청 로깅 강화 (디버깅용)
+      Logger.debug('STATIC_SERVER', `Request: ${req.method} ${req.url}`, {
+        headers: {
+          userAgent: req.headers['user-agent'],
+          connection: req.headers.connection,
+          host: req.headers.host
+        },
+        socket: {
+          remoteAddress: req.socket.remoteAddress,
+          localAddress: req.socket.localAddress
+        }
+      });
+
       let filePath = req.url;
-      
+
       // 쿼리 파라미터 제거
       const safePath = filePath ?? '/';
       const urlWithoutQuery = safePath.split('?')[0];
-      
+
       // 🔥 URL 디코딩 (중요: &5Bid&5D → [id] 변환)
       let decodedPath = decodeURIComponent(urlWithoutQuery || '/');
-      
+
+      // 🔥 경로 무결성 검증 강화
+      if (decodedPath.includes('..') || decodedPath.includes('\0')) {
+        Logger.error('STATIC_SERVER', 'Path traversal attempt detected', {
+          requestedPath: decodedPath,
+          originalUrl: req.url
+        });
+        res.writeHead(403, { 'Content-Type': 'text/plain' });
+        res.end('Forbidden');
+        return;
+      }
+
       // 루트 경로는 index.html로 리다이렉트
       if (decodedPath === '/') {
         filePath = '/index.html';
       } else {
         filePath = decodedPath;
       }
-      
-      Logger.debug('STATIC_SERVER', 'Request path processing', { 
-        original: req.url, 
-        decoded: decodedPath, 
-        final: filePath 
+
+      Logger.debug('STATIC_SERVER', 'Request path processing', {
+        original: req.url,
+        decoded: decodedPath,
+        final: filePath
       });
 
       // 🔥 OAuth 콜백 처리 - 브라우저에서 Electron 앱으로 포커스 전환
@@ -125,18 +182,22 @@ export class StaticServer {
       }
 
       let fullPath = join(this.staticPath, filePath);
-      
+
       // 보안: 디렉토리 트래버셜 방지
       if (!fullPath.startsWith(this.staticPath)) {
+        Logger.error('STATIC_SERVER', 'Path traversal attempt', {
+          requestedPath: decodedPath,
+          resolvedPath: fullPath
+        });
         res.writeHead(403);
         res.end('Forbidden');
         return;
       }
 
-      // 파일/디렉토리 존재 확인 및 처리
+      // 🔥 파일 존재 여부 확인 강화
       if (existsSync(fullPath)) {
         const stats = statSync(fullPath);
-        
+
         if (stats.isDirectory()) {
           // 디렉토리인 경우 index.html 찾기
           const indexPath = join(fullPath, 'index.html');
@@ -144,6 +205,7 @@ export class StaticServer {
             fullPath = indexPath;
           } else {
             // index.html이 없으면 404
+            Logger.warn('STATIC_SERVER', 'Directory has no index.html', { directoryPath: fullPath });
             this.serve404(res);
             return;
           }
@@ -152,18 +214,27 @@ export class StaticServer {
         // 파일 제공
         this.serveFile(fullPath, res);
       } else {
+        // 🔥 파일이 존재하지 않을 때 로깅 강화
+        Logger.warn('STATIC_SERVER', 'File not found, trying dynamic route fallback', {
+          requestedPath: decodedPath,
+          resolvedPath: fullPath
+        });
         // 동적 라우팅 fallback 처리
         this.handleDynamicRoute(filePath, res);
       }
     } catch (error) {
       Logger.error('STATIC_SERVER', 'HTTP 요청 처리 실패', error);
-      res.writeHead(500);
-      res.end('Internal Server Error');
+      try {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } catch (responseError) {
+        Logger.error('STATIC_SERVER', 'Failed to send error response', responseError);
+      }
     }
   }
 
   /**
-   * 파일 제공
+   * 파일 제공 (Connection closed 방지를 위한 CORS 헤더 보강)
    */
   private serveFile(fullPath: string, res: import('http').ServerResponse): void {
     try {
@@ -186,33 +257,83 @@ export class StaticServer {
       };
 
       const contentType = mimeTypes[ext] || 'application/octet-stream';
-      
-      res.writeHead(200, { 
+
+      res.writeHead(200, {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache',
+        // 🔥 CORS 헤더 보강
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
+        // 🔥 Keep-Alive 추가 (Connection closed 방지)
+        'Connection': 'keep-alive',
+        'Keep-Alive': 'timeout=60, max=1000',
+        // 🔥 보안 헤더 강화
         'X-Content-Type-Options': 'nosniff',
-        // 🔥 CSP 완화: Next.js 정적 빌드 + 워커/폰트/이미지 로드 허용
-        'Content-Security-Policy': [
-          "default-src 'self' data: blob:",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* https://localhost:*",
-          "style-src 'self' 'unsafe-inline' http://localhost:* https://localhost:*",
-          "img-src 'self' data: blob: http://localhost:* https://localhost:*",
-          "font-src 'self' data: http://localhost:* https://localhost:*",
-          "connect-src 'self' http://localhost:* https://localhost:* https://www.googleapis.com https://oauth2.googleapis.com",
-          "frame-src 'self' https://accounts.google.com",
-          "worker-src 'self' blob:",
-        ].join('; ')
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Content-Security-Policy': (() => {
+          // 개발환경은 기존 완화된 CSP 유지(Next.js dev 빌드 편의)
+          if (!this.isProduction) {
+            // 개발 환경은 HMR / WebSocket 연결을 허용
+            const devCSP = [
+              "default-src 'self' data: blob:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* https://localhost:*",
+              "style-src 'self' 'unsafe-inline' http://localhost:* https://localhost:*",
+              "img-src 'self' data: blob: http://localhost:* https://localhost:*",
+              "font-src 'self' data: http://localhost:* https://localhost:*",
+              // 🔥 HMR 및 WebSocket 개발 툴을 위해 ws/wss 허용
+              "connect-src 'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:* https://www.googleapis.com https://oauth2.googleapis.com",
+              "frame-src 'self' https://accounts.google.com",
+              "worker-src 'self' blob:",
+            ].join('; ');
+            Logger.debug('STATIC_SERVER', 'Development CSP applied', { csp: devCSP });
+            return devCSP;
+          }
+
+          // 🔥 프로덕션: WebSocket 허용 및 안정성 강화
+          const prodCSP = [
+            "default-src 'self' data:",
+            "script-src 'self' 'unsafe-inline' https://accounts.google.com", // 🔥 unsafe-inline 추가 (필요시)
+            "style-src 'self' 'unsafe-inline'", // 🔥 unsafe-inline 추가 (CSS 인라인 스타일 허용)
+            "img-src 'self' data: blob:",
+            "font-src 'self' data:",
+            // 🔥 WebSocket 연결 허용 강화 (Connection closed 방지)
+            "connect-src 'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:* https://www.googleapis.com https://oauth2.googleapis.com",
+            "frame-src https://accounts.google.com",
+            "worker-src 'self' blob:",
+          ].join('; ');
+          Logger.info('STATIC_SERVER', 'Production CSP applied (WebSocket enabled)', {
+            csp: prodCSP,
+            isProduction: this.isProduction,
+            file: fullPath.replace(this.staticPath, '')
+          });
+          return prodCSP;
+        })()
       });
-      
+
       const content = readFileSync(fullPath);
       res.end(content);
+
+      // 🔥 파일 제공 성공 로깅
+      Logger.debug('STATIC_SERVER', 'File served successfully', {
+        file: fullPath.replace(this.staticPath, ''),
+        size: content.length,
+        contentType
+      });
+
     } catch (error) {
-      Logger.error('STATIC_SERVER', '파일 제공 실패', error);
-      res.writeHead(500);
-      res.end('Internal Server Error');
+      Logger.error('STATIC_SERVER', '파일 제공 실패', {
+        filePath: fullPath,
+        error: error instanceof Error ? error.message : error
+      });
+      try {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } catch (responseError) {
+        Logger.error('STATIC_SERVER', 'Failed to send error response', responseError);
+      }
     }
   }
 
@@ -226,7 +347,7 @@ export class StaticServer {
         const segments = filePath.split('/');
         if (segments.length >= 3) {
           const projectId = segments[2];
-          
+
           // projectId가 유효한 경우에만 처리
           if (projectId && projectId.trim()) {
             // 먼저 정확한 프로젝트 ID 디렉토리 확인
@@ -236,13 +357,13 @@ export class StaticServer {
               return;
             }
           }
-          
+
           // 🔥 존재하지 않는 프리렌더 경로는 SPA 라우팅으로 위임 (루트 index.html)
           const spaIndexPath = join(this.staticPath, 'index.html');
           if (existsSync(spaIndexPath)) {
-            Logger.debug('STATIC_SERVER', '동적 프로젝트 경로를 SPA로 위임', { 
-              requestedId: projectId, 
-              fallbackPath: spaIndexPath 
+            Logger.debug('STATIC_SERVER', '동적 프로젝트 경로를 SPA로 위임', {
+              requestedId: projectId,
+              fallbackPath: spaIndexPath
             });
             this.serveFile(spaIndexPath, res);
             return;
@@ -253,9 +374,9 @@ export class StaticServer {
       // 기타 SPA 라우팅은 root index.html로 fallback
       const rootIndexPath = join(this.staticPath, 'index.html');
       if (existsSync(rootIndexPath)) {
-        Logger.debug('STATIC_SERVER', 'SPA 라우팅 fallback to root', { 
-          requestedPath: filePath 
-        }); 
+        Logger.debug('STATIC_SERVER', 'SPA 라우팅 fallback to root', {
+          requestedPath: filePath
+        });
         this.serveFile(rootIndexPath, res);
       } else {
         this.serve404(res);
@@ -272,14 +393,14 @@ export class StaticServer {
   private serve404(res: import('http').ServerResponse): void {
     const notFoundPath = join(this.staticPath, '404.html');
     if (existsSync(notFoundPath)) {
-      res.writeHead(404, { 
+      res.writeHead(404, {
         'Content-Type': 'text/html; charset=utf-8',
         'Access-Control-Allow-Origin': '*'
       });
       const content = readFileSync(notFoundPath);
       res.end(content);
     } else {
-      res.writeHead(404, { 
+      res.writeHead(404, {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       });
@@ -292,7 +413,7 @@ export class StaticServer {
    */
   public getMainUrl(): string {
     const url = `http://localhost:${this.port}`;
-    Logger.debug('STATIC_SERVER', '메인 URL 생성', { 
+    Logger.debug('STATIC_SERVER', '메인 URL 생성', {
       url,
       port: this.port,
       staticPath: this.staticPath
@@ -301,13 +422,31 @@ export class StaticServer {
   }
 
   /**
-   * 서버 정리
+   * 서버 정리 (Connection closed 방지를 위한 안전한 종료)
    */
   public cleanup(): void {
     if (this.server) {
-      this.server.close(() => {
-        Logger.info('STATIC_SERVER', '로컬 HTTP 서버 종료됨');
+      Logger.info('STATIC_SERVER', '서버 종료 시작...');
+
+      // 🔥 기존 연결들에 종료 신호 전송
+      this.server.closeAllConnections?.(); // Node.js 18.2+ 지원
+
+      this.server.close((error) => {
+        if (error) {
+          Logger.error('STATIC_SERVER', '서버 종료 중 오류', error);
+        } else {
+          Logger.info('STATIC_SERVER', '로컬 HTTP 서버 종료됨');
+        }
       });
+
+      // 🔥 강제 종료 타임아웃 (5초)
+      setTimeout(() => {
+        if (this.server && this.server.listening) {
+          Logger.warn('STATIC_SERVER', '서버 강제 종료');
+          this.server.close();
+        }
+      }, 5000);
+
       this.server = null;
       this.port = 0;
     }
@@ -323,7 +462,7 @@ export class StaticServer {
       const state = url.searchParams.get('state');
       const error = url.searchParams.get('error');
 
-      Logger.info('STATIC_SERVER', '🔥 OAuth 콜백 수신', { 
+      Logger.info('STATIC_SERVER', '🔥 OAuth 콜백 수신', {
         code: code ? code.substring(0, 10) + '...' : null,
         error,
         hasState: !!state
@@ -337,7 +476,7 @@ export class StaticServer {
 
       // HTML 응답으로 성공/실패 페이지와 앱 포커스 처리
       const htmlContent = this.generateOAuthCallbackHtml(code, error, state);
-      
+
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
         'Access-Control-Allow-Origin': '*',
@@ -477,20 +616,20 @@ export class StaticServer {
    */
   private async handleTokenExchange(code: string, state: string | null): Promise<void> {
     try {
-      Logger.info('STATIC_SERVER', '🔥 토큰 교환 시작', { 
+      Logger.info('STATIC_SERVER', '🔥 토큰 교환 시작', {
         code: code.substring(0, 10) + '...',
-        hasState: !!state 
+        hasState: !!state
       });
 
       // 🔥 기존 OAuth IPC 핸들러 직접 호출 (code_verifier 보존)
       const result = await this.callOAuthIpcHandler(code);
-      
+
       if (result && result.success) {
-        Logger.info('STATIC_SERVER', '✅ OAuth 토큰 교환 완료', { 
+        Logger.info('STATIC_SERVER', '✅ OAuth 토큰 교환 완료', {
           hasAccessToken: !!result.data?.accessToken,
           hasRefreshToken: !!result.data?.refreshToken
         });
-        
+
         // 성공 시 앱으로 신호 전송
         this.notifyOAuthSuccess();
       } else {
@@ -508,27 +647,43 @@ export class StaticServer {
     try {
       // 🔥 메인 프로세스의 ipcMain을 통해 직접 호출
       const { ipcMain } = await import('electron');
-      
+
       Logger.info('STATIC_SERVER', '기존 OAuth IPC 핸들러 직접 호출');
-      
+
       // 가짜 이벤트 객체 생성
       const mockEvent = {
-        sender: { send: () => {} },
+        sender: { send: () => { } },
         returnValue: undefined,
-        preventDefault: () => {},
-        reply: () => {}
+        preventDefault: () => { },
+        reply: () => { }
       };
-      
-      // oauth:handle-callback 핸들러 직접 실행
-      const handlers = (ipcMain as any).listeners('oauth:handle-callback');
-      
-      if (handlers && handlers.length > 0) {
-        Logger.info('STATIC_SERVER', 'OAuth 핸들러 발견 - 직접 실행');
-        
-        // 첫 번째 핸들러 실행 (대부분 하나만 있음)
-        const handler = handlers[0];
+
+      // 먼저 명시적 직접 핸들러 함수가 있는지 시도
+      try {
+        const { handleCallbackDirect } = await import('../handlers/oauthIpcHandlers');
+        if (typeof handleCallbackDirect === 'function') {
+          Logger.info('STATIC_SERVER', 'Calling oauthIpcHandlers.handleCallbackDirect');
+          const result = await handleCallbackDirect(code);
+          Logger.debug('STATIC_SERVER', 'handleCallbackDirect returned', { result });
+          return result;
+        }
+      } catch (e) {
+        Logger.debug('STATIC_SERVER', 'handleCallbackDirect not available or failed', e);
+      }
+
+      // 기존 방식: ipcMain listeners를 조회하여 핸들러를 호출 (레거시 호환)
+      const googleHandlers = (ipcMain as any).listeners('google-oauth:handle-callback');
+      const oauthHandlers = (ipcMain as any).listeners('oauth:handle-callback');
+
+      if (googleHandlers && googleHandlers.length > 0) {
+        Logger.info('STATIC_SERVER', 'Google OAuth 핸들러 발견 - 직접 실행 (via listeners)');
+        const handler = googleHandlers[0];
+        const result = await handler(mockEvent, code, null);
+        return result;
+      } else if (oauthHandlers && oauthHandlers.length > 0) {
+        Logger.info('STATIC_SERVER', '기본 OAuth 핸들러 발견 - 직접 실행 (via listeners)');
+        const handler = oauthHandlers[0];
         const result = await handler(mockEvent, code);
-        
         return result;
       } else {
         Logger.error('STATIC_SERVER', 'OAuth 핸들러를 찾을 수 없음');
@@ -541,7 +696,7 @@ export class StaticServer {
   }
 
   /**
-   * 🔥 OAuth 성공 알림 (렌더러 프로세스에 알림)
+   * 🔥 OAuth 성공 알림 (렌더러 프로세스에 알림) - 강화된 상태 동기화
    */
   private notifyOAuthSuccess(): void {
     try {
@@ -549,17 +704,43 @@ export class StaticServer {
       if (windows.length > 0) {
         const mainWindow = windows[0];
         if (mainWindow && !mainWindow.isDestroyed()) {
-          // 렌더러 프로세스에 OAuth 성공 이벤트 전송
-          mainWindow.webContents.send('oauth-success');
-          Logger.info('STATIC_SERVER', '✅ OAuth 성공 이벤트 전송 완료');
+          // 🔥 OAuth 성공 이벤트를 여러 채널로 전송 (상태 동기화 보장)
+          const payload = {
+            success: true,
+            timestamp: new Date().toISOString(),
+            message: 'OAuth authentication successful'
+          };
+
+          // 기존 이벤트
+          mainWindow.webContents.send('oauth-success', payload);
+
+          // 🔥 추가 이벤트들 - 다양한 채널로 알림
+          mainWindow.webContents.send('auth-status-changed', payload);
+          mainWindow.webContents.send('google-auth-completed', payload);
+
+          // 🔥 강제 새로고침 이벤트 (필요시)
+          mainWindow.webContents.send('force-auth-status-refresh', payload);
+
+          Logger.info('STATIC_SERVER', '✅ OAuth 성공 이벤트 전송 완료 (다중 채널)', {
+            channels: ['oauth-success', 'auth-status-changed', 'google-auth-completed', 'force-auth-status-refresh']
+          });
+
+          // 🔥 추가: 1초 후에도 한 번 더 상태 확인 이벤트 전송 (지연 동기화)
+          setTimeout(() => {
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send('delayed-auth-status-check', {
+                trigger: 'oauth-callback-success',
+                timestamp: new Date().toISOString()
+              });
+              Logger.debug('STATIC_SERVER', '지연된 인증 상태 확인 이벤트 전송');
+            }
+          }, 1000);
         }
       }
     } catch (error) {
       Logger.error('STATIC_SERVER', 'OAuth 성공 알림 실패', error);
     }
-  }
-
-  /**
+  }  /**
    * 정적 파일 경로 반환
    */
   public getStaticPath(): string {

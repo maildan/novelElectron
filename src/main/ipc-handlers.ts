@@ -180,6 +180,14 @@ export async function setupAllIpcHandlers(): Promise<void> {
       Logger.info('IPC_HANDLERS', 'OAuth IPC handlers setup complete');
     }
 
+    // Google OAuth IPC 핸들러
+    if (!registeredHandlers.has('google-oauth')) {
+      const { setupGoogleOAuthIpcHandlers } = await import('./handlers/googleOAuthIpcHandlers');
+      setupGoogleOAuthIpcHandlers();
+      registeredHandlers.add('google-oauth');
+      Logger.info('IPC_HANDLERS', 'Google OAuth IPC handlers setup complete');
+    }
+
     Logger.info('IPC_HANDLERS', 'All IPC handlers setup complete');
 
   } catch (error) {

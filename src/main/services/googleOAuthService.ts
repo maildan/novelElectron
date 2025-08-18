@@ -1,6 +1,7 @@
 // 🔥 기가차드 Google OAuth Service - 안전한 인증 통합
 
 import { shell } from 'electron';
+import { google } from 'googleapis';
 import { Logger } from '../../shared/logger';
 import { createSuccess, createError, type Result } from '../../shared/common';
 import { tokenStorage } from './tokenStorage';
@@ -152,37 +153,46 @@ export class GoogleOAuthService {
         throw new Error('Google 인증이 필요합니다');
       }
 
-      // 문서 생성 API 호출
-      const response = await fetch('https://docs.googleapis.com/v1/documents', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${tokens.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: title
-        }),
+      // 🔥 Google APIs SDK를 사용한 인증
+      const auth = new google.auth.OAuth2();
+      auth.setCredentials({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
       });
 
-      if (!response.ok) {
-        throw new Error(`Document creation failed: ${response.status}`);
+      // 🔥 Docs API 클라이언트 생성
+      const docs = google.docs({ version: 'v1', auth });
+
+      // 🔥 문서 생성
+      const document = await docs.documents.create({
+        requestBody: {
+          title: title
+        }
+      });
+
+      // 🔥 내용 추가 (GCP SDK 사용)
+      if (content && document.data.documentId) {
+        await docs.documents.batchUpdate({
+          documentId: document.data.documentId,
+          requestBody: {
+            requests: [{
+              insertText: {
+                location: { index: 1 }, // 문서 시작 부분
+                text: content
+              }
+            }]
+          }
+        });
       }
 
-      const document = await response.json();
-
-      // 내용 추가 (별도 API 호출)
-      if (content) {
-        await this.insertText(document.documentId, content, tokens.access_token);
-      }
-
-      Logger.info(this.componentName, '✅ Google Docs 문서 생성됨', { 
-        documentId: document.documentId,
+      Logger.info(this.componentName, '✅ Google Docs 문서 생성됨 (GCP SDK)', { 
+        documentId: document.data.documentId,
         title 
       });
 
       return createSuccess({
-        documentId: document.documentId,
-        webViewLink: `https://docs.google.com/document/d/${document.documentId}/edit`
+        documentId: document.data.documentId!,
+        webViewLink: `https://docs.google.com/document/d/${document.data.documentId}/edit`
       });
 
     } catch (error) {
@@ -201,31 +211,32 @@ export class GoogleOAuthService {
         throw new Error('Google 인증이 필요합니다');
       }
 
-      const url = new URL('https://www.googleapis.com/drive/v3/files');
-      url.searchParams.set('q', "mimeType='application/vnd.google-apps.document'");
-      url.searchParams.set('fields', 'files(id,name,modifiedTime,webViewLink)');
-      url.searchParams.set('orderBy', 'modifiedTime desc');
-      url.searchParams.set('pageSize', '50');
-
-      const response = await fetch(url.toString(), {
-        headers: {
-          Authorization: `Bearer ${tokens.access_token}`,
-        },
+      // 🔥 Google APIs SDK를 사용한 인증
+      const auth = new google.auth.OAuth2();
+      auth.setCredentials({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
       });
 
-      if (!response.ok) {
-        throw new Error(`List documents failed: ${response.status}`);
-      }
+      // 🔥 Drive API 클라이언트 생성
+      const drive = google.drive({ version: 'v3', auth });
 
-      const data = await response.json();
-      const files = (data?.files || []).map((f: { id: string; name: string; modifiedTime: string; webViewLink?: string }) => ({
-        id: f.id,
-        name: f.name,
-        modifiedTime: f.modifiedTime,
-        webViewLink: f.webViewLink,
+      // 🔥 Google Docs 문서 목록 조회
+      const response = await drive.files.list({
+        q: "mimeType='application/vnd.google-apps.document'",
+        fields: 'files(id,name,modifiedTime,webViewLink)',
+        orderBy: 'modifiedTime desc',
+        pageSize: 50,
+      });
+
+      const files = (response.data.files || []).map((file) => ({
+        id: file.id!,
+        name: file.name!,
+        modifiedTime: file.modifiedTime!,
+        webViewLink: file.webViewLink || undefined,
       }));
 
-      Logger.info(this.componentName, '✅ Google Docs 목록 조회 완료', { count: files.length });
+      Logger.info(this.componentName, '✅ Google Docs 목록 조회 완료 (GCP SDK)', { count: files.length });
       return createSuccess(files);
 
     } catch (error) {
@@ -351,31 +362,7 @@ export class GoogleOAuthService {
     }
   }
 
-  private async insertText(documentId: string, text: string, accessToken: string): Promise<void> {
-    const response = await fetch(`https://docs.googleapis.com/v1/documents/${documentId}:batchUpdate`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        requests: [
-          {
-            insertText: {
-              location: {
-                index: 1,
-              },
-              text: text,
-            },
-          },
-        ],
-      }),
-    });
 
-    if (!response.ok) {
-      throw new Error(`Text insertion failed: ${response.status}`);
-    }
-  }
 }
 
 // 🔥 싱글톤 익스포트

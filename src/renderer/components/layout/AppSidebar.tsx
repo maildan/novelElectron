@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Home, 
-  Folder, 
-  BarChart3, 
-  Sparkles, 
+import React, { useState, useEffect } from 'react';
+import {
+  Home,
+  Folder,
+  BarChart3,
+  Sparkles,
   Settings,
   ChevronLeft,
   ChevronRight,
-  type LucideIcon 
+  Cloud,
+  Wifi,
+  WifiOff,
+  type LucideIcon
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Tooltip } from '../ui/Tooltip';
 import { Badge } from '../ui/Badge';
 import { Logger } from '../../../shared/logger';
-    
+
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
 const SIDEBAR_STYLES = {
   container: 'flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300',
@@ -66,54 +69,107 @@ export interface AppSidebarProps {
 
 // 🔥 기가차드 규칙: 상수 분리
 const SIDEBAR_ITEMS: readonly SidebarItem[] = [
-  { 
-    id: 'dashboard', 
-    label: '대시보드', 
-    icon: Home, 
+  {
+    id: 'dashboard',
+    label: '대시보드',
+    icon: Home,
     href: '/',
     ariaLabel: '대시보드로 이동'
   },
-  { 
-    id: 'projects', 
-    label: '프로젝트', 
-    icon: Folder, 
+  {
+    id: 'projects',
+    label: '프로젝트',
+    icon: Folder,
     href: '/projects',
     ariaLabel: '프로젝트 관리로 이동'
   },
-  { 
-    id: 'analytics', 
-    label: '통계', 
-    icon: BarChart3, 
+  {
+    id: 'analytics',
+    label: '통계',
+    icon: BarChart3,
     href: '/analytics',
     ariaLabel: '분석 및 통계로 이동'
   },
-  { 
-    id: 'ai', 
-    label: 'Loop AI', 
-    icon: Sparkles, 
+  {
+    id: 'ai',
+    label: 'Loop AI',
+    icon: Sparkles,
     href: '/ai',
     badge: 2,
     ariaLabel: 'AI 도구로 이동'
   },
-  { 
-    id: 'settings', 
-    label: '설정', 
-    icon: Settings, 
+  {
+    id: 'settings',
+    label: '설정',
+    icon: Settings,
     href: '/settings',
     ariaLabel: '설정으로 이동'
   },
 ] as const;
 
-export function AppSidebar({ 
+export function AppSidebar({
   activeRoute = '/',
   onNavigate,
   collapsed: controlledCollapsed,
   onToggleCollapse
 }: AppSidebarProps): React.ReactElement {
-  
+
   const [internalCollapsed, setInternalCollapsed] = useState<boolean>(false);
   const isControlled = controlledCollapsed !== undefined;
   const collapsed = isControlled ? controlledCollapsed : internalCollapsed;
+
+  // 🔥 Google 사용자 정보 상태
+  const [googleUserInfo, setGoogleUserInfo] = useState<{
+    isAuthenticated: boolean;
+    userEmail?: string;
+    userName?: string;
+    userPicture?: string;
+  }>({
+    isAuthenticated: false
+  });
+
+  // 🔥 온라인/오프라인 상태
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+
+  // 🔥 Google OAuth 상태 확인
+  useEffect(() => {
+    const checkGoogleAuth = async () => {
+      try {
+        if (window.electronAPI?.oauth?.getAuthStatus) {
+          const authStatus = await window.electronAPI.oauth.getAuthStatus();
+          if (authStatus?.success && authStatus.data?.isAuthenticated) {
+            setGoogleUserInfo({
+              isAuthenticated: true,
+              userEmail: authStatus.data.userEmail,
+              userName: authStatus.data.userEmail?.split('@')[0] || 'Google 사용자',
+              userPicture: `https://ui-avatars.com/api/?name=${encodeURIComponent(authStatus.data.userEmail || 'User')}&background=4f46e5&color=fff&size=32`
+            });
+            Logger.info('APP_SIDEBAR', 'Google user info loaded', {
+              userEmail: authStatus.data.userEmail
+            });
+          }
+        }
+      } catch (error) {
+        Logger.error('APP_SIDEBAR', 'Failed to load Google user info', error);
+      }
+    };
+
+    checkGoogleAuth();
+  }, []);
+
+  // 🔥 온라인/오프라인 상태 감지
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleToggleCollapse = (): void => {
     if (isControlled) {
@@ -139,16 +195,16 @@ export function AppSidebar({
   const renderNavItem = (item: SidebarItem): React.ReactElement => {
     const isActive = activeRoute === item.href;
     const Icon = item.icon;
-    
+
     const navItemContent = (
       <div
         className={
           collapsed
-            ? isActive 
+            ? isActive
               ? SIDEBAR_STYLES.navItemActiveCollapsed
               : SIDEBAR_STYLES.navItemCollapsed
-            : isActive 
-              ? SIDEBAR_STYLES.navItemActive 
+            : isActive
+              ? SIDEBAR_STYLES.navItemActive
               : SIDEBAR_STYLES.navItem
         }
         role="button"
@@ -188,10 +244,9 @@ export function AppSidebar({
   };
 
   return (
-    <aside 
-      className={`${SIDEBAR_STYLES.container} ${
-        collapsed ? SIDEBAR_STYLES.collapsed : SIDEBAR_STYLES.expanded
-      }`}
+    <aside
+      className={`${SIDEBAR_STYLES.container} ${collapsed ? SIDEBAR_STYLES.collapsed : SIDEBAR_STYLES.expanded
+        }`}
       aria-label="사이드바 네비게이션"
       role="navigation"
     >
@@ -200,9 +255,9 @@ export function AppSidebar({
         {collapsed ? (
           <div className="flex flex-col items-center gap-3 py-4">
             <div className={SIDEBAR_STYLES.logoIcon}>L</div>
-            
-            {/* 축소 시 사용자 프로필 - 아래로 이동 */}
-            <div 
+
+            {/* 축소 시 사용자 프로필 - Google 계정 정보 표시 */}
+            <div
               className="flex flex-col items-center gap-1 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors mt-2"
               onClick={() => {
                 Logger.info('SIDEBAR', 'User profile clicked (collapsed)');
@@ -212,12 +267,14 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">
-                U
-              </div>
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+              {googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
+                <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-7 h-7 rounded-full object-cover" />
+              ) : (
+                <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">U</div>
+              )}
+              <div className={isOnline ? 'w-1.5 h-1.5 bg-green-500 rounded-full' : 'w-1.5 h-1.5 bg-gray-400 rounded-full'} />
             </div>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -242,9 +299,9 @@ export function AppSidebar({
                 <ChevronLeft className="w-3 h-3" />
               </Button>
             </div>
-            
-            {/* 확장 시 사용자 프로필 */}
-            <div 
+
+            {/* 확장 시 사용자 프로필: Google 계정 정보 노출 */}
+            <div
               className="flex items-center gap-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors"
               onClick={() => {
                 Logger.info('SIDEBAR', 'User profile clicked');
@@ -254,15 +311,20 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                U
-              </div>
+              {googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
+                <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-8 h-8 rounded-full object-cover" />
+              ) : (
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">U</div>
+              )}
               <div className="flex-1">
-                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">Loop 사용자</div>
+                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{googleUserInfo.isAuthenticated ? (googleUserInfo.userName || googleUserInfo.userEmail) : 'Loop 사용자'}</div>
                 <div className="flex items-center gap-1 mt-0.5">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                  <span className="text-xs text-slate-500 dark:text-slate-400">온라인</span>
+                  <div className={isOnline ? 'w-1.5 h-1.5 bg-green-500 rounded-full' : 'w-1.5 h-1.5 bg-gray-400 rounded-full'} />
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{isOnline ? '온라인' : '오프라인'}</span>
                 </div>
+                {googleUserInfo.isAuthenticated && googleUserInfo.userEmail && (
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{googleUserInfo.userEmail}</div>
+                )}
               </div>
             </div>
           </div>

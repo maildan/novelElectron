@@ -165,7 +165,7 @@ export interface ElectronAPI {
   // 🔥 이벤트 리스너 API
   on: (channel: string, listener: (...args: unknown[]) => void) => void;
   removeListener: (channel: string, listener: (...args: unknown[]) => void) => void;
-  
+
   // ⌨️ 키보드 API
   keyboard: {
     startMonitoring: () => Promise<IpcResponse<boolean>>;
@@ -276,7 +276,8 @@ export interface ElectronAPI {
 
   // 🔐 OAuth API (Google Docs 연동)
   oauth: {
-    startGoogleAuth: () => Promise<IpcResponse<{ authUrl: string }>>;
+    // optional loginHint (email) can be provided to suggest account during auth
+    startGoogleAuth: (loginHint?: string) => Promise<IpcResponse<{ authUrl: string }>>;
     handleCallback: (code: string) => Promise<IpcResponse<{ accessToken: string; refreshToken: string }>>;
     getGoogleDocuments: () => Promise<IpcResponse<Array<{ id: string; title: string; modifiedTime: string }>>>;
     importGoogleDoc: (documentId: string) => Promise<IpcResponse<{ title: string; content: string }>>;
@@ -326,7 +327,7 @@ export interface UiohookKeyboardEvent {
 }
 
 // 🔥 언어 감지 관련 타입들은 중앙화된 모듈에서 re-export
-export type { 
+export type {
   SupportedLanguage,
   DetectionMethod,
   LanguageDetectionResult,
@@ -338,23 +339,23 @@ export type {
 export interface KeyInputData {
   /** 입력된 문자 (IME 완성 문자 포함) */
   character: string;
-  
+
   /** 입력 시각 (타임스탬프) */
   timestamp: number;
-  
+
   /** 감지된 언어 (ko, en, ja, zh 등) */
   language: string;
-  
+
   /** 현재 활성 윈도우 정보 */
   windowInfo: {
     title: string;
     bundleId?: string;
     processName?: string;
   };
-  
+
   /** 입력 방식 (직접 입력 vs IME 조합 vs 완성형) */
   inputMethod: 'direct' | 'ime' | 'composition' | 'complete';
-  
+
   /** 원본 키 코드 정보 (디버깅용) */
   rawKeyInfo?: {
     keycode: number;
@@ -398,7 +399,7 @@ export interface WindowInfo {
   // 🔥 기본 정보 (모든 플랫폼 공통)
   id: number;
   title: string;
-  
+
   // 🔥 프로세스 정보
   owner: {
     name: string;          // processName 역할
@@ -406,7 +407,7 @@ export interface WindowInfo {
     bundleId?: string;     // macOS용
     path?: string;         // 실행파일 경로
   };
-  
+
   // 🔥 윈도우 위치/크기 정보
   bounds: {
     x: number;
@@ -414,10 +415,10 @@ export interface WindowInfo {
     width: number;
     height: number;
   };
-  
+
   // 🔥 시스템 정보
   memoryUsage: number;
-  
+
   // 🔥 Loop 전용 확장 필드 (기존 호환성 유지)
   loopTimestamp?: number;
   loopAppCategory?: AppCategory;
@@ -428,7 +429,7 @@ export interface WindowInfo {
     keystrokeCount: number;
     sessionDuration: number;
   };
-  
+
   // 🔥 Loop 추가 전용 필드들
   loopLanguageDetected?: string;        // 감지된 언어 (한글/영문)
   loopIMEState?: 'enabled' | 'disabled' | 'unknown';  // IME 상태
@@ -459,7 +460,7 @@ export interface SimpleWindowInfo {
 }
 
 // 🔥 앱 카테고리 타입 (appCategories.ts와 동일하게 유지)
-export type AppCategory = 
+export type AppCategory =
   | 'ai-assistant'
   | 'browser'
   | 'cloud-storage'
@@ -579,7 +580,7 @@ export type IpcChannels = typeof IPC_CHANNELS;
 // 🔥 Health Check 관련 타입들
 export enum HealthStatus {
   HEALTHY = 'healthy',
-  WARNING = 'warning', 
+  WARNING = 'warning',
   ERROR = 'error'
 }
 
@@ -617,7 +618,7 @@ export interface PermissionRequestResult {
 export type IpcChannelType = typeof IPC_CHANNELS;
 
 // 🔥 이 파일을 모듈로 만들기 위한 export
-export {};
+export { };
 
 // =============================
 // 🔥 Google OAuth/Drive 공통 타입

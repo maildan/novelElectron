@@ -22,9 +22,10 @@ const safeEnv = {
 Logger.info('ENV', 'Loaded environment variables', safeEnv);
 
 // 🔥 앱 이름 설정 (원래는 'Electron'으로 표시되는 것을 수정)
-app.setName('Loop');
+// Use lowercase 'loop' so Dock shows 'loop' per product requirement
+app.setName('loop');
 app.setAppUserModelId('com.loop.typing-analytics'); // Windows 작업 표시줄 아이콘 ID (appId와 일치시킴)
-Logger.info('MAIN', '🔄 앱 이름 설정 완료', { 
+Logger.info('MAIN', '🔄 앱 이름 설정 완료', {
   name: app.getName(),
   appId: 'com.loop.typing-analytics', // 직접 값 사용
   appPath: app.getAppPath()
@@ -41,15 +42,7 @@ const iconPngPath = join(assetsDir, 'icon.png');
 const iconIcoPath = join(assetsDir, 'icon.ico');
 const iconIcnsPath = join(assetsDir, 'icon.icns');
 
-// macOS Dock 아이콘은 .icns 사용 권장. 실패해도 앱은 계속 실행.
-if (Platform.isMacOS()) {
-  try {
-    app.dock?.setIcon(iconIcnsPath);
-    Logger.info('MAIN', '🍎 macOS Dock icon set', { icon: iconIcnsPath });
-  } catch (error) {
-    Logger.warn('MAIN', 'Failed to set macOS Dock icon', { icon: iconIcnsPath, error });
-  }
-}
+// macOS Dock 아이콘 설정은 ApplicationBootstrapper에서 담당
 
 // Windows 사용자 데이터 경로 정리
 if (Platform.isWindows()) {
@@ -81,10 +74,10 @@ class LoopMain {
   public async start(): Promise<void> {
     try {
       Logger.info('MAIN', '🔥 Starting Loop Typing Analytics...');
-      
+
       // ApplicationBootstrapper에 모든 로직 위임
       await this.bootstrapper.bootstrap();
-      
+
       Logger.info('MAIN', '✅ Loop application started successfully');
     } catch (error) {
       Logger.error('MAIN', '💥 Failed to start Loop application', error);

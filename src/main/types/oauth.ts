@@ -76,10 +76,8 @@ export const GOOGLE_OAUTH_CONFIG: GoogleOAuthConfig = {
   redirectUri: (process.env.GOOGLE_REDIRECT_URI || 'http://localhost:35821/oauth/callback').trim(), // 🔥 콜백 URL
   scopes: [
     'https://www.googleapis.com/auth/documents',
-    'https://www.googleapis.com/auth/documents.readonly',
-    'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/drive.readonly',
+    'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/userinfo.profile',
     'https://www.googleapis.com/auth/userinfo.email'
   ],

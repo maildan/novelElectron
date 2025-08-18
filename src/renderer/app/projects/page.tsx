@@ -38,7 +38,7 @@ function ProjectsPageContent(): React.ReactElement {
     if (shouldCreate) {
       Logger.info('PROJECTS_PAGE', '🚀 Auto-opening project creator from URL parameter');
       setShowCreator(true);
-      
+
       // URL에서 쿼리 파라미터 제거 (깔끔한 URL 유지)
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete('create');
@@ -78,21 +78,21 @@ function ProjectsPageContent(): React.ReactElement {
     try {
       setLoading(true);
       setError(null);
-      
+
       // 🔥 기가차드 규칙: 타입 안전한 IPC 통신
       const result = await window.electronAPI.projects.getAll();
-      
+
       // 🔥 에러 처리 - IPC 응답 검증
       if (!result.success) {
         throw new Error(result.error || 'Projects API failed');
       }
-      
+
       // 🔥 BE 데이터를 FE 형식으로 변환
       const projectsData = convertToProjectData(result.data || []);
       setProjects(projectsData);
-      
+
       Logger.info('PROJECTS_PAGE', `✅ Loaded ${projectsData.length} projects successfully`);
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '프로젝트를 불러오는 중 오류가 발생했습니다.';
       setError(errorMessage);
@@ -115,8 +115,8 @@ function ProjectsPageContent(): React.ReactElement {
       status: project.status || 'draft',
       progress: project.progress || 0,
       createdAt: project.createdAt ? new Date(project.createdAt) : new Date(),
-      updatedAt: project.updatedAt ? new Date(project.updatedAt) : 
-                  project.lastModified ? new Date(project.lastModified) : new Date(),
+      updatedAt: project.updatedAt ? new Date(project.updatedAt) :
+        project.lastModified ? new Date(project.lastModified) : new Date(),
       wordCount: project.wordCount || 0,
       author: project.author || '사용자',
       genre: project.genre || '기타'
@@ -137,7 +137,7 @@ function ProjectsPageContent(): React.ReactElement {
   const handleProjectCreated = async (projectData: ProjectCreationData): Promise<void> => {
     try {
       Logger.info('PROJECTS_PAGE', '🚀 Creating new project', projectData);
-      
+
       // 🔥 플랫폼별 처리 로직
       if (projectData.platform === 'import') {
         // 파일 불러오기 플랫폼
@@ -152,13 +152,54 @@ function ProjectsPageContent(): React.ReactElement {
           throw new Error(result.error || 'Failed to import project');
         }
       } else if (projectData.platform === 'google-docs') {
-        // Google Docs 연동 (외부 링크)
-        Logger.info('PROJECTS_PAGE', '🌐 Opening Google Docs for external editing');
-        await window.electronAPI.shell?.openExternal('https://docs.google.com/document/');
-        // Google Docs는 외부이므로 Loop 내에서는 프로젝트를 생성하지 않음
-        return;
+        // 🔥 Google Docs 프로젝트도 Loop 데이터베이스에 저장하여 관리
+        Logger.info('PROJECTS_PAGE', '📝 Creating Google Docs project in Loop database');
+
+        // Google Docs 정보를 description에 JSON으로 저장
+        const googleDocsInfo = {
+          originalDescription: projectData.description,
+          googleDocId: projectData.googleDocId,
+          googleDocUrl: projectData.googleDocUrl,
+          isGoogleDocsProject: true
+        };
+
+        // Google Docs 전용 프로젝트 데이터 생성
+        const createData = {
+          title: projectData.title,
+          description: `${projectData.description}\n\n[Google Docs 연동 정보: ${JSON.stringify(googleDocsInfo)}]`,
+          genre: projectData.genre,
+          content: projectData.content || '# Google Docs 연동 프로젝트\n\n이 프로젝트는 Google Docs와 연동되어 있습니다.\n\n원본 문서 링크: ' + (projectData.googleDocUrl || ''),
+          progress: 0,
+          wordCount: projectData.content ? projectData.content.length : 0,
+          status: 'active' as const,
+          author: '사용자',
+          platform: projectData.platform,
+          updatedAt: new Date(),
+        };
+
+        const result = await window.electronAPI.projects.create(createData);
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to create Google Docs project');
+        }
+
+        Logger.info('PROJECTS_PAGE', '✅ Google Docs project created successfully in DB', {
+          id: result.data?.id,
+          googleDocId: projectData.googleDocId,
+          title: projectData.title
+        });
+
+        // 🔥 프로젝트 목록 새로고침
+        await loadProjects();
+
+        // 🔥 생성된 프로젝트 에디터로 즉시 이동
+        if (result.data?.id) {
+          Logger.info('PROJECTS_PAGE', '🚀 Navigating to new Google Docs project editor', { id: result.data.id });
+          router.push(`/projects/${result.data.id}`);
+          return;
+        }
       }
-      
+
       // Loop Editor - 실제 Prisma DB에 프로젝트 생성
       const createData = {
         title: projectData.title,
@@ -180,17 +221,17 @@ function ProjectsPageContent(): React.ReactElement {
       }
 
       Logger.info('PROJECTS_PAGE', '✅ Project created successfully in DB', { id: result.data?.id });
-      
+
       // 🔥 프로젝트 목록 새로고침
       await loadProjects();
-      
+
       // 🔥 생성된 프로젝트 에디터로 즉시 이동 (Google Docs 스타일)
       if (result.data?.id) {
         Logger.info('PROJECTS_PAGE', '🚀 Navigating to new project editor', { id: result.data.id });
         router.push(`/projects/${result.data.id}`);
         return; // 성공적으로 이동했으므로 여기서 종료
       }
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '프로젝트 생성 중 오류가 발생했습니다.';
       Logger.error('PROJECTS_PAGE', '❌ Failed to create project', err);
@@ -257,7 +298,7 @@ function ProjectsPageContent(): React.ReactElement {
         <div className={PROJECTS_PAGE_STYLES.error}>
           <h2 className={PROJECTS_PAGE_STYLES.errorTitle}>오류 발생</h2>
           <p className={PROJECTS_PAGE_STYLES.errorMessage}>{error}</p>
-          <button 
+          <button
             onClick={handleRetry}
             className={PROJECTS_PAGE_STYLES.retryButton}
             type="button"
@@ -279,7 +320,7 @@ function ProjectsPageContent(): React.ReactElement {
         onShareProject={handleShareProject}
         onDeleteProject={handleDeleteProject}
       />
-      
+
       {/* 🔥 프로젝트 생성 모달 */}
       <ProjectCreator
         isOpen={showCreator}

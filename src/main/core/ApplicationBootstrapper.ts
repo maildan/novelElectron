@@ -101,7 +101,7 @@ export class ApplicationBootstrapper {
       // 🔥 1회만 체크 (무인루프 완전 제거)
       this.hasAccessibilityPermission = await unifiedPermissionManager.checkAccessibilityPermission();
       this.managerCoordinator.setPermissionState(this.hasAccessibilityPermission);
-      
+
       Logger.info('BOOTSTRAPPER', '🔐 Permissions checked', {
         hasAccessibility: this.hasAccessibilityPermission
       });
@@ -137,10 +137,10 @@ export class ApplicationBootstrapper {
       // 글로벌 참조 설정 (이벤트 포워딩 등 기존 코드 호환)
       (globalThis as unknown as { mainWindow?: typeof mainWindow }).mainWindow = mainWindow;
       (globalThis as unknown as { unifiedHandler?: typeof unifiedHandler }).unifiedHandler = unifiedHandler;
-      
+
       // 🔥 URL 로딩 추가 (빈 화면 문제 해결)
       await windowManager.loadUrl('main');
-      
+
       Logger.info('BOOTSTRAPPER', '🪟 Main window created and URL loaded');
     } catch (error) {
       Logger.error('BOOTSTRAPPER', 'Failed to create main window', error);
@@ -181,36 +181,82 @@ export class ApplicationBootstrapper {
   private setupAppIcons(): void {
     try {
       const path = require('path');
+      const fs = require('fs');
       const { nativeImage } = require('electron');
-      
+
       // 🔥 개발 환경과 프로덕션 환경 구분
       const isDev = process.env.NODE_ENV === 'development';
-      
+
       let iconsDir: string;
       if (isDev) {
-        iconsDir = path.join(process.cwd(), 'public', 'icon');
+        iconsDir = path.join(process.cwd(), 'assets');
       } else {
-        const appPath = app.getAppPath();
-        iconsDir = path.join(appPath, '..', 'public', 'icon');
+        iconsDir = path.join(process.resourcesPath, 'assets');
       }
-      
+
       if (process.platform === 'darwin') {
-        // 🔥 macOS - ICNS 파일 사용
-        const iconPath = path.join(iconsDir, 'app.icns');
-        try {
-          const icon = nativeImage.createFromPath(iconPath);
-          if (!icon.isEmpty() && app.dock) {
-            app.dock.setIcon(icon);
-            Logger.info('BOOTSTRAPPER', '🍎 macOS app icon set', { iconPath });
+        // 🔥 macOS - ICNS 파일 사용, 여러 후보 경로 시도
+        const candidates = [
+          path.join(iconsDir, 'icon.icns'),
+          path.join(process.cwd(), 'assets', 'icon.icns'),
+          path.join(__dirname, '..', '..', 'assets', 'icon.icns')
+        ];
+
+        let found: string | null = null;
+        for (const iconPath of candidates) {
+          try {
+            if (fs.existsSync(iconPath)) {
+              found = iconPath;
+              break;
+            }
+          } catch (e) { /* continue */ }
+        }
+
+        if (found) {
+          try {
+            const stats = fs.statSync(found);
+            if (stats.size < 100) {
+              Logger.warn('BOOTSTRAPPER', 'macOS icon file seems suspiciously small - using fallback', { icon: found, size: stats.size });
+              throw new Error('Icon file too small');
+            }
+
+            const icon = nativeImage.createFromPath(found);
+            if (!icon || icon.isEmpty()) {
+              Logger.warn('BOOTSTRAPPER', 'Native image created but is empty or invalid - falling back to PNG', { icon: found });
+              throw new Error('Empty native image');
+            }
+
+            if (app.dock) {
+              app.dock.setIcon(icon);
+              Logger.info('BOOTSTRAPPER', '🍎 macOS app icon set', { iconPath: found });
+            }
+          } catch (iconError: any) {
+            // fallback: try PNG icon
+            try {
+              const fallbackPng = path.join(iconsDir, 'icon.png');
+              if (fs.existsSync(fallbackPng)) {
+                const fallbackImg = nativeImage.createFromPath(fallbackPng);
+                if (fallbackImg && !fallbackImg.isEmpty() && app.dock) {
+                  app.dock.setIcon(fallbackImg);
+                  Logger.info('BOOTSTRAPPER', '🍎 Fallback PNG dock icon set', { icon: fallbackPng, reason: iconError.message });
+                } else {
+                  Logger.warn('BOOTSTRAPPER', 'Fallback PNG exists but failed to create image', { fallbackPng });
+                }
+              } else {
+                Logger.warn('BOOTSTRAPPER', 'No fallback PNG found for macOS dock icon', { fallbackPng });
+              }
+            } catch (fallbackError: any) {
+              Logger.warn('BOOTSTRAPPER', 'Failed to set macOS Dock icon (fallback also failed)', { error: fallbackError, original: iconError });
+            }
           }
-        } catch (error) {
-          Logger.warn('BOOTSTRAPPER', 'Failed to set macOS app icon', { iconPath, error });
+        } else {
+          Logger.warn('BOOTSTRAPPER', 'No macOS icon file found in candidate paths', { candidates });
         }
       } else if (process.platform === 'win32') {
         // 🔥 Windows - ICO 파일 사용 (Electron 자동 처리)
         Logger.info('BOOTSTRAPPER', '🪟 Windows app icon will be set via electron-builder');
       }
-      
+
     } catch (error) {
       Logger.error('BOOTSTRAPPER', 'Failed to setup app icons', error);
     }

@@ -50,13 +50,13 @@ const STATS_STYLES = {
   statTitle: 'text-xs font-medium text-slate-600 dark:text-slate-400 mb-1',
   statValue: 'text-lg font-bold text-slate-900 dark:text-slate-100',
   statSubtext: 'text-xs text-slate-500 dark:text-slate-400',
-  
+
   // 🔥 탭 스타일 추가
   tabs: 'flex border-b border-slate-200 dark:border-slate-800',
   tab: 'px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer',
   tabActive: 'px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 cursor-pointer',
   tabContent: 'p-4 flex-1 overflow-y-auto',
-  
+
   // 🔥 AI 채팅 스타일 - UI 잘림 문제 해결
   chatContainer: 'flex flex-col h-full overflow-hidden',
   chatMessages: 'flex-1 overflow-y-auto px-2 py-3 space-y-3 max-h-[calc(100%-60px)]',
@@ -78,140 +78,129 @@ export function WriterStatsPanel({
   currentText = '',
   projectId
 }: WriterStatsPanelProps): React.ReactElement {
-  
+
   // 🔥 탭 관리
   const [activeTab, setActiveTab] = useState<'stats' | 'ai'>('stats');
-  
+
   // 🔥 AI 기능 상태 관리
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [aiResults, setAiResults] = useState<Record<string, string>>({});
-  
+
   // 🔥 AI 채팅 상태 관리
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userInput, setUserInput] = useState<string>('');
   const [isAiTyping, setIsAiTyping] = useState<boolean>(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
-  
+
   // 🔥 실제 세션 관리
   const [sessionStartTime] = useState<number>(() => Date.now());
   const [realTimeStats, setRealTimeStats] = useState<WriterStats | null>(null);
   const [lastWordCount, setLastWordCount] = useState<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // 🔥 OpenAI 채팅 통합 - Electron API를 통한 IPC 통신으로 변경
   const sendMessageToOpenAI = useCallback(async (content: string): Promise<void> => {
     try {
       // 사용자 메시지 추가
       const userMessage: ChatMessage = { role: 'user', content };
       setMessages(prev => [...prev, userMessage]);
-      
+
       // AI 응답 로딩 상태 시작
       setIsAiTyping(true);
-      
-      console.log('📨 AI 요청 시작 (Electron API):', content.substring(0, 30) + '...');
-      
+
+      Logger.info('AI_CHAT', 'AI request started', { preview: content.substring(0, 30) + '...' });
+
       // Electron API를 통한 AI 요청
       if (typeof window !== 'undefined' && window.electronAPI?.ai?.sendMessage) {
         const result = await window.electronAPI.ai.sendMessage(content);
-        
-        console.log('📩 AI 응답 상태:', result.success ? 'SUCCESS' : 'FAILED');
-        
+
+        Logger.info('AI_CHAT', 'AI response status', { success: result.success });
+
         if (!result.success) {
           throw new Error(result.error || 'AI 응답 실패');
         }
-        
+
         const responseData = result.data;
-        console.log('✅ AI 응답 성공:', responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response');
-        
+        Logger.info('AI_CHAT', 'AI response received', { preview: responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response' });
+
         // AI 응답 추가
-        const aiMessage: ChatMessage = { 
-          role: 'ai', 
+        const aiMessage: ChatMessage = {
+          role: 'ai',
           content: responseData?.response || '죄송합니다, 응답을 생성하지 못했습니다.'
         };
         setMessages(prev => [...prev, aiMessage]);
-        
+
       } else {
         // Fallback: 직접 fetch (개발 환경 또는 Electron API 미사용시)
-        console.log('⚠️ Electron API 없음, fetch 사용');
-        
+        Logger.warn('AI_CHAT', 'Electron API not available, using fetch fallback');
+
         let response;
         let data;
-        
+
         try {
           // 첫 번째 시도: 기본 API (로컬 서버)
           response = await fetch('https://loop-openai.onrender.com/api/chat', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               message: content
             })
           });
-          
+
           if (!response.ok) {
             throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
-          console.log('✅ AI 응답 성공 (primary):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
-          
+          Logger.info('AI_CHAT', 'AI response success (primary)', { preview: data.response ? `${data.response.substring(0, 30)}...` : 'No response' });
+
         } catch (primaryError) {
-          console.warn('⚠️ Primary API 실패, fallback 시도:', primaryError);
-          
+          Logger.warn('AI_CHAT', 'Primary API failed, trying fallback', primaryError);
+
           // 두 번째 시도: 클라우드 서버 (fallback)
           try {
             response = await fetch('http://0.0.0.0:8080/api/chat', {
               method: 'POST',
-              headers: { 
+              headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
-              body: JSON.stringify({ 
+              body: JSON.stringify({
                 message: content
               })
             });
-            
+
             if (!response.ok) {
               throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
             }
-            
+
             data = await response.json();
-            console.log('✅ AI 응답 성공 (fallback):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
-            
+            Logger.info('AI_CHAT', 'AI response success (fallback)', { preview: data.response ? `${data.response.substring(0, 30)}...` : 'No response' });
+
           } catch (fallbackError) {
-            console.error('❌ 모든 API 실패:', { primaryError, fallbackError });
+            Logger.error('AI_CHAT', 'All APIs failed', { primaryError, fallbackError });
             throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
           }
         }
-        
+
         // AI 응답 추가
-        const aiMessage: ChatMessage = { 
-          role: 'ai', 
+        const aiMessage: ChatMessage = {
+          role: 'ai',
           content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
         };
         setMessages(prev => [...prev, aiMessage]);
       }
     } catch (error) {
       const err = error as Error;
-      console.error('❌ AI 응답 에러:', err);
-      
-      try {
-        // 안전하게 Logger 사용 시도 (Electron API 에러 방지)
-        if (typeof window !== 'undefined' && window.electronAPI) {
-          Logger.error('AI_CHAT', 'Failed to get AI response', err);
-        } else {
-          console.error('AI_CHAT ERROR:', err.message);
-        }
-      } catch (logError) {
-        console.log('⚠️ Logger 접근 실패:', logError);
-      }
-      
+      Logger.error('AI_CHAT', 'AI response error', err);
+
       // 오류 메시지 추가
-      const errorMessage: ChatMessage = { 
-        role: 'ai', 
-        content: "죄송합니다. 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요." 
+      const errorMessage: ChatMessage = {
+        role: 'ai',
+        content: "죄송합니다. 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요."
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -224,7 +213,7 @@ export function WriterStatsPanel({
       }, 100);
     }
   }, [messages, projectId]);
-  
+
   // 채팅 메시지 제출 처리
   const handleChatSubmit = useCallback((e?: React.FormEvent): void => {
     e?.preventDefault();
@@ -232,13 +221,13 @@ export function WriterStatsPanel({
       sendMessageToOpenAI(userInput.trim());
     }
   }, [userInput, isAiTyping, sendMessageToOpenAI]);
-  
+
   // 🔥 실시간 통계 계산
   useEffect(() => {
     if (currentText) {
       const stats = calculateWriterStats(currentText, writerStats.wordGoal, sessionStartTime);
       setRealTimeStats(stats);
-      
+
       // WPM 계산을 위한 단어 수 변경 추적
       if (stats.wordCount !== lastWordCount) {
         setLastWordCount(stats.wordCount);
@@ -271,104 +260,104 @@ export function WriterStatsPanel({
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
-  
+
   // 🔥 AI 채팅 전송 - Electron API를 통한 실제 연동
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
-    
+
     // 사용자 메시지 추가
     const newMessage = { role: 'user' as const, content: userInput };
     setMessages(prev => [...prev, newMessage]);
     setUserInput('');
     setIsAiTyping(true);
-    
+
     try {
-      console.log('📨 AI 채팅 요청 시작 (Electron API):', userInput.substring(0, 30) + '...');
-      
+      Logger.info('AI_CHAT', 'AI chat request started', { preview: userInput.substring(0, 30) + '...' });
+
       // Electron API를 통한 AI 요청
       if (typeof window !== 'undefined' && window.electronAPI?.ai?.sendMessage) {
         const result = await window.electronAPI.ai.sendMessage(userInput.trim());
-        
+
         if (!result.success) {
           throw new Error(result.error || 'AI 응답 실패');
         }
-        
+
         const responseData = result.data;
-        console.log('✅ AI 채팅 응답 성공:', responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response');
-        
+        Logger.info('AI_CHAT', 'AI chat response success', { preview: responseData?.response ? `${responseData.response.substring(0, 30)}...` : 'No response' });
+
         // AI 응답 메시지 추가
-        const aiMessage = { 
-          role: 'ai' as const, 
+        const aiMessage = {
+          role: 'ai' as const,
           content: responseData?.response || '죄송합니다, 응답을 생성하지 못했습니다.'
         };
         setMessages(prev => [...prev, aiMessage]);
-        
+
       } else {
         // Fallback: 직접 fetch (개발 환경 또는 Electron API 미사용시)
-        console.log('⚠️ Electron API 없음, fetch 사용');
-        
+        Logger.warn('AI_CHAT', 'Electron API not available, using fetch fallback');
+
         let response;
         let data;
-        
+
         try {
           // 첫 번째 시도: 기본 URL
           response = await fetch('http://0.0.0.0:8080/api/chat', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
             body: JSON.stringify({ message: userInput })
           });
-          
+
           if (!response.ok) {
             throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
-          console.log('✅ AI 채팅 응답 성공 (primary):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
-          
+          Logger.info('AI_CHAT', 'AI chat response success (primary)', { preview: data.response ? `${data.response.substring(0, 30)}...` : 'No response' });
+
         } catch (primaryError) {
-          console.warn('⚠️ Primary API 실패, fallback 시도:', primaryError);
-          
+          Logger.warn('AI_CHAT', 'Primary API failed, trying fallback', primaryError);
+
           // 두 번째 시도: Fallback URL
           try {
             response = await fetch('https://loop-openai.onrender.com/api/chat', {
               method: 'POST',
-              headers: { 
+              headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
               body: JSON.stringify({ message: userInput })
             });
-            
+
             if (!response.ok) {
               throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
             }
-            
+
             data = await response.json();
-            console.log('✅ AI 채팅 응답 성공 (fallback):', data.response ? `${data.response.substring(0, 30)}...` : 'No response');
-            
+            Logger.info('AI_CHAT', 'AI chat response success (fallback)', { preview: data.response ? `${data.response.substring(0, 30)}...` : 'No response' });
+
           } catch (fallbackError) {
-            console.error('❌ 모든 API 실패:', { primaryError, fallbackError });
+            Logger.error('AI_CHAT', 'All APIs failed', { primaryError, fallbackError });
             throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
           }
         }
-        
+
         // AI 응답 메시지 추가
-        const aiMessage = { 
-          role: 'ai' as const, 
+        const aiMessage = {
+          role: 'ai' as const,
           content: data.response || '죄송합니다, 응답을 생성하지 못했습니다.'
         };
         setMessages(prev => [...prev, aiMessage]);
       }
-      
+
     } catch (error) {
       const err = error as Error;
-      console.error('❌ AI 채팅 에러:', err);
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: '죄송합니다, 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해 주세요.' 
+      Logger.error('AI_CHAT', 'AI chat error', err);
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: '죄송합니다, 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해 주세요.'
       }]);
     } finally {
       setIsAiTyping(false);
@@ -380,7 +369,7 @@ export function WriterStatsPanel({
       }, 100);
     }
   };
-  
+
   // 🔥 AI 기능 핸들러들
   const handleAIImproveText = useCallback(async () => {
     if (!currentText || currentText.trim().length === 0) {
@@ -391,67 +380,67 @@ export function WriterStatsPanel({
     setAiLoading('improve');
     try {
       Logger.info('WRITER_STATS', 'Requesting text improvement', { textLength: currentText.length });
-      
-      const requestBody = JSON.stringify({ 
-        message: `다음 텍스트의 문장을 더 생생하고 흥미롭게 개선해주세요. 2-3개 예시를 들어 어떻게 개선할 수 있는지 보여주세요:\n\n${currentText.substring(0, 500)}...` 
+
+      const requestBody = JSON.stringify({
+        message: `다음 텍스트의 문장을 더 생생하고 흥미롭게 개선해주세요. 2-3개 예시를 들어 어떻게 개선할 수 있는지 보여주세요:\n\n${currentText.substring(0, 500)}...`
       });
-      
+
       const requestOptions = {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
         body: requestBody
       };
-      
+
       let response;
       let data;
-      
+
       try {
         // 첫 번째 시도: 기본 URL (로컬)
         Logger.info('WRITER_STATS', 'Trying primary API endpoint');
         response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
         }
-        
+
         data = await response.json();
         Logger.info('WRITER_STATS', 'Primary API success', { responseLength: data.response?.length || 0 });
-        
+
       } catch (primaryError) {
         Logger.warn('WRITER_STATS', 'Primary API failed, trying fallback', primaryError);
-        
+
         // 두 번째 시도: Fallback URL (클라우드)
         try {
           Logger.info('WRITER_STATS', 'Trying fallback API endpoint');
           response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
-          
+
           if (!response.ok) {
             throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
           Logger.info('WRITER_STATS', 'Fallback API success', { responseLength: data.response?.length || 0 });
-          
+
         } catch (fallbackError) {
           Logger.error('WRITER_STATS', 'Both APIs failed', { primaryError, fallbackError });
           throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
         }
       }
-      
-      setAiResults(prev => ({ 
-        ...prev, 
+
+      setAiResults(prev => ({
+        ...prev,
         improve: data.response || '문장 개선에 대한 제안을 생성하지 못했습니다. 다시 시도해주세요.'
       }));
-      
+
     } catch (error) {
       const err = error as Error;
       Logger.error('WRITER_STATS', 'Text improvement error', err);
-      setAiResults(prev => ({ 
-        ...prev, 
-        improve: '죄송합니다, 문장 개선 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      setAiResults(prev => ({
+        ...prev,
+        improve: '죄송합니다, 문장 개선 중 오류가 발생했습니다. 다시 시도해주세요.'
       }));
     } finally {
       setAiLoading(null);
@@ -467,67 +456,67 @@ export function WriterStatsPanel({
     setAiLoading('character');
     try {
       Logger.info('WRITER_STATS', 'Requesting character analysis', { projectId });
-      
+
       // 텍스트 준비
       const analysisText = currentText ? currentText : "프로젝트에 대한 캐릭터 분석을 진행합니다.";
-      
+
       const requestOptions = {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
-          message: `다음 이야기에 등장하는 캐릭터들을 분석해주세요. 각 캐릭터의 강점, 약점, 동기, 발전 방향 등을 제시해주세요:\n\n${analysisText.substring(0, 1000)}...` 
+        body: JSON.stringify({
+          message: `다음 이야기에 등장하는 캐릭터들을 분석해주세요. 각 캐릭터의 강점, 약점, 동기, 발전 방향 등을 제시해주세요:\n\n${analysisText.substring(0, 1000)}...`
         })
       };
-      
+
       let response;
       let data;
-      
+
       try {
         // 첫 번째 시도: 기본 URL
         Logger.info('WRITER_STATS', 'Trying primary API endpoint for character analysis');
         response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
         }
-        
+
         data = await response.json();
         Logger.info('WRITER_STATS', 'Primary API success for character analysis', { responseLength: data.response?.length || 0 });
-        
+
       } catch (primaryError) {
         Logger.warn('WRITER_STATS', 'Primary API failed for character analysis, trying fallback', primaryError);
-        
+
         // 두 번째 시도: Fallback URL
         try {
           Logger.info('WRITER_STATS', 'Trying fallback API endpoint for character analysis');
           response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
-          
+
           if (!response.ok) {
             throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
           Logger.info('WRITER_STATS', 'Fallback API success for character analysis', { responseLength: data.response?.length || 0 });
-          
+
         } catch (fallbackError) {
           Logger.error('WRITER_STATS', 'Both APIs failed for character analysis', { primaryError, fallbackError });
           throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
         }
       }
-      
-      setAiResults(prev => ({ 
-        ...prev, 
-        character: data.response || '캐릭터 분석을 생성하지 못했습니다. 다시 시도해주세요.' 
+
+      setAiResults(prev => ({
+        ...prev,
+        character: data.response || '캐릭터 분석을 생성하지 못했습니다. 다시 시도해주세요.'
       }));
     } catch (error) {
       const err = error as Error;
       Logger.error('WRITER_STATS', 'Character analysis error', err);
-      setAiResults(prev => ({ 
-        ...prev, 
-        character: '죄송합니다, 캐릭터 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      setAiResults(prev => ({
+        ...prev,
+        character: '죄송합니다, 캐릭터 분석 중 오류가 발생했습니다. 다시 시도해주세요.'
       }));
     } finally {
       setAiLoading(null);
@@ -543,64 +532,64 @@ export function WriterStatsPanel({
     setAiLoading('plot');
     try {
       Logger.info('WRITER_STATS', 'Requesting plot analysis', { textLength: currentText.length });
-      
+
       const requestOptions = {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
-          message: `다음 이야기의 플롯 구조를 3막 구조에 맞춰 분석하고, 흐름과 페이스를 평가한 다음, 개선점을 제시해주세요:\n\n${currentText.substring(0, 1000)}...` 
+        body: JSON.stringify({
+          message: `다음 이야기의 플롯 구조를 3막 구조에 맞춰 분석하고, 흐름과 페이스를 평가한 다음, 개선점을 제시해주세요:\n\n${currentText.substring(0, 1000)}...`
         })
       };
-      
+
       let response;
       let data;
-      
+
       try {
         // 첫 번째 시도: 기본 URL
         Logger.info('WRITER_STATS', 'Trying primary API endpoint for plot analysis');
         response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
         }
-        
+
         data = await response.json();
         Logger.info('WRITER_STATS', 'Primary API success for plot analysis', { responseLength: data.response?.length || 0 });
-        
+
       } catch (primaryError) {
         Logger.warn('WRITER_STATS', 'Primary API failed for plot analysis, trying fallback', primaryError);
-        
+
         // 두 번째 시도: Fallback URL
         try {
           Logger.info('WRITER_STATS', 'Trying fallback API endpoint for plot analysis');
           response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
-          
+
           if (!response.ok) {
             throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
           Logger.info('WRITER_STATS', 'Fallback API success for plot analysis', { responseLength: data.response?.length || 0 });
-          
+
         } catch (fallbackError) {
           Logger.error('WRITER_STATS', 'Both APIs failed for plot analysis', { primaryError, fallbackError });
           throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
         }
       }
-      
-      setAiResults(prev => ({ 
-        ...prev, 
-        plot: data.response || '플롯 분석을 생성하지 못했습니다. 다시 시도해주세요.' 
+
+      setAiResults(prev => ({
+        ...prev,
+        plot: data.response || '플롯 분석을 생성하지 못했습니다. 다시 시도해주세요.'
       }));
     } catch (error) {
       const err = error as Error;
       Logger.error('WRITER_STATS', 'Plot analysis error', err);
-      setAiResults(prev => ({ 
-        ...prev, 
-        plot: '죄송합니다, 플롯 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      setAiResults(prev => ({
+        ...prev,
+        plot: '죄송합니다, 플롯 분석 중 오류가 발생했습니다. 다시 시도해주세요.'
       }));
     } finally {
       setAiLoading(null);
@@ -616,70 +605,70 @@ export function WriterStatsPanel({
     setAiLoading('dialogue');
     try {
       Logger.info('WRITER_STATS', 'Requesting dialogue improvement', { textLength: currentText.length });
-      
+
       const requestOptions = {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
-          message: `다음 이야기에서 대화를 분석하고, 더 자연스럽고 캐릭터를 잘 표현하는 대화 예시를 제안해주세요:\n\n${currentText.substring(0, 800)}...` 
+        body: JSON.stringify({
+          message: `다음 이야기에서 대화를 분석하고, 더 자연스럽고 캐릭터를 잘 표현하는 대화 예시를 제안해주세요:\n\n${currentText.substring(0, 800)}...`
         })
       };
-      
+
       let response;
       let data;
-      
+
       try {
         // 첫 번째 시도: 기본 URL
         Logger.info('WRITER_STATS', 'Trying primary API endpoint for dialogue improvement');
         response = await fetch('http://0.0.0.0:8080/api/chat', requestOptions);
-        
+
         if (!response.ok) {
           throw new Error(`Primary API 응답 에러: ${response.status} - ${response.statusText}`);
         }
-        
+
         data = await response.json();
         Logger.info('WRITER_STATS', 'Primary API success for dialogue improvement', { responseLength: data.response?.length || 0 });
-        
+
       } catch (primaryError) {
         Logger.warn('WRITER_STATS', 'Primary API failed for dialogue improvement, trying fallback', primaryError);
-        
+
         // 두 번째 시도: Fallback URL
         try {
           Logger.info('WRITER_STATS', 'Trying fallback API endpoint for dialogue improvement');
           response = await fetch('https://loop-openai.onrender.com/api/chat', requestOptions);
-          
+
           if (!response.ok) {
             throw new Error(`Fallback API 응답 에러: ${response.status} - ${response.statusText}`);
           }
-          
+
           data = await response.json();
           Logger.info('WRITER_STATS', 'Fallback API success for dialogue improvement', { responseLength: data.response?.length || 0 });
-          
+
         } catch (fallbackError) {
           Logger.error('WRITER_STATS', 'Both APIs failed for dialogue improvement', { primaryError, fallbackError });
           throw new Error('모든 API 엔드포인트에서 응답을 받을 수 없습니다.');
         }
       }
-      
-      setAiResults(prev => ({ 
-        ...prev, 
-        dialogue: data.response || '대화 개선 제안을 생성하지 못했습니다. 다시 시도해주세요.' 
+
+      setAiResults(prev => ({
+        ...prev,
+        dialogue: data.response || '대화 개선 제안을 생성하지 못했습니다. 다시 시도해주세요.'
       }));
     } catch (error) {
       const err = error as Error;
       Logger.error('WRITER_STATS', 'Dialogue improvement error', err);
-      setAiResults(prev => ({ 
-        ...prev, 
-        dialogue: '죄송합니다, 대화 분석 중 오류가 발생했습니다. 다시 시도해주세요.' 
+      setAiResults(prev => ({
+        ...prev,
+        dialogue: '죄송합니다, 대화 분석 중 오류가 발생했습니다. 다시 시도해주세요.'
       }));
     } finally {
       setAiLoading(null);
     }
   }, [currentText]);
-  
+
   return (
     <div className={showRightSidebar ? STATS_STYLES.rightSidebar : STATS_STYLES.rightSidebarCollapsed}>
       <div className={STATS_STYLES.rightSidebarHeader}>
@@ -690,23 +679,23 @@ export function WriterStatsPanel({
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
-      
+
       {/* 탭 네비게이션 */}
       <div className={STATS_STYLES.tabs}>
-        <div 
+        <div
           className={activeTab === 'stats' ? STATS_STYLES.tabActive : STATS_STYLES.tab}
           onClick={() => setActiveTab('stats')}
         >
           통계
         </div>
-        <div 
+        <div
           className={activeTab === 'ai' ? STATS_STYLES.tabActive : STATS_STYLES.tab}
           onClick={() => setActiveTab('ai')}
         >
           AI
         </div>
       </div>
-      
+
       {/* 통계 탭 */}
       {activeTab === 'stats' && (
         <div className="p-3 overflow-y-auto">
@@ -715,65 +704,65 @@ export function WriterStatsPanel({
             <div className="flex justify-between items-center mb-1">
               <span className={STATS_STYLES.statTitle}>단어 목표</span>
               <div className="flex items-center">
-                <button 
-                  className={STATS_STYLES.iconButton} 
+                <button
+                  className={STATS_STYLES.iconButton}
                   onClick={() => setWordGoal(Math.max(500, displayStats.wordGoal - 500))}
                 >
                   <Minus className="w-3 h-3" />
                 </button>
                 <span className="text-xs mx-1">{displayStats.wordGoal.toLocaleString()}</span>
-                <button 
-                  className={STATS_STYLES.iconButton} 
+                <button
+                  className={STATS_STYLES.iconButton}
                   onClick={() => setWordGoal(displayStats.wordGoal + 500)}
                 >
                   <Plus className="w-3 h-3" />
                 </button>
               </div>
             </div>
-            
+
             <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 mb-2">
-              <div 
-                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300" 
+              <div
+                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(100, displayStats.progress)}%` }}
               />
             </div>
-            
+
             <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
               <span>{displayStats.wordCount.toLocaleString()} 단어</span>
               <span>{displayStats.progress}%</span>
             </div>
           </div>
-          
+
           {/* 작성 통계 */}
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div className={STATS_STYLES.statCard}>
               <span className={STATS_STYLES.statTitle}>단어 수</span>
               <div className={STATS_STYLES.statValue}>{displayStats.wordCount.toLocaleString()}</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {displayStats.wordCount > lastWordCount ? '↗' : displayStats.wordCount < lastWordCount ? '↘' : '→'} 
+                {displayStats.wordCount > lastWordCount ? '↗' : displayStats.wordCount < lastWordCount ? '↘' : '→'}
                 실시간
               </div>
             </div>
-            
+
             <div className={STATS_STYLES.statCard}>
               <span className={STATS_STYLES.statTitle}>문자 수</span>
               <div className={STATS_STYLES.statValue}>{displayStats.charCount.toLocaleString()}</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">공백 포함</div>
             </div>
-            
+
             <div className={STATS_STYLES.statCard}>
               <span className={STATS_STYLES.statTitle}>단락 수</span>
               <div className={STATS_STYLES.statValue}>{displayStats.paragraphCount}</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">구조 분석</div>
             </div>
-            
+
             <div className={STATS_STYLES.statCard}>
               <span className={STATS_STYLES.statTitle}>읽기 시간</span>
               <div className={STATS_STYLES.statValue}>{displayStats.readingTime}분</div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">200 WPM 기준</div>
             </div>
           </div>
-          
+
           {/* 세션 통계 */}
           <div className={STATS_STYLES.statCard}>
             <span className={STATS_STYLES.statTitle}>현재 세션</span>
@@ -794,24 +783,23 @@ export function WriterStatsPanel({
               <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
                 <span>타이핑 속도</span>
                 <span>
-                  {displayStats.wpm < 30 ? '천천히' : 
-                   displayStats.wpm < 60 ? '보통' : 
-                   displayStats.wpm < 90 ? '빠름' : '매우 빠름'}
+                  {displayStats.wpm < 30 ? '천천히' :
+                    displayStats.wpm < 60 ? '보통' :
+                      displayStats.wpm < 90 ? '빠름' : '매우 빠름'}
                 </span>
               </div>
               <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1">
-                <div 
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    displayStats.wpm < 30 ? 'bg-red-400' :
-                    displayStats.wpm < 60 ? 'bg-yellow-400' :
-                    displayStats.wpm < 90 ? 'bg-green-400' : 'bg-blue-400'
-                  }`}
+                <div
+                  className={`h-1 rounded-full transition-all duration-300 ${displayStats.wpm < 30 ? 'bg-red-400' :
+                      displayStats.wpm < 60 ? 'bg-yellow-400' :
+                        displayStats.wpm < 90 ? 'bg-green-400' : 'bg-blue-400'
+                    }`}
                   style={{ width: `${Math.min(100, (displayStats.wpm / 120) * 100)}%` }}
                 />
               </div>
             </div>
           </div>
-          
+
           {/* 🌟 창작 파트너 */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
@@ -821,7 +809,7 @@ export function WriterStatsPanel({
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400">✨ 함께 써봐요</div>
             </div>
-            
+
             {/* 환영 메시지 */}
             {Object.keys(aiResults).length === 0 && (
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
@@ -838,11 +826,11 @@ export function WriterStatsPanel({
                 </div>
               </div>
             )}
-            
+
             <div className="space-y-2">
-              <Button 
-                size="sm" 
-                variant="outline" 
+              <Button
+                size="sm"
+                variant="outline"
                 className="w-full justify-start hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-200 dark:border-blue-800"
                 onClick={handleAIImproveText}
                 disabled={aiLoading === 'improve' || !currentText}
@@ -854,10 +842,10 @@ export function WriterStatsPanel({
                 )}
                 ✨ 문장을 더 매력적으로 만들어봐요
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant="outline" 
+
+              <Button
+                size="sm"
+                variant="outline"
                 className="w-full justify-start hover:bg-purple-50 dark:hover:bg-purple-900/20 border-purple-200 dark:border-purple-800"
                 onClick={handleAICharacterAnalysis}
                 disabled={aiLoading === 'character' || !projectId}
@@ -869,10 +857,10 @@ export function WriterStatsPanel({
                 )}
                 👥 캐릭터들이 잘 살아있는지 볼까요?
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant="outline" 
+
+              <Button
+                size="sm"
+                variant="outline"
                 className="w-full justify-start hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800"
                 onClick={handleAIPlotCheck}
                 disabled={aiLoading === 'plot' || !currentText}
@@ -884,10 +872,10 @@ export function WriterStatsPanel({
                 )}
                 🗺️ 이야기 흐름을 함께 점검해볼까요?
               </Button>
-              
-              <Button 
-                size="sm" 
-                variant="outline" 
+
+              <Button
+                size="sm"
+                variant="outline"
                 className="w-full justify-start hover:bg-orange-50 dark:hover:bg-orange-900/20 border-orange-200 dark:border-orange-800"
                 onClick={handleAIDialogueImprovement}
                 disabled={aiLoading === 'dialogue' || !currentText}
@@ -900,7 +888,7 @@ export function WriterStatsPanel({
                 💬 대화가 자연스럽게 들리나요?
               </Button>
             </div>
-            
+
             {/* 🌟 창작 파트너 분석 결과 */}
             {Object.keys(aiResults).length > 0 && (
               <div className="mt-4">
@@ -910,7 +898,7 @@ export function WriterStatsPanel({
                     <div className="w-1 h-1 bg-slate-400 rounded-full mx-2"></div>
                     <div className="text-xs text-slate-500">함께 만든 결과</div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setAiResults({})}
                     className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   >
@@ -919,13 +907,12 @@ export function WriterStatsPanel({
                 </div>
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {Object.entries(aiResults).map(([key, result]) => (
-                    <div key={key} className={`border p-4 rounded-lg transition-all duration-200 ${
-                      key === 'improve' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' :
-                      key === 'character' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' :
-                      key === 'plot' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' :
-                      key === 'dialogue' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' :
-                      'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
-                    }`}>
+                    <div key={key} className={`border p-4 rounded-lg transition-all duration-200 ${key === 'improve' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' :
+                        key === 'character' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' :
+                          key === 'plot' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' :
+                            key === 'dialogue' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' :
+                              'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                      }`}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center">
                           {key === 'improve' && <Sparkles className="w-4 h-4 mr-2 text-blue-500" />}
@@ -934,12 +921,12 @@ export function WriterStatsPanel({
                           {key === 'dialogue' && <Speech className="w-4 h-4 mr-2 text-orange-500" />}
                           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                             {key === 'improve' ? '✨ 문장 개선 조언' :
-                             key === 'character' ? '👥 캐릭터 분석' :
-                             key === 'plot' ? '🗺️ 플롯 점검' :
-                             key === 'dialogue' ? '💬 대화 개선' : key}
+                              key === 'character' ? '👥 캐릭터 분석' :
+                                key === 'plot' ? '🗺️ 플롯 점검' :
+                                  key === 'dialogue' ? '💬 대화 개선' : key}
                           </span>
                         </div>
-                        <button 
+                        <button
                           onClick={() => setAiResults(prev => {
                             const newResults = { ...prev };
                             delete newResults[key];
@@ -966,7 +953,7 @@ export function WriterStatsPanel({
           </div>
         </div>
       )}
-      
+
       {/* AI 챗봇 탭 */}
       {activeTab === 'ai' && (
         <div className={`${STATS_STYLES.chatContainer} h-full`}>
@@ -983,11 +970,10 @@ export function WriterStatsPanel({
             ) : (
               <>
                 {messages.map((message, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`${STATS_STYLES.chatMessage} ${
-                      message.role === 'user' ? STATS_STYLES.userMessage : STATS_STYLES.aiMessage
-                    }`}
+                  <div
+                    key={idx}
+                    className={`${STATS_STYLES.chatMessage} ${message.role === 'user' ? STATS_STYLES.userMessage : STATS_STYLES.aiMessage
+                      }`}
                   >
                     {message.role === 'ai' && (
                       <>
@@ -1015,10 +1001,10 @@ export function WriterStatsPanel({
               </>
             )}
           </div>
-          
+
           <div className={STATS_STYLES.chatInputContainer}>
-            <input 
-              type="text" 
+            <input
+              type="text"
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleChatSubmit()}
@@ -1026,7 +1012,7 @@ export function WriterStatsPanel({
               className={STATS_STYLES.chatInput}
               disabled={isAiTyping}
             />
-            <button 
+            <button
               className={STATS_STYLES.chatSendButton}
               onClick={() => handleChatSubmit()}
               disabled={isAiTyping || !userInput.trim()}

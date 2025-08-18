@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { 
-  IPC_CHANNELS, 
-  IpcResponse, 
-  TypingSession, 
-  TypingStats, 
-  UserPreferences, 
+import {
+  IPC_CHANNELS,
+  IpcResponse,
+  TypingSession,
+  TypingStats,
+  UserPreferences,
   WindowInfo,
   ElectronAPI,
   Project,
@@ -12,8 +12,8 @@ import {
   ProjectStructure,
   ProjectNote
 } from '../shared/types';
-import type { 
-  SettingsSchema, 
+import type {
+  SettingsSchema,
   SettingsResult,
   AppSettingsSchema,
   KeyboardSettingsSchema,
@@ -138,7 +138,7 @@ const electronAPI: ElectronAPI = {
 
   // 🔥 OAuth API (Google Docs 연동)
   oauth: {
-    startGoogleAuth: () => ipcRenderer.invoke('oauth:start-google-auth'),
+    startGoogleAuth: (loginHint?: string) => ipcRenderer.invoke('oauth:start-google-auth', loginHint),
     handleCallback: (code: string) => ipcRenderer.invoke('oauth:handle-callback', code),
     getGoogleDocuments: () => ipcRenderer.invoke('oauth:get-google-documents'),
     importGoogleDoc: (documentId: string) => ipcRenderer.invoke('oauth:import-google-doc', documentId),

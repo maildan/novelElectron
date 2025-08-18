@@ -34,12 +34,26 @@ export function setupOAuthIpcHandlers(): void {
   Logger.info('OAUTH_IPC', 'Setting up OAuth IPC handlers');
 
   // 🔥 Google OAuth 인증 시작
-  ipcMain.handle('oauth:start-google-auth', async (_event: IpcMainInvokeEvent): Promise<IpcResponse<{ authUrl: string }>> => {
+  ipcMain.handle('oauth:start-google-auth', async (_event: IpcMainInvokeEvent, loginHint?: string): Promise<IpcResponse<{ authUrl: string }>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth start-google-auth request received');
-      
+
       if (!oauthService) {
         await initializeOAuthService();
+      }
+
+      // startGoogleAuth will open browser itself; support optional login hint
+      if (typeof loginHint === 'string' && loginHint.length > 0) {
+        const authUrl = oauthService!.buildAuthUrlWithHint(loginHint);
+        try {
+          // open with login hint
+          await (oauthService as any).openAuthUrlInBrowser?.(authUrl);
+        } catch (e) {
+          // fallback: shell.openExternal
+          const { shell } = require('electron');
+          await shell.openExternal(authUrl);
+        }
+        return { success: true, data: { authUrl }, timestamp: new Date() };
       }
 
       const result = await oauthService!.startGoogleAuth();
@@ -59,7 +73,7 @@ export function setupOAuthIpcHandlers(): void {
   ipcMain.handle('oauth:handle-callback', async (_event: IpcMainInvokeEvent, code: string): Promise<IpcResponse<{ accessToken: string; refreshToken: string }>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth handle-callback request received');
-      
+
       if (!oauthService) {
         await initializeOAuthService();
       }
@@ -81,13 +95,13 @@ export function setupOAuthIpcHandlers(): void {
   ipcMain.handle('oauth:get-google-documents', async (_event: IpcMainInvokeEvent): Promise<IpcResponse<Array<{ id: string; title: string; modifiedTime: string }>>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth get-google-documents request received');
-      
+
       if (!oauthService) {
         await initializeOAuthService();
       }
 
       const result = await oauthService!.getGoogleDocuments();
-      Logger.debug('OAUTH_IPC', 'OAuth get-google-documents completed', { 
+      Logger.debug('OAUTH_IPC', 'OAuth get-google-documents completed', {
         success: result.success,
         documentCount: result.data?.length || 0
       });
@@ -106,13 +120,13 @@ export function setupOAuthIpcHandlers(): void {
   ipcMain.handle('oauth:import-google-doc', async (_event: IpcMainInvokeEvent, documentId: string): Promise<IpcResponse<{ title: string; content: string }>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth import-google-doc request received', { documentId });
-      
+
       if (!oauthService) {
         await initializeOAuthService();
       }
 
       const result = await oauthService!.importGoogleDoc(documentId);
-      Logger.debug('OAUTH_IPC', 'OAuth import-google-doc completed', { 
+      Logger.debug('OAUTH_IPC', 'OAuth import-google-doc completed', {
         success: result.success,
         contentLength: result.data?.content?.length || 0
       });
@@ -131,13 +145,13 @@ export function setupOAuthIpcHandlers(): void {
   ipcMain.handle('oauth:get-auth-status', async (_event: IpcMainInvokeEvent): Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string }>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth get-auth-status request received');
-      
+
       if (!oauthService) {
         await initializeOAuthService();
       }
 
       const result = await oauthService!.getAuthStatus();
-      Logger.debug('OAUTH_IPC', 'OAuth get-auth-status completed', { 
+      Logger.debug('OAUTH_IPC', 'OAuth get-auth-status completed', {
         success: result.success,
         isAuthenticated: result.data?.isAuthenticated || false
       });
@@ -156,7 +170,7 @@ export function setupOAuthIpcHandlers(): void {
   ipcMain.handle('oauth:revoke-auth', async (_event: IpcMainInvokeEvent): Promise<IpcResponse<boolean>> => {
     try {
       Logger.debug('OAUTH_IPC', 'OAuth revoke-auth request received');
-      
+
       if (!oauthService) {
         await initializeOAuthService();
       }
@@ -178,11 +192,29 @@ export function setupOAuthIpcHandlers(): void {
 }
 
 /**
+ * Directly handle callback from code (used by StaticServer to call into main flow without IPC)
+ */
+export async function handleCallbackDirect(code: string): Promise<IpcResponse<{ accessToken: string; refreshToken: string }>> {
+  try {
+    if (!oauthService) {
+      await initializeOAuthService();
+    }
+
+    const result = await oauthService!.handleCallback(code);
+    Logger.debug('OAUTH_IPC', 'handleCallbackDirect result', { success: result.success, error: result.error });
+    return result;
+  } catch (error) {
+    Logger.error('OAUTH_IPC', 'Direct handleCallback failed', error);
+    return { success: false, error: 'Direct callback handling failed', timestamp: new Date() };
+  }
+}
+
+/**
  * 🔥 OAuth IPC 핸들러 정리
  */
 export function cleanupOAuthIpcHandlers(): void {
   Logger.info('OAUTH_IPC', 'Cleaning up OAuth IPC handlers');
-  
+
   const handlersToClean = [
     'oauth:start-google-auth',
     'oauth:handle-callback',

@@ -1,28 +1,28 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // 🔥 프로덕션에서만 정적 빌드 활성화 - 오프라인 지원
-  ...(process.env.NODE_ENV === 'production' && { 
+  ...(process.env.NODE_ENV === 'production' && {
     output: 'export',
     trailingSlash: true,
     skipTrailingSlashRedirect: true,
   }),
-  
+
   // 🔥 개발 환경용 설정
   ...(process.env.NODE_ENV === 'development' && {
     trailingSlash: true,
     skipTrailingSlashRedirect: true,
   }),
-  
+
   // 🔥 성능 최적화 - 이미지 설정
   images: {
     unoptimized: true, // Electron에서는 최적화 비활성화
   },
-  
+
   // 🔥 성능 최적화 - 번들 분할 및 트리쉐이킹 + 기가차드 극한 최적화
   experimental: {
     optimizePackageImports: [
-      'react', 
-      'react-dom', 
+      'react',
+      'react-dom',
       'lucide-react',
       '@radix-ui/react-dialog',
       '@radix-ui/react-slot',
@@ -32,7 +32,7 @@ const nextConfig = {
     // webpackBuildWorker: true, // 멀티스레드 빌드 - 일부 환경에서 불안정
     // parallelServerBuildTraces: true, // 🔥 병렬 빌드 트레이스 - invalid 옵션
     // parallelServerCompiles: true, // 🔥 병렬 컴파일 - invalid 옵션
-    
+
     // 🔥 기가차드 극한 최적화 - 유효한 옵션들만
     // useWasmBinary: true, // WASM 바이너리 사용 - invalid 옵션
     // optimizeCss: true, // CSS 최적화 - critters 모듈 에러로 임시 비활성화
@@ -47,7 +47,7 @@ const nextConfig = {
   //   // 🔥 Turbopack 메모리 최적화 - memoryLimit는 유효하지 않은 옵션
   //   // memoryLimit: 4096,
   // },
-  
+
   // 🔥 개발 품질 보장 (TypeScript & ESLint 활성화)
   eslint: {
     ignoreDuringBuilds: false, // ESLint 활성화
@@ -56,8 +56,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false, // TypeScript 타입 체크 활성화
   },
-  
-  // 🔥 Webpack 설정 - global 에러 해결 + 성능 최적화
+
+  // 🔥 Webpack 설정 - global 에러 해결 + 성능 최적화 + Connection closed 방지
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -73,7 +73,7 @@ const nextConfig = {
         url: false,
         querystring: false,
       };
-      
+
       // Global 폴리필
       config.plugins.push(
         new (require('webpack')).DefinePlugin({
@@ -81,8 +81,13 @@ const nextConfig = {
         })
       );
 
-      // 🔥 성능 최적화: 고급 번들 분할
+      // 🔥 Connection closed 에러 방지: 안정적인 chunk 이름 생성
       if (!dev) {
+        // 고정적인 chunk hash 사용으로 캐시 이슈 방지
+        config.optimization.chunkIds = 'deterministic';
+        config.optimization.moduleIds = 'deterministic';
+
+        // 🔥 성능 최적화: 고급 번들 분할
         config.optimization.splitChunks = {
           chunks: 'all',
           minSize: 20000,
@@ -138,7 +143,7 @@ const nextConfig = {
 
     return config;
   },
-  
+
   // 🔥 성능 최적화 - 컴파일러 옵션 (Next.js 15 호환)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {

@@ -3,15 +3,16 @@
 // 프로젝트 카드 컴포넌트
 
 import React from 'react';
-import { 
-  MoreHorizontal, 
-  Eye, 
-  Edit2, 
-  Share2, 
+import {
+  MoreHorizontal,
+  Eye,
+  Edit2,
+  Share2,
   Trash2,
   Calendar,
   FileText,
   Clock,
+  ExternalLink,
   type LucideIcon
 } from 'lucide-react';
 import { Card } from '../ui/Card';
@@ -92,8 +93,8 @@ export function ProjectCard({
 
   // 🔥 액션 버튼 클릭 핸들러 - 이벤트 전파 중단
   const handleActionClick = (
-    event: React.MouseEvent, 
-    actionId: string, 
+    event: React.MouseEvent,
+    actionId: string,
     callback?: (project: ProjectData) => void
   ): void => {
     event.stopPropagation();
@@ -102,7 +103,38 @@ export function ProjectCard({
     callback?.(project);
   };
 
-  // 🔥 더 보기 버튼 클릭 핸들러 - 이벤트 전파 중단
+  // � Google Docs 연동 감지: description 끝에 삽입된 JSON 메타데이터 파싱
+  let isGoogleDocsProject = false;
+  let googleDocMeta: { googleDocId?: string; googleDocUrl?: string; originalDescription?: string; isGoogleDocsProject?: boolean } | null = null;
+  try {
+    const match = project.description?.match(/\[Google Docs 연동 정보: (\{.*\})\]$/s);
+    if (match && match[1]) {
+      const parsed = JSON.parse(match[1]);
+      if (parsed && parsed.isGoogleDocsProject) {
+        isGoogleDocsProject = true;
+        googleDocMeta = parsed;
+      }
+    }
+  } catch (parseErr) {
+    Logger.debug('PROJECT_CARD', 'Google Docs 메타데이터 파싱 실패', { err: parseErr, projectId: project.id });
+  }
+
+  const displayedDescription = googleDocMeta?.originalDescription ? googleDocMeta.originalDescription : project.description;
+
+  const openExternal = (url?: string) => {
+    if (!url) return;
+    try {
+      if ((window as any).electronAPI?.shell?.openExternal) {
+        (window as any).electronAPI.shell.openExternal(url);
+      } else {
+        window.open(url, '_blank', 'noopener');
+      }
+    } catch (err) {
+      Logger.error('PROJECT_CARD', '외부 링크 열기 실패', err);
+    }
+  };
+
+  // �🔥 더 보기 버튼 클릭 핸들러 - 이벤트 전파 중단
   const handleMoreClick = (event: React.MouseEvent): void => {
     event.stopPropagation();
     event.preventDefault();
@@ -183,15 +215,27 @@ export function ProjectCard({
   ] as const;
 
   return (
-    <Card 
-      className={`${PROJECT_CARD_STYLES.container} cursor-pointer`}
+    <Card
+      className={`${PROJECT_CARD_STYLES.container} cursor-pointer ${isGoogleDocsProject ? 'ring-2 ring-yellow-400 dark:ring-yellow-600' : ''}`}
       role="article"
       aria-label={`프로젝트: ${project.title}`}
       onClick={handleCardClick}
     >
       {/* 헤더 */}
       <div className={PROJECT_CARD_STYLES.header}>
-        <h3 className={PROJECT_CARD_STYLES.title}>{project.title}</h3>
+        <h3 className={PROJECT_CARD_STYLES.title}>
+          {project.title}
+          {isGoogleDocsProject && (
+            <button
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); openExternal(googleDocMeta?.googleDocUrl || undefined); }}
+              title="Google Docs 원본 열기"
+              className="ml-2 inline-flex items-center text-yellow-600 dark:text-yellow-400"
+              aria-label="Open Google Docs"
+            >
+              <ExternalLink className={PROJECT_CARD_STYLES.icon} />
+            </button>
+          )}
+        </h3>
         {showActions && onMore && (
           <Tooltip content="더 보기" side="bottom" sideOffset={4}>
             <Button
@@ -211,17 +255,25 @@ export function ProjectCard({
       <div className={PROJECT_CARD_STYLES.content}>
         {/* 상태 배지 */}
         <div className={PROJECT_CARD_STYLES.statusBadge}>
-          <Badge 
-            variant={getStatusColor(project.status)} 
+          <Badge
+            variant={isGoogleDocsProject ? 'warning' : getStatusColor(project.status)}
             size="sm"
           >
-            {getStatusText(project.status)}
+            {isGoogleDocsProject ? 'Google Docs' : getStatusText(project.status)}
           </Badge>
+          {isGoogleDocsProject && googleDocMeta?.googleDocUrl && (
+            <button
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); openExternal(googleDocMeta?.googleDocUrl); }}
+              className="ml-2 text-xs text-blue-600 dark:text-blue-400 underline"
+            >
+              원본 열기
+            </button>
+          )}
         </div>
 
         {/* 설명 */}
         <p className={PROJECT_CARD_STYLES.description}>
-          {project.description}
+          {displayedDescription}
         </p>
 
         {/* 메타 정보 */}
@@ -250,8 +302,8 @@ export function ProjectCard({
               {Math.round(project.progress)}%
             </span>
           </div>
-          <ProgressBar 
-            value={project.progress} 
+          <ProgressBar
+            value={project.progress}
             size="sm"
             color={project.progress >= 100 ? 'green' : 'blue'}
             aria-label={`프로젝트 진행률 ${Math.round(project.progress)}%`}
@@ -261,18 +313,18 @@ export function ProjectCard({
 
       {/* 액션 버튼 */}
       {showActions && (
-        <div 
+        <div
           className={PROJECT_CARD_STYLES.footer}
-          onClick={(e) => { 
+          onClick={(e) => {
             // 🔥 액션 버튼 영역 내에서는 카드 열기 동작 방지
-            e.stopPropagation(); 
+            e.stopPropagation();
           }}
         >
-          <div 
+          <div
             className={PROJECT_CARD_STYLES.actionButtons}
-            onClick={(e) => { 
+            onClick={(e) => {
               // 🔥 버튼 사이 공간(패딩/갭) 클릭 시에도 부모 클릭 방지
-              e.stopPropagation(); 
+              e.stopPropagation();
             }}
           >
             {projectActions.map((action) => {

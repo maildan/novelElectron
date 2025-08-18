@@ -146,7 +146,7 @@ export class OAuthService extends BaseManager {
       Logger.info(this.componentName, 'Handling OAuth callback');
 
       const tokenResponse = await this.exchangeCodeForTokens(code);
-      
+
       if (!tokenResponse.access_token) {
         throw new Error('No access token received');
       }
@@ -167,8 +167,8 @@ export class OAuthService extends BaseManager {
       // 토큰 저장
       await this.saveTokens();
 
-      Logger.info(this.componentName, 'OAuth authentication successful', { 
-        email: userInfo.email 
+      Logger.info(this.componentName, 'OAuth authentication successful', {
+        email: userInfo.email
       });
 
       return {
@@ -230,8 +230,8 @@ export class OAuthService extends BaseManager {
         webViewLink: file.webViewLink,
       }));
 
-      Logger.info(this.componentName, 'Google documents retrieved', { 
-        count: documents.length 
+      Logger.info(this.componentName, 'Google documents retrieved', {
+        count: documents.length
       });
 
       return {
@@ -289,10 +289,10 @@ export class OAuthService extends BaseManager {
       // Google Docs API 응답에서 텍스트 추출
       const content = this.extractTextFromGoogleDoc(contentResponse.data);
 
-      Logger.info(this.componentName, 'Google document imported', { 
+      Logger.info(this.componentName, 'Google document imported', {
         documentId,
         title: metaResponse.data.name,
-        contentLength: content.length 
+        contentLength: content.length
       });
 
       return {
@@ -314,17 +314,111 @@ export class OAuthService extends BaseManager {
   }
 
   /**
-   * 🔥 인증 상태 확인
+   * 🔥 인증 상태 확인 (실제 토큰 유효성 검증)
    */
   public async getAuthStatus(): Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string }>> {
-    return {
-      success: true,
-      data: {
-        isAuthenticated: this.oauthState.isAuthenticated,
-        userEmail: this.oauthState.userEmail,
-      },
-      timestamp: new Date(),
-    };
+    try {
+      // 🔥 단순한 플래그 확인이 아니라 실제 토큰 존재 여부 및 유효성 검증
+      if (!this.oauthState.accessToken || !this.oauthState.refreshToken) {
+        // 저장된 토큰 다시 로드 시도
+        await this.loadStoredTokens();
+
+        if (!this.oauthState.accessToken || !this.oauthState.refreshToken) {
+          Logger.debug(this.componentName, 'No valid tokens found');
+          return {
+            success: true,
+            data: {
+              isAuthenticated: false,
+            },
+            timestamp: new Date(),
+          };
+        }
+      }
+
+      // 🔥 토큰 만료 확인 및 갱신 시도
+      try {
+        await this.ensureValidToken();
+
+        // 🔥 실제 API 호출로 토큰 유효성 검증
+        const response = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+          headers: {
+            Authorization: `Bearer ${this.oauthState.accessToken}`,
+          },
+        });
+
+        const userInfo = response.data;
+
+        // 🔥 상태 동기화 - userEmail 업데이트
+        if (userInfo.email && !this.oauthState.userEmail) {
+          this.oauthState.userEmail = userInfo.email;
+          await this.saveTokens(); // 업데이트된 정보 저장
+        }
+
+        Logger.debug(this.componentName, 'Auth status verified with API call', {
+          isAuthenticated: true,
+          userEmail: userInfo.email || this.oauthState.userEmail
+        });
+
+        return {
+          success: true,
+          data: {
+            isAuthenticated: true,
+            userEmail: userInfo.email || this.oauthState.userEmail,
+          },
+          timestamp: new Date(),
+        };
+      } catch (apiError) {
+        Logger.warn(this.componentName, 'Token validation failed, attempting refresh', apiError);
+
+        // 🔥 토큰 갱신 시도
+        try {
+          await this.refreshAccessToken();
+
+          // 갱신 후 다시 확인
+          const retryResponse = await axios.get('https://www.googleapis.com/oauth2/v1/userinfo', {
+            headers: {
+              Authorization: `Bearer ${this.oauthState.accessToken}`,
+            },
+          });
+
+          const retryUserInfo = retryResponse.data;
+
+          Logger.info(this.componentName, 'Auth status verified after token refresh', {
+            userEmail: retryUserInfo.email
+          });
+
+          return {
+            success: true,
+            data: {
+              isAuthenticated: true,
+              userEmail: retryUserInfo.email || this.oauthState.userEmail,
+            },
+            timestamp: new Date(),
+          };
+        } catch (refreshError) {
+          Logger.error(this.componentName, 'Token refresh failed, user needs to re-authenticate', refreshError);
+
+          // 🔥 토큰이 완전히 무효화된 경우 상태 초기화
+          this.oauthState = { isAuthenticated: false };
+          await this.clearStoredTokens();
+
+          return {
+            success: true,
+            data: {
+              isAuthenticated: false,
+            },
+            timestamp: new Date(),
+          };
+        }
+      }
+    } catch (error) {
+      Logger.error(this.componentName, 'Failed to check auth status', error);
+      return {
+        success: false,
+        error: '인증 상태를 확인할 수 없습니다',
+        timestamp: new Date(),
+      };
+    }
   }
 
   /**
@@ -382,10 +476,22 @@ export class OAuthService extends BaseManager {
       code_challenge: this.codeChallenge,
       code_challenge_method: 'S256',
       access_type: 'offline',
-      prompt: 'consent',
+      // select_account를 추가하여 브라우저에서 계정 선택창이 뜨도록 강제
+      prompt: 'select_account consent',
     });
 
     return `${GOOGLE_OAUTH_CONFIG.authUrl}?${params.toString()}`;
+  }
+
+  /**
+   * 빌드된 OAuth URL에 login_hint를 추가하여 특정 이메일을 제안할 수 있도록 합니다.
+   */
+  public buildAuthUrlWithHint(loginHint?: string): string {
+    const base = this.buildAuthUrl();
+    if (!loginHint) return base;
+    const url = new URL(base);
+    url.searchParams.set('login_hint', loginHint);
+    return url.toString();
   }
 
   private async exchangeCodeForTokens(code: string): Promise<OAuthTokenResponse> {
@@ -442,7 +548,7 @@ export class OAuthService extends BaseManager {
   private extractTextFromGoogleDoc(docData: any): string {
     // Google Docs API 응답에서 텍스트 추출
     let text = '';
-    
+
     if (docData.body && docData.body.content) {
       for (const element of docData.body.content) {
         if (element.paragraph) {
@@ -459,18 +565,80 @@ export class OAuthService extends BaseManager {
   }
 
   private async loadStoredTokens(): Promise<void> {
-    // TODO: 안전한 토큰 저장소에서 로드 (keytar 등 사용)
-    Logger.debug(this.componentName, 'Loading stored tokens (not implemented yet)');
+    try {
+      // 동적 import로 optional native dependency 처리
+      // keytar가 없으면 예외 발생하지 않도록 안전하게 처리
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const keytar = require('keytar');
+      if (!keytar) {
+        Logger.debug(this.componentName, 'keytar not available - skipping token load');
+        return;
+      }
+
+      const service = 'loop-oauth';
+      const account = 'google';
+      const stored = await keytar.getPassword(service, account);
+      if (!stored) {
+        Logger.debug(this.componentName, 'No stored tokens found in keychain');
+        return;
+      }
+
+      const parsed = JSON.parse(stored);
+      this.oauthState = {
+        isAuthenticated: true,
+        accessToken: parsed.accessToken,
+        refreshToken: parsed.refreshToken,
+        userEmail: parsed.userEmail,
+        expiresAt: parsed.expiresAt ? new Date(parsed.expiresAt) : undefined,
+        scopes: parsed.scopes,
+      };
+
+      Logger.info(this.componentName, 'Loaded OAuth tokens from keychain', { userEmail: this.oauthState.userEmail });
+    } catch (error) {
+      Logger.warn(this.componentName, 'Failed to load stored tokens (keytar)', error);
+    }
   }
 
   private async saveTokens(): Promise<void> {
-    // TODO: 안전한 토큰 저장소에 저장 (keytar 등 사용)
-    Logger.debug(this.componentName, 'Saving tokens (not implemented yet)');
+    try {
+      const keytar = require('keytar');
+      if (!keytar) {
+        Logger.debug(this.componentName, 'keytar not available - skipping token save');
+        return;
+      }
+
+      const service = 'loop-oauth';
+      const account = 'google';
+      const payload = JSON.stringify({
+        accessToken: this.oauthState.accessToken,
+        refreshToken: this.oauthState.refreshToken,
+        userEmail: this.oauthState.userEmail,
+        expiresAt: this.oauthState.expiresAt ? this.oauthState.expiresAt.toISOString() : undefined,
+        scopes: this.oauthState.scopes,
+      });
+
+      await keytar.setPassword(service, account, payload);
+      Logger.info(this.componentName, 'Saved OAuth tokens to keychain', { userEmail: this.oauthState.userEmail });
+    } catch (error) {
+      Logger.warn(this.componentName, 'Failed to save tokens to keychain', error);
+    }
   }
 
   private async clearStoredTokens(): Promise<void> {
-    // TODO: 저장된 토큰 삭제
-    Logger.debug(this.componentName, 'Clearing stored tokens (not implemented yet)');
+    try {
+      const keytar = require('keytar');
+      if (!keytar) {
+        Logger.debug(this.componentName, 'keytar not available - skipping token clear');
+        return;
+      }
+
+      const service = 'loop-oauth';
+      const account = 'google';
+      await keytar.deletePassword(service, account);
+      Logger.info(this.componentName, 'Cleared stored OAuth tokens from keychain');
+    } catch (error) {
+      Logger.warn(this.componentName, 'Failed to clear stored tokens (keytar)', error);
+    }
   }
 
   // (외부 브라우저 플로우 사용)
@@ -482,30 +650,50 @@ export class OAuthService extends BaseManager {
     try {
       const envAccess = process.env.GOOGLE_ACCESS_TOKEN;
       const envRefresh = process.env.GOOGLE_REFRESH_TOKEN;
-      
+
+      // 우선: refresh token이 있으면 이를 사용해 access token을 갱신 시도
+      if (envRefresh) {
+        Logger.info(this.componentName, 'Env refresh token found - attempting to refresh access token first');
+        try {
+          this.oauthState.refreshToken = envRefresh;
+          await this.refreshAccessToken();
+
+          const newAccess = this.oauthState.accessToken || '';
+          const valid = await this.validateTokenScopes(newAccess);
+          if (valid) {
+            this.oauthState.isAuthenticated = true;
+            this.oauthState.scopes = GOOGLE_OAUTH_CONFIG.scopes;
+            this.oauthState.expiresAt = new Date(Date.now() + (3600 * 1000));
+            Logger.info(this.componentName, 'Access token refreshed and has required scopes');
+            return;
+          } else {
+            Logger.warn(this.componentName, 'Refreshed access token does not contain required scopes');
+          }
+        } catch (refreshError) {
+          Logger.warn(this.componentName, 'Failed to refresh access token using env refresh token', refreshError);
+        }
+      }
+
+      // fallback: env access token 사용
       if (envAccess && envRefresh) {
-        Logger.info(this.componentName, 'Bootstrapping OAuth tokens from environment variables');
-        
-        // 🔥 기존 토큰의 스코프 검증
+        Logger.info(this.componentName, 'Bootstrapping OAuth tokens from environment variables (fallback to env access token)');
         const hasValidScopes = await this.validateTokenScopes(envAccess);
-        
         if (!hasValidScopes) {
-          Logger.warn(this.componentName, '🔄 기존 토큰이 필요한 스코프를 포함하지 않음 - 재인증 필요');
+          Logger.warn(this.componentName, 'Env access token does not have required scopes - marking unauthenticated');
           this.oauthState = { isAuthenticated: false };
           return;
         }
 
-        // 상태 업데이트
         this.oauthState = {
           isAuthenticated: true,
           accessToken: envAccess,
           refreshToken: envRefresh,
-          userEmail: 'user@gmail.com', // 실제 사용자 정보는 getUserInfo로 가져올 수 있음
-          expiresAt: new Date(Date.now() + (3600 * 1000)), // 1시간 후 만료로 설정
-          scopes: GOOGLE_OAUTH_CONFIG.scopes // 🔥 최신 스코프 사용
+          userEmail: 'user@gmail.com',
+          expiresAt: new Date(Date.now() + (3600 * 1000)),
+          scopes: GOOGLE_OAUTH_CONFIG.scopes
         };
-        
-        Logger.info(this.componentName, 'OAuth tokens loaded from environment');
+
+        Logger.info(this.componentName, 'OAuth tokens loaded from environment (access token)');
       } else {
         Logger.debug(this.componentName, 'No OAuth tokens found in environment variables');
       }
@@ -523,24 +711,24 @@ export class OAuthService extends BaseManager {
       const response = await axios.get('https://www.googleapis.com/oauth2/v1/tokeninfo', {
         params: { access_token: accessToken }
       });
-      
+
       const tokenScopes = response.data.scope?.split(' ') || [];
       const requiredScopes = [
         'https://www.googleapis.com/auth/documents',
-        'https://www.googleapis.com/auth/drive.readonly'
+        'https://www.googleapis.com/auth/drive.file'
       ];
-      
+
       // 필수 스코프가 모두 포함되어 있는지 확인
-      const hasAllScopes = requiredScopes.every(scope => 
+      const hasAllScopes = requiredScopes.every(scope =>
         tokenScopes.includes(scope)
       );
-      
+
       Logger.info(this.componentName, '토큰 스코프 검증 결과', {
         tokenScopes,
         requiredScopes,
         hasAllScopes
       });
-      
+
       return hasAllScopes;
     } catch (error) {
       Logger.warn(this.componentName, '토큰 스코프 검증 실패 - 재인증 필요', error);
