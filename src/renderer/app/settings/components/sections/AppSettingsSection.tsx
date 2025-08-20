@@ -8,6 +8,7 @@ import { SettingItem } from '../controls/SettingItem';
 import { Toggle } from '../controls/Toggle';
 import { useTheme } from '../../../../providers/ThemeProvider';
 import { Logger } from '../../../../../shared/logger';
+import GoogleAccountActions from '../GoogleAccountActions';
 import type { SettingsData, UpdateSettingFunction } from '../../types';
 
 /**
@@ -22,13 +23,13 @@ interface AppSettingsSectionProps {
 /**
  * 🔥 앱 설정 섹션 컴포넌트
  */
-export const AppSettingsSection = React.memo<AppSettingsSectionProps>(({ 
-  settings, 
-  updateSetting, 
-  setTheme 
+export const AppSettingsSection = React.memo<AppSettingsSectionProps>(({
+  settings,
+  updateSetting,
+  setTheme
 }) => {
   const { theme: currentTheme } = useTheme();
-  
+
   // 🔥 로컬 테마 상태 (설정 UI 표시용)
   const [displayTheme, setDisplayTheme] = useState<'light' | 'dark' | 'system'>(settings.theme);
 
@@ -47,24 +48,24 @@ export const AppSettingsSection = React.memo<AppSettingsSectionProps>(({
   // 🔥 테마 변경 핸들러 (ThemeProvider + 설정 동시 업데이트)
   const handleThemeChange = useCallback(async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newTheme = event.target.value as 'light' | 'dark' | 'system';
-    
+
     try {
       // 1. 로컬 상태 즉시 업데이트 (UI 반응성)
       setDisplayTheme(newTheme);
-      
+
       // 2. ThemeProvider 업데이트 (실제 테마 적용)
       setTheme(newTheme);
-      
+
       // 3. 설정 저장 (백엔드 동기화)
       await updateSetting('app', 'theme', newTheme);
-      
-      Logger.info('APP_SETTINGS', 'Theme updated successfully', { 
+
+      Logger.info('APP_SETTINGS', 'Theme updated successfully', {
         theme: newTheme,
         source: 'settings_page'
       });
     } catch (error) {
       Logger.error('APP_SETTINGS', 'Failed to update theme', error);
-      
+
       // 🔥 에러 시 원래 상태로 롤백
       setDisplayTheme(settings.theme);
     }
@@ -213,6 +214,8 @@ export const AppSettingsSection = React.memo<AppSettingsSectionProps>(({
             </select>
           }
         />
+        {/* Google account actions (로그아웃 등) */}
+        <GoogleAccountActions />
       </div>
     </div>
   );

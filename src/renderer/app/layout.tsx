@@ -11,12 +11,13 @@ import { usePathname } from 'next/navigation';
 import { AppSidebar } from '../components/layout/AppSidebar';
 import { AppHeader } from '../components/layout/AppHeader';
 import { MonitoringProvider } from '../contexts/GlobalMonitoringContext';
+import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../providers/ThemeProvider';
 import { Logger } from '../../shared/logger';
 import './globals.css';
 
 // 🔥 기가차드 규칙: Inter 폰트 최적화
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   preload: true
@@ -68,7 +69,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
   const handleToggleSidebar = (): void => {
     const newState = !sidebarCollapsed;
     setSidebarCollapsed(newState);
-    
+
     // 🔥 localStorage에 상태 저장 (일관된 키 사용)
     if (typeof window !== 'undefined') {
       try {
@@ -87,7 +88,7 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Loop - AI 기반 타이핑 분석 도구" />
         <title>Loop</title>
-        
+
         {/* 🔥 하이드레이션 안전한 테마 블로킹 스크립트 */}
         <script
           dangerouslySetInnerHTML={{
@@ -172,32 +173,34 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
       </head>
       <body className={LAYOUT_STYLES.body} suppressHydrationWarning>
         <ThemeProvider defaultTheme="system">
-          <MonitoringProvider>
-            <div className={LAYOUT_STYLES.container}>
-              {/* 사이드바 */}
-              <aside className={LAYOUT_STYLES.sidebar}>
-                <AppSidebar 
-                  activeRoute={pathname}
-                  onNavigate={handleNavigate}
-                  collapsed={sidebarCollapsed}
-                  onToggleCollapse={handleToggleSidebar}
-                />
-              </aside>
+          <AuthProvider>
+            <MonitoringProvider>
+              <div className={LAYOUT_STYLES.container}>
+                {/* 사이드바 */}
+                <aside className={LAYOUT_STYLES.sidebar}>
+                  <AppSidebar
+                    activeRoute={pathname}
+                    onNavigate={handleNavigate}
+                    collapsed={sidebarCollapsed}
+                    onToggleCollapse={handleToggleSidebar}
+                  />
+                </aside>
 
-              {/* 메인 콘텐츠 */}
-              <main className={LAYOUT_STYLES.main}>
-                {/* 헤더 */}
-                <header className={LAYOUT_STYLES.header}>
-                  <AppHeader />
-                </header>
+                {/* 메인 콘텐츠 */}
+                <main className={LAYOUT_STYLES.main}>
+                  {/* 헤더 */}
+                  <header className={LAYOUT_STYLES.header}>
+                    <AppHeader />
+                  </header>
 
-                {/* 페이지 콘텐츠 */}
-                <div className={LAYOUT_STYLES.content}>
-                  {children}
-                </div>
-              </main>
-            </div>
-          </MonitoringProvider>
+                  {/* 페이지 콘텐츠 */}
+                  <div className={LAYOUT_STYLES.content}>
+                    {children}
+                  </div>
+                </main>
+              </div>
+            </MonitoringProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

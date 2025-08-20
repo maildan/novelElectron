@@ -316,7 +316,7 @@ export class OAuthService extends BaseManager {
   /**
    * 🔥 인증 상태 확인 (실제 토큰 유효성 검증)
    */
-  public async getAuthStatus(): Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string }>> {
+  public async getAuthStatus(): Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string; userName?: string; userPicture?: string }>> {
     try {
       // 🔥 단순한 플래그 확인이 아니라 실제 토큰 존재 여부 및 유효성 검증
       if (!this.oauthState.accessToken || !this.oauthState.refreshToken) {
@@ -348,15 +348,22 @@ export class OAuthService extends BaseManager {
 
         const userInfo = response.data;
 
-        // 🔥 상태 동기화 - userEmail 업데이트
+        // 🔥 상태 동기화 - userEmail, userName, userPicture 업데이트
         if (userInfo.email && !this.oauthState.userEmail) {
           this.oauthState.userEmail = userInfo.email;
-          await this.saveTokens(); // 업데이트된 정보 저장
         }
+        if (userInfo.name) {
+          (this.oauthState as any).userName = userInfo.name;
+        }
+        if (userInfo.picture) {
+          (this.oauthState as any).userPicture = userInfo.picture;
+        }
+        await this.saveTokens(); // 업데이트된 정보 저장
 
         Logger.debug(this.componentName, 'Auth status verified with API call', {
           isAuthenticated: true,
-          userEmail: userInfo.email || this.oauthState.userEmail
+          userEmail: userInfo.email || this.oauthState.userEmail,
+          userName: userInfo.name,
         });
 
         return {
@@ -364,6 +371,8 @@ export class OAuthService extends BaseManager {
           data: {
             isAuthenticated: true,
             userEmail: userInfo.email || this.oauthState.userEmail,
+            userName: userInfo.name || (this.oauthState as any).userName,
+            userPicture: userInfo.picture || (this.oauthState as any).userPicture,
           },
           timestamp: new Date(),
         };

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   Home,
   Folder,
@@ -118,44 +119,12 @@ export function AppSidebar({
   const isControlled = controlledCollapsed !== undefined;
   const collapsed = isControlled ? controlledCollapsed : internalCollapsed;
 
-  // 🔥 Google 사용자 정보 상태
-  const [googleUserInfo, setGoogleUserInfo] = useState<{
-    isAuthenticated: boolean;
-    userEmail?: string;
-    userName?: string;
-    userPicture?: string;
-  }>({
-    isAuthenticated: false
-  });
+  const { auth: googleUserInfo, loadAuthStatus } = useAuth();
 
   // 🔥 온라인/오프라인 상태
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
 
-  // 🔥 Google OAuth 상태 확인
-  useEffect(() => {
-    const checkGoogleAuth = async () => {
-      try {
-        if (window.electronAPI?.oauth?.getAuthStatus) {
-          const authStatus = await window.electronAPI.oauth.getAuthStatus();
-          if (authStatus?.success && authStatus.data?.isAuthenticated) {
-            setGoogleUserInfo({
-              isAuthenticated: true,
-              userEmail: authStatus.data.userEmail,
-              userName: authStatus.data.userEmail?.split('@')[0] || 'Google 사용자',
-              userPicture: `https://ui-avatars.com/api/?name=${encodeURIComponent(authStatus.data.userEmail || 'User')}&background=4f46e5&color=fff&size=32`
-            });
-            Logger.info('APP_SIDEBAR', 'Google user info loaded', {
-              userEmail: authStatus.data.userEmail
-            });
-          }
-        }
-      } catch (error) {
-        Logger.error('APP_SIDEBAR', 'Failed to load Google user info', error);
-      }
-    };
-
-    checkGoogleAuth();
-  }, []);
+  // Auth state is provided by AuthContext; no local loadAuthStatus here to avoid races
 
   // 🔥 온라인/오프라인 상태 감지
   useEffect(() => {

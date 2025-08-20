@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useState, ReactNode } from 'react';
+import { forwardRef, useState, ReactNode, useId } from 'react';
 import { Eye, EyeOff, Search, X } from 'lucide-react';
 import { Logger } from '../../../shared/logger';
 
@@ -48,7 +48,7 @@ function cn(...classes: (string | undefined | false | null)[]): string {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ 
+  ({
     className,
     type = 'text',
     size = 'md',
@@ -64,9 +64,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     value,
     onChange,
     onClear,
-    ...props 
+    ...props
   }, ref) => {
-    
+
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [focused, setFocused] = useState<boolean>(false);
 
@@ -115,15 +115,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const actualType = isPassword && showPassword ? 'text' : type;
 
-    const labelId = label ? `input-label-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const errorId = error ? `input-error-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const helperId = helperText ? `input-helper-${Math.random().toString(36).substr(2, 9)}` : undefined;
+    const _uid = useId();
+    const labelId = label ? `input-${_uid}-label` : undefined;
+    const errorId = error ? `input-${_uid}-error` : undefined;
+    const helperId = helperText ? `input-${_uid}-helper` : undefined;
 
     return (
       <div className="w-full">
         {/* 라벨 */}
         {label && (
-          <label 
+          <label
             id={labelId}
             htmlFor={props.id}
             className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
@@ -203,7 +204,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* 에러 메시지 */}
         {error && (
-          <p 
+          <p
             id={errorId}
             className="mt-2 text-sm text-red-600 dark:text-red-400"
             role="alert"
@@ -214,7 +215,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* 도움말 텍스트 */}
         {helperText && !error && (
-          <p 
+          <p
             id={helperId}
             className="mt-2 text-sm text-slate-500 dark:text-slate-400"
           >

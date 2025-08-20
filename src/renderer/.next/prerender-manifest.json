@@ -1,6 +1,30 @@
 {
   "version": 4,
   "routes": {
+    "/": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/",
+      "dataRoute": "/index.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/analytics": {
       "experimentalBypassFor": [
         {
@@ -16,6 +40,30 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/analytics",
       "dataRoute": "/analytics.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/oauth/callback": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/oauth/callback",
+      "dataRoute": "/oauth/callback.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -49,30 +97,6 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/ai": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/ai",
-      "dataRoute": "/ai.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/settings": {
       "experimentalBypassFor": [
         {
@@ -97,7 +121,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/oauth/callback": {
+    "/ai": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -110,8 +134,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/oauth/callback",
-      "dataRoute": "/oauth/callback.rsc",
+      "srcRoute": "/ai",
+      "dataRoute": "/ai.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -216,30 +240,6 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
-    },
-    "/": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/",
-      "dataRoute": "/index.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
     }
   },
   "dynamicRoutes": {
@@ -271,8 +271,8 @@
   },
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "c3fd91d21873db94c507de1bd950b57c",
-    "previewModeSigningKey": "ab5a415667566508c01858f243f92f2d215f44869d040a27c7efac981c001cbc",
-    "previewModeEncryptionKey": "1e36255ef2b35038b7fcb01387cebc3026209fae4067a779056025dd075c7bf0"
+    "previewModeId": "c3d8db6fcd9774f6b51490e22aa126ac",
+    "previewModeSigningKey": "6d4afed08eec7a519fd4b23f2e9752b260c5c016bd0ce5c5b9c56b83f339fdc0",
+    "previewModeEncryptionKey": "267070a3ae5a926b000d05870a7f07052e58866dff4826d0bd411bbb6d85773e"
   }
 }

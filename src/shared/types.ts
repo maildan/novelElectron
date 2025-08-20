@@ -281,7 +281,7 @@ export interface ElectronAPI {
     handleCallback: (code: string) => Promise<IpcResponse<{ accessToken: string; refreshToken: string }>>;
     getGoogleDocuments: () => Promise<IpcResponse<Array<{ id: string; title: string; modifiedTime: string }>>>;
     importGoogleDoc: (documentId: string) => Promise<IpcResponse<{ title: string; content: string }>>;
-    getAuthStatus: () => Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string }>>;
+    getAuthStatus: () => Promise<IpcResponse<{ isAuthenticated: boolean; userEmail?: string; userName?: string; userPicture?: string }>>;
     revokeAuth: () => Promise<IpcResponse<boolean>>;
   };
 }

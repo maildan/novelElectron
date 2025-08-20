@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useState, useRef, useEffect } from 'react';
+import { forwardRef, useState, useRef, useEffect, useId } from 'react';
 import { Logger } from '../../../shared/logger';
 
 // 🔥 기가차드 규칙: 프리컴파일된 스타일 상수
@@ -43,7 +43,7 @@ function cn(...classes: (string | undefined | false)[]): string {
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ 
+  ({
     className,
     size = 'md',
     variant = 'default',
@@ -60,9 +60,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     onChange,
     onFocus,
     onBlur,
-    ...props 
+    ...props
   }, ref) => {
-    
+
     const [focused, setFocused] = useState<boolean>(false);
     const [charCount, setCharCount] = useState<number>(0);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -103,20 +103,20 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
       const newValue = event.target.value;
-      
+
       // maxLength 체크
       if (maxLength && newValue.length > maxLength) {
         return;
       }
 
       setCharCount(newValue.length);
-      
+
       if (onChange) {
         onChange(event);
-        Logger.debug('TEXTAREA', 'Value changed', { 
-          length: newValue.length, 
+        Logger.debug('TEXTAREA', 'Value changed', {
+          length: newValue.length,
           maxLength,
-          autoResize 
+          autoResize
         });
       }
 
@@ -140,15 +140,16 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       Logger.debug('TEXTAREA', 'Blurred');
     };
 
-    const labelId = label ? `textarea-label-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const errorId = error ? `textarea-error-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const helperId = helperText ? `textarea-helper-${Math.random().toString(36).substr(2, 9)}` : undefined;
+    const _uid = useId();
+    const labelId = label ? `textarea-${_uid}-label` : undefined;
+    const errorId = error ? `textarea-${_uid}-error` : undefined;
+    const helperId = helperText ? `textarea-${_uid}-helper` : undefined;
 
     return (
       <div className="w-full">
         {/* 라벨 */}
         {label && (
-          <label 
+          <label
             id={labelId}
             htmlFor={props.id}
             className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
@@ -189,7 +190,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
         {/* 에러 메시지 */}
         {error && (
-          <p 
+          <p
             id={errorId}
             className="mt-2 text-sm text-red-600 dark:text-red-400"
             role="alert"
@@ -200,7 +201,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 
         {/* 도움말 텍스트 */}
         {helperText && !error && (
-          <p 
+          <p
             id={helperId}
             className="mt-2 text-sm text-slate-500 dark:text-slate-400"
           >

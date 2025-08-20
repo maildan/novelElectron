@@ -297,7 +297,8 @@ export class StaticServer {
             "default-src 'self' data:",
             "script-src 'self' 'unsafe-inline' https://accounts.google.com", // 🔥 unsafe-inline 추가 (필요시)
             "style-src 'self' 'unsafe-inline'", // 🔥 unsafe-inline 추가 (CSS 인라인 스타일 허용)
-            "img-src 'self' data: blob:",
+            // allow ui-avatars for fallback avatar images
+            "img-src 'self' data: blob: https://ui-avatars.com",
             "font-src 'self' data:",
             // 🔥 WebSocket 연결 허용 강화 (Connection closed 방지)
             "connect-src 'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:* https://www.googleapis.com https://oauth2.googleapis.com",
