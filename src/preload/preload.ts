@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, nativeTheme } from 'electron';
 import {
   IPC_CHANNELS,
   IpcResponse,
@@ -149,6 +149,23 @@ const electronAPI: ElectronAPI = {
 
 // 🔥 안전한 API 노출
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
+
+// 🔥 초기 스냅샷: renderer에서 SSR과 동일한 초기값을 읽을 수 있도록 지원
+contextBridge.exposeInMainWorld('loopSnapshot', {
+  get: () => {
+    try {
+      const theme = nativeTheme ? (nativeTheme.shouldUseDarkColors ? 'dark' : 'light') : 'light';
+      const online = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      return {
+        theme,
+        online,
+        platform: process.platform,
+      };
+    } catch (e) {
+      return { theme: 'light', online: true, platform: process.platform };
+    }
+  }
+});
 
 // 🔥 렌더러 프로세스 예외를 메인 프로세스로 전달 (디버깅 강화)
 window.addEventListener('unhandledrejection', event => {

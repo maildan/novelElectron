@@ -86,70 +86,58 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Loop - AI 기반 타이핑 분석 도구" />
+        <meta name="description" content="Loop - 당신의 AI 워드프로세서" />
         <title>Loop</title>
 
-        {/* 🔥 하이드레이션 안전한 테마 블로킹 스크립트 */}
+        {/* 🔥 하이드레이션 안전한 테마 블로킹 스크립트 (preload snapshot 우선) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
-                  // 🔥 하이드레이션 에러 완전 방지: 서버와 클라이언트 완전 동기화
-                  
                   var html = document.documentElement;
-                  var savedTheme = 'system'; // 🔥 서버 기본값과 동일
-                  
-                  // 1. localStorage에서 저장된 테마 확인 (안전하게)
+                  var savedTheme = 'system';
+
+                  // 우선 preload에서 주입한 스냅샷 사용
+                  try {
+                    var snap = (window.loopSnapshot && typeof window.loopSnapshot.get === 'function') ? window.loopSnapshot.get() : null;
+                    if (snap && snap.theme) {
+                      // snap.theme은 'dark' 또는 'light'
+                      savedTheme = snap.theme === 'dark' || snap.theme === 'light' ? snap.theme : 'system';
+                    }
+                  } catch (e) {
+                    // ignore
+                  }
+
+                  // 로컬스토리지가 우선이라면 덮어쓰기 (안전하게)
                   try {
                     var stored = localStorage.getItem('loop-theme');
                     if (stored && ['light', 'dark', 'system'].includes(stored)) {
                       savedTheme = stored;
                     }
-                  } catch (e) {
-                    // localStorage 접근 실패 시 기본값 유지
-                  }
-                  
-                  // 2. system 테마인 경우 실제 시스템 테마 감지
+                  } catch (e) {}
+
                   var resolvedTheme = savedTheme;
                   if (savedTheme === 'system') {
                     try {
                       resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                     } catch (e) {
-                      resolvedTheme = 'light'; // 폴백
+                      resolvedTheme = 'light';
                     }
                   }
-                  
-                  // 3. 기존 클래스 완전 제거 (하이드레이션 에러 방지)
+
                   html.classList.remove('light', 'dark', 'system');
-                  
-                  // 4. 해결된 테마만 적용
                   html.classList.add(resolvedTheme);
-                  
-                  // 5. 일관된 속성 설정
                   html.setAttribute('data-theme', resolvedTheme);
                   html.style.setProperty('color-scheme', resolvedTheme);
-                  html.style.visibility = 'visible'; // 깜빡임 방지
-                  
-                  // 6. CSS 커스텀 속성도 즉시 적용
-                  if (resolvedTheme === 'dark') {
-                    html.style.setProperty('--bg-primary', '#0f1419');
-                    html.style.setProperty('--text-primary', '#e5e7eb');
-                  } else {
-                    html.style.setProperty('--bg-primary', '#fefcf7');
-                    html.style.setProperty('--text-primary', '#1a1a1a');
-                  }
-                  
-                  // 7. body가 존재하면 안전하게 업데이트
+                  html.style.visibility = 'visible';
+
                   var body = document.body;
                   if (body) {
-                    // body 클래스는 고정값으로 설정 (하이드레이션 안전)
                     body.className = 'h-full bg-slate-50 dark:bg-slate-900 antialiased';
                     body.style.visibility = 'visible';
                   }
-                  
                 } catch (error) {
-                  // 🔥 완전 폴백: 모든 에러 상황에 대비
                   try {
                     var html = document.documentElement;
                     html.classList.remove('light', 'dark', 'system');
@@ -162,7 +150,6 @@ export default function RootLayout({ children }: RootLayoutProps): React.ReactEl
                       document.body.style.visibility = 'visible';
                     }
                   } catch (finalError) {
-                    // 마지막 안전장치
                     console.warn('Theme script critical error:', finalError);
                   }
                 }

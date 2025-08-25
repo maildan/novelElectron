@@ -119,10 +119,11 @@ export function AppSidebar({
   const isControlled = controlledCollapsed !== undefined;
   const collapsed = isControlled ? controlledCollapsed : internalCollapsed;
 
-  const { auth: googleUserInfo, loadAuthStatus } = useAuth();
+  const authCtx = useAuth() as any;
+  const { auth: googleUserInfo, loadAuthStatus, loaded: authLoaded } = authCtx;
 
   // 🔥 온라인/오프라인 상태
-  // 초기값은 서버와 동일하게 false로 설정해 hydration mismatch를 방지합니다.
+  // 서버에서 렌더링된 초기 HTML과 일치시키기 위해 초기값은 항상 false로 설정합니다.
   const [isOnline, setIsOnline] = useState<boolean>(false);
 
   // Auth state is provided by AuthContext; no local loadAuthStatus here to avoid races
@@ -132,10 +133,20 @@ export function AppSidebar({
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    // 마운트 시 실제 온라인 상태로 동기화
+    // 마운트 시 스냅샷 또는 navigator 상태로 클라이언트 동기화
     try {
       if (typeof window !== 'undefined') {
-        setIsOnline(navigator.onLine);
+        // preload에서 주입한 스냅샷 우선
+        try {
+          const snap = (window as any).loopSnapshot && typeof (window as any).loopSnapshot.get === 'function' ? (window as any).loopSnapshot.get() : null;
+          if (snap && typeof snap.online === 'boolean') {
+            setIsOnline(snap.online);
+          } else {
+            setIsOnline(navigator.onLine);
+          }
+        } catch (e) {
+          setIsOnline(navigator.onLine);
+        }
       }
     } catch (e) {
       // ignore
@@ -246,7 +257,7 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              {googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
+              {authLoaded && googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
                 <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-7 h-7 rounded-full object-cover" />
               ) : (
                 <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-xs">U</div>
@@ -290,16 +301,19 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              {googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
+              {authLoaded && googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
                 <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-8 h-8 rounded-full object-cover" />
               ) : (
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">U</div>
               )}
               <div className="flex-1">
-                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{googleUserInfo.isAuthenticated ? (googleUserInfo.userName || googleUserInfo.userEmail) : 'Loop 사용자'}</div>
+                <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{
+                  // Keep server-default label until auth is loaded to avoid hydration mismatch
+                  !authLoaded ? 'Loop 사용자' : (googleUserInfo.isAuthenticated ? (googleUserInfo.userName || googleUserInfo.userEmail) : 'Loop 사용자')
+                }</div>
                 <div className="flex items-center gap-1 mt-0.5">
                   <div className={isOnline ? 'w-1.5 h-1.5 bg-green-500 rounded-full' : 'w-1.5 h-1.5 bg-gray-400 rounded-full'} />
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{isOnline ? '온라인' : '오프라인'}</span>
+                  <span suppressHydrationWarning className="text-xs text-slate-500 dark:text-slate-400">{isOnline ? '온라인' : '오프라인'}</span>
                 </div>
                 {googleUserInfo.isAuthenticated && googleUserInfo.userEmail && (
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{googleUserInfo.userEmail}</div>

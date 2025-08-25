@@ -17,12 +17,18 @@ export interface AuthContextType {
     clearAuth: () => void;
 }
 
+// Extended context type with loaded flag
+export interface AuthContextTypeEx extends AuthContextType {
+    loaded: boolean;
+}
+
 const getDefaultAuth = (): AuthState => ({ isAuthenticated: false });
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [auth, setAuthState] = useState<AuthState>(getDefaultAuth());
+    const [loaded, setLoaded] = useState<boolean>(false);
     const latestLoadId = React.useRef(0);
 
     const setAuth = useCallback((next: Partial<AuthState>) => {
@@ -59,9 +65,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             Logger.error('AUTH_CONTEXT', 'Failed to load auth status', error);
             setAuthState(getDefaultAuth());
         }
+        finally {
+            // mark loaded regardless of result (so UI can update safely)
+            if (requestId === latestLoadId.current) setLoaded(true);
+        }
     }, []);
 
     useEffect(() => {
+        // start loading auth state on client mount
         loadAuthStatus();
 
         if (typeof window !== 'undefined' && window.electronAPI?.on) {
@@ -78,9 +89,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [loadAuthStatus]);
 
-    const ctx = useMemo(() => ({ auth, loadAuthStatus, setAuth, clearAuth }), [auth, loadAuthStatus, setAuth, clearAuth]);
+    const ctx = useMemo(() => ({ auth, loadAuthStatus, setAuth, clearAuth, loaded }), [auth, loadAuthStatus, setAuth, clearAuth, loaded]);
 
-    return <AuthContext.Provider value={ctx}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={ctx as unknown as AuthContextType}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextType {
