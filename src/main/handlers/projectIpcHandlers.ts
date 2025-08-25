@@ -16,13 +16,13 @@ export function setupProjectIpcHandlers(): void {
   ipcMain.handle('projects:get-all', async (): Promise<IpcResponse<Project[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Getting all projects from database');
-      
+
       const prisma = await prismaService.getClient();
-      
+
       const projects = await prisma.project.findMany({
         orderBy: { lastModified: 'desc' }
       });
-      
+
       // Prisma 결과를 Project 타입으로 변환
       const convertedProjects: Project[] = projects.map(project => ({
         id: project.id,
@@ -38,9 +38,9 @@ export function setupProjectIpcHandlers(): void {
         status: (project.status as 'active' | 'completed' | 'paused') || 'active',
         author: project.author || '사용자',
       }));
-      
+
       Logger.info('PROJECT_IPC', `✅ 조회된 프로젝트 수: ${convertedProjects.length}`);
-      
+
       return {
         success: true,
         data: convertedProjects,
@@ -48,7 +48,7 @@ export function setupProjectIpcHandlers(): void {
       };
     } catch (error) {
       Logger.error('PROJECT_IPC', 'Failed to get projects from database', error);
-      
+
       return {
         success: true,
         data: [],
@@ -61,23 +61,23 @@ export function setupProjectIpcHandlers(): void {
   ipcMain.handle('projects:get-by-id', async (_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<Project>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Getting project by ID', { id });
-      
+
       const prisma = await prismaService.getClient();
-      
+
       // 🔥 디버깅: 요청된 ID 상세 로그
       Logger.info('PROJECT_IPC', `🔍 실제 요청된 프로젝트 ID: "${id}" (길이: ${id.length})`);
-      
+
       const project = await prisma.project.findUnique({
         where: { id }
       });
-      
+
       // 🔥 디버깅: 조회 결과 로그
-      Logger.info('PROJECT_IPC', `🔍 DB 조회 결과: ${project ? '찾음' : '없음'}`, { 
+      Logger.info('PROJECT_IPC', `🔍 DB 조회 결과: ${project ? '찾음' : '없음'}`, {
         requestedId: id,
         found: !!project,
-        projectTitle: project?.title 
+        projectTitle: project?.title
       });
-      
+
       if (!project) {
         // 🔥 'new' ID 처리 - 새 프로젝트 템플릿 반환
         if (id === 'new') {
@@ -96,7 +96,7 @@ export function setupProjectIpcHandlers(): void {
             lastModified: now,
             updatedAt: now,
           };
-          
+
           Logger.info('PROJECT_IPC', 'new 프로젝트 템플릿 반환');
           return {
             success: true,
@@ -104,14 +104,14 @@ export function setupProjectIpcHandlers(): void {
             timestamp: new Date(),
           };
         }
-        
+
         return {
           success: false,
           error: '프로젝트를 찾을 수 없습니다.',
           timestamp: new Date(),
         };
       }
-      
+
       const convertedProject: Project = {
         id: project.id,
         title: project.title,
@@ -126,7 +126,7 @@ export function setupProjectIpcHandlers(): void {
         status: (project.status as 'active' | 'completed' | 'paused') || 'active',
         author: project.author || '사용자',
       };
-      
+
       return {
         success: true,
         data: convertedProject,
@@ -145,16 +145,16 @@ export function setupProjectIpcHandlers(): void {
   // 🔥 실제 프로젝트 생성 - Prisma DB 연동
   ipcMain.handle('projects:create', async (_event: IpcMainInvokeEvent, project: Omit<Project, 'id' | 'createdAt' | 'lastModified'>): Promise<IpcResponse<Project>> => {
     try {
-      Logger.info('PROJECT_IPC', '🔥 Creating new project in DB', { 
+      Logger.info('PROJECT_IPC', '🔥 Creating new project in DB', {
         title: project.title,
         genre: project.genre,
       });
-      
+
       // 🔥 유효성 검증
       if (!project.title || project.title.trim().length === 0) {
         throw new Error('프로젝트 제목은 필수입니다.');
       }
-      
+
       if (project.title.length > 100) {
         throw new Error('프로젝트 제목은 100자를 초과할 수 없습니다.');
       }
@@ -162,10 +162,10 @@ export function setupProjectIpcHandlers(): void {
       // 🔥 Prisma를 통한 실제 DB 생성
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();
-      
+
       try {
         const now = new Date();
-        
+
         const createdProject = await prisma.project.create({
           data: {
             title: project.title.trim(),
@@ -180,7 +180,7 @@ export function setupProjectIpcHandlers(): void {
             lastModified: now,
           }
         });
-        
+
         const newProject: Project = {
           id: createdProject.id,
           title: createdProject.title,
@@ -195,13 +195,13 @@ export function setupProjectIpcHandlers(): void {
           lastModified: createdProject.lastModified,
           updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
         };
-        
-        Logger.info('PROJECT_IPC', '✅ Project created successfully in DB', { 
+
+        Logger.info('PROJECT_IPC', '✅ Project created successfully in DB', {
           id: newProject.id,
           title: newProject.title,
           wordCount: newProject.wordCount
         });
-        
+
         return {
           success: true,
           data: newProject,
@@ -224,9 +224,9 @@ export function setupProjectIpcHandlers(): void {
   ipcMain.handle('projects:update', async (_event: IpcMainInvokeEvent, id: string, updates: Partial<Project>): Promise<IpcResponse<Project>> => {
     try {
       Logger.debug('PROJECT_IPC', '🚀 즉시 프로젝트 업데이트 시작', { id, contentLength: updates.content?.length });
-      
+
       const prisma = await prismaService.getClient();
-      
+
       const updateData: Partial<{
         title: string;
         description: string;
@@ -240,7 +240,7 @@ export function setupProjectIpcHandlers(): void {
       }> = {
         lastModified: new Date(),
       };
-      
+
       if (updates.title) updateData.title = updates.title.trim();
       if (updates.description !== undefined) updateData.description = updates.description;
       if (updates.content !== undefined) {
@@ -251,13 +251,13 @@ export function setupProjectIpcHandlers(): void {
       if (updates.genre) updateData.genre = updates.genre;
       if (updates.status) updateData.status = updates.status;
       if (updates.author) updateData.author = updates.author;
-      
+
       // 🔥 즉시 저장 - 트랜잭션으로 성능 개선
       const updatedProject = await prisma.project.update({
         where: { id },
         data: updateData
       });
-      
+
       const convertedProject: Project = {
         id: updatedProject.id,
         title: updatedProject.title,
@@ -272,13 +272,13 @@ export function setupProjectIpcHandlers(): void {
         lastModified: updatedProject.lastModified,
         updatedAt: updatedProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
       };
-      
-      Logger.info('PROJECT_IPC', '✅ 프로젝트 업데이트 완료', { 
-        id: convertedProject.id, 
+
+      Logger.info('PROJECT_IPC', '✅ 프로젝트 업데이트 완료', {
+        id: convertedProject.id,
         wordCount: convertedProject.wordCount,
         duration: `${Date.now() - Date.now()}ms`
       });
-      
+
       return {
         success: true,
         data: convertedProject,
@@ -298,17 +298,17 @@ export function setupProjectIpcHandlers(): void {
   ipcMain.handle('projects:delete', async (_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<boolean>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Deleting project from DB', { id });
-      
+
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();
-      
+
       try {
         await prisma.project.delete({
           where: { id }
         });
-        
+
         Logger.info('PROJECT_IPC', '✅ Project deleted successfully', { id });
-        
+
         return {
           success: true,
           data: true,
@@ -331,7 +331,7 @@ export function setupProjectIpcHandlers(): void {
   ipcMain.handle('projects:create-sample', async (): Promise<IpcResponse<Project>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Creating sample project');
-      
+
       const sampleProjects = [
         {
           title: '나의 첫 번째 소설',
@@ -355,20 +355,20 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           author: '새로운 작가'
         }
       ];
-      
+
       const selectedSample = sampleProjects[0]; // 첫 번째 샘플 사용
-      
+
       if (!selectedSample) {
         throw new Error('Sample project not found');
       }
-      
+
       // 실제 DB에 저장
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();
-      
+
       try {
         const now = new Date();
-        
+
         const createdProject = await prisma.project.create({
           data: {
             title: selectedSample.title,
@@ -383,7 +383,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
             lastModified: now,
           }
         });
-        
+
         const sampleProject: Project = {
           id: createdProject.id,
           title: createdProject.title,
@@ -398,12 +398,12 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           lastModified: createdProject.lastModified,
           updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
         };
-        
+
         Logger.info('PROJECT_IPC', `샘플 프로젝트 생성됨: ${sampleProject.title}`, {
           genre: sampleProject.genre,
           wordCount: sampleProject.wordCount
         });
-        
+
         return {
           success: true,
           data: sampleProject,
@@ -426,11 +426,11 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:import-file', async (): Promise<IpcResponse<Project>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Starting file import process');
-      
+
       const { dialog } = require('electron');
       const fs = require('fs').promises;
       const path = require('path');
-      
+
       // 파일 선택 다이얼로그 열기
       const result = await dialog.showOpenDialog({
         title: 'Loop 프로젝트로 가져올 파일 선택',
@@ -441,7 +441,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         ],
         properties: ['openFile']
       });
-      
+
       if (result.canceled || !result.filePaths.length) {
         return {
           success: false,
@@ -449,15 +449,15 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           timestamp: new Date(),
         };
       }
-      
+
       const filePath = result.filePaths[0];
       const fileContent = await fs.readFile(filePath, 'utf-8');
       const fileName = path.basename(filePath, path.extname(filePath));
       const fileExtension = path.extname(filePath).toLowerCase();
-      
+
       // 파일 내용 분석
       const wordCount = fileContent.split(/\s+/).filter((word: string) => word.length > 0).length;
-      
+
       // 장르 추정 (파일 확장자 기반)
       let estimatedGenre = '일반';
       if (fileExtension === '.md' || fileExtension === '.markdown') {
@@ -467,14 +467,14 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
       } else if (fileName.includes('블로그') || fileName.includes('blog')) {
         estimatedGenre = '블로그';
       }
-      
+
       // 실제 DB에 저장
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();
-      
+
       try {
         const now = new Date();
-        
+
         const createdProject = await prisma.project.create({
           data: {
             title: fileName,
@@ -489,7 +489,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
             lastModified: now,
           }
         });
-        
+
         const importedProject: Project = {
           id: createdProject.id,
           title: createdProject.title,
@@ -504,13 +504,13 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           lastModified: createdProject.lastModified,
           updatedAt: createdProject.lastModified, // 🔥 lastModified를 updatedAt으로 사용
         };
-        
+
         Logger.info('PROJECT_IPC', `파일 가져오기 완료: ${fileName}`, {
           filePath,
           wordCount,
           genre: estimatedGenre
         });
-        
+
         return {
           success: true,
           data: importedProject,
@@ -534,7 +534,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
     try {
       Logger.debug('PROJECT_IPC', 'Opening external URL', { url });
       await shell.openExternal(url);
-      
+
       return {
         success: true,
         data: true,
@@ -551,18 +551,18 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   });
 
   // 🔥 캐릭터 관련 핸들러
-  
+
   // 프로젝트 캐릭터 조회
   ipcMain.handle('projects:get-characters', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<ProjectCharacter[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Getting project characters', { projectId });
-      
+
       const prisma = await prismaService.getClient();
       const characters = await prisma.projectCharacter.findMany({
         where: { projectId },
         orderBy: { sortOrder: 'asc' }
       });
-      
+
       // Prisma 결과를 ProjectCharacter 타입으로 변환
       const convertedCharacters: ProjectCharacter[] = characters.map(char => ({
         id: char.id,
@@ -583,7 +583,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: char.createdAt,
         updatedAt: char.updatedAt,
       }));
-      
+
       return {
         success: true,
         data: convertedCharacters,
@@ -603,7 +603,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:upsert-character', async (_event: IpcMainInvokeEvent, character: Partial<ProjectCharacter>): Promise<IpcResponse<ProjectCharacter>> => {
     try {
       const prisma = await prismaService.getClient();
-      
+
       const upsertedCharacter = await prisma.projectCharacter.upsert({
         where: { id: character.id || '' },
         update: {
@@ -642,7 +642,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           updatedAt: new Date(),
         },
       });
-      
+
       // Prisma 결과를 ProjectCharacter 타입으로 변환
       const convertedCharacter: ProjectCharacter = {
         id: upsertedCharacter.id,
@@ -663,9 +663,9 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: upsertedCharacter.createdAt,
         updatedAt: upsertedCharacter.updatedAt,
       };
-      
+
       Logger.info('PROJECT_IPC', '✅ Character upserted successfully', { id: convertedCharacter.id });
-      
+
       return {
         success: true,
         data: convertedCharacter,
@@ -685,13 +685,13 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:delete-character', async (_event: IpcMainInvokeEvent, characterId: string): Promise<IpcResponse<boolean>> => {
     try {
       const prisma = await prismaService.getClient();
-      
+
       await prisma.projectCharacter.delete({
         where: { id: characterId }
       });
-      
+
       Logger.info('PROJECT_IPC', '✅ Character deleted successfully', { characterId });
-      
+
       return {
         success: true,
         data: true,
@@ -708,18 +708,18 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   });
 
   // 🔥 구조 관련 핸들러
-  
+
   // 프로젝트 구조 조회
   ipcMain.handle('projects:get-structure', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<ProjectStructure[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Getting project structure', { projectId });
-      
+
       const prisma = await prismaService.getClient();
       const structure = await prisma.projectStructure.findMany({
         where: { projectId },
         orderBy: { sortOrder: 'asc' }
       });
-      
+
       // Prisma 결과를 ProjectStructure 타입으로 변환
       const convertedStructure: ProjectStructure[] = structure.map(item => ({
         id: item.id,
@@ -738,7 +738,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
       }));
-      
+
       return {
         success: true,
         data: convertedStructure,
@@ -758,7 +758,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:upsert-structure', async (_event: IpcMainInvokeEvent, structure: Partial<ProjectStructure>): Promise<IpcResponse<ProjectStructure>> => {
     try {
       const prisma = await prismaService.getClient();
-      
+
       const upsertedStructure = await prisma.projectStructure.upsert({
         where: { id: structure.id || '' },
         update: {
@@ -793,7 +793,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           updatedAt: new Date(),
         },
       });
-      
+
       // ProjectStructure 타입으로 변환
       const convertedStructure: ProjectStructure = {
         id: upsertedStructure.id,
@@ -812,9 +812,9 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: upsertedStructure.createdAt,
         updatedAt: upsertedStructure.updatedAt,
       };
-      
+
       Logger.info('PROJECT_IPC', '✅ Structure upserted successfully', { id: convertedStructure.id });
-      
+
       return {
         success: true,
         data: convertedStructure,
@@ -831,18 +831,18 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   });
 
   // 🔥 메모 관련 핸들러
-  
+
   // 프로젝트 메모 조회
   ipcMain.handle('projects:get-notes', async (_event: IpcMainInvokeEvent, projectId: string): Promise<IpcResponse<any[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Getting project notes', { projectId });
-      
+
       const prisma = await prismaService.getClient();
       const notes = await prisma.projectNote.findMany({
         where: { projectId },
         orderBy: { createdAt: 'desc' }
       });
-      
+
       return {
         success: true,
         data: notes,
@@ -862,7 +862,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:upsert-note', async (_event: IpcMainInvokeEvent, note: Partial<ProjectNote>): Promise<IpcResponse<ProjectNote>> => {
     try {
       const prisma = await prismaService.getClient();
-      
+
       const upsertedNote = await prisma.projectNote.upsert({
         where: { id: note.id || '' },
         update: {
@@ -891,7 +891,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           updatedAt: new Date(),
         },
       });
-      
+
       // ProjectNote 타입으로 변환
       const convertedNote: ProjectNote = {
         id: upsertedNote.id,
@@ -907,9 +907,9 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: upsertedNote.createdAt,
         updatedAt: upsertedNote.updatedAt,
       };
-      
+
       Logger.info('PROJECT_IPC', '✅ Note upserted successfully', { id: convertedNote.id });
-      
+
       return {
         success: true,
         data: convertedNote,
@@ -929,17 +929,17 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:update-characters', async (_event: IpcMainInvokeEvent, projectId: string, characters: ProjectCharacter[]): Promise<IpcResponse<ProjectCharacter[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Updating project characters', { projectId, count: characters.length });
-      
+
       const prisma = await prismaService.getClient();
-      
+
       // 🔥 기존 캐릭터들 삭제 후 새로 생성 (간단한 방법)
       await prisma.projectCharacter.deleteMany({
         where: { projectId }
       });
-      
+
       // 🔥 새 캐릭터들 생성
       const createdCharacters = await Promise.all(
-        characters.map(character => 
+        characters.map(character =>
           prisma.projectCharacter.create({
             data: {
               id: character.id,
@@ -951,7 +951,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           })
         )
       );
-      
+
       const convertedCharacters: ProjectCharacter[] = createdCharacters.map(char => ({
         id: char.id,
         projectId: char.projectId,
@@ -961,9 +961,9 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: char.createdAt,
         updatedAt: char.updatedAt,
       }));
-      
+
       Logger.info('PROJECT_IPC', `✅ Characters updated successfully`, { count: convertedCharacters.length });
-      
+
       return {
         success: true,
         data: convertedCharacters,
@@ -983,17 +983,17 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
   ipcMain.handle('projects:update-notes', async (_event: IpcMainInvokeEvent, projectId: string, notes: ProjectNote[]): Promise<IpcResponse<ProjectNote[]>> => {
     try {
       Logger.debug('PROJECT_IPC', 'Updating project notes', { projectId, count: notes.length });
-      
+
       const prisma = await prismaService.getClient();
-      
+
       // 🔥 기존 노트들 삭제 후 새로 생성 (간단한 방법)
       await prisma.projectNote.deleteMany({
         where: { projectId }
       });
-      
+
       // 🔥 새 노트들 생성
       const createdNotes = await Promise.all(
-        notes.map(note => 
+        notes.map(note =>
           prisma.projectNote.create({
             data: {
               id: note.id,
@@ -1005,7 +1005,7 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
           })
         )
       );
-      
+
       const convertedNotes: ProjectNote[] = createdNotes.map(note => ({
         id: note.id,
         projectId: note.projectId,
@@ -1015,9 +1015,9 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
       }));
-      
+
       Logger.info('PROJECT_IPC', `✅ Notes updated successfully`, { count: convertedNotes.length });
-      
+
       return {
         success: true,
         data: convertedNotes,
@@ -1035,4 +1035,3 @@ Loop과 함께 작가의 꿈을 실현해보세요! 🚀`,
 
   Logger.info('PROJECT_IPC', '✅ Project IPC handlers setup complete with Prisma DB integration');
 }
-0

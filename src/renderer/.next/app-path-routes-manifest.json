@@ -2,9 +2,9 @@
   "/_not-found/page": "/_not-found",
   "/ai/page": "/ai",
   "/analytics/page": "/analytics",
-  "/page": "/",
-  "/projects/page": "/projects",
   "/oauth/callback/page": "/oauth/callback",
+  "/projects/page": "/projects",
+  "/page": "/",
   "/settings/page": "/settings",
   "/projects/[id]/page": "/projects/[id]"
 }

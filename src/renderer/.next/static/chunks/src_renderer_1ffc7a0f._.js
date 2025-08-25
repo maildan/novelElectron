@@ -1278,9 +1278,10 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
         onBlur?.(event);
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$shared$2f$logger$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Logger"].debug('TEXTAREA', 'Blurred');
     };
-    const labelId = label ? `textarea-label-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const errorId = error ? `textarea-error-${Math.random().toString(36).substr(2, 9)}` : undefined;
-    const helperId = helperText ? `textarea-helper-${Math.random().toString(36).substr(2, 9)}` : undefined;
+    const _uid = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"])();
+    const labelId = label ? `textarea-${_uid}-label` : undefined;
+    const errorId = error ? `textarea-${_uid}-error` : undefined;
+    const helperId = helperText ? `textarea-${_uid}-helper` : undefined;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "w-full",
         children: [
@@ -1295,13 +1296,13 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
                         children: "*"
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                        lineNumber: 157,
+                        lineNumber: 158,
                         columnNumber: 26
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                lineNumber: 151,
+                lineNumber: 152,
                 columnNumber: 11
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1323,7 +1324,7 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
                         ...props
                     }, void 0, false, {
                         fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                        lineNumber: 163,
+                        lineNumber: 164,
                         columnNumber: 11
                     }, this),
                     (showCount || maxLength) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1334,13 +1335,13 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                        lineNumber: 184,
+                        lineNumber: 185,
                         columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                lineNumber: 162,
+                lineNumber: 163,
                 columnNumber: 9
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1350,7 +1351,7 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
                 children: error
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                lineNumber: 192,
+                lineNumber: 193,
                 columnNumber: 11
             }, this),
             helperText && !error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1359,16 +1360,24 @@ const Textarea = /*#__PURE__*/ _s((0, __TURBOPACK__imported__module__$5b$project
                 children: helperText
             }, void 0, false, {
                 fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-                lineNumber: 203,
+                lineNumber: 204,
                 columnNumber: 11
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/renderer/components/ui/Textarea.tsx",
-        lineNumber: 148,
+        lineNumber: 149,
         columnNumber: 7
     }, this);
-}, "Z933uNcC4alteb1LdSmieEFESKA=")), "Z933uNcC4alteb1LdSmieEFESKA=");
+}, "Ojx2U4BScKkCfKNekz8otBTwcqY=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"]
+    ];
+})), "Ojx2U4BScKkCfKNekz8otBTwcqY=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"]
+    ];
+});
 _c1 = Textarea;
 Textarea.displayName = 'Textarea';
 var _c, _c1;

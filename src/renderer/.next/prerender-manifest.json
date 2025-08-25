@@ -1,7 +1,7 @@
 {
   "version": 4,
   "routes": {
-    "/": {
+    "/oauth/callback": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -14,8 +14,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/",
-      "dataRoute": "/index.rsc",
+      "srcRoute": "/oauth/callback",
+      "dataRoute": "/oauth/callback.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/ai": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/ai",
+      "dataRoute": "/ai.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -40,30 +64,6 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/analytics",
       "dataRoute": "/analytics.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/oauth/callback": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/oauth/callback",
-      "dataRoute": "/oauth/callback.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -121,7 +121,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/ai": {
+    "/": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -134,8 +134,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/ai",
-      "dataRoute": "/ai.rsc",
+      "srcRoute": "/",
+      "dataRoute": "/index.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -271,8 +271,8 @@
   },
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "c3d8db6fcd9774f6b51490e22aa126ac",
-    "previewModeSigningKey": "6d4afed08eec7a519fd4b23f2e9752b260c5c016bd0ce5c5b9c56b83f339fdc0",
-    "previewModeEncryptionKey": "267070a3ae5a926b000d05870a7f07052e58866dff4826d0bd411bbb6d85773e"
+    "previewModeId": "5dae2bf5bc9c8fe4e5d93c5eaf4b2c33",
+    "previewModeSigningKey": "1e7f7d2e3fc50ce0279a943930bef2e51677063b35db5baa9a799523a6187e93",
+    "previewModeEncryptionKey": "4c4a1a7fbbf04ca8e746fe4d2d3e680fab6314ba2e21d5efc8443ca863b2909c"
   }
 }

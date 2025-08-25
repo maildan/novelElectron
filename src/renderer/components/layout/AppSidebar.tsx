@@ -122,7 +122,8 @@ export function AppSidebar({
   const { auth: googleUserInfo, loadAuthStatus } = useAuth();
 
   // 🔥 온라인/오프라인 상태
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  // 초기값은 서버와 동일하게 false로 설정해 hydration mismatch를 방지합니다.
+  const [isOnline, setIsOnline] = useState<boolean>(false);
 
   // Auth state is provided by AuthContext; no local loadAuthStatus here to avoid races
 
@@ -130,6 +131,15 @@ export function AppSidebar({
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+
+    // 마운트 시 실제 온라인 상태로 동기화
+    try {
+      if (typeof window !== 'undefined') {
+        setIsOnline(navigator.onLine);
+      }
+    } catch (e) {
+      // ignore
+    }
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);

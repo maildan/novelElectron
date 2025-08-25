@@ -47,9 +47,9 @@ class PrismaService {
       const path = await import('path');
       const { app } = await import('electron');
       const fs = await import('fs');
-      
+
       let dbPath: string;
-      if (app.isPackaged) { 
+      if (app.isPackaged) {
         // 패키징된 앱에서는 app.getPath('userData') 사용
         dbPath = path.join(app.getPath('userData'), 'loop.db');
       } else {
@@ -75,12 +75,12 @@ class PrismaService {
             const tmp = new PrismaClient({ datasources: { db: { url: `file:${devPath}` } }, log: [] });
             devCount = await tmp.project.count();
             await tmp.$disconnect();
-          } catch {}
+          } catch { }
           try {
             const tmp = new PrismaClient({ datasources: { db: { url: `file:${loopPath}` } }, log: [] });
             loopCount = await tmp.project.count();
             await tmp.$disconnect();
-          } catch {}
+          } catch { }
           dbPath = (loopCount > devCount) ? loopPath : devPath;
           Logger.info('PRISMA_SERVICE', `🔀 개발용 DB 선택 (dev=${devCount}, loop=${loopCount}) → ${dbPath}`);
         } else if (devPath) {
@@ -91,7 +91,7 @@ class PrismaService {
           dbPath = path.resolve(process.cwd(), 'prisma/dev.db');
         }
       }
-      
+
       Logger.info('PRISMA_SERVICE', `🔍 DB 경로 설정: ${dbPath}`);
       Logger.info('PRISMA_SERVICE', `🔍 DB 파일 존재: ${fs.existsSync(dbPath)}`);
       Logger.info('PRISMA_SERVICE', `🔍 현재 작업 디렉토리: ${process.cwd()}`);
@@ -169,7 +169,7 @@ class PrismaService {
     operations: Array<() => Promise<T>>
   ): Promise<T[]> {
     const client = await this.getClient();
-    
+
     return await client.$transaction(async (tx) => {
       const results: T[] = [];
       for (const operation of operations) {
@@ -193,7 +193,7 @@ class PrismaService {
     }
   ): Promise<void> {
     const client = await this.getClient();
-    
+
     await client.$transaction(async (tx) => {
       Logger.debug('PRISMA_SERVICE', 'Starting project save transaction', {
         projectId: projectData.project.id,
@@ -256,7 +256,7 @@ class PrismaService {
    * 🔥 실시간 저장을 위한 debounced 저장 시스템
    */
   private saveQueue = new Map<string, NodeJS.Timeout>();
-  
+
   public async debouncedSave(
     projectId: string,
     saveFunction: () => Promise<void>,
