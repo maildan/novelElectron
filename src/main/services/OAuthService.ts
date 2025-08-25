@@ -7,6 +7,9 @@ import { GOOGLE_OAUTH_CONFIG } from '../types/oauth';
 import { shell } from 'electron';
 import { createHash, randomBytes } from 'crypto';
 import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
+import { app as electronApp } from 'electron';
 
 // 🔥 OAuth 상태 인터페이스
 interface OAuthState {
@@ -537,19 +540,49 @@ export class OAuthService extends BaseManager {
   }
 
   private async refreshAccessToken(): Promise<void> {
-    if (!this.oauthState.refreshToken) {
+    // allow using env refresh token as fallback for development
+    const refreshToken = this.oauthState.refreshToken || process.env.GOOGLE_REFRESH_TOKEN;
+    if (!refreshToken) {
       throw new Error('No refresh token available');
     }
-
-    const response = await axios.post(GOOGLE_OAUTH_CONFIG.tokenUrl, {
-      client_id: GOOGLE_OAUTH_CONFIG.clientId,
-      client_secret: GOOGLE_OAUTH_CONFIG.clientSecret,
-      refresh_token: this.oauthState.refreshToken,
-      grant_type: 'refresh_token',
-    });
+    // Retry with exponential backoff
+    let attempt = 0;
+    let lastErr: any = null;
+    let response: any = null;
+    while (attempt < 3) {
+      try {
+        response = await axios.post(GOOGLE_OAUTH_CONFIG.tokenUrl, {
+          client_id: GOOGLE_OAUTH_CONFIG.clientId,
+          client_secret: GOOGLE_OAUTH_CONFIG.clientSecret,
+          refresh_token: refreshToken,
+          grant_type: 'refresh_token',
+        });
+        break;
+      } catch (err) {
+        lastErr = err;
+        const backoff = Math.pow(2, attempt) * 250; // 250ms, 500ms, 1000ms
+        Logger.warn(this.componentName, `Refresh access token attempt ${attempt + 1} failed, retrying in ${backoff}ms`, err);
+        await new Promise((r) => setTimeout(r, backoff));
+        attempt++;
+      }
+    }
+    if (!response) {
+      throw lastErr || new Error('Failed to refresh access token');
+    }
 
     this.oauthState.accessToken = response.data.access_token;
+    this.oauthState.refreshToken = this.oauthState.refreshToken || refreshToken;
     this.oauthState.expiresAt = new Date(Date.now() + (response.data.expires_in * 1000));
+
+    // After refresh, fetch user info to update snapshot
+    try {
+      const userInfo = await this.getUserInfo(this.oauthState.accessToken as string);
+      if (userInfo.email) this.oauthState.userEmail = userInfo.email;
+      if (userInfo.name) (this.oauthState as any).userName = userInfo.name;
+      if (userInfo.picture) (this.oauthState as any).userPicture = userInfo.picture;
+    } catch (e) {
+      Logger.warn(this.componentName, 'Failed to fetch user info after refresh', e);
+    }
 
     await this.saveTokens();
   }
@@ -603,6 +636,12 @@ export class OAuthService extends BaseManager {
       };
 
       Logger.info(this.componentName, 'Loaded OAuth tokens from keychain', { userEmail: this.oauthState.userEmail });
+      // persist non-secret auth snapshot for preload synchronous access
+      try {
+        await this.writeAuthSnapshot();
+      } catch (e) {
+        Logger.warn(this.componentName, 'Failed to write auth snapshot after loading tokens', e);
+      }
     } catch (error) {
       Logger.warn(this.componentName, 'Failed to load stored tokens (keytar)', error);
     }
@@ -628,6 +667,12 @@ export class OAuthService extends BaseManager {
 
       await keytar.setPassword(service, account, payload);
       Logger.info(this.componentName, 'Saved OAuth tokens to keychain', { userEmail: this.oauthState.userEmail });
+      // update non-sensitive auth snapshot for renderer preload
+      try {
+        await this.writeAuthSnapshot();
+      } catch (e) {
+        Logger.warn(this.componentName, 'Failed to write auth snapshot after saving tokens', e);
+      }
     } catch (error) {
       Logger.warn(this.componentName, 'Failed to save tokens to keychain', error);
     }
@@ -645,6 +690,11 @@ export class OAuthService extends BaseManager {
       const account = 'google';
       await keytar.deletePassword(service, account);
       Logger.info(this.componentName, 'Cleared stored OAuth tokens from keychain');
+      try {
+        await this.writeAuthSnapshot();
+      } catch (e) {
+        Logger.warn(this.componentName, 'Failed to write auth snapshot after clearing tokens', e);
+      }
     } catch (error) {
       Logger.warn(this.componentName, 'Failed to clear stored tokens (keytar)', error);
     }
@@ -703,11 +753,44 @@ export class OAuthService extends BaseManager {
         };
 
         Logger.info(this.componentName, 'OAuth tokens loaded from environment (access token)');
+        try {
+          await this.writeAuthSnapshot();
+        } catch (e) {
+          Logger.warn(this.componentName, 'Failed to write auth snapshot after bootstrapFromEnv', e);
+        }
       } else {
         Logger.debug(this.componentName, 'No OAuth tokens found in environment variables');
       }
     } catch (error) {
       Logger.error(this.componentName, 'Failed to bootstrap tokens from environment', error);
+    }
+  }
+
+  /**
+   * Write a minimal, non-sensitive auth snapshot file for preload to read synchronously.
+   * This file MUST NOT contain tokens. It only contains isAuthenticated, userEmail, userName, userPicture.
+   */
+  private async writeAuthSnapshot(): Promise<void> {
+    try {
+      const snapshot = {
+        isAuthenticated: !!this.oauthState.isAuthenticated,
+        userEmail: this.oauthState.userEmail || null,
+        userName: (this.oauthState as any).userName || null,
+        userPicture: (this.oauthState as any).userPicture || null,
+      };
+      let baseDir = process.cwd();
+      try {
+        if (electronApp && typeof electronApp.getPath === 'function') {
+          baseDir = electronApp.getPath('userData');
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      const filePath = path.join(baseDir, '.auth_snapshot.json');
+      fs.writeFileSync(filePath, JSON.stringify(snapshot), { encoding: 'utf-8', mode: 0o600 });
+    } catch (error) {
+      Logger.warn(this.componentName, 'Failed to write auth snapshot file', error);
     }
   }
 

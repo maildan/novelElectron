@@ -26,9 +26,19 @@ const getDefaultAuth = (): AuthState => ({ isAuthenticated: false });
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [auth, setAuthState] = useState<AuthState>(getDefaultAuth());
-    const [loaded, setLoaded] = useState<boolean>(false);
+export function AuthProvider({ children, initialAuth }: { children: React.ReactNode; initialAuth?: any }) {
+    const [auth, setAuthState] = useState<AuthState>(() => {
+        if (initialAuth && initialAuth.isAuthenticated) {
+            return {
+                isAuthenticated: true,
+                userEmail: initialAuth.userEmail || undefined,
+                userName: initialAuth.userName || undefined,
+                userPicture: initialAuth.userPicture || undefined,
+            } as AuthState;
+        }
+        return getDefaultAuth();
+    });
+    const [loaded, setLoaded] = useState<boolean>(() => !!(initialAuth));
     const latestLoadId = React.useRef(0);
 
     const setAuth = useCallback((next: Partial<AuthState>) => {
@@ -49,11 +59,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (res && res.success && res.data && res.data.isAuthenticated) {
                 const email = res.data.userEmail;
+                const picture = res.data.userPicture || (email ? `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=4f46e5&color=fff&size=64` : undefined);
                 setAuthState({
                     isAuthenticated: true,
                     userEmail: email,
                     userName: email ? email.split('@')[0] : res.data.userName || 'Google 사용자',
-                    userPicture: email ? `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=4f46e5&color=fff&size=64` : undefined,
+                    userPicture: picture,
                 });
                 Logger.info('AUTH_CONTEXT', 'Auth status loaded', { userEmail: email });
             } else {
@@ -72,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     useEffect(() => {
-        // start loading auth state on client mount
+        // start loading auth state on client mount to validate/refresh tokens
         loadAuthStatus();
 
         if (typeof window !== 'undefined' && window.electronAPI?.on) {

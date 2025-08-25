@@ -126,6 +126,9 @@ export function AppSidebar({
   // Ensures server and initial client HTML match (no hydration mismatch).
   const [mounted, setMounted] = useState<boolean>(false);
 
+  // use auth from AuthContext as single source of truth to avoid hydration mismatch
+  const visibleProfile = googleUserInfo;
+
   // 🔥 온라인/오프라인 상태
   // 서버에서 렌더링된 초기 HTML과 일치시키기 위해 초기값은 항상 false로 설정합니다.
   const [isOnline, setIsOnline] = useState<boolean>(false);
@@ -167,6 +170,8 @@ export function AppSidebar({
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // no extra sync needed - AuthContext bootstraps initial state from server
 
   const handleToggleCollapse = (): void => {
     if (isControlled) {
@@ -264,8 +269,8 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              {mounted && authLoaded && googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
-                <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-7 h-7 rounded-full object-cover transition-opacity duration-200" />
+              {visibleProfile && visibleProfile.isAuthenticated && visibleProfile.userPicture ? (
+                <img src={visibleProfile.userPicture} alt={visibleProfile.userName || 'User'} className="w-7 h-7 rounded-full object-cover transition-opacity duration-200" />
               ) : (
                 // skeleton for collapsed avatar
                 <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
@@ -309,8 +314,8 @@ export function AppSidebar({
               tabIndex={0}
               aria-label="사용자 프로필"
             >
-              {mounted && authLoaded && googleUserInfo.isAuthenticated && googleUserInfo.userPicture ? (
-                <img src={googleUserInfo.userPicture} alt={googleUserInfo.userName || 'User'} className="w-8 h-8 rounded-full object-cover transition-opacity duration-200" />
+              {visibleProfile && visibleProfile.isAuthenticated && visibleProfile.userPicture ? (
+                <img src={visibleProfile.userPicture} alt={visibleProfile.userName || 'User'} className="w-8 h-8 rounded-full object-cover transition-opacity duration-200" />
               ) : (
                 // skeleton for expanded avatar
                 <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
@@ -318,18 +323,18 @@ export function AppSidebar({
               <div className="flex-1">
                 <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{
                   // skeleton for name until mounted+authLoaded
-                  !(mounted && authLoaded) ? (
+                  !visibleProfile ? (
                     <div className="h-4 w-28 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
                   ) : (
-                    (googleUserInfo.isAuthenticated ? (googleUserInfo.userName || googleUserInfo.userEmail) : 'Loop 사용자')
+                    (visibleProfile.isAuthenticated ? (visibleProfile.userName || visibleProfile.userEmail) : 'Loop 사용자')
                   )
                 }</div>
                 <div className="flex items-center gap-1 mt-0.5">
                   <div className={isOnline ? 'w-1.5 h-1.5 bg-green-500 rounded-full' : 'w-1.5 h-1.5 bg-gray-400 rounded-full'} />
                   <span suppressHydrationWarning className="text-xs text-slate-500 dark:text-slate-400">{isOnline ? '온라인' : '오프라인'}</span>
                 </div>
-                {mounted && authLoaded && googleUserInfo.isAuthenticated && googleUserInfo.userEmail && (
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 transition-opacity duration-200">{googleUserInfo.userEmail}</div>
+                {visibleProfile && visibleProfile.isAuthenticated && visibleProfile.userEmail && (
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 transition-opacity duration-200">{visibleProfile.userEmail}</div>
                 )}
               </div>
             </div>

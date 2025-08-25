@@ -1,4 +1,6 @@
 import { contextBridge, ipcRenderer, nativeTheme } from 'electron';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   IPC_CHANNELS,
   IpcResponse,
@@ -156,11 +158,25 @@ contextBridge.exposeInMainWorld('loopSnapshot', {
     try {
       const theme = nativeTheme ? (nativeTheme.shouldUseDarkColors ? 'dark' : 'light') : 'light';
       const online = typeof navigator !== 'undefined' ? navigator.onLine : true;
-      return {
-        theme,
-        online,
-        platform: process.platform,
-      };
+      const snapshot: any = { theme, online, platform: process.platform };
+      try {
+        const snapPath = path.join(process.cwd(), '.auth_snapshot.json');
+        if (fs.existsSync(snapPath)) {
+          const raw = fs.readFileSync(snapPath, { encoding: 'utf-8' });
+          const auth = JSON.parse(raw);
+          // Only include non-sensitive fields
+          snapshot.auth = {
+            isAuthenticated: !!auth.isAuthenticated,
+            userEmail: auth.userEmail || null,
+            userName: auth.userName || null,
+            userPicture: auth.userPicture || null,
+          };
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      return snapshot;
     } catch (e) {
       return { theme: 'light', online: true, platform: process.platform };
     }
